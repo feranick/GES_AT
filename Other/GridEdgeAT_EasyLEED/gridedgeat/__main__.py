@@ -7,7 +7,6 @@ from .gui import MainWindow
 def main():
     app = QApplication(sys.argv)
     form = MainWindow()
-    form.show()
     app.exec_()
 
 if __name__ == "__main__":
