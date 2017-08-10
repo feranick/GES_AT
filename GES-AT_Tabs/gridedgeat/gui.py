@@ -63,6 +63,8 @@ class MainWindow(QMainWindow):
         #self.enableProcessActions(False)
         helpMenu = self.menuBar().addMenu("&Help")
         self.addActions(helpMenu, self.helpActions)
+        #### Create status bar ####
+        self.statusBar().showMessage("Ready", 5000)
 
     def createAction(self, text, slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):
