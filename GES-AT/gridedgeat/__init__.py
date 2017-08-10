@@ -1,7 +1,7 @@
 """ 
 The GridEdgeAT package is divided into several subpackages:
 
-- io: Input/Output functionality
+- camera: Camera functionality
 - gui: Graphical User Interface
 
 .. automodule:: gridedgeat.gui
@@ -27,5 +27,5 @@ logger = logging.getLogger()
 
 from . import qt
 from . import gui
-from . import io
+from . import camera
 

@@ -6,7 +6,8 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar)
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
+    QPixmap)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
 from .qt import qt_filedialog_convert
@@ -14,7 +15,7 @@ from .qt import qt_filedialog_convert
 from . import config
 from . import __version__
 from . import __author__
-from .io import *
+from .camera import *
 
 
 '''
@@ -39,13 +40,13 @@ class MainWindow(QMainWindow):
      
         #### define actions ####
         # actions for "File" menu
-        self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
-                QKeySequence.Open, None,
-                "Open a directory containing the image files.")
+        #self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
+        #        QKeySequence.Open, None,
+        #        "Open a directory containing the image files.")
         self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
                 QKeySequence("Ctrl+q"), None,
                 "Close the application.")
-        self.fileActions = [None, self.fileOpenAction, None, self.fileQuitAction]
+        self.fileActions = [None, self.fileQuitAction]
                 
         # actions for "Help" menu
         self.helpAction = self.createAction("&Help", self.weblinks.help,
@@ -60,8 +61,17 @@ class MainWindow(QMainWindow):
         self.helpActions = [None, self.helpAction, None, self.aboutAction,
                 None, self.devAction]
                 
+        #### Create menu bar ####
+        fileMenu = self.menuBar().addMenu("&File")
+        self.addActions(fileMenu, self.fileActions)
+        #processMenu = self.menuBar().addMenu("&Process")
+        #self.addActions(processMenu, self.processActions)
+        #self.enableProcessActions(False)
+        helpMenu = self.menuBar().addMenu("&Help")
+        self.addActions(helpMenu, self.helpActions)
+                
         #### define actions ####
-        # actions for "File" menu
+        # actions for "Buttons" menu
         self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition panel")
@@ -72,14 +82,6 @@ class MainWindow(QMainWindow):
                 QKeySequence("Ctrl+c"), None,
                 "Camera panel")
     
-        #### Create menu bar ####
-        fileMenu = self.menuBar().addMenu("&File")
-        self.addActions(fileMenu, self.fileActions)
-        #processMenu = self.menuBar().addMenu("&Process")
-        #self.addActions(processMenu, self.processActions)
-        #self.enableProcessActions(False)
-        helpMenu = self.menuBar().addMenu("&Help")
-        self.addActions(helpMenu, self.helpActions)
     
         #### Create tool bar ####
         toolBar = self.addToolBar("&Toolbar")
@@ -180,19 +182,19 @@ class CameraWindow(QMainWindow):
         self.setGeometry(100, 500, 400, 400)
         self.setWindowTitle('Camera Panel')
         self.statusBar().showMessage("Camera: Ready", 5000)
+        #layout = QVBoxLayout()
+        tb = self.addToolBar("Camera")
+        new = QAction(QIcon(QPixmap()),"Get Camera Feed",self)
+        new.setShortcut('Ctrl+c')
+        new.setStatusTip('Get Camera Feed')
+        tb.addAction(new)
+        tb.actionTriggered[QAction].connect(self.cameraFeed)
+        #self.setLayout(layout)
+    
 
-    def fileOpen(self):
-        self.show()
+    def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
 
-
-        try:
-            files = qt_filedialog_convert(QFileDialog.getOpenFileNames(self,
-                    "Open image",
-                    filter="Image files (%s)" % (" ".join(AllImageLoader.supported_extensions()))))
-            self.loader = AllImageLoader(files, "[0-9]*\.?[0-9]+(?=\.)")
-        except IOError as err:
-            self.statusBar().showMessage('IOError: ' + str(err), 5000)
 
 '''
    WebLinks Widget
