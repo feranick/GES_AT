@@ -2,7 +2,9 @@
 import time, sys
 import numpy as np
 from PIL import Image
+from PIL.ImageQt import ImageQt
 from datetime import datetime
+#from .qt.QtGui import (QImage,QImageReader)
 
 class CameraFeed():
     def __init__(self):
@@ -56,6 +58,7 @@ class CameraFeedTemp():
     def __init__(self):
         self.image_folder = "images/"
         self.color_image = "imagecolor.png"
+        self.image_path = self.image_folder + self.color_image
 
     def get_image(self):
         return 0
@@ -64,8 +67,10 @@ class CameraFeedTemp():
         return 0
         
     def open_image(self):
-        self.imgg = Image.open(self.image_folder + self.color_image).convert('L')
-        self.imgg.show()
+        #self.imgg = QImage(QImageReader(self.image_path).read())
+        self.imgg = ImageQt(Image.open(self.image_path).convert('L'))
+        #self.imgg.show()
+        return self.imgg
 
     def check_alignment(self):
         sumint=np.sum(self.imgg)
@@ -75,5 +80,5 @@ class CameraFeedTemp():
             print ('Devices and mask are properly aligned')
 
     def color_image_name(self):
-        return self.image_folder + self.color_image
+        return self.image_path
 

@@ -7,9 +7,9 @@ Various classes for providing a graphical user interface.
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap)
-from .qt.QtGui import QIcon
-from .qt.QtCore import pyqtSlot
+    QPixmap,QGraphicsScene,QPainter)
+from .qt.QtGui import (QIcon,QImage)
+from .qt.QtCore import (pyqtSlot,QRectF)
 from .qt import qt_filedialog_convert
 
 from . import config
@@ -127,22 +127,6 @@ class MainWindow(QMainWindow):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
 
-'''
-   GraphicsView
-   Definition of the View for Camera
-'''
-class GraphicsView(QGraphicsView):
-    """ Custom GraphicsView to display the scene. """
-    def __init__(self, parent=None):
-        super(GraphicsView, self).__init__(parent)
-        self.setRenderHints(QPainter.Antialiasing)
-    
-    def resizeEvent(self, event):
-        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
-    
-    def drawBackground(self, painter, rect):
-        painter.fillRect(rect, QBrush(Qt.lightGray))
-        self.scene().drawBackground(painter, rect)
 
 '''
    Acquisition Window
@@ -179,23 +163,31 @@ class CameraWindow(QMainWindow):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(100, 500, 400, 400)
+        self.setGeometry(100, 500, 660, 480)
         self.setWindowTitle('Camera Panel')
         self.statusBar().showMessage("Camera: Ready", 5000)
-        #layout = QVBoxLayout()
+        self.scene = GraphicsScene(self)
         tb = self.addToolBar("Camera")
         new = QAction(QIcon(QPixmap()),"Get Camera Feed",self)
         new.setShortcut('Ctrl+c')
         new.setStatusTip('Get Camera Feed')
         tb.addAction(new)
         tb.actionTriggered[QAction].connect(self.cameraFeed)
-        #self.setLayout(layout)
+        self.scene = GraphicsScene(self)
+        self.view = GraphicsView()
+        self.view.setScene(self.scene)
+        self.view.setMinimumSize(660, 480)
+        self.imageLabel = QLabel()
+        self.setCentralWidget(self.imageLabel)
+
+
     
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
         cam = CameraFeedTemp()
         try:
-            cam.open_image()
+            self.image = cam.open_image()
+            self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
         except:
             self.statusBar().showMessage(cam.color_image_name() + ' not found', 5000)
 
@@ -227,6 +219,7 @@ class AboutWidget(QWidget):
     def initUI(self):
         self.setGeometry(100, 200, 400, 200)
         self.setWindowTitle('About GridEdge AutoTesting')
+    
         self.gridLayout = QGridLayout()
         self.setLayout(self.gridLayout)
         self.verticalLayout = QVBoxLayout()
@@ -241,4 +234,50 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
+
+
+'''
+   GraphicsView
+   Definition of the View for Camera
+'''
+class GraphicsView(QGraphicsView):
+    """ Custom GraphicsView to display the scene. """
+    def __init__(self, parent=None):
+        super(GraphicsView, self).__init__(parent)
+        self.setRenderHints(QPainter.Antialiasing)
+    
+    def resizeEvent(self, event):
+        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+    
+    def drawBackground(self, painter, rect):
+        painter.fillRect(rect, QBrush(Qt.lightGray))
+        self.scene().drawBackground(painter, rect)
+
+'''
+   GraphicsScene
+   Definition of the View for Camera
+'''
+class GraphicsScene(QGraphicsScene):
+    """ Custom GraphicScene having all the main content."""
+
+    def __init__(self, parent=None):
+        super(GraphicsScene, self).__init__(parent)
+    
+    def drawBackground(self, painter, rect):
+        """ Draws image in background if it exists. """
+        if hasattr(self, "image"):
+            painter.drawImage(QPoint(0, 0), self.image)
+
+    def setBackground(self, image, labeltext):
+        """ Sets the background image. """
+        if not hasattr(self, 'imlabel'):
+            self.imlabel = QGraphicsSimpleTextItem(labeltext)
+            self.imlabel.setBrush(QBrush(Qt.white))
+            self.imlabel.setPos(5, 5)
+        if not hasattr(self,"image") or len(self.items()) < 1:
+            self.addItem(self.imlabel)
+        self.imlabel.setText(labeltext)
+        self.image = image
+        self.update()
+
 
