@@ -27,3 +27,5 @@ logger = logging.getLogger()
 
 from . import qt
 from . import gui
+from . import io
+

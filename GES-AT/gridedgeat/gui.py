@@ -14,6 +14,8 @@ from .qt import qt_filedialog_convert
 from . import config
 from . import __version__
 from . import __author__
+from .io import *
+
 
 '''
    Main Window
@@ -24,7 +26,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
-        
+    
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
@@ -34,9 +36,7 @@ class MainWindow(QMainWindow):
         self.plotwind = PlotWindow()
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
- 
-        #self.show()
-    
+     
         #### define actions ####
         # actions for "File" menu
         self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
@@ -185,17 +185,14 @@ class CameraWindow(QMainWindow):
         self.show()
         self.statusBar().showMessage("Not implemented yet")
 
-        """
+
         try:
             files = qt_filedialog_convert(QFileDialog.getOpenFileNames(self,
-                    "Open images",
+                    "Open image",
                     filter="Image files (%s)" % (" ".join(AllImageLoader.supported_extensions()))))
-            self.loader = AllImageLoader(files, config.IO_energyRegex)
-            self.setImage(self.loader.next())
+            self.loader = AllImageLoader(files, "[0-9]*\.?[0-9]+(?=\.)")
         except IOError as err:
             self.statusBar().showMessage('IOError: ' + str(err), 5000)
-        """
-
 
 '''
    WebLinks Widget
