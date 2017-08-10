@@ -6,7 +6,7 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog)
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
 from .qt import qt_filedialog_convert
@@ -27,16 +27,16 @@ class MainWindow(QMainWindow):
         self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
             config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.aboutwid = AboutWidget()
-        self.acquisitionwid = AcquisitionWidget()
-        self.plotwid = PlotWidget()
-        self.camerawid = CameraWidget()
+        self.acquisitionwind = AcquisitionWindow()
+        self.plotwind = PlotWindow()
+        self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
  
         #self.show()
     
         #### define actions ####
         # actions for "File" menu
-        self.fileOpenAction = self.createAction("&Open...", self.camerawid.fileOpen,
+        self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
                 QKeySequence.Open, None,
                 "Open a directory containing the image files.")
         self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
@@ -59,13 +59,13 @@ class MainWindow(QMainWindow):
                 
         #### define actions ####
         # actions for "File" menu
-        self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwid.show,
+        self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition panel")
-        self.PlotAction = self.createAction("&Plots", self.plotwid.show,
+        self.PlotAction = self.createAction("&Plots", self.plotwind.show,
                 QKeySequence("Ctrl+p"), None,
                 "Plotting panel")
-        self.CameraAction = self.createAction("&Camera", self.camerawid.show,
+        self.CameraAction = self.createAction("&Camera", self.camerawind.show,
                 QKeySequence("Ctrl+c"), None,
                 "Camera panel")
     
@@ -140,6 +140,74 @@ class GraphicsView(QGraphicsView):
         self.scene().drawBackground(painter, rect)
 
 '''
+   Acquisition Window
+'''
+class AcquisitionWindow(QMainWindow):
+    def __init__(self):
+        super(AcquisitionWindow, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(100, 100, 400, 400)
+        self.setWindowTitle('Acquisition Panel')
+        self.statusBar().showMessage("Acquisition: Ready", 5000)
+
+'''
+   Plot Window
+'''
+class PlotWindow(QMainWindow):
+    def __init__(self):
+        super(PlotWindow, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(500, 100, 400, 400)
+        self.setWindowTitle('Plot Panel')
+        self.statusBar().showMessage("Plotting: Ready", 5000)
+
+'''
+   Camera Window
+'''
+class CameraWindow(QMainWindow):
+    def __init__(self):
+        super(CameraWindow, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(100, 500, 400, 400)
+        self.setWindowTitle('Camera Panel')
+        self.statusBar().showMessage("Camera: Ready", 5000)
+
+    def fileOpen(self):
+        self.show()
+        self.statusBar().showMessage("Not implemented yet")
+
+        """
+        try:
+            files = qt_filedialog_convert(QFileDialog.getOpenFileNames(self,
+                    "Open images",
+                    filter="Image files (%s)" % (" ".join(AllImageLoader.supported_extensions()))))
+            self.loader = AllImageLoader(files, config.IO_energyRegex)
+            self.setImage(self.loader.next())
+        except IOError as err:
+            self.statusBar().showMessage('IOError: ' + str(err), 5000)
+        """
+
+
+'''
+   WebLinks Widget
+   Definition of Web links
+'''
+class WebLinksWidget():
+    def __init__(self):
+        super(WebLinksWidget, self).__init__()
+
+    def help(self):
+        webbrowser.open("https://sites.google.com/site/gridedgesolar/")
+    def dev(self):
+        webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
+
+'''
    About Widget
    Definition of About Panel
 '''
@@ -167,72 +235,4 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
-
-'''
-   Acquisition Widget
-'''
-class AcquisitionWidget(QWidget):
-    """ PyQt widget for Acquisition Box Panel """
-    
-    def __init__(self):
-        super(AcquisitionWidget, self).__init__()
-        self.initUI()
-    
-    def initUI(self):
-        self.setGeometry(100, 100, 400, 400)
-        self.setWindowTitle('Acquisition Panel')
-
-'''
-   Plot Widget
-'''
-class PlotWidget(QWidget):
-    """ PyQt widget for Plot Panel """
-    
-    def __init__(self):
-        super(PlotWidget, self).__init__()
-        self.initUI()
-    
-    def initUI(self):
-        self.setGeometry(500, 100, 400, 400)
-        self.setWindowTitle('Plot Panel')
-
-'''
-   Camera Widget
-'''
-class CameraWidget(QWidget):
-    """ PyQt widget for Camera Panel """
-    
-    def __init__(self,parent=None):
-        super(CameraWidget, self).__init__(parent)
-        self.initUI()
-    
-    def initUI(self):
-        self.setGeometry(100, 500, 400, 400)
-        self.setWindowTitle('Camera Panel')
-    
-    def fileOpen(self):
-        self.show()        
-        """
-        try:
-            files = qt_filedialog_convert(QFileDialog.getOpenFileNames(self,
-                    "Open images",
-                    filter="Image files (%s)" % (" ".join(AllImageLoader.supported_extensions()))))
-            self.loader = AllImageLoader(files, config.IO_energyRegex)
-            self.setImage(self.loader.next())
-        except IOError as err:
-            self.MainWindow.statusBar().showMessage('IOError: ' + str(err), 5000)
-        """
-
-'''
-   WebLinks Widget
-   Definition of Web links
-'''
-class WebLinksWidget():
-    def __init__(self):
-        super(WebLinksWidget, self).__init__()
-
-    def help(self):
-        webbrowser.open("https://sites.google.com/site/gridedgesolar/")
-    def dev(self):
-        webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
 
