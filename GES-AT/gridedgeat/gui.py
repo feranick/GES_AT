@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
             config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.setCentralWidget(self.table_widget)
  
-        self.show()
+        #self.show()
     
         #### define actions ####
         # actions for "Help" menu
