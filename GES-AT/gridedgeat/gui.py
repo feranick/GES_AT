@@ -1,9 +1,8 @@
-"""
+'''
 gui.py
 -------------
-
 Various classes for providing a graphical user interface.
-"""
+'''
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
@@ -15,6 +14,10 @@ from . import config
 from . import __version__
 from . import __author__
 
+'''
+   Main Window
+   Definition of Main Panel
+'''
 class MainWindow(QMainWindow):
  
     def __init__(self):
@@ -85,6 +88,10 @@ class MainWindow(QMainWindow):
             else:
                 target.addAction(action)
 
+'''
+   Main Table Class
+   Definition of the Table for Tabs
+'''
 class MainTableWidget(QWidget):
  
     def __init__(self, parent):   
@@ -112,7 +119,10 @@ class MainTableWidget(QWidget):
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
-
+'''
+   GraphicsView
+   Definition of the View for Camera
+'''
 class GraphicsView(QGraphicsView):
     """ Custom GraphicsView to display the scene. """
     def __init__(self, parent=None):
@@ -126,7 +136,10 @@ class GraphicsView(QGraphicsView):
         painter.fillRect(rect, QBrush(Qt.lightGray))
         self.scene().drawBackground(painter, rect)
 
-
+'''
+   About Widget
+   Definition of About Panel
+'''
 class AboutWidget(QWidget):
     """ PyQt widget for About Box Panel """
     
@@ -152,6 +165,10 @@ class AboutWidget(QWidget):
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
 
+'''
+   WebLinks Widget
+   Definition of Web links
+'''
 class WebLinksWidget():
     def __init__(self):
         super(WebLinksWidget, self).__init__()
