@@ -6,7 +6,7 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QTabWidget,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence)
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
 
@@ -27,11 +27,6 @@ class MainWindow(QMainWindow):
             config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.aboutwid = AboutWidget()
         self.weblinks = WebLinksWidget()
-
-        self.table_widget = MainTableWidget(self)
-        self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
-            config.FinMainWindowWidth, config.FinMainWindowHeight)
-        self.setCentralWidget(self.table_widget)
  
         #self.show()
     
@@ -96,37 +91,6 @@ class MainWindow(QMainWindow):
     def fileQuit(self):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
-
-'''
-   Main Table Class
-   Definition of the Table for Tabs
-'''
-class MainTableWidget(QWidget):
- 
-    def __init__(self, parent):   
-        super(QWidget, self).__init__(parent)
-        self.layout = QVBoxLayout()
- 
-        # Initialize tab screen
-        self.tabs = QTabWidget()
-        self.tab1 = QWidget()	
-        self.tab2 = QWidget()
-        self.tab3 = QWidget()
-        self.tabs.resize(300,400)
- 
-        # Add tabs
-        self.tabs.addTab(self.tab1,"Main")
-        self.tabs.addTab(self.tab2,"Plots")
-        self.tabs.addTab(self.tab3,"Camera")
- 
-        self.tab1.layout = QVBoxLayout(self)
-        self.pushButton1 = QPushButton("Button")
-        self.tab1.layout.addWidget(self.pushButton1)
-        self.tab1.setLayout(self.tab1.layout)
- 
-        # Add tabs to widget        
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
 
 '''
    GraphicsView
