@@ -5,6 +5,7 @@ Various classes for providing a graphical user interface.
 '''
 
 import sys, webbrowser
+from datetime import datetime
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
     QPixmap,QGraphicsScene,QPainter)
@@ -16,7 +17,6 @@ from . import config
 from . import __version__
 from . import __author__
 from .camera import *
-
 
 '''
    Main Window
@@ -161,14 +161,14 @@ class CameraWindow(QMainWindow):
     def __init__(self):
         super(CameraWindow, self).__init__()
         self.initUI()
+        self.cameraFeed()
     
     def initUI(self):
         self.setGeometry(100, 500, 660, 480)
         self.setWindowTitle('Camera Panel')
         self.statusBar().showMessage("Camera: Ready", 5000)
-        self.scene = GraphicsScene(self)
         tb = self.addToolBar("Camera")
-        new = QAction(QIcon(QPixmap()),"Get Camera Feed",self)
+        new = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
         new.setShortcut('Ctrl+c')
         new.setStatusTip('Get Camera Feed')
         tb.addAction(new)
@@ -179,8 +179,6 @@ class CameraWindow(QMainWindow):
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
-
-
     
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
@@ -188,9 +186,10 @@ class CameraWindow(QMainWindow):
         try:
             self.image = cam.open_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
+            self.statusBar().showMessage(cam.color_image_name() + \
+                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
         except:
             self.statusBar().showMessage(cam.color_image_name() + ' not found', 5000)
-
 
 '''
    WebLinks Widget
