@@ -26,6 +26,9 @@ class MainWindow(QMainWindow):
         self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
             config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.aboutwid = AboutWidget()
+        self.acquisitionwid = AcquisitionWidget()
+        self.plotwid = PlotWidget()
+        self.camerawid = CameraWidget()
         self.weblinks = WebLinksWidget()
  
         #self.show()
@@ -49,6 +52,18 @@ class MainWindow(QMainWindow):
                 "About GridEdge AutoTesting")
         self.helpActions = [None, self.helpAction, None, self.aboutAction,
                 None, self.devAction]
+                
+        #### define actions ####
+        # actions for "File" menu
+        self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwid.show,
+                QKeySequence("Ctrl+r"), None,
+                "Acquisition panel")
+        self.PlotAction = self.createAction("&Plots", self.plotwid.show,
+                QKeySequence("Ctrl+p"), None,
+                "Plotting panel")
+        self.CameraAction = self.createAction("&Camera", self.camerawid.show,
+                QKeySequence("Ctrl+c"), None,
+                "Camera panel")
     
         #### Create menu bar ####
         fileMenu = self.menuBar().addMenu("&File")
@@ -58,6 +73,17 @@ class MainWindow(QMainWindow):
         #self.enableProcessActions(False)
         helpMenu = self.menuBar().addMenu("&Help")
         self.addActions(helpMenu, self.helpActions)
+    
+        #### Create tool bar ####
+        toolBar = self.addToolBar("&Toolbar")
+        # adding actions to the toolbar, addActions-function creates a separator with "None"
+        self.toolBarActions = [self.AcquisitionAction, None, self.PlotAction, None,
+                               self.CameraAction, None]
+        self.addActions(toolBar, self.toolBarActions)
+        
+        #### Create status bar ####
+        self.statusBar().showMessage("Ready", 5000)
+
 
     def createAction(self, text, slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):
@@ -137,6 +163,48 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
+
+'''
+   Acquisition Widget
+'''
+class AcquisitionWidget(QWidget):
+    """ PyQt widget for Acquisition Box Panel """
+    
+    def __init__(self):
+        super(AcquisitionWidget, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(100, 100, 400, 400)
+        self.setWindowTitle('Acquisition Panel')
+
+'''
+   Plot Widget
+'''
+class PlotWidget(QWidget):
+    """ PyQt widget for Plot Panel """
+    
+    def __init__(self):
+        super(PlotWidget, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(500, 100, 400, 400)
+        self.setWindowTitle('Plot Panel')
+
+'''
+   Camera Widget
+'''
+class CameraWidget(QWidget):
+    """ PyQt widget for Camera Panel """
+    
+    def __init__(self):
+        super(CameraWidget, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(100, 500, 400, 400)
+        self.setWindowTitle('Camera Panel')
 
 '''
    WebLinks Widget
