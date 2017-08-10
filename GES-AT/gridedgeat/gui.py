@@ -6,7 +6,7 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QTabWidget,QVBoxLayout,QGridLayout,QLabel,QGraphicsView)
+    QTabWidget,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
 
@@ -36,6 +36,12 @@ class MainWindow(QMainWindow):
         #self.show()
     
         #### define actions ####
+        # actions for "File" menu
+        self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
+                QKeySequence("Ctrl+q"), None,
+                "Close the application.")
+        self.fileActions = [None, self.fileQuitAction]
+                
         # actions for "Help" menu
         self.helpAction = self.createAction("&Help", self.weblinks.help,
                 None, None,
@@ -50,8 +56,8 @@ class MainWindow(QMainWindow):
                 None, self.devAction]
     
         #### Create menu bar ####
-        #fileMenu = self.menuBar().addMenu("&File")
-        #self.addActions(fileMenu, self.fileActions)
+        fileMenu = self.menuBar().addMenu("&File")
+        self.addActions(fileMenu, self.fileActions)
         #processMenu = self.menuBar().addMenu("&Process")
         #self.addActions(processMenu, self.processActions)
         #self.enableProcessActions(False)
@@ -86,6 +92,10 @@ class MainWindow(QMainWindow):
                 target.addSeparator()
             else:
                 target.addAction(action)
+
+    def fileQuit(self):
+        """Special quit-function as the normal window closing might leave something on the background """
+        QApplication.closeAllWindows()
 
 '''
    Main Table Class
