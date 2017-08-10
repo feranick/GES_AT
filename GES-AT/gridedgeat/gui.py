@@ -6,9 +6,10 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence)
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
+from .qt import qt_filedialog_convert
 
 from . import config
 from . import __version__
@@ -35,10 +36,13 @@ class MainWindow(QMainWindow):
     
         #### define actions ####
         # actions for "File" menu
+        self.fileOpenAction = self.createAction("&Open...", self.camerawid.fileOpen,
+                QKeySequence.Open, None,
+                "Open a directory containing the image files.")
         self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
                 QKeySequence("Ctrl+q"), None,
                 "Close the application.")
-        self.fileActions = [None, self.fileQuitAction]
+        self.fileActions = [None, self.fileOpenAction, None, self.fileQuitAction]
                 
         # actions for "Help" menu
         self.helpAction = self.createAction("&Help", self.weblinks.help,
@@ -198,13 +202,26 @@ class PlotWidget(QWidget):
 class CameraWidget(QWidget):
     """ PyQt widget for Camera Panel """
     
-    def __init__(self):
-        super(CameraWidget, self).__init__()
+    def __init__(self,parent=None):
+        super(CameraWidget, self).__init__(parent)
         self.initUI()
     
     def initUI(self):
         self.setGeometry(100, 500, 400, 400)
         self.setWindowTitle('Camera Panel')
+    
+    def fileOpen(self):
+        self.show()        
+        """
+        try:
+            files = qt_filedialog_convert(QFileDialog.getOpenFileNames(self,
+                    "Open images",
+                    filter="Image files (%s)" % (" ".join(AllImageLoader.supported_extensions()))))
+            self.loader = AllImageLoader(files, config.IO_energyRegex)
+            self.setImage(self.loader.next())
+        except IOError as err:
+            self.MainWindow.statusBar().showMessage('IOError: ' + str(err), 5000)
+        """
 
 '''
    WebLinks Widget
