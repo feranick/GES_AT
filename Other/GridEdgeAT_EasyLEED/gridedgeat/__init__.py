@@ -10,7 +10,7 @@ The GridEdgeAT package is divided into several subpackages:
 """
 
 __version__ = "0.0-preview"
-__author__ = "Nicola Ferralis"
+__author__ = "GridEdge Community"
 
 # import packages
 # order of loading is important and should not be changed
