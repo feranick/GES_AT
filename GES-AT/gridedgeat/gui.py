@@ -7,7 +7,7 @@ Various classes for providing a graphical user interface.
 
 import sys, webbrowser
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QTabWidget,QVBoxLayout,QGridLayout,QLabel)
+    QTabWidget,QVBoxLayout,QGridLayout,QLabel,QGraphicsView)
 from .qt.QtGui import QIcon
 from .qt.QtCore import pyqtSlot
 
@@ -85,6 +85,47 @@ class MainWindow(QMainWindow):
             else:
                 target.addAction(action)
 
+class MainTableWidget(QWidget):
+ 
+    def __init__(self, parent):   
+        super(QWidget, self).__init__(parent)
+        self.layout = QVBoxLayout()
+ 
+        # Initialize tab screen
+        self.tabs = QTabWidget()
+        self.tab1 = QWidget()	
+        self.tab2 = QWidget()
+        self.tab3 = QWidget()
+        self.tabs.resize(300,400)
+ 
+        # Add tabs
+        self.tabs.addTab(self.tab1,"Main")
+        self.tabs.addTab(self.tab2,"Plots")
+        self.tabs.addTab(self.tab3,"Camera")
+ 
+        self.tab1.layout = QVBoxLayout(self)
+        self.pushButton1 = QPushButton("Button")
+        self.tab1.layout.addWidget(self.pushButton1)
+        self.tab1.setLayout(self.tab1.layout)
+ 
+        # Add tabs to widget        
+        self.layout.addWidget(self.tabs)
+        self.setLayout(self.layout)
+
+
+class GraphicsView(QGraphicsView):
+    """ Custom GraphicsView to display the scene. """
+    def __init__(self, parent=None):
+        super(GraphicsView, self).__init__(parent)
+        self.setRenderHints(QPainter.Antialiasing)
+    
+    def resizeEvent(self, event):
+        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+    
+    def drawBackground(self, painter, rect):
+        painter.fillRect(rect, QBrush(Qt.lightGray))
+        self.scene().drawBackground(painter, rect)
+
 
 class AboutWidget(QWidget):
     """ PyQt widget for About Box Panel """
@@ -119,32 +160,4 @@ class WebLinksWidget():
         webbrowser.open("https://sites.google.com/site/gridedgesolar/")
     def dev(self):
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
-
-
-class MainTableWidget(QWidget):
- 
-    def __init__(self, parent):   
-        super(QWidget, self).__init__(parent)
-        self.layout = QVBoxLayout()
- 
-        # Initialize tab screen
-        self.tabs = QTabWidget()
-        self.tab1 = QWidget()	
-        self.tab2 = QWidget()
-        self.tab3 = QWidget()
-        self.tabs.resize(300,400)
- 
-        # Add tabs
-        self.tabs.addTab(self.tab1,"Main")
-        self.tabs.addTab(self.tab2,"Plots")
-        self.tabs.addTab(self.tab3,"Camera")
- 
-        self.tab1.layout = QVBoxLayout(self)
-        self.pushButton1 = QPushButton("Button")
-        self.tab1.layout.addWidget(self.pushButton1)
-        self.tab1.setLayout(self.tab1.layout)
- 
-        # Add tabs to widget        
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
 
