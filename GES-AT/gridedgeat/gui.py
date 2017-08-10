@@ -30,7 +30,8 @@ class MainWindow(QMainWindow):
         self.weblinks = WebLinksWidget()
 
         self.table_widget = MyTableWidget(self)
-        self.setGeometry(10, 30, 660, 480)
+        self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
+            config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.setCentralWidget(self.table_widget)
  
         self.show()
