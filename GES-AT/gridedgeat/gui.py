@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         self.aboutwid = AboutWidget()
         self.weblinks = WebLinksWidget()
 
-        self.table_widget = MyTableWidget(self)
+        self.table_widget = MainTableWidget(self)
         self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
             config.FinMainWindowWidth, config.FinMainWindowHeight)
         self.setCentralWidget(self.table_widget)
@@ -124,11 +124,11 @@ class WebLinksWidget():
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
 
 
-class MyTableWidget(QWidget):        
+class MainTableWidget(QWidget):
  
     def __init__(self, parent):   
         super(QWidget, self).__init__(parent)
-        self.layout = QVBoxLayout(self)
+        self.layout = QVBoxLayout()
  
         # Initialize tab screen
         self.tabs = QTabWidget()
