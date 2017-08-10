@@ -191,9 +191,13 @@ class CameraWindow(QMainWindow):
         tb.actionTriggered[QAction].connect(self.cameraFeed)
         #self.setLayout(layout)
     
-
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
+        cam = CameraFeedTemp()
+        try:
+            cam.open_image()
+        except:
+            self.statusBar().showMessage(cam.color_image_name() + ' not found', 5000)
 
 
 '''
