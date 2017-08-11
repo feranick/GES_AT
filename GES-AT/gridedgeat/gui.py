@@ -160,7 +160,7 @@ class PlotWindow(QMainWindow):
 class CameraWindow(QMainWindow):
     def __init__(self):
         super(CameraWindow, self).__init__()
-        self.cam = CameraFeedTemp()
+        self.cam = CameraFeed()
         self.initUI()
     
     def initUI(self):
@@ -194,18 +194,20 @@ class CameraWindow(QMainWindow):
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
         # Set Camera Feed and calculate contrast
-        self.cameraFeed()
+        #self.cameraFeed()
 
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
         try:
+            self.cam.grab_image()
             self.image = self.cam.get_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(self.cam.color_image_name() + \
-                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 500)
+                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
             self.checkAlignText.setText(str(self.cam.check_alignment(config.cameraAlignmentThreshold)))
+            self.cam.delete_cam()
         except:
-            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 500)
+            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 5000)
 
 '''
    WebLinks Widget
