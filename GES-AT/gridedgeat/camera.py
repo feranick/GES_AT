@@ -70,7 +70,7 @@ class CameraFeedTemp():
         #self.imgg = QImage(QImageReader(self.image_path).read())
         self.img_raw = Image.open(self.image_path).convert('L')
         self.imgg = ImageQt(self.img_raw)
-        self.img_data = np.asarray(self.img_raw.convert('L'))
+        self.img_data = np.asarray(self.img_raw)
         print(self.img_data.shape)
         return self.imgg
     
