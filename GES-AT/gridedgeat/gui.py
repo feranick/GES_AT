@@ -160,8 +160,8 @@ class PlotWindow(QMainWindow):
 class CameraWindow(QMainWindow):
     def __init__(self):
         super(CameraWindow, self).__init__()
+        self.cam = CameraFeedTemp()
         self.initUI()
-        self.cameraFeed()
     
     def initUI(self):
         self.setGeometry(100, 500, 660, 480)
@@ -179,17 +179,18 @@ class CameraWindow(QMainWindow):
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
-    
+        self.cameraFeed()
+        self.cam.contrast_alignment(0.5)
+
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
-        cam = CameraFeedTemp()
         try:
-            self.image = cam.open_image()
+            self.image = self.cam.open_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(cam.color_image_name() + \
                 str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
         except:
-            self.statusBar().showMessage(cam.color_image_name() + ' not found', 5000)
+            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 5000)
 
 '''
    WebLinks Widget

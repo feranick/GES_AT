@@ -81,6 +81,7 @@ class CameraFeedTemp():
             if i > threshold:
                 count = count + 1
         contrast = 100*count/self.img_data.size
+        print(contrast)
         return contrast
 
     def check_alignment(self):
