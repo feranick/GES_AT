@@ -8,7 +8,7 @@ import sys, webbrowser
 from datetime import datetime
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap,QGraphicsScene,QPainter)
+    QPixmap,QGraphicsScene,QPainter,QLineEdit)
 from .qt.QtGui import (QIcon,QImage)
 from .qt.QtCore import (pyqtSlot,QRectF)
 from .qt import qt_filedialog_convert
@@ -164,33 +164,48 @@ class CameraWindow(QMainWindow):
         self.initUI()
     
     def initUI(self):
+        # Set up Window geometry and shape
         self.setGeometry(100, 500, 660, 480)
         self.setWindowTitle('Camera Panel')
+        # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
+        # Set up ToolBar
         tb = self.addToolBar("Camera")
-        new = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
-        new.setShortcut('Ctrl+c')
-        new.setStatusTip('Get Camera Feed')
-        tb.addAction(new)
+        updateBtn = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
+        updateBtn.setShortcut('Ctrl+c')
+        updateBtn.setStatusTip('Get Camera Feed')
+        tb.addAction(updateBtn)
         tb.actionTriggered[QAction].connect(self.cameraFeed)
+        tb.addSeparator()
+        contrastAlignLabel = QLabel()
+        contrastAlignLabel.setText("Check alignment [%]: ")
+        tb.addWidget(contrastAlignLabel)
+        self.checkAlignText = QLineEdit()
+        self.checkAlignText.setToolTip("Press Enter to set")
+        self.checkAlignText.setMaximumSize(50, 25)
+        self.checkAlignText.setReadOnly(True)
+        tb.addWidget(self.checkAlignText)
+        self.checkAlignText.show()
+        # Set up Graphic Scene and View
         self.scene = GraphicsScene(self)
         self.view = GraphicsView()
         self.view.setScene(self.scene)
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
+        # Set Camera Feed and calculate contrast
         self.cameraFeed()
-        self.cam.contrast_alignment(0.5)
 
     def cameraFeed(self):
         self.statusBar().showMessage("Not implemented yet")
         try:
-            self.image = self.cam.open_image()
+            self.image = self.cam.get_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
-            self.statusBar().showMessage(cam.color_image_name() + \
-                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
+            self.statusBar().showMessage(self.cam.color_image_name() + \
+                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 500)
+            self.checkAlignText.setText(str(self.cam.check_alignment(config.cameraAlignmentThreshold)))
         except:
-            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 5000)
+            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 500)
 
 '''
    WebLinks Widget
@@ -227,8 +242,8 @@ class AboutWidget(QWidget):
 
         self.labelTitle = QLabel("<qt><b><big><a href = http://gridedgesolar.com>GridEdgeSolar %s</a></b></big></qt>" % __version__, self);
         self.labelBy = QLabel("by: %s" % __author__, self)
-        self.labelContact = QLabel("<qt>Contacts: <a href = mailto:feranick@hotmail.com> feranick@hotmail.com</a></qt>", self)
-        self.labelDetails = QLabel("If GridEdgeSolar is a Solar PV project at MIT ", self)
+        self.labelContact = QLabel("<qt>Contacts: <a href = mailto:mitgridedge@gmail.com> mitgridedge@gmail.com</a></qt>", self)
+        self.labelDetails = QLabel("GridEdgeSolar is a Solar PV project at MIT ", self)
         self.labelPaper = QLabel("<qt> GridEdgeSolar", self)
         for label in [self.labelTitle, self.labelBy, self.labelContact, self.labelDetails, self.labelPaper]:
             label.setWordWrap(True)

@@ -61,7 +61,8 @@ class CameraFeedTemp():
         self.image_path = self.image_folder + self.color_image
 
     def get_image(self):
-        return 0
+        self.imgg = self.open_image()
+        return self.imgg
 
     def save_image(self):
         return 0
@@ -71,25 +72,17 @@ class CameraFeedTemp():
         self.img_raw = Image.open(self.image_path).convert('L')
         self.imgg = ImageQt(self.img_raw)
         self.img_data = np.asarray(self.img_raw)
-        print(self.img_data.shape)
         return self.imgg
-    
-    def contrast_alignment(self, threshold):
+
+    def check_alignment(self, threshold):
         count = 0
         threshold = threshold*np.amax(self.img_data)
         for i in np.nditer(self.img_data):
             if i > threshold:
                 count = count + 1
         contrast = 100*count/self.img_data.size
-        print(contrast)
-        return contrast
-
-    def check_alignment(self):
-        sumint=np.sum(self.imgg)
-        if sumint>10000000:
-            print ('Attention: devices and mask might be misaligned')
-        else :
-            print ('Devices and mask are properly aligned')
+        print(" Check alignment [%]: {0:0.3f}".format(contrast))
+        return "{0:0.3f}".format(contrast)
 
     def color_image_name(self):
         return self.image_path

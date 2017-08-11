@@ -9,7 +9,7 @@ The GridEdgeAT package is divided into several subpackages:
 
 """
 
-__version__ = "0.0-preview"
+__version__ = "0.0.1"
 __author__ = "Nicola Ferralis"
 
 # import packages
