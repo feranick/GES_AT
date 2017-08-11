@@ -68,9 +68,20 @@ class CameraFeedTemp():
         
     def open_image(self):
         #self.imgg = QImage(QImageReader(self.image_path).read())
-        self.imgg = ImageQt(Image.open(self.image_path).convert('L'))
-        #self.imgg.show()
+        self.img_raw = Image.open(self.image_path).convert('L')
+        self.imgg = ImageQt(self.img_raw)
+        self.img_data = np.asarray(self.img_raw.convert('L'))
+        print(self.img_data.shape)
         return self.imgg
+    
+    def contrast_alignment(self, threshold):
+        count = 0
+        threshold = threshold*np.amax(self.img_data)
+        for i in np.nditer(self.img_data):
+            if i > threshold:
+                count = count + 1
+        contrast = 100*count/self.img_data.size
+        return contrast
 
     def check_alignment(self):
         sumint=np.sum(self.imgg)
@@ -81,4 +92,5 @@ class CameraFeedTemp():
 
     def color_image_name(self):
         return self.image_path
+
 
