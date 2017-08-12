@@ -1,10 +1,24 @@
+'''
+cameraFeed.py
+-------------
+Class for providing a hwardware support for 
+for the cameraFeed
+
+Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+'''
+
 import cv2
 import time, sys
 import numpy as np
 from PIL import Image
 from PIL.ImageQt import ImageQt
 from datetime import datetime
-#from .qt.QtGui import (QImage,QImageReader)
 
 class CameraFeed():
     def __init__(self):
@@ -55,39 +69,3 @@ class CameraFeed():
 
     def close_cam(self):
         del(self.camera)
-
-class CameraFeedOld():
-    def __init__(self):
-        self.image_folder = "images/"
-        self.color_image = "imagecolor.png"
-        self.image_path = self.image_folder + self.color_image
-
-    def get_image(self):
-        self.imgg = self.open_image()
-        return self.imgg
-
-    def save_image(self):
-        return 0
-        
-    def open_image(self):
-        #self.imgg = QImage(QImageReader(self.image_path).read())
-        self.img_raw = Image.open(self.image_path).convert('L')
-        print(self.img_raw)
-        self.imgg = ImageQt(self.img_raw)
-        self.img_data = np.asarray(self.img_raw)
-        return self.imgg
-
-    def check_alignment(self, threshold):
-        count = 0
-        threshold = threshold*np.amax(self.img_data)
-        for i in np.nditer(self.img_data):
-            if i > threshold:
-                count = count + 1
-        contrast = 100*count/self.img_data.size
-        print(" Check alignment [%]: {0:0.3f}".format(contrast))
-        return "{0:0.3f}".format(contrast)
-
-    def color_image_name(self):
-        return self.image_path
-
-

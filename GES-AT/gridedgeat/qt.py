@@ -1,5 +1,5 @@
 """
-gridedgeat.qt
+qt.py
 ------------
 
 A Qt API selector that can be used to switch between PyQt and PySide wrappers.
