@@ -18,3 +18,5 @@ FinMainWindowHeight = 480
 ## Camera related parameter ##
 # Threshold for contrast in camera alignment
 cameraAlignmentThreshold = 0.6
+# if contrast ratio is larger than this value, devices/masks are misalligned
+cameraAlignmentDefault = 1

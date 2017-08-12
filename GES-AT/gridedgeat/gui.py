@@ -8,7 +8,7 @@ import sys, webbrowser
 from datetime import datetime
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap,QGraphicsScene,QPainter,QLineEdit)
+    QPixmap,QGraphicsScene,QPainter,QLineEdit,QMessageBox)
 from .qt.QtGui import (QIcon,QImage)
 from .qt.QtCore import (pyqtSlot,QRectF)
 from .qt import qt_filedialog_convert
@@ -169,23 +169,7 @@ class CameraWindow(QMainWindow):
         self.setWindowTitle('Camera Panel')
         # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
-        # Set up ToolBar
-        tb = self.addToolBar("Camera")
-        updateBtn = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
-        updateBtn.setShortcut('Ctrl+c')
-        updateBtn.setStatusTip('Get Camera Feed')
-        tb.addAction(updateBtn)
-        tb.actionTriggered[QAction].connect(self.cameraFeed)
-        tb.addSeparator()
-        contrastAlignLabel = QLabel()
-        contrastAlignLabel.setText("Check alignment [%]: ")
-        tb.addWidget(contrastAlignLabel)
-        self.checkAlignText = QLineEdit()
-        self.checkAlignText.setToolTip("Press Enter to set")
-        self.checkAlignText.setMaximumSize(50, 25)
-        self.checkAlignText.setReadOnly(True)
-        tb.addWidget(self.checkAlignText)
-        self.checkAlignText.show()
+        
         # Set up Graphic Scene and View
         self.scene = GraphicsScene(self)
         self.view = GraphicsView()
@@ -195,19 +179,90 @@ class CameraWindow(QMainWindow):
         self.setCentralWidget(self.imageLabel)
         # Set Camera Feed and calculate contrast
         #self.cameraFeed()
+        
+        # Set up ToolBar
+        tb = self.addToolBar("Camera")
+        updateBtn = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
+        updateBtn.setShortcut('Ctrl+c')
+        updateBtn.setStatusTip('Get Camera Feed')
+        tb.addAction(updateBtn)
+        tb.addSeparator()
+        
+        contrastAlignLabel = QLabel()
+        contrastAlignLabel.setText("Check alignment [%]: ")
+        tb.addWidget(contrastAlignLabel)
+        self.checkAlignText = QLineEdit()
+        self.checkAlignText.setMaximumSize(50, 25)
+        self.checkAlignText.setReadOnly(True)
+        tb.addWidget(self.checkAlignText)
+        self.checkAlignText.show()
+        tb.addSeparator()
+        
+        setDefaultBtn = QAction(QIcon(QPixmap()),"Set Default Alignment",self)
+        setDefaultBtn.setShortcut('Ctrl+d')
+        setDefaultBtn.setStatusTip('Set Default Alignment')
+        tb.addAction(setDefaultBtn)
+        tb.addSeparator()
+
+        tb.actionTriggered[QAction].connect(self.toolbtnpressed)
+    
+    def toolbtnpressed(self,a):
+        if a.text() == "Update Camera Feed":
+            self.cameraFeed()
+        if a.text() == "Set Default Alignment":
+            self.setDefault()
 
     def cameraFeed(self):
-        self.statusBar().showMessage("Not implemented yet")
         try:
+            self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
             self.cam.grab_image()
             self.image = self.cam.get_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(self.cam.color_image_name() + \
                 str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
-            self.checkAlignText.setText(str(self.cam.check_alignment(config.cameraAlignmentThreshold)))
-            self.cam.delete_cam()
+            self.alignPerc = str(self.cam.check_alignment(config.cameraAlignmentThreshold))
+            self.checkAlignText.setText(self.alignPerc)
+            if float(self.alignPerc) > float(config.cameraAlignmentDefault):
+                self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+                self.outAlignmentMessageBox()
+            else:
+                self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
         except:
-            self.statusBar().showMessage(self.cam.color_image_name() + ' not found', 5000)
+            self.statusBar().showMessage(' USB camera not connected', 5000)
+
+    def setDefault(self):
+        try:
+            self.setDefaultMessageBox(self.alignPerc)
+            self.statusBar().showMessage(' Set default:' + self.alignPerc, 5000)
+        except:
+            self.statusBar().showMessage(' Acquire image first', 5000)
+
+
+    def setDefaultMessageBox(self, value):
+        msgBox = QMessageBox( self )
+        msgBox.setIcon( QMessageBox.Information )
+        msgBox.setText( "By changing the default value, you will erase the previous value" )
+
+        msgBox.setInformativeText( "Would you like to set " + value +  " as default?" )
+        msgBox.addButton( QMessageBox.Yes )
+        msgBox.addButton( QMessageBox.No )
+
+        msgBox.setDefaultButton( QMessageBox.No )
+        ret = msgBox.exec_()
+
+        if ret == QMessageBox.Yes:
+            print( "Yes" )
+            return
+        else:
+            print( "No" )
+            return
+
+    def outAlignmentMessageBox(self):
+        msgBox = QMessageBox( self )
+        msgBox.setIcon( QMessageBox.Information )
+        msgBox.setText( "WARNING: devices and mask might be misaligned " )
+        msgBox.setInformativeText( "Please realign and retry" )
+        msgBox.exec_()
 
 '''
    WebLinks Widget
