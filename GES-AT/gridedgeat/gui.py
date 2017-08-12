@@ -17,7 +17,7 @@ import sys, webbrowser, random
 from datetime import datetime
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap,QGraphicsScene,QPainter,QLineEdit,QMessageBox,QDialog,QPushButton)
+    QPixmap,QGraphicsScene,QPainter,QLineEdit,QMessageBox,QDialog)
 from .qt.QtGui import (QIcon,QImage)
 from .qt.QtCore import (pyqtSlot,QRectF)
 from .qt import qt_filedialog_convert

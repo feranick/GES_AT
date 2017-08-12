@@ -16,11 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 import sys, random
 from datetime import datetime
-from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap,QGraphicsScene,QPainter,QLineEdit,QMessageBox,QDialog,QPushButton)
-from .qt.QtGui import (QIcon,QImage)
-from .qt.QtCore import (pyqtSlot,QRectF)
+from .qt.widgets import (QPushButton,QVBoxLayout,QFileDialog,QDialog)
 from .qt import qt_filedialog_convert
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
