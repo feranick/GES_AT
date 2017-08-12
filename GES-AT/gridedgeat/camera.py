@@ -29,8 +29,8 @@ class CameraFeed():
         self.img_data = np.asarray(self.img)
         return self.imgg
 
-    def save_image(self):
-        cv2.imwrite(self.image_folder + self.filename,self.img)
+    def save_image(self, filename):
+        cv2.imwrite(self.image_folder + filename,self.img)
 
     def check_alignment(self, threshold):
         count = 0

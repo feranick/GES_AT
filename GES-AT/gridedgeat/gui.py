@@ -231,11 +231,11 @@ class CameraWindow(QMainWindow):
             self.statusBar().showMessage(' USB camera not connected', 5000)
 
     def setDefault(self):
-        try:
-            self.setDefaultMessageBox(self.alignPerc)
-            self.statusBar().showMessage(' Set default:' + self.alignPerc, 5000)
-        except:
-            self.statusBar().showMessage(' Acquire image first', 5000)
+        #try:
+        self.setDefaultMessageBox(self.alignPerc)
+        self.statusBar().showMessage(' Set default:' + self.alignPerc, 5000)
+        #except:
+        #    self.statusBar().showMessage(' Acquire image first', 5000)
 
 
     def setDefaultMessageBox(self, value):
@@ -251,7 +251,9 @@ class CameraWindow(QMainWindow):
         ret = msgBox.exec_()
 
         if ret == QMessageBox.Yes:
-            print( "Yes" )
+            self.filename = "calib"+str(datetime.now().strftime('_%Y%m%d_%H-%M-%S.png'))
+            print( "Yes", self.filename)
+            self.cam.save_image(self.filename)
             return
         else:
             print( "No" )
