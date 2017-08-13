@@ -30,7 +30,6 @@ from . import config
 class CameraWindow(QMainWindow):
     def __init__(self):
         super(CameraWindow, self).__init__()
-        #self.cam = CameraFeed()
         self.initUI()
     
     def initUI(self):
@@ -47,8 +46,6 @@ class CameraWindow(QMainWindow):
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
-        # Set Camera Feed and calculate contrast
-        #self.cameraFeed()
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
@@ -73,11 +70,12 @@ class CameraWindow(QMainWindow):
         setDefaultBtn.setStatusTip('Set Default Alignment')
         tb.addAction(setDefaultBtn)
         tb.addSeparator()
+        
+        self.cam = CameraFeed()
 
         tb.actionTriggered[QAction].connect(self.toolbtnpressed)
     
     def toolbtnpressed(self,a):
-        self.cam = CameraFeed()
         if a.text() == "Update Camera Feed":
             self.cameraFeed()
         if a.text() == "Set Default Alignment":
