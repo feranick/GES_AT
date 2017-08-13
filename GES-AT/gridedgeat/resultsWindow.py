@@ -1,8 +1,8 @@
 '''
-plotWindow.py
+ResultsWindow.py
 -------------
 Classes for providing a graphical user interface
-for the plotWindow
+for the resultsWindow
 
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
@@ -26,16 +26,16 @@ from . import config
 
 
 '''
-   Plot Window
+   Results Window
 '''
-class PlotWindow(QDialog):
+class ResultsWindow(QDialog):
     def __init__(self):
-        super(PlotWindow, self).__init__()
+        super(ResultsWindow, self).__init__()
         self.initUI()
     
     def initUI(self):
         self.setGeometry(500, 100, 600, 600)
-        self.setWindowTitle('Plot Panel')
+        self.setWindowTitle('Results Panel')
         #self.statusBar().showMessage("Plotting: Ready", 5000)
         # a figure instance to plot on
         self.figure = plt.figure()

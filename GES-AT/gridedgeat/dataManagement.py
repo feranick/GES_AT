@@ -1,5 +1,5 @@
 '''
-data-management.py
+dataManagement.py
 -------------
 Class for providing access to data-management database
 

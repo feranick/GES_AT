@@ -25,7 +25,9 @@ from . import config
 from . import __version__
 from . import __author__
 from .cameraWindow import *
-from .plotWindow import *
+from .resultsWindow import *
+from .sampleWindow import *
+from .acquisitionWindow import *
 
 '''
    Main Window
@@ -41,8 +43,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(10,30,300,200)
         self.aboutwid = AboutWidget()
+        self.samplewind = SampleWindow()
         self.acquisitionwind = AcquisitionWindow()
-        self.plotwind = PlotWindow()
+        self.resultswind = ResultsWindow()
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
      
@@ -80,12 +83,15 @@ class MainWindow(QMainWindow):
                 
         #### define actions ####
         # actions for "Buttons" menu
+        self.SampleAction = self.createAction("&Sample", self.samplewind.show,
+                QKeySequence("Ctrl+s"), None,
+                "Sample panel")
         self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
-                "Acquisition panel")
-        self.PlotAction = self.createAction("&Plots", self.plotwind.show,
+                "Acquisition Setup panel")
+        self.ResultsAction = self.createAction("&Results", self.resultswind.show,
                 QKeySequence("Ctrl+p"), None,
-                "Plotting panel")
+                "Results panel")
         self.CameraAction = self.createAction("&Camera", self.camerawind.show,
                 QKeySequence("Ctrl+c"), None,
                 "Camera panel")
@@ -94,7 +100,7 @@ class MainWindow(QMainWindow):
         #### Create tool bar ####
         toolBar = self.addToolBar("&Toolbar")
         # adding actions to the toolbar, addActions-function creates a separator with "None"
-        self.toolBarActions = [self.AcquisitionAction, None, self.PlotAction, None,
+        self.toolBarActions = [self.SampleAction, None, self.AcquisitionAction, None, self.ResultsAction, None,
                                self.CameraAction, None]
         self.addActions(toolBar, self.toolBarActions)
         
@@ -135,19 +141,6 @@ class MainWindow(QMainWindow):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
 
-
-'''
-   Acquisition Window
-'''
-class AcquisitionWindow(QMainWindow):
-    def __init__(self):
-        super(AcquisitionWindow, self).__init__()
-        self.initUI()
-    
-    def initUI(self):
-        self.setGeometry(100, 100, 400, 400)
-        self.setWindowTitle('Acquisition Panel')
-        self.statusBar().showMessage("Acquisition: Ready", 5000)
 
 '''
    WebLinks Widget

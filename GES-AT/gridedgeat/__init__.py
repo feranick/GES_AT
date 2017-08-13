@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __author__ = "Nicola Ferralis"
 
 # import packages
@@ -30,7 +30,11 @@ logging.basicConfig(filename=config.loggingFilename, level=config.loggingLevel)
 logger = logging.getLogger()
 
 from . import gui
+from . import acquisitionWindow
+from . import sampleWindow
+from . import resultsWindow
 from . import camera
 from . import cameraWindow
-from . import plotWindow
+from . import dataManagement
+
 
