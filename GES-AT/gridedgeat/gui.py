@@ -39,8 +39,7 @@ class MainWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
-        self.setGeometry(config.InMainWindowWidth, config.InMainWindowHeight,
-            config.FinMainWindowWidth, config.FinMainWindowHeight)
+        self.setGeometry(10,30,300,200)
         self.aboutwid = AboutWidget()
         self.acquisitionwind = AcquisitionWindow()
         self.plotwind = PlotWindow()
