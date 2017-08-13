@@ -27,8 +27,8 @@ import numpy as np
 # Width/Height of main panel
 InMainWindowWidth = 10
 InMainWindowHeight = 30
-FinMainWindowWidth = 660
-FinMainWindowHeight = 480
+FinMainWindowWidth = 300
+FinMainWindowHeight = 200
 
 ## Camera related parameter ##
 # Threshold for contrast in camera alignment

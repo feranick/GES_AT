@@ -15,6 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import sys, random
+import numpy as np
 from datetime import datetime
 from .qt.widgets import (QPushButton,QVBoxLayout,QFileDialog,QDialog)
 from .qt import qt_filedialog_convert
@@ -34,7 +35,7 @@ class PlotWindow(QDialog):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(500, 100, 400, 400)
+        self.setGeometry(500, 100, 600, 600)
         self.setWindowTitle('Plot Panel')
         #self.statusBar().showMessage("Plotting: Ready", 5000)
         # a figure instance to plot on
@@ -52,7 +53,7 @@ class PlotWindow(QDialog):
         self.randomBtn = QPushButton('Plot random data')
         self.randomBtn.clicked.connect(self.generate_random_data)
         self.openBtn = QPushButton('Open data')
-        self.openBtn.clicked.connect(self.generate_random_data)
+        self.openBtn.clicked.connect(self.open_data)
 
         # set the layout
         layout = QVBoxLayout()
@@ -63,13 +64,28 @@ class PlotWindow(QDialog):
         self.setLayout(layout)
 
     def generate_random_data(self):
-        self.data = [random.random() for i in range(10)]
+        self.data = np.empty((10,2))
+        self.data[:,0] = [i for i in range(10)]
+        self.data[:,1] = [random.random() for i in range(10)]
+
         self.plot(self.data)
 
     def plot(self, data):
         ''' plot some random stuff '''
         ax = self.figure.add_subplot(111)
         ax.clear()
-        ax.plot(data, '*-')
+        ax.plot(data[:,0],data[:,1], '*-')
+        ax.set_xlabel('Voltage [V]')
+        ax.set_ylabel('Current density [mA/cm^2]')
         self.canvas.draw()
 
+    def open_data(self):
+        filenames = QFileDialog.getOpenFileNames(self,
+                        "Open ASCII data", "","*.txt")
+        try:
+            for filename in filenames:
+                data = open(filename)
+                M = np.loadtxt(data,unpack=False)
+                self.plot(M)
+        except:
+            print("Loading files failed")
