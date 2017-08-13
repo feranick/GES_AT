@@ -16,9 +16,9 @@ the Free Software Foundation; either version 2 of the License, or
 import sys, webbrowser, random
 from datetime import datetime
 from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QKeySequence,QFileDialog,QStatusBar,
-    QPixmap,QGraphicsScene,QPainter,QLineEdit,QMessageBox,QDialog)
-from .qt.QtGui import (QIcon,QImage)
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
+    QGraphicsScene,QLineEdit,QMessageBox,QDialog)
+from .qt.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from .qt.QtCore import (pyqtSlot,QRectF)
 from .qt import qt_filedialog_convert
 
