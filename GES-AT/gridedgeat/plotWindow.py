@@ -17,8 +17,7 @@ the Free Software Foundation; either version 2 of the License, or
 import sys, random
 import numpy as np
 from datetime import datetime
-from .qt.widgets import (QPushButton,QVBoxLayout,QFileDialog,QDialog)
-from .qt import qt_filedialog_convert
+from PyQt5.QtWidgets import (QPushButton,QVBoxLayout,QFileDialog,QDialog)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt

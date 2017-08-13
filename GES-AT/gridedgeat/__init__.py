@@ -29,7 +29,6 @@ import logging
 logging.basicConfig(filename=config.loggingFilename, level=config.loggingLevel)
 logger = logging.getLogger()
 
-from . import qt
 from . import gui
 from . import camera
 from . import cameraWindow

@@ -15,12 +15,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 import sys, webbrowser, random
 from datetime import datetime
-from .qt.widgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
     QGraphicsScene,QLineEdit,QMessageBox,QDialog)
-from .qt.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
-from .qt.QtCore import (pyqtSlot,QRectF)
-from .qt import qt_filedialog_convert
+from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
+from PyQt5.QtCore import (pyqtSlot,QRectF)
 
 from . import config
 from . import __version__
