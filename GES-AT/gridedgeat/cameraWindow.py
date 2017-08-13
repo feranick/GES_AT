@@ -15,9 +15,9 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import sys
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene,QLineEdit,QMessageBox)
+from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
+    QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QGraphicsScene,
+    QLineEdit,QMessageBox)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 from .camera import *
