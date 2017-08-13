@@ -30,7 +30,7 @@ from . import config
 class CameraWindow(QMainWindow):
     def __init__(self):
         super(CameraWindow, self).__init__()
-        self.cam = CameraFeed()
+        #self.cam = CameraFeed()
         self.initUI()
     
     def initUI(self):
@@ -77,6 +77,7 @@ class CameraWindow(QMainWindow):
         tb.actionTriggered[QAction].connect(self.toolbtnpressed)
     
     def toolbtnpressed(self,a):
+        self.cam = CameraFeed()
         if a.text() == "Update Camera Feed":
             self.cameraFeed()
         if a.text() == "Set Default Alignment":

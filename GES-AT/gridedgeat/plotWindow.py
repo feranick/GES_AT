@@ -49,29 +49,27 @@ class PlotWindow(QDialog):
         self.toolbar = NavigationToolbar(self.canvas, self)
 
         # Just some button connected to `plot` method
-        self.button = QPushButton('Plot')
-        self.button.clicked.connect(self.plot)
+        self.randomBtn = QPushButton('Plot random data')
+        self.randomBtn.clicked.connect(self.generate_random_data)
+        self.openBtn = QPushButton('Open data')
+        self.openBtn.clicked.connect(self.generate_random_data)
 
         # set the layout
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
-        layout.addWidget(self.button)
+        layout.addWidget(self.randomBtn)
+        layout.addWidget(self.openBtn)
         self.setLayout(layout)
-        
-    def plot(self):
+
+    def generate_random_data(self):
+        self.data = [random.random() for i in range(10)]
+        self.plot(self.data)
+
+    def plot(self, data):
         ''' plot some random stuff '''
-        # random data
-        data = [random.random() for i in range(10)]
-
-        # create an axis
         ax = self.figure.add_subplot(111)
-
-        # discards the old graph
         ax.clear()
-
-        # plot data
         ax.plot(data, '*-')
-
-        # refresh canvas
         self.canvas.draw()
+
