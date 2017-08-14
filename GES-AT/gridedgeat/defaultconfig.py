@@ -26,5 +26,9 @@ import numpy as np
 ## Camera related parameter ##
 # Threshold for contrast in camera alignment
 cameraAlignmentThreshold = 0.6
-# if contrast ratio is larger than this value, devices/masks are misalligned
+# if contrast ratio is larger than this value, devices/masks are
+# misalligned
 cameraAlignmentDefault = 1
+# if max intenity is larger than this value, the requirement for
+# intensity is satisfied for checing the alignment
+cameraAlignmentIntMax = 10

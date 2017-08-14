@@ -48,13 +48,14 @@ class CameraFeed():
 
     def check_alignment(self, threshold):
         count = 0
-        threshold = threshold*np.amax(self.img_data)
+        self.iMax = np.amax(self.img_data)
+        threshold = threshold*self.iMax
         for i in np.nditer(self.img_data):
             if i > threshold:
                 count = count + 1
         contrast = 100*count/self.img_data.size
         print(" Check alignment [%]: {0:0.3f}".format(contrast))
-        return "{0:0.3f}".format(contrast)
+        return "{0:0.3f}".format(contrast), self.iMax
 
     def check_alignment_old(self, threshold):
         sumint=np.sum(self.img_data)
