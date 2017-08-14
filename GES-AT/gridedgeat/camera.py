@@ -22,7 +22,7 @@ from datetime import datetime
 
 class CameraFeed():
     def __init__(self):
-        self.camera_port = 1
+        self.camera_port = 0
         self.ramp_frames = 2
         self.image_folder = "images/"
         self.filename = "imagecolor.png"
