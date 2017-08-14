@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
     QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
-from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QMetaObject,QCoreApplication,QSize)
+from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import config
 
@@ -175,5 +175,3 @@ class SampleWindow(QMainWindow):
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.applyButton.setText("Apply")
-
-        QMetaObject.connectSlotsByName(MainWindow)
