@@ -43,46 +43,34 @@ def main():
 #************************************
 ''' Class Database '''
 #************************************
-class GEmongoDB:
-    def __init__(self, data, file):
-        self.data = data
-        with open(file, 'r') as f:
-            f.readline()
-            self.hostname = f.readline().rstrip('\n')
-            f.readline()
-            self.port_num = f.readline().rstrip('\n')
-            f.readline()
-            self.dbname = f.readline().rstrip('\n')
-            f.readline()
-            self.username = f.readline().rstrip('\n')
-            f.readline()
-            self.password = f.readline().rstrip('\n')
+class DataManagementDB:
+    def __init__(self, info):
+        #self.info = info
+        self.dbHostname = info[0]
+        self.dbPortNum = info[1]
+        self.dbName = info[2]
+        self.dbUsername = info[3]
+        self.dbPassword = info[4]
 
     def connectDB(self):
         from pymongo import MongoClient
-        client = MongoClient(self.hostname, int(self.port_num))
-        auth_status = client[self.dbname].authenticate(self.username, self.password, mechanism='SCRAM-SHA-1')
+        client = MongoClient(self.dbHostname, int(self.dbPortNum))
+        auth_status = client[self.dbName].authenticate(self.dbUsername, self.dbPassword, mechanism='SCRAM-SHA-1')
         print(' Authentication status = {0} \n'.format(auth_status))
-        return client
+        return status, client
 
     def printAuthInfo(self):
-        print(self.hostname)
-        print(self.port_num)
-        print(self.dbname)
-        print(self.username)
-        print(self.password)
+        print(self.dbHostname)
+        print(self.dbPortNum)
+        print(self.dbName)
+        print(self.dbUsername)
+        print(self.dbPassword)
 
     def makeJSON(self):
         dataj = {
-            'lab' : self.data[0],
+            'hostname' : self.dbHostname,
             'IP' : self.data[1],
-            'date' : self.data[2],
-            'time' : self.data[3],
-            'temperature' : '{0:0.1f}'.format(self.data[4]),
-            'pressure' : '{0:0.1f}'.format(self.data[5]),
-            'humidity' : '{0:0.1f}'.format(self.data[6]),
-            'PM2.5_particles_L' : '{0:0.2f}'.format(self.data[7]),
-            'aqi' : '{0:0d}'.format(int(self.data[8])),
+            'self.dbName' : info[2],
             }
         return json.dumps(dataj)
 

@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, webbrowser, random
+import sys, webbrowser, random, time
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
@@ -29,6 +29,7 @@ from .resultsWindow import *
 from .sampleWindow import *
 from .acquisition import *
 from .acquisitionWindow import *
+from .dataManagement import *
 
 '''
    Main Window
@@ -270,18 +271,33 @@ class DBConnection(QWidget):
         self.dbConnectResultLabel.setObjectName("dbConnectResultLabel")
 
         self.dbHostnameLabel.setText("DB hostname IP")
-        self.dbPortNumLabel.setText("Port number")
+        self.dbPortNumLabel.setText("DB port number")
         self.dbNameLabel.setText("DB name")
         self.dbUsernameLabel.setText("DB Username")
         self.dbPasswordLabel.setText("DB Password")
         self.dbTestConnectButton.setText("Test Connectivity")
-        self.dbConnectResultLabel.setText("Test Results")
+        self.dbConnectResultLabel.setText("")
 
         self.dbHostnameText.setText(config.DbHostname)
         self.dbPortNumText.setText(str(config.DbPortNumber))
         self.dbNameText.setText(config.DbName)
         self.dbUsernameText.setText(config.DbUsername)
         self.dbPasswordText.setText(config.DbPassword)
+        
+        self.dbConnectInfo = [config.DbHostname,config.DbPortNumber,
+                config.DbName,config.DbUsername,config.DbPassword]
+        
+        self.dbTestConnectButton.clicked.connect(self.dbCheckConnect)
+
+
+    def dbCheckConnect(self):
+        self.dbConnect = DataManagementDB(self.dbConnectInfo)
+        try:
+            self.dbConnect.connectDB()
+            self.dbConnectResultLabel.setText("Connection successful")
+        except:
+            self.dbConnectResultLabel.setText("Connection failed")
+
 
 
 

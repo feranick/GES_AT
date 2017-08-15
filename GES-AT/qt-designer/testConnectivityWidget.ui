@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>294</height>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,7 +54,7 @@
     <item row="1" column="0">
      <widget class="QLabel" name="dbPortNumLabel">
       <property name="text">
-       <string>Port number</string>
+       <string>DB port number</string>
       </property>
      </widget>
     </item>
