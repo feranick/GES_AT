@@ -34,7 +34,7 @@ alignmentContrastDefault = 1
 alignmentIntMax = 10
 
 ## Data-management interaction ##
-DbHostname = "18.62.7.9"
+DbHostname = "18.82.1.200"
 DbPortNumber = "7101"
 DbName = "Tata"
 DbUsername = "user1"
