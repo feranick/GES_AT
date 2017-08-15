@@ -32,3 +32,10 @@ alignmentContrastDefault = 1
 # if max intenity is larger than this value, the requirement for
 # intensity is satisfied for checing the alignment
 alignmentIntMax = 10
+
+## Data-management interaction ##
+DbHostname = "localhost"
+DbPortNumber = 7101
+DbName = "test1"
+DbUsername = "user1"
+DbPassword = "user1"
