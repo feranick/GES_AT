@@ -20,9 +20,9 @@ from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QLineEdit,QMessageBox)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
+
 from .camera import *
 from . import config
-
 
 '''
    Camera Window

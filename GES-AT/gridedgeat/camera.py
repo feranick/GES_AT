@@ -1,7 +1,7 @@
 '''
 cameraFeed.py
 -------------
-Class for providing a hwardware support for 
+Class for providing a hardware support for 
 for the cameraFeed
 
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
