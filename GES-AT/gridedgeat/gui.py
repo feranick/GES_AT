@@ -106,6 +106,17 @@ class MainWindow(QMainWindow):
         
         #### Create status bar ####
         self.statusBar().showMessage("Ready", 5000)
+    
+        #### Create basic push buttons to run acquisition ####
+        self.startAcqButton = QPushButton(self)
+        self.startAcqButton.setGeometry(QRect(10, 30, 150, 50))
+        self.startAcqButton.setObjectName("Start Acquisition")
+        self.startAcqButton.setText("Start Acquisition")
+        self.stopAcqButton = QPushButton(self)
+        self.stopAcqButton.setGeometry(QRect(10, 85, 150, 50))
+        self.stopAcqButton.setObjectName("Stop Acquisition")
+        self.stopAcqButton.setText("Stop Acquisition")
+
 
 
     def createAction(self, text, slot=None, shortcut=None, icon=None,
