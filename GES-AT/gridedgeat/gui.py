@@ -50,16 +50,25 @@ class MainWindow(QMainWindow):
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
+        self.dbconnectionwid = DBConnection()
      
         #### define actions ####
         # actions for "File" menu
         #self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
         #        QKeySequence.Open, None,
         #        "Open a directory containing the image files.")
+        
         self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
                 QKeySequence("Ctrl+q"), None,
-                "Close the application.")
+                "Close the application")
+                
         self.fileActions = [None, self.fileQuitAction]
+        
+        self.dbConnectionAction = self.createAction("&TestDBConnection", self.dbconnectionwid.show,
+                QKeySequence("Ctrl+T"), None,
+                "Test connectivity to data-management")
+        
+        self.toolsActions = [None, self.dbConnectionAction]
                 
         # actions for "Help" menu
         self.helpAction = self.createAction("&Help", self.weblinks.help,
@@ -71,15 +80,16 @@ class MainWindow(QMainWindow):
         self.aboutAction = self.createAction("&About", self.aboutwid.show,
                 None, None,
                 "About GridEdge AutoTesting")
-        self.helpActions = [None, self.helpAction, None, self.aboutAction,
-                None, self.devAction]
+        self.helpActions = [None, self.helpAction, None, self.devAction,
+                None, self.aboutAction]
                 
         #### Create menu bar ####
         fileMenu = self.menuBar().addMenu("&File")
         self.addActions(fileMenu, self.fileActions)
-        #processMenu = self.menuBar().addMenu("&Process")
-        #self.addActions(processMenu, self.processActions)
-        #self.enableProcessActions(False)
+
+        toolsMenu = self.menuBar().addMenu("&Tools")
+        self.addActions(toolsMenu, self.toolsActions)
+
         helpMenu = self.menuBar().addMenu("&Help")
         self.addActions(helpMenu, self.helpActions)
                 
@@ -159,7 +169,6 @@ class MainWindow(QMainWindow):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
 
-
 '''
    WebLinks Widget
    Definition of Web links
@@ -202,4 +211,22 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
+
+'''
+   DBConnection Widget
+   Definition of Database connection Widget
+'''
+class DBConnection(QWidget):
+    """ PyQt widget for About Box Panel """
+    
+    def __init__(self):
+        super(DBConnection, self).__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(100, 200, 400, 200)
+        self.setWindowTitle('Testing connectivity to Data-management')
+
+
+
 
