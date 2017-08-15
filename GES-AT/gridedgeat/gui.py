@@ -27,6 +27,7 @@ from . import __author__
 from .cameraWindow import *
 from .resultsWindow import *
 from .sampleWindow import *
+from .acquisition import *
 from .acquisitionWindow import *
 
 '''
@@ -48,6 +49,7 @@ class MainWindow(QMainWindow):
         self.resultswind = ResultsWindow()
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
+        self.acquisition = Acquisition()
      
         #### define actions ####
         # actions for "File" menu
@@ -112,17 +114,17 @@ class MainWindow(QMainWindow):
         self.startAcqButton.setGeometry(QRect(20, 90, 150, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
+        self.startAcqButton.clicked.connect(self.acquisition.start)
         self.stopAcqButton = QPushButton(self)
         self.stopAcqButton.setGeometry(QRect(190, 90, 150, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
+        self.stopAcqButton.clicked.connect(self.acquisition.stop)
         self.label = QLabel(self)
         self.label.setGeometry(QRect(30, 30, 311, 61))
         self.label.setText("")
         self.label.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.label.setObjectName("label")
-
-
 
     def createAction(self, text, slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):

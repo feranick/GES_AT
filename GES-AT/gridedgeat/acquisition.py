@@ -18,8 +18,8 @@ class Acquisition():
     def __init__(self):
         self.dummy = 0
 
-    def startAcquisition(self):
+    def start(self):
         print("Not yet implemented")
     
-    def stopAcquisition(self):
+    def stop(self):
         print("Not yet implemented")
