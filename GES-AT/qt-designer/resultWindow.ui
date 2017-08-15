@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1447</width>
+    <height>1015</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>1401</width>
+      <height>711</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QGraphicsView" name="plot2Canvas"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QGraphicsView" name="plot4Canvas"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QGraphicsView" name="plot3Canvas"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QGraphicsView" name="plot1Canvas"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="deviceIDLabel">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current Device ID</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="deviceIDCBox">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>10</y>
+      <width>341</width>
+      <height>26</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>770</y>
+      <width>721</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="avJscText"/>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLineEdit" name="corrJscText"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="avJscLabel">
+       <property name="text">
+        <string>Average Jsc</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="CorrVocLabel">
+       <property name="text">
+        <string>Corresponding Voc</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="corrJscLabel">
+       <property name="text">
+        <string>Corresponding Jsc</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="CorrFFLabel">
+       <property name="text">
+        <string>Corresponding FF</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="AvVocLabel">
+       <property name="text">
+        <string>Average Voc</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="AvFFLabel">
+       <property name="text">
+        <string>Average FF</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="AvVocText"/>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLineEdit" name="CorrVocText"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="AvFFText"/>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="CorrFFText"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="randomButton">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>910</y>
+      <width>221</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot Random Data</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>910</y>
+      <width>211</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Open Data</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1447</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
