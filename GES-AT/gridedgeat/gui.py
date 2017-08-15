@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
-        self.setGeometry(10,30,300,200)
+        self.setGeometry(10,30,350,175)
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow()
         self.acquisitionwind = AcquisitionWindow()
@@ -109,13 +109,18 @@ class MainWindow(QMainWindow):
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)
-        self.startAcqButton.setGeometry(QRect(10, 30, 150, 50))
+        self.startAcqButton.setGeometry(QRect(20, 90, 150, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
         self.stopAcqButton = QPushButton(self)
-        self.stopAcqButton.setGeometry(QRect(10, 85, 150, 50))
+        self.stopAcqButton.setGeometry(QRect(190, 90, 150, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
+        self.label = QLabel(self)
+        self.label.setGeometry(QRect(30, 30, 311, 61))
+        self.label.setText("")
+        self.label.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
+        self.label.setObjectName("label")
 
 
 
