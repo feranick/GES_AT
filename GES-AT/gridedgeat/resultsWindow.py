@@ -34,6 +34,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
         self.initUI()
+        self.initPlots()
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 925)
@@ -44,21 +45,26 @@ class ResultsWindow(QMainWindow):
         self.figureTVoc = plt.figure()
         self.figureJVresp = plt.figure()
         self.figureMPP = plt.figure()
-        
+        self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureJVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureMPP.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
         self.gridLayoutWidget.setGeometry(QRect(20, 40, 1100, 710))
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        
         self.canvasTVoc = FigureCanvas(self.figureTVoc)
         self.gridLayout.addWidget(self.canvasTVoc, 1, 1, 1, 1)
         self.canvasMPP = FigureCanvas(self.figureMPP)
         self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
         self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        self.gridLayout.addWidget(self.canvasJVresp, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.canvasJVresp, 3, 0, 1, 1)
         self.canvasTJsc = FigureCanvas(self.figureTJsc)
-        self.gridLayout.addWidget(self.canvasTJsc, 3, 0, 1, 1)
+        self.gridLayout.addWidget(self.canvasTJsc, 1, 0, 1, 1)
         
         self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
         self.gridLayout.addWidget(self.toolbarTJsc, 0, 0, 1, 1)
@@ -138,59 +144,64 @@ class ResultsWindow(QMainWindow):
         self.randomButton.setGeometry(QRect(500, 10, 200, 30))
         self.openButton = QPushButton(self.centralwidget)
         self.openButton.setGeometry(QRect(700, 10, 200, 30))
-        self.openButton.setObjectName("openButton")
-        
+        self.clearButton = QPushButton(self.centralwidget)
+        self.clearButton.setGeometry(QRect(900, 10, 200, 30))
+
         self.randomButton.setText("Plot Random Data")
         self.openButton.setText("Open Data")
+        self.clearButton.setText("Clear Data")
         self.randomButton.clicked.connect(self.generate_random_data)
         self.openButton.clicked.connect(self.open_data)
+        self.clearButton.clicked.connect(self.initPlots)
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
-
+    
+    def initPlots(self):
+        self.axTJsc = self.figureTJsc.add_subplot(111)
+        self.axTJsc.clear()
+        self.plotSettings(self.axTJsc)
+        self.axTJsc.set_xlabel('Time [s]',fontsize=5)
+        self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.canvasTJsc.draw()
+        self.axTVoc = self.figureTVoc.add_subplot(111)
+        self.axTVoc.clear()
+        self.plotSettings(self.axTVoc)
+        self.axTVoc.set_xlabel('Time [s]',fontsize=5)
+        self.axTVoc.set_ylabel('Voc [V]',fontsize=5)
+        self.canvasTVoc.draw()
+        self.axJVresp = self.figureJVresp.add_subplot(111)
+        self.axJVresp.clear()
+        self.plotSettings(self.axJVresp)
+        self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
+        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
+        self.canvasJVresp.draw()
+        self.axMPP = self.figureMPP.add_subplot(111)
+        self.axMPP.clear()
+        self.plotSettings(self.axMPP)
+        self.axMPP.set_xlabel('Time [s]',fontsize=5)
+        self.axMPP.set_ylabel('Max power point [mW]',fontsize=5)
+        self.canvasMPP.draw()
+    
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        ax = self.figureTJsc.add_subplot(111)
-        ax.clear()
-        self.plotSettings(ax)
-        ax.plot(data[:,0],data[:,1], '*-')
-        ax.set_xlabel('Time [s]',fontsize=5)
-        ax.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.axTJsc.plot(data[:,0],data[:,1], '*-')
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
-        ax = self.figureTVoc.add_subplot(111)
-        ax.clear()
-        self.plotSettings(ax)
-        ax.plot(data[:,0],data[:,1], '*-')
-        ax.set_xlabel('Time [s]',fontsize=5)
-        ax.set_ylabel('Voc [V]',fontsize=5)
+        self.axTVoc.plot(data[:,0],data[:,1], '*-')
         self.canvasTVoc.draw()
     
     # Plot JV response
     def plotJVresp(self, data):
-        ax = self.figureJVresp.add_subplot(111)
-        ax.clear()
-        self.plotSettings(ax)
-        ax.tick_params(axis='both', which='major', labelsize=5)
-        ax.tick_params(axis='both', which='minor', labelsize=5)
-        ax.plot(data[:,0],data[:,1], '*-')
-        ax.set_xlabel('Voltage [V]',fontsize=5)
-        ax.set_ylabel('Current density [mA/cm^2]',fontsize=5)
+        self.axJVresp.plot(data[:,0],data[:,1], '*-')
         self.canvasJVresp.draw()
     
     # Plot MPP with tracking
     def plotMPP(self, data):
-        ax = self.figureMPP.add_subplot(111)
-        ax.clear()
-        self.plotSettings(ax)
-        ax.tick_params(axis='both', which='major', labelsize=5)
-        ax.tick_params(axis='both', which='minor', labelsize=5)
-        ax.plot(data[:,0],data[:,1], '*-')
-        ax.set_xlabel('Time [s]',fontsize=5)
-        ax.set_ylabel('Max Power Point [mW]',fontsize=5)
+        self.axMPP.plot(data[:,0],data[:,1], '*-')
         self.canvasMPP.draw()
 
     def open_data(self):
@@ -200,18 +211,29 @@ class ResultsWindow(QMainWindow):
             for filename in filenames:
                 data = open(filename)
                 M = np.loadtxt(data,unpack=False)
-                self.plot(M)
+                self.plotJVresp(M)
         except:
             print("Loading files failed")
 
     def generate_random_data(self):
+        self.JV = self.generateRandomJV()
+        self.plotJVresp(self.JV)
         self.data = np.empty((10,2))
         self.data[:,0] = [i for i in range(10)]
         self.data[:,1] = [random.random() for i in range(10)]
-        self.plotTJsc(self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
         self.plotTVoc(self.data)
         self.data[:,1] = [random.random() for i in range(10)]
-        self.plotJVresp(self.data)
+        self.plotTJsc(self.data)
         self.data[:,1] = [random.random() for i in range(10)]
         self.plotMPP(self.data)
+    
+    def generateRandomJV(self):
+        Io = 1e-5
+        Il = 0.5
+        n = 1
+        T = 300
+        JV = np.empty((10,2))
+        JV[:,0] = [i for i in range(10)]
+        JV[:,1] = [i*i for i in range(10)]
+        return JV
+
