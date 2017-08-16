@@ -36,7 +36,8 @@ class ResultsWindow(QMainWindow):
         self.initUI()
         self.initPlots()
         self.initJVPlot()
-        self.data = np.zeros((0,5))
+        self.summaryData = np.zeros((0,5))
+        self.time = 0
 
     
     def initUI(self):
@@ -194,13 +195,18 @@ class ResultsWindow(QMainWindow):
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        self.axTJsc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
+        self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
         self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         self.canvasTVoc.draw()
+
+    # Plot MPP with tracking
+    def plotMPP(self, data):
+        self.axMPP.plot(data[:,0],data[:,4], '.-',linewidth=0.5)
+        self.canvasMPP.draw()
     
     # Plot JV response
     def plotJVresp(self, JV):
@@ -211,11 +217,6 @@ class ResultsWindow(QMainWindow):
                 color='orange')
         self.canvasJVresp.draw()
     
-    # Plot MPP with tracking
-    def plotMPP(self, data):
-        self.axMPP.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
-        self.canvasMPP.draw()
-    
     def clearPlots(self):
         self.initPlots()
         self.initJVPlot()
@@ -225,23 +226,27 @@ class ResultsWindow(QMainWindow):
         self.avVocText.setText("")
         self.avJscText.setText("")
         self.avFFText.setText("")
+        self.time = 0
+        self.summaryData = np.zeros((0,5))
     
     ###### Processing #############
     
     def temporaryAcquisition(self):
+        self.time = self.time + 1
         self.processData(self.generateRandomJV())
     
     def processData(self,JV):
         self.plotJVresp(JV)
-        self.PV,self.Voc,self.Jsc,self.Pmax,self.FF = self.makePowV(JV)
-        self.corrVocText.setText("{0:0.3f}".format(float(self.Voc)))
-        self.corrJscText.setText("{0:0.3e}".format(float(self.Jsc)))
-        self.corrFFText.setText("{0:0.1f}".format(float(self.FF)))
+        currentData = self.analyseJV(JV)
+        self.corrVocText.setText("{0:0.3f}".format(currentData[1]))
+        self.corrJscText.setText("{0:0.3e}".format(currentData[2]))
+        self.corrFFText.setText("{0:0.1f}".format(currentData[3]))
         
-        self.plotTVoc(JV)
-        self.plotMPP(JV)
-        self.plotTJsc(JV)
-
+        self.summaryData = np.vstack((self.summaryData,np.hstack((self.time, currentData))))
+        
+        self.plotTVoc(self.summaryData)
+        self.plotMPP(self.summaryData)
+        self.plotTJsc(self.summaryData)
 
 
     def open_data(self):
@@ -255,7 +260,7 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
     
-    def makePowV(self,JV):
+    def analyseJV(self,JV):
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -264,7 +269,8 @@ class ResultsWindow(QMainWindow):
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
         FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        return PV, Voc, Jsc, Vpmax*Jpmax, FF
+        data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
+        return data
     
     ################################################################
 
