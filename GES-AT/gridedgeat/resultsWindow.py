@@ -36,6 +36,7 @@ class ResultsWindow(QMainWindow):
         self.initUI()
         self.initPlots()
         self.initJVPlot()
+        self.data = np.zeros((0,5))
 
     
     def initUI(self):
@@ -97,33 +98,33 @@ class ResultsWindow(QMainWindow):
         self.avJscLabel = QLabel(self.gridLayoutWidget_2)
         self.avJscLabel.setObjectName("avJscLabel")
         self.gridLayout_2.addWidget(self.avJscLabel, 0, 0, 1, 1)
-        self.CorrVocLabel = QLabel(self.gridLayoutWidget_2)
-        self.CorrVocLabel.setObjectName("CorrVocLabel")
-        self.gridLayout_2.addWidget(self.CorrVocLabel, 1, 2, 1, 1)
+        self.corrVocLabel = QLabel(self.gridLayoutWidget_2)
+        self.corrVocLabel.setObjectName("corrVocLabel")
+        self.gridLayout_2.addWidget(self.corrVocLabel, 1, 2, 1, 1)
         self.corrJscLabel = QLabel(self.gridLayoutWidget_2)
         self.corrJscLabel.setObjectName("corrJscLabel")
         self.gridLayout_2.addWidget(self.corrJscLabel, 0, 2, 1, 1)
-        self.CorrFFLabel = QLabel(self.gridLayoutWidget_2)
-        self.CorrFFLabel.setObjectName("CorrFFLabel")
-        self.gridLayout_2.addWidget(self.CorrFFLabel, 2, 2, 1, 1)
-        self.AvVocLabel = QLabel(self.gridLayoutWidget_2)
-        self.AvVocLabel.setObjectName("AvVocLabel")
-        self.gridLayout_2.addWidget(self.AvVocLabel, 1, 0, 1, 1)
-        self.AvFFLabel = QLabel(self.gridLayoutWidget_2)
-        self.AvFFLabel.setObjectName("AvFFLabel")
-        self.gridLayout_2.addWidget(self.AvFFLabel, 2, 0, 1, 1)
-        self.AvVocText = QLineEdit(self.gridLayoutWidget_2)
-        self.AvVocText.setObjectName("AvVocText")
-        self.gridLayout_2.addWidget(self.AvVocText, 1, 1, 1, 1)
-        self.CorrVocText = QLineEdit(self.gridLayoutWidget_2)
-        self.CorrVocText.setObjectName("CorrVocText")
-        self.gridLayout_2.addWidget(self.CorrVocText, 1, 3, 1, 1)
-        self.AvFFText = QLineEdit(self.gridLayoutWidget_2)
-        self.AvFFText.setObjectName("AvFFText")
-        self.gridLayout_2.addWidget(self.AvFFText, 2, 1, 1, 1)
-        self.CorrFFText = QLineEdit(self.gridLayoutWidget_2)
-        self.CorrFFText.setObjectName("CorrFFText")
-        self.gridLayout_2.addWidget(self.CorrFFText, 2, 3, 1, 1)
+        self.corrFFLabel = QLabel(self.gridLayoutWidget_2)
+        self.corrFFLabel.setObjectName("corrFFLabel")
+        self.gridLayout_2.addWidget(self.corrFFLabel, 2, 2, 1, 1)
+        self.avVocLabel = QLabel(self.gridLayoutWidget_2)
+        self.avVocLabel.setObjectName("avVocLabel")
+        self.gridLayout_2.addWidget(self.avVocLabel, 1, 0, 1, 1)
+        self.avFFLabel = QLabel(self.gridLayoutWidget_2)
+        self.avFFLabel.setObjectName("avFFLabel")
+        self.gridLayout_2.addWidget(self.avFFLabel, 2, 0, 1, 1)
+        self.avVocText = QLineEdit(self.gridLayoutWidget_2)
+        self.avVocText.setObjectName("avVocText")
+        self.gridLayout_2.addWidget(self.avVocText, 1, 1, 1, 1)
+        self.corrVocText = QLineEdit(self.gridLayoutWidget_2)
+        self.corrVocText.setObjectName("corrVocText")
+        self.gridLayout_2.addWidget(self.corrVocText, 1, 3, 1, 1)
+        self.avFFText = QLineEdit(self.gridLayoutWidget_2)
+        self.avFFText.setObjectName("avFFText")
+        self.gridLayout_2.addWidget(self.avFFText, 2, 1, 1, 1)
+        self.corrFFText = QLineEdit(self.gridLayoutWidget_2)
+        self.corrFFText.setObjectName("corrFFText")
+        self.gridLayout_2.addWidget(self.corrFFText, 2, 3, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setGeometry(QRect(0, 0, 1447, 22))
@@ -134,12 +135,12 @@ class ResultsWindow(QMainWindow):
         self.setStatusBar(self.statusbar)
         
         self.deviceIDLabel.setText("Current Device ID")
-        self.avJscLabel.setText("Average Jsc")
-        self.CorrVocLabel.setText("Corresponding Voc")
-        self.corrJscLabel.setText("Corresponding Jsc")
-        self.CorrFFLabel.setText("Corresponding FF")
-        self.AvVocLabel.setText("Average Voc")
-        self.AvFFLabel.setText("Average FF")
+        self.corrVocLabel.setText("Corresponding Voc [V]")
+        self.corrJscLabel.setText("Corresponding Jsc [mA/cm^2]")
+        self.corrFFLabel.setText("Corresponding FF")
+        self.avVocLabel.setText("Average Voc [V]")
+        self.avJscLabel.setText("Average Jsc [mA/cm^2]")
+        self.avFFLabel.setText("Average FF")
         
         # Just some button connected to `plot` method
         self.randomButton = QPushButton(self.centralwidget)
@@ -152,7 +153,7 @@ class ResultsWindow(QMainWindow):
         self.randomButton.setText("Plot Random Data")
         self.openButton.setText("Open Data")
         self.clearButton.setText("Clear Data")
-        self.randomButton.clicked.connect(self.generate_random_data)
+        self.randomButton.clicked.connect(self.temporaryAcquisition)
         self.openButton.clicked.connect(self.open_data)
         self.clearButton.clicked.connect(self.clearPlots)
     
@@ -191,7 +192,6 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=5)
         self.canvasJVresp.draw()
 
-    
     # Plot Transient Jsc
     def plotTJsc(self, data):
         self.axTJsc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
@@ -204,12 +204,10 @@ class ResultsWindow(QMainWindow):
     
     # Plot JV response
     def plotJVresp(self, JV):
-        PV = self.makePowV(JV)
-        
         self.initJVPlot()
     
-        self.line1 = self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
-        self.line2 = self.axPVresp.plot(PV[:,0],PV[:,1], '.-',linewidth=0.5,
+        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
+        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
                 color='orange')
         self.canvasJVresp.draw()
     
@@ -218,9 +216,32 @@ class ResultsWindow(QMainWindow):
         self.axMPP.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         self.canvasMPP.draw()
     
-    def clearPlots():
+    def clearPlots(self):
         self.initPlots()
         self.initJVPlot()
+        self.corrVocText.setText("")
+        self.corrJscText.setText("")
+        self.corrFFText.setText("")
+        self.avVocText.setText("")
+        self.avJscText.setText("")
+        self.avFFText.setText("")
+    
+    ###### Processing #############
+    
+    def temporaryAcquisition(self):
+        self.processData(self.generateRandomJV())
+    
+    def processData(self,JV):
+        self.plotJVresp(JV)
+        self.PV,self.Voc,self.Jsc,self.Pmax,self.FF = self.makePowV(JV)
+        self.corrVocText.setText("{0:0.3f}".format(float(self.Voc)))
+        self.corrJscText.setText("{0:0.3e}".format(float(self.Jsc)))
+        self.corrFFText.setText("{0:0.1f}".format(float(self.FF)))
+        
+        self.plotTVoc(JV)
+        self.plotMPP(JV)
+        self.plotTJsc(JV)
+
 
 
     def open_data(self):
@@ -233,7 +254,39 @@ class ResultsWindow(QMainWindow):
                 self.plotJVresp(M)
         except:
             print("Loading files failed")
+    
+    def makePowV(self,JV):
+        PV = np.zeros(JV.shape)
+        PV[:,0] = JV[:,0]
+        PV[:,1] = JV[:,0]*JV[:,1]
+        Voc = JV[JV.shape[0]-1,0]
+        Jsc = JV[0,1]
+        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
+        Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
+        FF = Vpmax*Jpmax*100/(Voc*Jsc)
+        return PV, Voc, Jsc, Vpmax*Jpmax, FF
+    
+    ################################################################
 
+    def generateRandomJV(self):
+        VStart = 0
+        VEnd = 1
+        VStep = 0.02
+        I0 = 1e-10
+        Il = 0.5
+        n = 1+ random.randrange(0,20,1)/10
+        T = 300
+        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
+        q = 1.60217662E-19  # Electron charge
+        
+        JV = np.zeros((0,2))
+        for i in np.arange(VStart,VEnd,VStep):
+            temp = Il - I0*math.exp(q*i/(n*kB*T))
+            JV = np.vstack([JV,[i,temp]])
+        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
+        return JV
+
+    ### deprecated ####
     def generate_random_data(self):
         self.data = np.empty((10,2))
         self.data[:,0] = [i for i in range(10)]
@@ -247,28 +300,4 @@ class ResultsWindow(QMainWindow):
         self.plotMPP(self.data)
         self.JV = self.generateRandomJV()
         self.plotJVresp(self.JV)
-    
-    def generateRandomJV(self):
-        VStart = 0
-        VEnd = 1
-        VStep = 0.02
-        I0 = 1e-9
-        Il = 0.5
-        n = random.randrange(10,20,1)/10
-        T = 300
-        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
-        q = 1.60217662E-19  # Electron charge
-        
-        JV = np.zeros((0,2))
-        for i in np.arange(VStart,VEnd,VStep):
-            temp = Il - I0*math.exp(q*i/(n*kB*T))
-            JV = np.vstack([JV,[i,temp]])
-        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
-        return JV
-
-    def makePowV(self,JV):
-        PV = np.zeros(JV.shape)
-        PV[:,0] = JV[:,0]
-        PV[:,1] = JV[:,0]*JV[:,1]
-        return PV
 
