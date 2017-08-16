@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(500, 100, 1020, 1015)
+        self.setGeometry(500, 100, 1150, 925)
         self.setWindowTitle('Results Panel')
         
         # a figure instance to plot on
@@ -48,7 +48,7 @@ class ResultsWindow(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QRect(20, 40, 1000, 710))
+        self.gridLayoutWidget.setGeometry(QRect(20, 40, 1100, 710))
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.canvasTVoc = FigureCanvas(self.figureTVoc)
@@ -76,7 +76,7 @@ class ResultsWindow(QMainWindow):
         self.deviceIDCBox.setGeometry(QRect(150, 10, 300, 25))
         self.deviceIDCBox.setObjectName("deviceIDCBox")
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
-        self.gridLayoutWidget_2.setGeometry(QRect(370, 770, 721, 111))
+        self.gridLayoutWidget_2.setGeometry(QRect(150, 770, 721, 111))
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
         self.gridLayout_2.setObjectName("gridLayout_2")
