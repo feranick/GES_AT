@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 
 from . import config
 
-
 '''
    Results Window
 '''
@@ -34,9 +33,9 @@ class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
         self.initUI()
-        self.initPlots()
-        self.initJVPlot()
         self.summaryData = np.zeros((0,5))
+        self.initPlots(self.summaryData)
+        self.initJVPlot()
         self.time = 0
 
     
@@ -162,26 +161,39 @@ class ResultsWindow(QMainWindow):
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
     
-    def initPlots(self):
+    # Initialize Time-based plots
+    def initPlots(self, data):
         self.figureTJsc.clf()
         self.axTJsc = self.figureTJsc.add_subplot(111)
         self.plotSettings(self.axTJsc)
         self.axTJsc.set_xlabel('Time [s]',fontsize=5)
         self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.axTJsc.set_autoscale_on(True)
+        self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
+        self.lineTJsc, = self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
+        
         self.figureTVoc.clf()
         self.axTVoc = self.figureTVoc.add_subplot(111)
         self.plotSettings(self.axTVoc)
         self.axTVoc.set_xlabel('Time [s]',fontsize=5)
         self.axTVoc.set_ylabel('Voc [V]',fontsize=5)
+        self.axTVoc.set_autoscale_on(True)
+        self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
+        self.lineTVoc, = self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
+        
         self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
         self.plotSettings(self.axMPP)
         self.axMPP.set_xlabel('Time [s]',fontsize=5)
         self.axMPP.set_ylabel('Max power point [mW]',fontsize=5)
+        self.axMPP.set_autoscale_on(True)
+        self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
+        self.lineMPP, = self.axMPP.plot(data[:,0],data[:,4], '.-',linewidth=0.5)
     
+    # Initialize JV and PV plots
     def initJVPlot(self):
         self.figureJVresp.clf()
         self.axJVresp = self.figureJVresp.add_subplot(111)
@@ -195,30 +207,37 @@ class ResultsWindow(QMainWindow):
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
+        self.lineTJsc.set_data(data[:,0], data[:,2])
+        self.axTJsc.relim()
+        self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
-        self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
+        self.lineTVoc.set_data(data[:,0], data[:,1])
+        self.axTVoc.relim()
+        self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
 
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.axMPP.plot(data[:,0],data[:,4], '.-',linewidth=0.5)
+        self.lineMPP.set_data(data[:,0], data[:,4])
+        self.axMPP.relim()
+        self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
     
     # Plot JV response
     def plotJVresp(self, JV):
         self.initJVPlot()
-    
         self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
         self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
                 color='orange')
         self.canvasJVresp.draw()
     
+    # Clear all plots and fields
     def clearPlots(self):
-        self.initPlots()
+        self.summaryData = np.zeros((0,5))
+        self.initPlots(self.summaryData)
         self.initJVPlot()
         self.corrVocText.setText("")
         self.corrJscText.setText("")
@@ -227,14 +246,8 @@ class ResultsWindow(QMainWindow):
         self.avJscText.setText("")
         self.avFFText.setText("")
         self.time = 0
-        self.summaryData = np.zeros((0,5))
     
     ###### Processing #############
-    
-    def temporaryAcquisition(self):
-        self.time = self.time + 1
-        self.processData(self.generateRandomJV())
-    
     def processData(self,JV):
         self.plotJVresp(JV)
         currentData = self.analyseJV(JV)
@@ -247,18 +260,6 @@ class ResultsWindow(QMainWindow):
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
-
-
-    def open_data(self):
-        filenames = QFileDialog.getOpenFileNames(self,
-                        "Open ASCII data", "","*.txt")
-        try:
-            for filename in filenames:
-                data = open(filename)
-                M = np.loadtxt(data,unpack=False)
-                self.plotJVresp(M)
-        except:
-            print("Loading files failed")
     
     def analyseJV(self,JV):
         PV = np.zeros(JV.shape)
@@ -272,8 +273,19 @@ class ResultsWindow(QMainWindow):
         data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
         return data
     
+    ### Open JV from file
+    def open_data(self):
+        filenames = QFileDialog.getOpenFileNames(self,
+                        "Open ASCII JV data", "","*.txt")
+        try:
+            for filename in filenames:
+                data = open(filename)
+                M = np.loadtxt(data,unpack=False)
+                self.plotJVresp(M)
+        except:
+            print("Loading files failed")
+    
     ################################################################
-
     def generateRandomJV(self):
         VStart = 0
         VEnd = 1
@@ -292,18 +304,7 @@ class ResultsWindow(QMainWindow):
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    ### deprecated ####
-    def generate_random_data(self):
-        self.data = np.empty((10,2))
-        self.data[:,0] = [i for i in range(10)]
-        #self.data[:,1] = [random.random() for i in range(10)]
-        #self.plotJVresp(self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plotTVoc(self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plotTJsc(self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plotMPP(self.data)
-        self.JV = self.generateRandomJV()
-        self.plotJVresp(self.JV)
-
+    ### This will only be used for testing, to sumulate an actual experiment
+    def temporaryAcquisition(self):
+        self.time = self.time + 1
+        self.processData(self.generateRandomJV())
