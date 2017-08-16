@@ -251,15 +251,20 @@ class ResultsWindow(QMainWindow):
     def processData(self,JV):
         self.plotJVresp(JV)
         currentData = self.analyseJV(JV)
-        self.corrVocText.setText("{0:0.3f}".format(currentData[1]))
-        self.corrJscText.setText("{0:0.3e}".format(currentData[2]))
-        self.corrFFText.setText("{0:0.1f}".format(currentData[3]))
+        self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
+        self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
+        self.corrFFText.setText("{0:0.1f}".format(currentData[2]))
         
         self.summaryData = np.vstack((self.summaryData,np.hstack((self.time, currentData))))
         
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
+    
+        self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
+        self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
+        self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
+    
     
     def analyseJV(self,JV):
         PV = np.zeros(JV.shape)
