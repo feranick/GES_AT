@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, random
+import sys, random, math
 import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
@@ -35,6 +35,8 @@ class ResultsWindow(QMainWindow):
         super(ResultsWindow, self).__init__()
         self.initUI()
         self.initPlots()
+        self.initJVPlot()
+
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 925)
@@ -47,7 +49,7 @@ class ResultsWindow(QMainWindow):
         self.figureMPP = plt.figure()
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figureJVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
         self.figureMPP.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
 
         self.centralwidget = QWidget(self)
@@ -57,21 +59,21 @@ class ResultsWindow(QMainWindow):
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         
-        self.canvasTVoc = FigureCanvas(self.figureTVoc)
-        self.gridLayout.addWidget(self.canvasTVoc, 1, 1, 1, 1)
-        self.canvasMPP = FigureCanvas(self.figureMPP)
-        self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
-        self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        self.gridLayout.addWidget(self.canvasJVresp, 3, 0, 1, 1)
         self.canvasTJsc = FigureCanvas(self.figureTJsc)
         self.gridLayout.addWidget(self.canvasTJsc, 1, 0, 1, 1)
+        self.canvasTVoc = FigureCanvas(self.figureTVoc)
+        self.gridLayout.addWidget(self.canvasTVoc, 1, 1, 1, 1)
+        self.canvasJVresp = FigureCanvas(self.figureJVresp)
+        self.gridLayout.addWidget(self.canvasJVresp, 3, 0, 1, 1)
+        self.canvasMPP = FigureCanvas(self.figureMPP)
+        self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
         
         self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
         self.gridLayout.addWidget(self.toolbarTJsc, 0, 0, 1, 1)
         self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
-        self.gridLayout.addWidget(self.toolbarTVoc, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.toolbarTVoc, 0, 1, 1, 1)
         self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
-        self.gridLayout.addWidget(self.toolbarJVresp, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.toolbarJVresp, 2, 0, 1, 1)
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
 
@@ -152,57 +154,74 @@ class ResultsWindow(QMainWindow):
         self.clearButton.setText("Clear Data")
         self.randomButton.clicked.connect(self.generate_random_data)
         self.openButton.clicked.connect(self.open_data)
-        self.clearButton.clicked.connect(self.initPlots)
+        self.clearButton.clicked.connect(self.clearPlots)
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
     
     def initPlots(self):
+        self.figureTJsc.clf()
         self.axTJsc = self.figureTJsc.add_subplot(111)
-        self.axTJsc.clear()
         self.plotSettings(self.axTJsc)
         self.axTJsc.set_xlabel('Time [s]',fontsize=5)
         self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
         self.canvasTJsc.draw()
+        self.figureTVoc.clf()
         self.axTVoc = self.figureTVoc.add_subplot(111)
-        self.axTVoc.clear()
         self.plotSettings(self.axTVoc)
         self.axTVoc.set_xlabel('Time [s]',fontsize=5)
         self.axTVoc.set_ylabel('Voc [V]',fontsize=5)
         self.canvasTVoc.draw()
-        self.axJVresp = self.figureJVresp.add_subplot(111)
-        self.axJVresp.clear()
-        self.plotSettings(self.axJVresp)
-        self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
-        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
-        self.canvasJVresp.draw()
+        self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
-        self.axMPP.clear()
         self.plotSettings(self.axMPP)
         self.axMPP.set_xlabel('Time [s]',fontsize=5)
         self.axMPP.set_ylabel('Max power point [mW]',fontsize=5)
         self.canvasMPP.draw()
     
+    def initJVPlot(self):
+        self.figureJVresp.clf()
+        self.axJVresp = self.figureJVresp.add_subplot(111)
+        self.axPVresp = self.axJVresp.twinx()
+        self.plotSettings(self.axJVresp)
+        self.plotSettings(self.axPVresp)
+        self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
+        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
+        self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=5)
+        self.canvasJVresp.draw()
+
+    
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        self.axTJsc.plot(data[:,0],data[:,1], '*-')
+        self.axTJsc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
-        self.axTVoc.plot(data[:,0],data[:,1], '*-')
+        self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         self.canvasTVoc.draw()
     
     # Plot JV response
-    def plotJVresp(self, data):
-        self.axJVresp.plot(data[:,0],data[:,1], '*-')
+    def plotJVresp(self, JV):
+        PV = self.makePowV(JV)
+        
+        self.initJVPlot()
+    
+        self.line1 = self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
+        self.line2 = self.axPVresp.plot(PV[:,0],PV[:,1], '.-',linewidth=0.5,
+                color='orange')
         self.canvasJVresp.draw()
     
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.axMPP.plot(data[:,0],data[:,1], '*-')
+        self.axMPP.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         self.canvasMPP.draw()
+    
+    def clearPlots():
+        self.initPlots()
+        self.initJVPlot()
+
 
     def open_data(self):
         filenames = QFileDialog.getOpenFileNames(self,
@@ -216,24 +235,40 @@ class ResultsWindow(QMainWindow):
             print("Loading files failed")
 
     def generate_random_data(self):
-        self.JV = self.generateRandomJV()
-        self.plotJVresp(self.JV)
         self.data = np.empty((10,2))
         self.data[:,0] = [i for i in range(10)]
+        #self.data[:,1] = [random.random() for i in range(10)]
+        #self.plotJVresp(self.data)
         self.data[:,1] = [random.random() for i in range(10)]
         self.plotTVoc(self.data)
         self.data[:,1] = [random.random() for i in range(10)]
         self.plotTJsc(self.data)
         self.data[:,1] = [random.random() for i in range(10)]
         self.plotMPP(self.data)
+        self.JV = self.generateRandomJV()
+        self.plotJVresp(self.JV)
     
     def generateRandomJV(self):
-        Io = 1e-5
+        VStart = 0
+        VEnd = 1
+        VStep = 0.02
+        I0 = 1e-9
         Il = 0.5
-        n = 1
+        n = random.randrange(10,20,1)/10
         T = 300
-        JV = np.empty((10,2))
-        JV[:,0] = [i for i in range(10)]
-        JV[:,1] = [i*i for i in range(10)]
+        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
+        q = 1.60217662E-19  # Electron charge
+        
+        JV = np.zeros((0,2))
+        for i in np.arange(VStart,VEnd,VStep):
+            temp = Il - I0*math.exp(q*i/(n*kB*T))
+            JV = np.vstack([JV,[i,temp]])
+        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
+
+    def makePowV(self,JV):
+        PV = np.zeros(JV.shape)
+        PV[:,0] = JV[:,0]
+        PV[:,1] = JV[:,0]*JV[:,1]
+        return PV
 
