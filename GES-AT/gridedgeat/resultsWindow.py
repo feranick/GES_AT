@@ -145,30 +145,53 @@ class ResultsWindow(QMainWindow):
         self.randomButton.clicked.connect(self.generate_random_data)
         self.openButton.clicked.connect(self.open_data)
     
+    def plotSettings(self, ax):
+        ax.tick_params(axis='both', which='major', labelsize=5)
+        ax.tick_params(axis='both', which='minor', labelsize=5)
 
-    def generate_random_data(self):
-        self.data = np.empty((10,2))
-        self.data[:,0] = [i for i in range(10)]
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plot(self.figureTJsc, self.canvasTJsc, self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plot(self.figureTVoc, self.canvasTVoc, self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plot(self.figureJVresp, self.canvasJVresp, self.data)
-        self.data[:,1] = [random.random() for i in range(10)]
-        self.plot(self.figureMPP, self.canvasMPP, self.data)
-
-
-    def plot(self, figure, canvas, data):
-        ''' plot some random stuff '''
-        ax = figure.add_subplot(111)
+    # Plot Transient Jsc
+    def plotTJsc(self, data):
+        ax = self.figureTJsc.add_subplot(111)
         ax.clear()
+        self.plotSettings(ax)
+        ax.plot(data[:,0],data[:,1], '*-')
+        ax.set_xlabel('Time [s]',fontsize=5)
+        ax.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.canvasTJsc.draw()
+    
+    # Plot Transient Voc
+    def plotTVoc(self, data):
+        ax = self.figureTVoc.add_subplot(111)
+        ax.clear()
+        self.plotSettings(ax)
+        ax.plot(data[:,0],data[:,1], '*-')
+        ax.set_xlabel('Time [s]',fontsize=5)
+        ax.set_ylabel('Voc [V]',fontsize=5)
+        self.canvasTVoc.draw()
+    
+    # Plot JV response
+    def plotJVresp(self, data):
+        ax = self.figureJVresp.add_subplot(111)
+        ax.clear()
+        self.plotSettings(ax)
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
         ax.plot(data[:,0],data[:,1], '*-')
         ax.set_xlabel('Voltage [V]',fontsize=5)
         ax.set_ylabel('Current density [mA/cm^2]',fontsize=5)
-        canvas.draw()
+        self.canvasJVresp.draw()
+    
+    # Plot MPP with tracking
+    def plotMPP(self, data):
+        ax = self.figureMPP.add_subplot(111)
+        ax.clear()
+        self.plotSettings(ax)
+        ax.tick_params(axis='both', which='major', labelsize=5)
+        ax.tick_params(axis='both', which='minor', labelsize=5)
+        ax.plot(data[:,0],data[:,1], '*-')
+        ax.set_xlabel('Time [s]',fontsize=5)
+        ax.set_ylabel('Max Power Point [mW]',fontsize=5)
+        self.canvasMPP.draw()
 
     def open_data(self):
         filenames = QFileDialog.getOpenFileNames(self,
@@ -180,3 +203,15 @@ class ResultsWindow(QMainWindow):
                 self.plot(M)
         except:
             print("Loading files failed")
+
+    def generate_random_data(self):
+        self.data = np.empty((10,2))
+        self.data[:,0] = [i for i in range(10)]
+        self.data[:,1] = [random.random() for i in range(10)]
+        self.plotTJsc(self.data)
+        self.data[:,1] = [random.random() for i in range(10)]
+        self.plotTVoc(self.data)
+        self.data[:,1] = [random.random() for i in range(10)]
+        self.plotJVresp(self.data)
+        self.data[:,1] = [random.random() for i in range(10)]
+        self.plotMPP(self.data)
