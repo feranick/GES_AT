@@ -133,31 +133,10 @@ class ResultsWindow(QMainWindow):
         self.AvVocLabel.setText("Average Voc")
         self.AvFFLabel.setText("Average FF")
         
-        
-        #self.statusBar().showMessage("Plotting: Ready", 5000)
-        # a figure instance to plot on
-        #self.figure = plt.figure()
-
-        # this is the Canvas Widget that displays the `figure`
-        # it takes the `figure` instance as a parameter to __init__
-        #self.canvas = FigureCanvas(self.figure)
-
-        # this is the Navigation widget
-        # it takes the Canvas widget and a parent
-        #self.toolbar = NavigationToolbar(self.canvas, self)
-
-        # set the layout
-        #layout = QVBoxLayout()
-        #layout.addWidget(self.toolbar)
-        #layout.addWidget(self.canvas)
-        
         # Just some button connected to `plot` method
         self.randomButton = QPushButton(self.centralwidget)
-        #self.randomButton.setGeometry(QRect(480, 910, 221, 32))
         self.randomButton.setGeometry(QRect(500, 10, 200, 30))
-        #self.randomButton.setObjectName("randomButton")
         self.openButton = QPushButton(self.centralwidget)
-        #self.openButton.setGeometry(QRect(760, 910, 211, 32))
         self.openButton.setGeometry(QRect(700, 10, 200, 30))
         self.openButton.setObjectName("openButton")
         
