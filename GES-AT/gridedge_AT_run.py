@@ -6,7 +6,7 @@ import gridedgeat
 
 try:
     app = QApplication(sys.argv)
-    form = gridedgeat.gui.MainWindow()
+    form = gridedgeat.mainWindow.MainWindow()
     form.show()
     app.exec_()
 finally:
