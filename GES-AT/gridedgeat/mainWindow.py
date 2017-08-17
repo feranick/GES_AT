@@ -131,11 +131,11 @@ class MainWindow(QMainWindow):
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
         self.stopAcqButton.clicked.connect(self.acquisition.stop)
-        self.label = QLabel(self)
-        self.label.setGeometry(QRect(30, 30, 311, 61))
-        self.label.setText("")
-        self.label.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
-        self.label.setObjectName("label")
+        self.logo = QLabel(self)
+        self.logo.setGeometry(QRect(30, 30, 311, 61))
+        self.logo.setText("")
+        self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
+        self.logo.setObjectName("logo")
 
     def createAction(self, text, slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):
@@ -195,20 +195,28 @@ class AboutWidget(QWidget):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(100, 200, 400, 200)
+        self.setGeometry(100, 200, 400, 300)
         self.setWindowTitle('About GridEdge AutoTesting')
     
         self.gridLayout = QGridLayout()
         self.setLayout(self.gridLayout)
         self.verticalLayout = QVBoxLayout()
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        
+        self.logo = QLabel(self)
+        self.logo.setGeometry(QRect(30, 30, 311, 61))
+        self.logo.setText("GridEdge Solar @ MIT")
+        self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
+        self.logo.setObjectName("logo")
 
-        self.labelTitle = QLabel("<qt><b><big><a href = http://gridedgesolar.com>GridEdgeSolar %s</a></b></big></qt>" % __version__, self);
+        self.labelTitle = QLabel("<qt><b><big><a href = http://gridedgesolar.com>Autotesting %s</a></b></big></qt>" % __version__, self)
         self.labelBy = QLabel("by: %s" % __author__, self)
-        self.labelContact = QLabel("<qt>Contacts: <a href = mailto:mitgridedge@gmail.com> mitgridedge@gmail.com</a></qt>", self)
-        self.labelDetails = QLabel("GridEdgeSolar is a Solar PV project at MIT ", self)
-        self.labelPaper = QLabel("<qt> GridEdgeSolar", self)
-        for label in [self.labelTitle, self.labelBy, self.labelContact, self.labelDetails, self.labelPaper]:
+        self.labelContact = QLabel("<qt>Contact: <a href = mailto:mitgridedge@gmail.com> mitgridedge@gmail.com</a></qt>", self)
+        self.labelDetails = QLabel("GridEdgeSolar is a Solar PV project at MIT", self)
+        self.labelLicense = QLabel("This software is licensed under the GNU GPL v.2.0 or later", self)
+        
+        for label in [self.logo, self.labelTitle, self.labelBy,
+                self.labelContact, self.labelDetails, self.labelLicense]:
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
@@ -289,7 +297,6 @@ class DBConnection(QWidget):
         
         self.dbTestConnectButton.clicked.connect(self.dbCheckConnect)
 
-
     def dbCheckConnect(self):
         self.dbConnect = DataManagementDB(self.dbConnectInfo)
         try:
@@ -297,8 +304,4 @@ class DBConnection(QWidget):
             self.dbConnectResultLabel.setText("Connection successful")
         except:
             self.dbConnectResultLabel.setText("Connection failed")
-
-
-
-
 
