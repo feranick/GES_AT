@@ -85,11 +85,12 @@ class CameraWindow(QMainWindow):
         try:
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
             self.cam.grab_image()
-            self.image = self.cam.get_image()
+            self.image, self.image_data = self.cam.get_image()
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(self.cam.color_image_name() + \
                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
-            self.alignPerc, self.iMax = self.cam.check_alignment(config.alignmentIntThreshold)
+            self.alignPerc, self.iMax = self.cam.check_alignment(self.image_data, config.alignmentIntThreshold)
+
             self.checkAlignText.setText(str(self.alignPerc))
             if float(self.alignPerc) > float(config.alignmentContrastDefault) and float(self.iMax) > float(config.alignmentIntMax):
                 self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")

@@ -41,19 +41,19 @@ class CameraFeed():
         self.img_raw = Image.fromarray(self.img).convert('L')
         self.imgg = ImageQt(self.img_raw)
         self.img_data = np.asarray(self.img)
-        return self.imgg
+        return self.imgg, self.img_data
 
     def save_image(self, filename):
         cv2.imwrite(self.image_folder + filename,self.img)
 
-    def check_alignment(self, threshold):
+    def check_alignment(self, img_data, threshold):
         count = 0
-        self.iMax = np.amax(self.img_data)
+        self.iMax = np.amax(img_data)
         threshold = threshold*self.iMax
-        for i in np.nditer(self.img_data):
+        for i in np.nditer(img_data):
             if i > threshold:
                 count = count + 1
-        contrast = 100*count/self.img_data.size
+        contrast = 100*count/img_data.size
         print(" Check alignment [%]: {0:0.3f}".format(contrast))
         return "{0:0.3f}".format(contrast), self.iMax
 
