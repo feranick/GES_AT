@@ -20,19 +20,23 @@ from .resultsWindow import *
 
 class Acquisition():
     def __init__(self):
-        self.acquisitionwind = AcquisitionWindow()
+        #self.acquisitionwind = AcquisitionWindow()
         self.resultswind = ResultsWindow()
 
     def start(self):
         self.time = 0
+        print("start")
         
-        self.resultswind.show()
+        self.resultswind.show
         time.sleep(1)
         
         for i in range(5):
-            self.time = self.time + 1
+            print(i,self.time)
             self.resultswind.processData(self.time, self.generateRandomJV())
-    
+            self.time = self.time + 1
+        print("Done")
+        
+
     def stop(self):
         print("Not yet implemented")
 

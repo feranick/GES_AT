@@ -153,9 +153,6 @@ class MainWindow(QMainWindow):
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")
     
-        self.startAcqButton.clicked.connect(self.acquisition.start)
-    
-    
     def fileQuit(self):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
