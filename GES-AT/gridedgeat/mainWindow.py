@@ -58,13 +58,28 @@ class MainWindow(QMainWindow):
         #self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
         #        QKeySequence.Open, None,
         #        "Open a directory containing the image files.")
-        
         self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
                 QKeySequence("Ctrl+q"), None,
                 "Close the application")
                 
         self.fileActions = [None, self.fileQuitAction]
         
+        # actions for "Instruments" menu
+        self.stageAction = self.createAction("&Stage", self.aboutwid.show,
+                QKeySequence("Ctrl+s"), None,
+                "Stage")
+        
+        self.powermeterAction = self.createAction("&Powermeter", self.aboutwid.show,
+                QKeySequence("Ctrl+p"), None,
+                "Powermeter")
+        self.cameraAction = self.createAction("&Camera", self.camerawind.show,
+                QKeySequence("Ctrl+c"), None,
+                "Camera panel")
+
+        self.instrumentsActions = [None, self.powermeterAction, None,
+                        self.cameraAction, None, self.stageAction]
+
+        # actions for "Tools" menu
         self.dbConnectionAction = self.createAction("&TestDBConnection", self.dbconnectionwid.show,
                 QKeySequence("Ctrl+T"), None,
                 "Test connectivity to data-management")
@@ -88,6 +103,9 @@ class MainWindow(QMainWindow):
         fileMenu = self.menuBar().addMenu("&File")
         self.addActions(fileMenu, self.fileActions)
 
+        instrumentsMenu = self.menuBar().addMenu("&Instruments")
+        self.addActions(instrumentsMenu, self.instrumentsActions)
+
         toolsMenu = self.menuBar().addMenu("&Tools")
         self.addActions(toolsMenu, self.toolsActions)
 
@@ -96,25 +114,21 @@ class MainWindow(QMainWindow):
                 
         #### define actions ####
         # actions for "Buttons" menu
-        self.SampleAction = self.createAction("&Sample", self.samplewind.show,
+        self.sampleAction = self.createAction("&Sample", self.samplewind.show,
                 QKeySequence("Ctrl+s"), None,
                 "Sample panel")
-        self.AcquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
+        self.acquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition Setup panel")
-        self.ResultsAction = self.createAction("&Results", self.resultswind.show,
+        self.resultsAction = self.createAction("&Results", self.resultswind.show,
                 QKeySequence("Ctrl+p"), None,
                 "Results panel")
-        self.CameraAction = self.createAction("&Camera", self.camerawind.show,
-                QKeySequence("Ctrl+c"), None,
-                "Camera panel")
-    
     
         #### Create tool bar ####
         toolBar = self.addToolBar("&Toolbar")
         # adding actions to the toolbar, addActions-function creates a separator with "None"
-        self.toolBarActions = [self.SampleAction, None, self.AcquisitionAction, None, self.ResultsAction, None,
-                               self.CameraAction, None]
+        self.toolBarActions = [self.sampleAction, None, self.acquisitionAction, None, self.resultsAction, None,
+                               self.cameraAction, None]
         self.addActions(toolBar, self.toolBarActions)
         
         #### Create status bar ####
