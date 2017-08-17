@@ -25,18 +25,18 @@ class Acquisition():
 
     def start(self):
         self.time = 0
-        print("start")
+        print("Start Aquisition")
         
-        self.resultswind.show
-        time.sleep(1)
+        self.resultswind.clearPlots()
         
         for i in range(5):
-            print(i,self.time)
+            print("JV #",i+1)
             self.resultswind.processData(self.time, self.generateRandomJV())
+            self.resultswind.show()
             self.time = self.time + 1
-        print("Done")
+        print("Acquisition Done")
         
-
+    
     def stop(self):
         print("Not yet implemented")
 

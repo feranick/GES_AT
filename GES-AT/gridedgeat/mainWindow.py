@@ -47,12 +47,11 @@ class MainWindow(QMainWindow):
         self.setGeometry(10,30,350,175)
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow()
-        self.acquisitionwind = AcquisitionWindow()
-        self.acquisition = Acquisition()
         self.resultswind = ResultsWindow()
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
+        self.acquisitionwind = AcquisitionWindow()
         self.dbconnectionwid = DBConnection()
      
         #### define actions ####
@@ -122,7 +121,7 @@ class MainWindow(QMainWindow):
         self.acquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition Setup panel")
-        self.resultsAction = self.createAction("&Results", self.resultswind.show,
+        self.resultsAction = self.createAction("&Results", self.acquisition.resultswind.show,
                 QKeySequence("Ctrl+p"), None,
                 "Results panel")
     
