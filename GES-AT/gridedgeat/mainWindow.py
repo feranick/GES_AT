@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         self.startAcqButton.setGeometry(QRect(20, 120, 150, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
-        self.startAcqButton.clicked.connect(self.acquisition.start)
+        self.startAcqButton.clicked.connect(lambda: self.acquisition.start(self))
         self.stopAcqButton = QPushButton(self)
         self.stopAcqButton.setGeometry(QRect(190, 120, 150, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")

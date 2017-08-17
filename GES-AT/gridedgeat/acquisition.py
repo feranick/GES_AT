@@ -32,10 +32,13 @@ class Acquisition():
         self.acqTrackNumPoints = self.acqwind.numPointsText.value()
         self.acqTrackInterval = self.acqwind.IntervalText.value()
     
-    def start(self):
+    def start(self, obj):
         self.getAcqParameters()
         self.time = 0
+        obj.statusBar().showMessage("Acquiring" + str(self.acqNumAvScans) + "sets of JVs"
+                , 5000)
         print("Acquisition: Start")
+        time.sleep(5)
         self.resultswind.clearPlots()
         ############  This part is temporary  ###########################
         for i in range(self.acqTrackNumPoints):
@@ -45,7 +48,8 @@ class Acquisition():
             self.resultswind.show()
             self.time = self.time + 1
         ############  This part is temporary  ###########################
-        print("Acquisition: Done")
+        print("Acquisition: Completed")
+        obj.statusBar().showMessage("Acquisition completed", 5000)
         
     def stop(self, obj):
         obj.statusBar().showMessage("Not yet implemented", 5000)
