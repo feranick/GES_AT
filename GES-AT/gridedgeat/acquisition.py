@@ -20,40 +20,45 @@ from .resultsWindow import *
 
 class Acquisition():
     def __init__(self):
-        #self.acquisitionwind = AcquisitionWindow()
+        self.acqwind = AcquisitionWindow()
         self.resultswind = ResultsWindow()
-
+    
+    def getAcqParameters(self):
+        self.acqMinVoltage = self.acqwind.minVText.value()
+        self.acqMaxVoltage = self.acqwind.maxVText.value()
+        self.acqStartVoltage = self.acqwind.startVText.value()
+        self.acqStepVoltage = float(self.acqwind.stepVText.text())
+        self.acqNumAvScans = self.acqwind.numAverScansText.value()
+        self.acqDelBeforeMeas = self.acqwind.delayBeforeMeasText.value()
+        self.acqTrackNumPoints = self.acqwind.numPointsText.value()
+        self.acqTrackInterval = self.acqwind.IntervalText.value()
+    
     def start(self):
+        self.getAcqParameters()
         self.time = 0
         print("Acquisition: Start")
-        
         self.resultswind.clearPlots()
-        
-        
         ############  This part is temporary  ###########################
-        for i in range(5):
+        for i in range(self.acqTrackNumPoints):
             print("JV #",i+1)
             self.resultswind.processData(self.time, self.generateRandomJV())
             time.sleep(2)
             self.resultswind.show()
             self.time = self.time + 1
         ############  This part is temporary  ###########################
-    
-        
         print("Acquisition: Done")
-        
     
     def stop(self):
         print("Not yet implemented")
 
     ################################################################
     def generateRandomJV(self):
-        VStart = 0
-        VEnd = 1
-        VStep = 0.02
+        VStart = self.acqStartVoltage
+        VEnd = self.acqMaxVoltage
+        VStep = self.acqStepVoltage
         I0 = 1e-10
         Il = 0.5
-        n = 1+ random.randrange(0,20,1)/10
+        n = 1 + random.randrange(0,20,1)/10
         T = 300
         kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
         q = 1.60217662E-19  # Electron charge

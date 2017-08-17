@@ -31,7 +31,6 @@ from .acquisition import *
 from .acquisitionWindow import *
 from .dataManagement import *
 
-
 '''
    Main Window
    Definition of Main Panel
@@ -118,7 +117,7 @@ class MainWindow(QMainWindow):
         self.sampleAction = self.createAction("&Sample", self.samplewind.show,
                 QKeySequence("Ctrl+s"), None,
                 "Sample panel")
-        self.acquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
+        self.acquisitionAction = self.createAction("&Acquisition", self.acquisition.acqwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition Setup panel")
         self.resultsAction = self.createAction("&Results", self.acquisition.resultswind.show,
