@@ -9,6 +9,9 @@ GridEdge Autotesting is written in `Python <http://www.python.org/>`_ and relies
 - [Numpy >1.5](http://www.numpy.org/)
 - [Scipy >0.9](<http://www.scipy.org/>)
 - [Matplotlib >0.9] (<http://matplotlib.org/>) 
+- [OpenCV >3.2] (<http://opencv.org/>)
+- [PyVisa] (<https://pyvisa.readthedocs.io/en/stable/index.html>)
+- [ThorlabsPM100] (<https://pypi.python.org/pypi/ThorlabsPM100> & <https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed 
 
 Additional libraries for images:
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
