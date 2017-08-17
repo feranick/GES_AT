@@ -25,16 +25,22 @@ class Acquisition():
 
     def start(self):
         self.time = 0
-        print("Start Aquisition")
+        print("Acquisition: Start")
         
         self.resultswind.clearPlots()
         
+        
+        ############  This part is temporary  ###########################
         for i in range(5):
             print("JV #",i+1)
             self.resultswind.processData(self.time, self.generateRandomJV())
+            time.sleep(2)
             self.resultswind.show()
             self.time = self.time + 1
-        print("Acquisition Done")
+        ############  This part is temporary  ###########################
+    
+        
+        print("Acquisition: Done")
         
     
     def stop(self):
@@ -61,5 +67,5 @@ class Acquisition():
 
     ### This will only be used for testing, to sumulate an actual experiment
     def temporaryAcquisition(self):
-        self.time = self.time + 1
-        self.processData(self.generateRandomJV())
+        self.resultswind.time = self.resultswind.time + 1
+        self.resultswind.processData(self.generateRandomJV())

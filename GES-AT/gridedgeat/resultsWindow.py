@@ -263,6 +263,7 @@ class ResultsWindow(QMainWindow):
         self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
         self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
         self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
+        self.show()
     
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
