@@ -36,6 +36,7 @@ class ResultsWindow(QMainWindow):
         self.summaryData = np.zeros((0,5))
         self.initPlots(self.summaryData)
         self.initJVPlot()
+        self.time = 0  #### This will be removed once testing of random plotting is done
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 925)
@@ -243,6 +244,7 @@ class ResultsWindow(QMainWindow):
         self.avVocText.setText("")
         self.avJscText.setText("")
         self.avFFText.setText("")
+        self.time = 0   #### This will be removed once testing of random plotting is done
     
     ###### Processing #############
     def processData(self, time, JV):
@@ -308,4 +310,4 @@ class ResultsWindow(QMainWindow):
     ### This will only be used for testing, to sumulate an actual experiment
     def temporaryAcquisition(self):
         self.time = self.time + 1
-        self.processData(self.generateRandomJV())
+        self.processData(self.time, self.generateRandomJV())
