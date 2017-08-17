@@ -17,7 +17,6 @@ import time
 from .acquisitionWindow import *
 from .resultsWindow import *
 
-
 class Acquisition():
     def __init__(self):
         self.acqwind = AcquisitionWindow()
@@ -47,8 +46,9 @@ class Acquisition():
             self.time = self.time + 1
         ############  This part is temporary  ###########################
         print("Acquisition: Done")
-    
-    def stop(self):
+        
+    def stop(self, obj):
+        obj.statusBar().showMessage("Not yet implemented", 5000)
         print("Not yet implemented")
 
     ################################################################

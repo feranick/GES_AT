@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         self.stopAcqButton.setGeometry(QRect(190, 120, 150, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
-        self.stopAcqButton.clicked.connect(self.acquisition.stop)
+        self.stopAcqButton.clicked.connect(lambda: self.acquisition.stop(self))
         self.logo = QLabel(self)
         self.logo.setGeometry(QRect(30, 55, 311, 61))
         self.logo.setText("")
