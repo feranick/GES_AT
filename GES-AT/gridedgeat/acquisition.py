@@ -13,13 +13,49 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import numpy as np
+import time
+from .acquisitionWindow import *
+from .resultsWindow import *
+
 
 class Acquisition():
     def __init__(self):
-        self.dummy = 0
+        self.acquisitionwind = AcquisitionWindow()
+        self.resultswind = ResultsWindow()
 
     def start(self):
-        print("Not yet implemented")
+        self.time = 0
+        
+        self.resultswind.show()
+        time.sleep(1)
+        
+        for i in range(5):
+            self.time = self.time + 1
+            self.resultswind.processData(self.time, self.generateRandomJV())
     
     def stop(self):
         print("Not yet implemented")
+
+    ################################################################
+    def generateRandomJV(self):
+        VStart = 0
+        VEnd = 1
+        VStep = 0.02
+        I0 = 1e-10
+        Il = 0.5
+        n = 1+ random.randrange(0,20,1)/10
+        T = 300
+        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
+        q = 1.60217662E-19  # Electron charge
+        
+        JV = np.zeros((0,2))
+        for i in np.arange(VStart,VEnd,VStep):
+            temp = Il - I0*math.exp(q*i/(n*kB*T))
+            JV = np.vstack([JV,[i,temp]])
+        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
+        return JV
+
+    ### This will only be used for testing, to sumulate an actual experiment
+    def temporaryAcquisition(self):
+        self.time = self.time + 1
+        self.processData(self.generateRandomJV())

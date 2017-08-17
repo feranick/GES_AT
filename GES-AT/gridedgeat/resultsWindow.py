@@ -36,8 +36,6 @@ class ResultsWindow(QMainWindow):
         self.summaryData = np.zeros((0,5))
         self.initPlots(self.summaryData)
         self.initJVPlot()
-        self.time = 0
-
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 925)
@@ -245,17 +243,16 @@ class ResultsWindow(QMainWindow):
         self.avVocText.setText("")
         self.avJscText.setText("")
         self.avFFText.setText("")
-        self.time = 0
     
     ###### Processing #############
-    def processData(self,JV):
+    def processData(self, time, JV):
         self.plotJVresp(JV)
         currentData = self.analyseJV(JV)
         self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
         self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
         self.corrFFText.setText("{0:0.1f}".format(currentData[2]))
         
-        self.summaryData = np.vstack((self.summaryData,np.hstack((self.time, currentData))))
+        self.summaryData = np.vstack((self.summaryData,np.hstack((time, currentData))))
         
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
@@ -265,8 +262,7 @@ class ResultsWindow(QMainWindow):
         self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
         self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
     
-    
-    def analyseJV(self,JV):
+    def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]

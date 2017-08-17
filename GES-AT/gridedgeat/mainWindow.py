@@ -31,6 +31,7 @@ from .acquisition import *
 from .acquisitionWindow import *
 from .dataManagement import *
 
+
 '''
    Main Window
    Definition of Main Panel
@@ -47,6 +48,7 @@ class MainWindow(QMainWindow):
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow()
         self.acquisitionwind = AcquisitionWindow()
+        self.acquisition = Acquisition()
         self.resultswind = ResultsWindow()
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
@@ -150,7 +152,15 @@ class MainWindow(QMainWindow):
         self.logo.setText("")
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")
-
+    
+        self.startAcqButton.clicked.connect(self.acquisition.start)
+    
+    
+    def fileQuit(self):
+        """Special quit-function as the normal window closing might leave something on the background """
+        QApplication.closeAllWindows()
+    
+    ### Utility definitions to create menus actions
     def createAction(self, text, slot=None, shortcut=None, icon=None,
                      tip=None, checkable=False, signal="triggered()"):
         """ Convenience function that creates an action with the specified attributes. """
@@ -179,10 +189,6 @@ class MainWindow(QMainWindow):
                 target.addSeparator()
             else:
                 target.addAction(action)
-
-    def fileQuit(self):
-        """Special quit-function as the normal window closing might leave something on the background """
-        QApplication.closeAllWindows()
 
 '''
    WebLinks Widget
