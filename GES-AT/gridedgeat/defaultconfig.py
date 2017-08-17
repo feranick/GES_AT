@@ -33,6 +33,18 @@ alignmentContrastDefault = 1
 # intensity is satisfied for checing the alignment
 alignmentIntMax = 10
 
+## Acquisition parameters ##
+# Steady state measurements #
+acqMinVoltage = 0
+acqMaxVoltage = 1
+acqStartVoltage = 0
+acqStepVoltage = 0.02
+acqNumAvScans = 5
+acqDelBeforeMeas = 1
+#Tracking
+acqTrackNumPoints = 5
+acqTrackInterval = 2
+
 ## Data-management interaction ##
 DbHostname = "18.82.1.200"
 DbPortNumber = "7101"
