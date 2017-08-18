@@ -15,31 +15,6 @@ the Free Software Foundation; either version 2 of the License, or
 import sys, math, json, os.path, time
 global MongoDBhost
 
-def main():
-    if len(sys.argv)<3 or os.path.isfile(sys.argv[2]) == False:
-        print(__doc__)
-        print(' Usage:\n  python3 GridEdge_EnvMonitor_class.py <lab-identifier> <mongoFile>\n')
-        return
-    
-    lab = sys.argv[1]
-    mongoFile = sys.argv[2]
-
-    sensData = []
-    #sensData.extend([conc, conc_aqi])
-    
-    #************************************
-    ''' Make JSON and push to MongoDB '''
-    #************************************
-    conn = GEmongoDB(sensData,mongoFile)
-    #print(" JSON:\n",conn.makeJSON(),"\n")
-
-    print(" Pushing to MongoDB:")
-    try:
-        conn.pushToMongoDB()
-        print(" Submission to MongoDB successful\n")
-    except:
-        print(" Submission to MongoDB failed\n")
-
 #************************************
 ''' Class Database '''
 #************************************

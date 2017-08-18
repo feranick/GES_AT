@@ -3,6 +3,7 @@ acquisition.py
 -------------
 Class for providing a procedural support for data acquisition
 
+Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
