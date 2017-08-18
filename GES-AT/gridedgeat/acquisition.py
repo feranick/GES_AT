@@ -13,14 +13,12 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import numpy as np
-import time
+import time, random, math
 from .acquisitionWindow import *
-from .resultsWindow import *
 
 class Acquisition():
     def __init__(self):
         self.acqwind = AcquisitionWindow()
-        self.resultswind = ResultsWindow()
     
     def getAcqParameters(self):
         self.acqMinVoltage = self.acqwind.minVText.value()
@@ -39,13 +37,13 @@ class Acquisition():
                 , 5000)
         print("Acquisition: Start")
         time.sleep(5)
-        self.resultswind.clearPlots()
+        obj.resultswind.clearPlots()
         ############  This part is temporary  ###########################
         for i in range(self.acqTrackNumPoints):
             print("JV #",i+1)
-            self.resultswind.processData(self.time, self.generateRandomJV())
+            obj.resultswind.processData(self.time, self.generateRandomJV())
             time.sleep(2)
-            self.resultswind.show()
+            obj.resultswind.show()
             self.time = self.time + 1
         ############  This part is temporary  ###########################
         print("Acquisition: Completed")

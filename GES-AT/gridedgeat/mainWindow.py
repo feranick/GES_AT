@@ -117,10 +117,10 @@ class MainWindow(QMainWindow):
         self.sampleAction = self.createAction("&Sample", self.samplewind.show,
                 QKeySequence("Ctrl+s"), None,
                 "Sample panel")
-        self.acquisitionAction = self.createAction("&Acquisition", self.acquisition.acqwind.show,
+        self.acquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
                 QKeySequence("Ctrl+r"), None,
                 "Acquisition Setup panel")
-        self.resultsAction = self.createAction("&Results", self.acquisition.resultswind.show,
+        self.resultsAction = self.createAction("&Results", self.resultswind.show,
                 QKeySequence("Ctrl+p"), None,
                 "Results panel")
     
