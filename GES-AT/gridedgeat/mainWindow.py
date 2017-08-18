@@ -30,6 +30,7 @@ from .sampleWindow import *
 from .acquisition import *
 from .acquisitionWindow import *
 from .powermeterWindow import *
+from .stageWindow import *
 from .dataManagement import *
 
 '''
@@ -53,6 +54,7 @@ class MainWindow(QMainWindow):
         self.acquisition = Acquisition()
         self.acquisitionwind = AcquisitionWindow()
         self.powermeterwind = PowermeterWindow()
+        self.stagewind = StageWindow()
         self.dbconnectionwid = DBConnection()
      
         #### define actions ####
@@ -67,7 +69,7 @@ class MainWindow(QMainWindow):
         self.fileActions = [None, self.fileQuitAction]
         
         # actions for "Instruments" menu
-        self.stageAction = self.createAction("&Stage", self.aboutwid.show,
+        self.stageAction = self.createAction("&Stage", self.stagewind.show,
                 QKeySequence("Ctrl+s"), None,
                 "Stage")
         
