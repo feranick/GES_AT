@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import time
-from . import config
+from .. import config
 
 class PowerMeter():
     def __init__(self):

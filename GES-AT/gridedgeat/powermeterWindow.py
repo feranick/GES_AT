@@ -17,7 +17,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget)
-from .powermeter import *
+from .modules.powermeter import *
 
 class PowermeterWindow(QWidget):
 

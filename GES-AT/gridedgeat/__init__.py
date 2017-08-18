@@ -34,8 +34,8 @@ from . import acquisition
 from . import acquisitionWindow
 from . import sampleWindow
 from . import resultsWindow
-from . import camera
 from . import cameraWindow
 from . import dataManagement
+
 
 
