@@ -248,10 +248,10 @@ class DBConnection(QWidget):
         self.initUI(self)
     
     def initUI(self,Panel):
-        self.setGeometry(100, 200, 400, 330)
+        self.setGeometry(10, 200, 250, 300)
         self.setWindowTitle('Testing connectivity to Data-management')
         self.gridLayoutWidget = QWidget(Panel)
-        self.gridLayoutWidget.setGeometry(QRect(19, 9, 361, 221))
+        self.gridLayoutWidget.setGeometry(QRect(10, 9, 230, 221))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(10, 0, 10, 0)
@@ -287,10 +287,10 @@ class DBConnection(QWidget):
         self.dbPasswordLabel.setObjectName("dbPasswordLabel")
         self.gridLayout.addWidget(self.dbPasswordLabel, 4, 0, 1, 1)
         self.dbTestConnectButton = QPushButton(Panel)
-        self.dbTestConnectButton.setGeometry(QRect(20, 280, 361, 32))
+        self.dbTestConnectButton.setGeometry(QRect(10, 260, 230, 30))
         self.dbTestConnectButton.setObjectName("dbTestConnectButton")
         self.dbConnectResultLabel = QLabel(Panel)
-        self.dbConnectResultLabel.setGeometry(QRect(30, 250, 321, 20))
+        self.dbConnectResultLabel.setGeometry(QRect(20, 230, 321, 20))
         self.dbConnectResultLabel.setObjectName("dbConnectResultLabel")
 
         self.dbHostnameLabel.setText("DB hostname IP")
@@ -299,7 +299,7 @@ class DBConnection(QWidget):
         self.dbUsernameLabel.setText("DB Username")
         self.dbPasswordLabel.setText("DB Password")
         self.dbTestConnectButton.setText("Test Connectivity")
-        self.dbConnectResultLabel.setText("")
+        self.dbConnectResultLabel.setText("Idle")
 
         self.dbHostnameText.setText(config.DbHostname)
         self.dbPortNumText.setText(str(config.DbPortNumber))
