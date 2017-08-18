@@ -18,21 +18,6 @@ import logging
 loggingLevel = logging.INFO
 loggingFilename = "gridedgeat.log"
 
-import numpy as np
-
-#### IO related ####
-####################
-
-## Camera related parameter ##
-# Threshold for contrast in camera alignment
-alignmentIntThreshold = 0.6
-# if contrast ratio is larger than this value, devices/masks are
-# misalligned
-alignmentContrastDefault = 1
-# if max intenity is larger than this value, the requirement for
-# intensity is satisfied for checing the alignment
-alignmentIntMax = 10
-
 ## Acquisition parameters ##
 # Steady state measurements #
 acqMinVoltage = 0
@@ -45,9 +30,23 @@ acqDelBeforeMeas = 1
 acqTrackNumPoints = 5
 acqTrackInterval = 2
 
+## Camera related parameter ##
+# Threshold for contrast in camera alignment
+alignmentIntThreshold = 0.6
+# if contrast ratio is larger than this value, devices/masks are
+# misalligned
+alignmentContrastDefault = 1
+# if max intenity is larger than this value, the requirement for
+# intensity is satisfied for checing the alignment
+alignmentIntMax = 10
+
+## Powermeter related parameters ##
+powermeterID = "USB0::0x1313::0x8072::P2008173::INSTR"
+
 ## Data-management interaction ##
 DbHostname = "18.82.1.200"
 DbPortNumber = "7101"
 DbName = "Tata"
 DbUsername = "user1"
 DbPassword = "user1"
+

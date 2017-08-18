@@ -29,6 +29,7 @@ from .resultsWindow import *
 from .sampleWindow import *
 from .acquisition import *
 from .acquisitionWindow import *
+from .powermeterWindow import *
 from .dataManagement import *
 
 '''
@@ -51,6 +52,7 @@ class MainWindow(QMainWindow):
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
         self.acquisitionwind = AcquisitionWindow()
+        self.powermeterwind = PowermeterWindow()
         self.dbconnectionwid = DBConnection()
      
         #### define actions ####
@@ -69,7 +71,7 @@ class MainWindow(QMainWindow):
                 QKeySequence("Ctrl+s"), None,
                 "Stage")
         
-        self.powermeterAction = self.createAction("&Powermeter", self.aboutwid.show,
+        self.powermeterAction = self.createAction("&Powermeter", self.powermeterwind.show,
                 QKeySequence("Ctrl+p"), None,
                 "Powermeter")
         self.cameraAction = self.createAction("&Camera", self.camerawind.show,
