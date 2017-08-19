@@ -37,15 +37,18 @@ class Acquisition():
         obj.statusBar().showMessage("Acquiring" + str(self.acqNumAvScans) + "sets of JVs"
                 , 5000)
         print("Acquisition: Start")
-        time.sleep(5)
         obj.resultswind.clearPlots()
+        obj.resultswind.show()
+        QApplication.processEvents()
         ############  This part is temporary  ###########################
         for i in range(self.acqTrackNumPoints):
             print("JV #",i+1)
             obj.resultswind.processData(self.time, self.generateRandomJV())
-            time.sleep(2)
+            QApplication.processEvents()
             obj.resultswind.show()
+            QApplication.processEvents()
             self.time = self.time + 1
+            time.sleep(1)
         ############  This part is temporary  ###########################
         print("Acquisition: Completed")
         obj.statusBar().showMessage("Acquisition completed", 5000)

@@ -18,7 +18,8 @@ import sys, random, math
 import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
-            QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar)
+            QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar,
+            QApplication)
 from PyQt5.QtCore import (QRect)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -249,6 +250,8 @@ class ResultsWindow(QMainWindow):
     ###### Processing #############
     def processData(self, time, JV):
         self.plotJVresp(JV)
+        #QApplication.processEvents()
+
         currentData = self.analyseJV(JV)
         self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
         self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
@@ -259,7 +262,8 @@ class ResultsWindow(QMainWindow):
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
-    
+        QApplication.processEvents()
+
         self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
         self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
         self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
