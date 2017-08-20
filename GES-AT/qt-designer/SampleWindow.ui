@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>774</width>
-    <height>600</height>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,14 +19,21 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>751</width>
-      <height>531</height>
+      <width>281</width>
+      <height>101</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="windowGridLayout" rowstretch="0,0,0,0" columnstretch="10,80">
+    <layout class="QGridLayout" name="windowGridLayout" rowstretch="0,0,0" columnstretch="10,0">
      <property name="spacing">
       <number>1</number>
      </property>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="operatorText">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <widget class="QComboBox" name="holderTypeCBox"/>
      </item>
@@ -37,13 +44,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="holderTypeLabel">
-       <property name="text">
-        <string>Holder type</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="operatorLabel">
        <property name="text">
@@ -51,203 +51,15 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="operatorText">
+     <item row="1" column="0">
+      <widget class="QLabel" name="holderTypeLabel">
        <property name="text">
-        <string/>
+        <string>Holder type</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
       <widget class="QComboBox" name="sizeSubsCBox"/>
-     </item>
-     <item row="3" column="1">
-      <layout class="QGridLayout" name="devGridLayout">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMaximumSize</enum>
-       </property>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="devA2Text">
-         <property name="text">
-          <string>A2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLineEdit" name="devD2Text">
-         <property name="text">
-          <string>D2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="devA1Text">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="row2Label">
-         <property name="text">
-          <string>2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="row1Label">
-         <property name="text">
-          <string>1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="devC1Text">
-         <property name="text">
-          <string>C1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="devB1Text">
-         <property name="text">
-          <string>B1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QLineEdit" name="devC2Text">
-         <property name="text">
-          <string>C2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QLineEdit" name="devA4Text">
-         <property name="text">
-          <string>A4</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="4">
-        <widget class="QLineEdit" name="devB4Text">
-         <property name="text">
-          <string>B4</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="3">
-        <widget class="QLineEdit" name="devB3Text">
-         <property name="text">
-          <string>B3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QLineEdit" name="devA3Text">
-         <property name="text">
-          <string>A3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLineEdit" name="devD1Text">
-         <property name="text">
-          <string>D1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="row4Label">
-         <property name="text">
-          <string>4</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QLineEdit" name="devC3Text">
-         <property name="text">
-          <string>C3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="row3Label">
-         <property name="text">
-          <string>3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4">
-        <widget class="QLineEdit" name="devC4Text">
-         <property name="text">
-          <string>C4</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="devB2Text">
-         <property name="text">
-          <string>B2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
-        <widget class="QLineEdit" name="devD4Text">
-         <property name="text">
-          <string>D4</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QLineEdit" name="devD3Text">
-         <property name="text">
-          <string>D3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="colDLabel">
-         <property name="text">
-          <string>D</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="colCLabel">
-         <property name="text">
-          <string>B</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="colBLabel">
-         <property name="text">
-          <string>B</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="colALabel">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>15</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>A</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="devLabel">
-       <property name="text">
-        <string>Device labels</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>
@@ -255,7 +67,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>560</y>
+      <y>510</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -264,17 +76,14 @@
      <string>Apply</string>
     </property>
    </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
+   <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>550</y>
-      <width>164</width>
-      <height>32</height>
+      <x>10</x>
+      <y>110</y>
+      <width>621</width>
+      <height>391</height>
      </rect>
-    </property>
-    <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
     </property>
    </widget>
   </widget>
