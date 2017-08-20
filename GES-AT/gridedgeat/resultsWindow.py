@@ -138,7 +138,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(10, 150, 500, 145))
         self.resTableWidget.setColumnCount(5)
-        self.resTableWidget.setRowCount(4)
+        self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
@@ -255,6 +255,9 @@ class ResultsWindow(QMainWindow):
         self.summaryData = np.zeros((0,5))
         self.initPlots(self.summaryData)
         self.initJVPlot()
+        self.resTableWidget.setRowCount(0)
+        QApplication.processEvents()
+
         '''
         self.corrVocText.setText("")
         self.corrJscText.setText("")
@@ -271,12 +274,12 @@ class ResultsWindow(QMainWindow):
         
         for j in range(self.resTableWidget.columnCount()):
             for i in range(self.resTableWidget.rowCount()):
-                self.resTableWidget.setItem(i,j,QTableWidgetItem())
+                #self.resTableWidget.setItem(i,j,QTableWidgetItem())
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
 
         for j in range(self.resTableWidget.columnCount()):
             row = self.resTableWidget.selectedItems()[0].row()
-            self.resTableWidget.setItem(row,j,QTableWidgetItem())
+            #self.resTableWidget.setItem(row,j,QTableWidgetItem())
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
 
         #for currentQTableWidgetItem in self.resTableWidget.selectedItems():
@@ -284,10 +287,14 @@ class ResultsWindow(QMainWindow):
     
     ###### Processing #############
     def processData(self, time, JV):
+        self.resTableWidget.insertRow(self.resTableWidget.rowCount())
+        QApplication.processEvents()
+
         self.plotJVresp(JV)
         #QApplication.processEvents()
 
         currentData = self.analyseJV(JV)
+
         '''
         self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
         self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
@@ -300,11 +307,18 @@ class ResultsWindow(QMainWindow):
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
         QApplication.processEvents()
+        lastRowInd = self.resTableWidget.rowCount() -1
+        self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
+        self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
+        self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
+        self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
+        
         '''
         self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
         self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
         self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
         '''
+        
         self.show()
     
     def analyseJV(self, JV):
