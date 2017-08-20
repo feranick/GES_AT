@@ -67,13 +67,9 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
-        self.tableWidget.setColumnCount(4)
-        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(config.numSubsHolderRow)
+        self.tableWidget.setRowCount(config.numSubsHolderCol)
         #self.tableWidget.setItem(0,0, QTableWidgetItem(""))
-        self.tableWidget.setVerticalHeaderItem(0,QTableWidgetItem("A"))
-        self.tableWidget.setVerticalHeaderItem(1,QTableWidgetItem("B"))
-        self.tableWidget.setVerticalHeaderItem(2,QTableWidgetItem("C"))
-        self.tableWidget.setVerticalHeaderItem(3,QTableWidgetItem("D"))
         
         # This allows for background coloring of a cell
         self.tableWidget.setItem(0,0,QTableWidgetItem())

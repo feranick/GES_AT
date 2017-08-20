@@ -18,6 +18,10 @@ import logging
 loggingLevel = logging.INFO
 loggingFilename = "gridedgeat.log"
 
+## Sample holder parameters ##
+numSubsHolderRow = 4
+numSubsHolderCol = 4
+
 ## Acquisition parameters ##
 # Steady state measurements #
 acqMinVoltage = 0
