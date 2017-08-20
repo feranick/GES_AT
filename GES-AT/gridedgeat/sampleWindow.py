@@ -18,7 +18,8 @@ import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QTableWidget,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox)
+    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
+    QAbstractItemView)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
@@ -66,9 +67,14 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
-        self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(4)
         self.tableWidget.setRowCount(4)
+        self.tableWidget.itemClicked.connect(self.on_click)
+        
+        # This disable editing
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # This enables editing by Double Click
+        self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
         self.applyButton = QPushButton(self.centralwidget)
         self.applyButton.setGeometry(QRect(310, 30, 100, 100))
@@ -87,3 +93,8 @@ class SampleWindow(QMainWindow):
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.applyButton.setText("Apply")
+
+    @pyqtSlot()
+    def on_click(self):
+        for currentQTableWidgetItem in self.tableWidget.selectedItems():
+            print("Selected cell: ",currentQTableWidgetItem.text())
