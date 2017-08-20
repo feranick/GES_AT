@@ -77,64 +77,6 @@ class ResultsWindow(QMainWindow):
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
 
-        '''
-        self.deviceIDLabel = QLabel(self.centralwidget)
-        self.deviceIDLabel.setGeometry(QRect(30, 10, 125, 30))
-        self.deviceIDLabel.setObjectName("deviceIDLabel")
-        self.deviceIDCBox = QComboBox(self.centralwidget)
-        self.deviceIDCBox.setGeometry(QRect(150, 10, 300, 25))
-        self.deviceIDCBox.setObjectName("deviceIDCBox")
-        self.gridLayoutWidget_2 = QWidget(self.centralwidget)
-        self.gridLayoutWidget_2.setGeometry(QRect(150, 770, 721, 111))
-        self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
-        self.gridLayout_2.setContentsMargins(10, 10, 10, 10)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.avJscText = QLineEdit(self.gridLayoutWidget_2)
-        self.avJscText.setObjectName("avJscText")
-        self.gridLayout_2.addWidget(self.avJscText, 0, 1, 1, 1)
-        self.corrJscText = QLineEdit(self.gridLayoutWidget_2)
-        self.corrJscText.setObjectName("corrJscText")
-        self.gridLayout_2.addWidget(self.corrJscText, 0, 3, 1, 1)
-        self.avJscLabel = QLabel(self.gridLayoutWidget_2)
-        self.avJscLabel.setObjectName("avJscLabel")
-        self.gridLayout_2.addWidget(self.avJscLabel, 0, 0, 1, 1)
-        self.corrVocLabel = QLabel(self.gridLayoutWidget_2)
-        self.corrVocLabel.setObjectName("corrVocLabel")
-        self.gridLayout_2.addWidget(self.corrVocLabel, 1, 2, 1, 1)
-        self.corrJscLabel = QLabel(self.gridLayoutWidget_2)
-        self.corrJscLabel.setObjectName("corrJscLabel")
-        self.gridLayout_2.addWidget(self.corrJscLabel, 0, 2, 1, 1)
-        self.corrFFLabel = QLabel(self.gridLayoutWidget_2)
-        self.corrFFLabel.setObjectName("corrFFLabel")
-        self.gridLayout_2.addWidget(self.corrFFLabel, 2, 2, 1, 1)
-        self.avVocLabel = QLabel(self.gridLayoutWidget_2)
-        self.avVocLabel.setObjectName("avVocLabel")
-        self.gridLayout_2.addWidget(self.avVocLabel, 1, 0, 1, 1)
-        self.avFFLabel = QLabel(self.gridLayoutWidget_2)
-        self.avFFLabel.setObjectName("avFFLabel")
-        self.gridLayout_2.addWidget(self.avFFLabel, 2, 0, 1, 1)
-        self.avVocText = QLineEdit(self.gridLayoutWidget_2)
-        self.avVocText.setObjectName("avVocText")
-        self.gridLayout_2.addWidget(self.avVocText, 1, 1, 1, 1)
-        self.corrVocText = QLineEdit(self.gridLayoutWidget_2)
-        self.corrVocText.setObjectName("corrVocText")
-        self.gridLayout_2.addWidget(self.corrVocText, 1, 3, 1, 1)
-        self.avFFText = QLineEdit(self.gridLayoutWidget_2)
-        self.avFFText.setObjectName("avFFText")
-        self.gridLayout_2.addWidget(self.avFFText, 2, 1, 1, 1)
-        self.corrFFText = QLineEdit(self.gridLayoutWidget_2)
-        self.corrFFText.setObjectName("corrFFText")
-        self.gridLayout_2.addWidget(self.corrFFText, 2, 3, 1, 1)
-        
-        self.deviceIDLabel.setText("Current Device ID")
-        self.corrVocLabel.setText("Corresponding Voc [V]")
-        self.corrJscLabel.setText("Corresponding Jsc [mA/cm^2]")
-        self.corrFFLabel.setText("Corresponding FF")
-        self.avVocLabel.setText("Average Voc [V]")
-        self.avJscLabel.setText("Average Jsc [mA/cm^2]")
-        self.avFFLabel.setText("Average FF")
-        '''
-        
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(10, 150, 500, 145))
         self.resTableWidget.setColumnCount(5)
@@ -171,7 +113,6 @@ class ResultsWindow(QMainWindow):
         self.randomButton.clicked.connect(self.temporaryAcquisition)
         self.openButton.clicked.connect(self.open_data)
         self.clearButton.clicked.connect(self.clearPlots)
-    
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
@@ -257,67 +198,38 @@ class ResultsWindow(QMainWindow):
         self.initJVPlot()
         self.resTableWidget.setRowCount(0)
         QApplication.processEvents()
-
-        '''
-        self.corrVocText.setText("")
-        self.corrJscText.setText("")
-        self.corrFFText.setText("")
-        self.avVocText.setText("")
-        self.avJscText.setText("")
-        self.avFFText.setText("")
-        '''
         self.time = 0   #### This will be removed once testing of random plotting is done
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
     def onCellClick(self):
-        
         for j in range(self.resTableWidget.columnCount()):
             for i in range(self.resTableWidget.rowCount()):
-                #self.resTableWidget.setItem(i,j,QTableWidgetItem())
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
-
+  
         for j in range(self.resTableWidget.columnCount()):
             row = self.resTableWidget.selectedItems()[0].row()
-            #self.resTableWidget.setItem(row,j,QTableWidgetItem())
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-
-        #for currentQTableWidgetItem in self.resTableWidget.selectedItems():
-        #    print("Selected cell: ",currentQTableWidgetItem.row())
     
     ###### Processing #############
     def processData(self, time, JV):
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
-        QApplication.processEvents()
-
+        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
+        for j in range(self.resTableWidget.columnCount()):
+            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
         self.plotJVresp(JV)
-        #QApplication.processEvents()
 
         currentData = self.analyseJV(JV)
-
-        '''
-        self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
-        self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
-        self.corrFFText.setText("{0:0.1f}".format(currentData[2]))
-        '''
-        
         self.summaryData = np.vstack((self.summaryData,np.hstack((time, currentData))))
         
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
-        QApplication.processEvents()
         lastRowInd = self.resTableWidget.rowCount() -1
         self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
-        
-        '''
-        self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
-        self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
-        self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
-        '''
         
         self.show()
     
