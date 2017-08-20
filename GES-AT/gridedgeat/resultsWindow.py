@@ -17,10 +17,9 @@ the Free Software Foundation; either version 2 of the License, or
 import sys, random, math
 import numpy as np
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
-            QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar,
-            QApplication)
-from PyQt5.QtCore import (QRect)
+from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem)
+from PyQt5.QtCore import (QRect,pyqtSlot)
+from PyQt5.QtGui import QColor
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
@@ -78,6 +77,7 @@ class ResultsWindow(QMainWindow):
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
 
+        '''
         self.deviceIDLabel = QLabel(self.centralwidget)
         self.deviceIDLabel.setGeometry(QRect(30, 10, 125, 30))
         self.deviceIDLabel.setObjectName("deviceIDLabel")
@@ -125,14 +125,6 @@ class ResultsWindow(QMainWindow):
         self.corrFFText = QLineEdit(self.gridLayoutWidget_2)
         self.corrFFText.setObjectName("corrFFText")
         self.gridLayout_2.addWidget(self.corrFFText, 2, 3, 1, 1)
-        self.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 1447, 22))
-        self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar(self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
         
         self.deviceIDLabel.setText("Current Device ID")
         self.corrVocLabel.setText("Corresponding Voc [V]")
@@ -141,6 +133,24 @@ class ResultsWindow(QMainWindow):
         self.avVocLabel.setText("Average Voc [V]")
         self.avJscLabel.setText("Average Jsc [mA/cm^2]")
         self.avFFLabel.setText("Average FF")
+        '''
+        
+        self.resTableWidget = QTableWidget(self.centralwidget)
+        self.resTableWidget.setGeometry(QRect(10, 150, 420, 145))
+        self.resTableWidget.setColumnCount(4)
+        self.resTableWidget.setRowCount(4)
+        self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
+
+        self.resTableWidget.itemClicked.connect(self.onCellClick)
+
+        self.setCentralWidget(self.centralwidget)
+        self.menubar = QMenuBar(self)
+        self.menubar.setGeometry(QRect(0, 0, 1447, 22))
+        self.menubar.setObjectName("menubar")
+        self.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar(self)
+        self.statusbar.setObjectName("statusbar")
+        self.setStatusBar(self.statusbar)
         
         # Just some button connected to `plot` method
         self.randomButton = QPushButton(self.centralwidget)
@@ -156,6 +166,7 @@ class ResultsWindow(QMainWindow):
         self.randomButton.clicked.connect(self.temporaryAcquisition)
         self.openButton.clicked.connect(self.open_data)
         self.clearButton.clicked.connect(self.clearPlots)
+    
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
@@ -239,13 +250,32 @@ class ResultsWindow(QMainWindow):
         self.summaryData = np.zeros((0,5))
         self.initPlots(self.summaryData)
         self.initJVPlot()
+        '''
         self.corrVocText.setText("")
         self.corrJscText.setText("")
         self.corrFFText.setText("")
         self.avVocText.setText("")
         self.avJscText.setText("")
         self.avFFText.setText("")
+        '''
         self.time = 0   #### This will be removed once testing of random plotting is done
+    
+    # Action upon selecting a row in the table.
+    @pyqtSlot()
+    def onCellClick(self):
+        
+        for j in range(self.resTableWidget.columnCount()):
+            for i in range(self.resTableWidget.rowCount()):
+                self.resTableWidget.setItem(i,j,QTableWidgetItem())
+                self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
+
+        for j in range(self.resTableWidget.columnCount()):
+            row = self.resTableWidget.selectedItems()[0].row()
+            self.resTableWidget.setItem(row,j,QTableWidgetItem())
+            self.resTableWidget.item(row,j).setBackground(QColor(255,0,0))
+
+        #for currentQTableWidgetItem in self.resTableWidget.selectedItems():
+        #    print("Selected cell: ",currentQTableWidgetItem.row())
     
     ###### Processing #############
     def processData(self, time, JV):
@@ -253,9 +283,11 @@ class ResultsWindow(QMainWindow):
         #QApplication.processEvents()
 
         currentData = self.analyseJV(JV)
+        '''
         self.corrVocText.setText("{0:0.3f}".format(currentData[0]))
         self.corrJscText.setText("{0:0.3e}".format(currentData[1]))
         self.corrFFText.setText("{0:0.1f}".format(currentData[2]))
+        '''
         
         self.summaryData = np.vstack((self.summaryData,np.hstack((time, currentData))))
         
@@ -263,10 +295,11 @@ class ResultsWindow(QMainWindow):
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
         QApplication.processEvents()
-
+        '''
         self.avVocText.setText("{0:0.3f}".format(np.mean(self.summaryData[:,1])))
         self.avJscText.setText("{0:0.3e}".format(np.mean(self.summaryData[:,2])))
         self.avFFText.setText("{0:0.1f}".format(np.mean(self.summaryData[:,3])))
+        '''
         self.show()
     
     def analyseJV(self, JV):
