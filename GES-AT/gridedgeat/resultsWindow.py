@@ -136,10 +136,15 @@ class ResultsWindow(QMainWindow):
         '''
         
         self.resTableWidget = QTableWidget(self.centralwidget)
-        self.resTableWidget.setGeometry(QRect(10, 150, 420, 145))
-        self.resTableWidget.setColumnCount(4)
+        self.resTableWidget.setGeometry(QRect(10, 150, 500, 145))
+        self.resTableWidget.setColumnCount(5)
         self.resTableWidget.setRowCount(4)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
+        self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
+        self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
+        self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Av Jsc [mA/cm^2]"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Av FF"))
+        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Time"))
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
 
@@ -272,7 +277,7 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             row = self.resTableWidget.selectedItems()[0].row()
             self.resTableWidget.setItem(row,j,QTableWidgetItem())
-            self.resTableWidget.item(row,j).setBackground(QColor(255,0,0))
+            self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
 
         #for currentQTableWidgetItem in self.resTableWidget.selectedItems():
         #    print("Selected cell: ",currentQTableWidgetItem.row())
