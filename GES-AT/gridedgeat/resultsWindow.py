@@ -237,8 +237,11 @@ class ResultsWindow(QMainWindow):
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.summaryData = np.vstack((self.summaryData, np.hstack((time, data))))
 
-        self.JV = np.hstack((self.JV,JV))
-
+        print(self.JV.shape[0])
+        if self.JV.shape[0] == 0:
+            self.JV = JV
+        else:
+            self.JV = np.hstack((self.JV,JV))
         print(self.JV)
         
         self.plotJVresp(JV)
