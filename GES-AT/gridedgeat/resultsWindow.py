@@ -35,7 +35,7 @@ class ResultsWindow(QMainWindow):
         super(ResultsWindow, self).__init__()
         self.time = 0  #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
-        self.summaryData = np.zeros((2,5))
+        self.summaryData = np.zeros((0,5))
         self.JV = np.array([])
         self.initUI()
         self.initPlots(self.summaryData)
@@ -199,12 +199,16 @@ class ResultsWindow(QMainWindow):
     
     # Clear all plots and fields
     def clearPlots(self):
+        self.time = 0   #### This will be removed once testing of random plotting is done
+        self.deviceID = np.zeros((0,1))
         self.summaryData = np.zeros((0,5))
+        self.JV = np.array([])
         self.initPlots(self.summaryData)
         self.initJVPlot()
         self.resTableWidget.setRowCount(0)
         QApplication.processEvents()
-        self.time = 0   #### This will be removed once testing of random plotting is done
+
+    
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -244,6 +248,8 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
+        print(self.JV.shape)
+
 
     def plotData(self, deviceID, data, JV):
         self.plotJVresp(JV)
