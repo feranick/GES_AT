@@ -39,7 +39,7 @@ class ResultsWindow(QMainWindow):
         self.time = 0  #### This will be removed once testing of random plotting is done
     
     def initUI(self):
-        self.setGeometry(500, 100, 1150, 925)
+        self.setGeometry(500, 100, 1150, 950)
         self.setWindowTitle('Results Panel')
         
         # a figure instance to plot on
@@ -78,7 +78,7 @@ class ResultsWindow(QMainWindow):
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
 
         self.resTableWidget = QTableWidget(self.centralwidget)
-        self.resTableWidget.setGeometry(QRect(10, 150, 500, 145))
+        self.resTableWidget.setGeometry(QRect(20, 770, 1100, 145))
         self.resTableWidget.setColumnCount(5)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
