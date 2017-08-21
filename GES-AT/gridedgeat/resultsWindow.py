@@ -243,7 +243,7 @@ class ResultsWindow(QMainWindow):
         lastRowInd = self.resTableWidget.rowCount() -1
 
         # Plot results
-        self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
+        #self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
 
         # Populate table.
         self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
@@ -251,6 +251,8 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
+    
+        self.save_file(self.deviceID,self.summaryData,self.JV)
 
     def plotData(self, deviceID, data, JV):
         self.plotJVresp(JV)
@@ -271,6 +273,12 @@ class ResultsWindow(QMainWindow):
                 self.plotJVresp(M)
         except:
             print("Loading files failed")
+
+    def save_file(self,deviceID,data,JV):
+        print(JV[0][0])
+        dfSummary = pd.DataFrame({'sample': deviceID[0][0], 'Voc': data[:,1], 'Jsc':data[:,0], 'MPP':data[:,3]})
+        dfJV = pd.DataFrame({'V':JV[0][0], 'J':JV[0][1]})
+        pd.concat([dfSummary,dfJV], axis = 1).to_csv("test.csv", sep=',', index=False)
     
     
     ################################################################
