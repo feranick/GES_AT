@@ -23,7 +23,7 @@ The simplest way to get all the required python packages at once is to install t
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
 
     sudo port install python3.6 +readline
-    sudo port install py36-numpy, py36-scipy, py36-matplotlib, py36-pillow
+    sudo port install py36-numpy, py36-scipy, py36-matplotlib, py36-pillow, py36-pandas
     sudo port install opencv
     sudo port install qt5 py3.6-pyqt5
     sudo port install qt5-qtcreator
@@ -31,7 +31,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
 ## Installing dependencies on Ubuntu Linux
     sudo apt-get update; sudo apt-get upgrade
     sudo apt-get install python3 python3-numpy python3-scipy
-    sudo apt-get install python3-matplotlib python3-pil 
+    sudo apt-get install python3-matplotlib python3-pil python3-pandas
     sudo apt-get install qt5-default python3-pyqt5
     sudo apt-get install qtcreator
     sudo apt-get install opencv-data
@@ -39,7 +39,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
 ## Installing dependencies on Microsoft Windows
 Install python3 directly from [python.org](<http://www.python.org/>). You will use pip for installing most of the dependencies
 
-    pip install numpy scipy matplotlib pillow
+    pip install numpy scipy matplotlib pillow pandas
     pip install QtPy5 opencv-python
     
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly. 

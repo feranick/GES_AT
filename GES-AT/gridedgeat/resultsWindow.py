@@ -16,6 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 import sys, random, math
 import numpy as np
+import pandas as pd
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem,QAction)
 from PyQt5.QtCore import (QRect,pyqtSlot)
@@ -37,6 +38,9 @@ class ResultsWindow(QMainWindow):
         self.initPlots(self.summaryData)
         self.initJVPlot()
         self.time = 0  #### This will be removed once testing of random plotting is done
+        self.deviceID = np.zeros((0,1))
+        self.time2 = np.zeros((0,1))
+        self.data= np.zeros((0,4))
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 950)
@@ -216,6 +220,13 @@ class ResultsWindow(QMainWindow):
     
     ###### Processing #############
     def processData(self, deviceID, time, data, JV):
+    
+        # create numpy arrays for all devices as well as dataframes for csv and jsons
+        self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
+        self.time2 = np.vstack((self.time2, np.array([time])))
+        self.data= np.vstack((self.data, np.array([data])))
+        print(self.data)
+    
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
         
