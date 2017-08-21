@@ -30,6 +30,7 @@ class Acquisition():
         self.acqDelBeforeMeas = self.acqwind.delayBeforeMeasText.value()
         self.acqTrackNumPoints = self.acqwind.numPointsText.value()
         self.acqTrackInterval = self.acqwind.IntervalText.value()
+        self.sizeJV = np.arange(self.acqStartVoltage,self.acqMaxVoltage,self.acqStepVoltage).shape[0]
     
     def start(self, obj):
         self.getAcqParameters()

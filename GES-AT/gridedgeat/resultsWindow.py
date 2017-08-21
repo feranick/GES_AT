@@ -33,14 +33,12 @@ from . import config
 class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
-        self.initUI()
-        self.summaryData = np.zeros((0,5))
-        self.initPlots(self.summaryData)
-        self.initJVPlot()
         self.time = 0  #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
-        self.time2 = np.zeros((0,1))
-        self.data= np.zeros((0,4))
+        self.summaryData = np.zeros((0,5))
+        self.initUI()
+        self.initPlots(self.summaryData)
+        self.initJVPlot()
     
     def initUI(self):
         self.setGeometry(500, 100, 1150, 950)
@@ -221,22 +219,19 @@ class ResultsWindow(QMainWindow):
     ###### Processing #############
     def processData(self, deviceID, time, data, JV):
     
-        # create numpy arrays for all devices as well as dataframes for csv and jsons
-        self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
-        self.time2 = np.vstack((self.time2, np.array([time])))
-        self.data= np.vstack((self.data, np.array([data])))
-        print(self.data)
-    
+        # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
-        
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
+    
+        # create numpy arrays for all devices as well as dataframes for csv and jsons
+        self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
+        self.summaryData = np.vstack((self.summaryData, np.hstack((time, data))))
+        #self.JV = np.zeros((5,2))
+
         
         self.plotJVresp(JV)
-
-        #currentData = self.analyseJV(JV)
-        self.summaryData = np.vstack((self.summaryData,np.hstack((time, data))))
         
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
