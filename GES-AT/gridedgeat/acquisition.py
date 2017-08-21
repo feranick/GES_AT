@@ -49,7 +49,7 @@ class Acquisition():
             self.JV = self.generateRandomJV()
             self.perfData = self.analyseJV(self.JV)
             
-            obj.resultswind.processData(self.deviceID, self.time, self.perfData, self.JV)
+            obj.resultswind.processData(self.deviceID, self.time, self.perfData, self.JV, self.sizeJV)
             
             QApplication.processEvents()
             obj.resultswind.show()

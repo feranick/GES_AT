@@ -26,6 +26,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 from . import config
+from .acquisitionWindow import *
 
 '''
    Results Window
@@ -33,9 +34,16 @@ from . import config
 class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
+        self.acqwind = AcquisitionWindow()
         self.time = 0  #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
-        self.summaryData = np.zeros((0,5))
+        self.summaryData = np.zeros((2,5))
+        self.acqMinVoltage = self.acqwind.minVText.value()
+        self.acqMaxVoltage = self.acqwind.maxVText.value()
+        self.acqStartVoltage = self.acqwind.startVText.value()
+        self.acqStepVoltage = float(self.acqwind.stepVText.text())
+        self.sizeJV = np.arange(self.acqStartVoltage,self.acqMaxVoltage,self.acqStepVoltage).shape[0]
+        self.JV = np.array([])
         self.initUI()
         self.initPlots(self.summaryData)
         self.initJVPlot()
@@ -217,7 +225,7 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
-    def processData(self, deviceID, time, data, JV):
+    def processData(self, deviceID, time, data, JV, sizeJV):
     
         # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
@@ -228,8 +236,10 @@ class ResultsWindow(QMainWindow):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.summaryData = np.vstack((self.summaryData, np.hstack((time, data))))
-        #self.JV = np.zeros((5,2))
 
+        self.JV = np.hstack((self.JV,JV))
+
+        print(self.JV)
         
         self.plotJVresp(JV)
         
