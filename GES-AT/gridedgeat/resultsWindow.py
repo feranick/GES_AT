@@ -240,7 +240,6 @@ class ResultsWindow(QMainWindow):
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
 
-        QApplication.processEvents()
         lastRowInd = self.resTableWidget.rowCount() -1
 
         # Plot results
@@ -273,6 +272,7 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
     
+    
     ################################################################
     def generateRandomJV(self):
         VStart = 0
@@ -295,4 +295,4 @@ class ResultsWindow(QMainWindow):
     ### This will only be used for testing, to sumulate an actual experiment
     def temporaryAcquisition(self):
         self.time = self.time + 1
-        self.processData(self.time, self.generateRandomJV())
+        self.processData("test", self.time, [random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10], self.generateRandomJV())
