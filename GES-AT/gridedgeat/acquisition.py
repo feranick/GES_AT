@@ -33,17 +33,23 @@ class Acquisition():
     
     def start(self, obj):
         self.getAcqParameters()
+        #Eventually a loop across samples will start here
         self.time = 0
-        obj.statusBar().showMessage("Acquiring" + str(self.acqNumAvScans) + "sets of JVs"
-                , 5000)
-        print("Acquisition: Start")
+        self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
+        obj.statusBar().showMessage("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
+        print("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
         obj.resultswind.clearPlots()
         obj.resultswind.show()
         QApplication.processEvents()
         ############  This part is temporary  ###########################
         for i in range(self.acqTrackNumPoints):
             print("JV #",i+1)
-            obj.resultswind.processData(self.time, self.generateRandomJV())
+            
+            self.JV = self.generateRandomJV()
+            self.perfData = self.analyseJV(self.JV)
+            
+            obj.resultswind.processData(self.deviceID, self.time, self.perfData, self.JV)
+            
             QApplication.processEvents()
             obj.resultswind.show()
             QApplication.processEvents()
@@ -56,7 +62,19 @@ class Acquisition():
     def stop(self, obj):
         obj.statusBar().showMessage("Not yet implemented", 5000)
         print("Not yet implemented")
-
+    
+    def analyseJV(self, JV):
+        PV = np.zeros(JV.shape)
+        PV[:,0] = JV[:,0]
+        PV[:,1] = JV[:,0]*JV[:,1]
+        Voc = JV[JV.shape[0]-1,0]
+        Jsc = JV[0,1]
+        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
+        Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
+        FF = Vpmax*Jpmax*100/(Voc*Jsc)
+        data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
+        return data
+    
     ################################################################
     def generateRandomJV(self):
         VStart = self.acqStartVoltage

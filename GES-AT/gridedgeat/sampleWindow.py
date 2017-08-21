@@ -74,6 +74,7 @@ class SampleWindow(QMainWindow):
         # This allows for background coloring of a cell
         self.tableWidget.setItem(0,0,QTableWidgetItem())
         self.tableWidget.item(0, 0).setBackground(QColor(255,0,0))
+        self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
         

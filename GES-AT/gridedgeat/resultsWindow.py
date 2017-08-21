@@ -215,38 +215,29 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
-    def processData(self, time, JV):
+    def processData(self, deviceID, time, data, JV):
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
+        
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
+        
         self.plotJVresp(JV)
 
-        currentData = self.analyseJV(JV)
-        self.summaryData = np.vstack((self.summaryData,np.hstack((time, currentData))))
+        #currentData = self.analyseJV(JV)
+        self.summaryData = np.vstack((self.summaryData,np.hstack((time, data))))
         
         self.plotTVoc(self.summaryData)
         self.plotMPP(self.summaryData)
         self.plotTJsc(self.summaryData)
         lastRowInd = self.resTableWidget.rowCount() -1
+        self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
         self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
         
         self.show()
-    
-    def analyseJV(self, JV):
-        PV = np.zeros(JV.shape)
-        PV[:,0] = JV[:,0]
-        PV[:,1] = JV[:,0]*JV[:,1]
-        Voc = JV[JV.shape[0]-1,0]
-        Jsc = JV[0,1]
-        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
-        Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
-        FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
-        return data
     
     ### Open JV from file
     def open_data(self):
