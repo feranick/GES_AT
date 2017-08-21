@@ -22,8 +22,11 @@ np2 = np.vstack((np2,np_new2))
 print("np2\n",np2)
 '''
 
-np1 = np.zeros((0,5,2))
+#np1 = np.zeros((0,5,2))
+np1 = np.array([])
+print(np1.shape)
 
+np1.resize((0,5,2))
 
 np_new1 = np.array([[1,1],[2,4],[3,9],[4,16],[5,25]])
 for i in range(5):

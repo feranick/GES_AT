@@ -26,7 +26,6 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 from . import config
-from .acquisitionWindow import *
 
 '''
    Results Window
@@ -34,15 +33,9 @@ from .acquisitionWindow import *
 class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
-        self.acqwind = AcquisitionWindow()
         self.time = 0  #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
         self.summaryData = np.zeros((2,5))
-        self.acqMinVoltage = self.acqwind.minVText.value()
-        self.acqMaxVoltage = self.acqwind.maxVText.value()
-        self.acqStartVoltage = self.acqwind.startVText.value()
-        self.acqStepVoltage = float(self.acqwind.stepVText.text())
-        self.sizeJV = np.arange(self.acqStartVoltage,self.acqMaxVoltage,self.acqStepVoltage).shape[0]
         self.JV = np.array([])
         self.initUI()
         self.initPlots(self.summaryData)
@@ -225,7 +218,7 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
-    def processData(self, deviceID, time, data, JV, sizeJV):
+    def processData(self, deviceID, time, data, JV):
     
         # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
@@ -236,27 +229,29 @@ class ResultsWindow(QMainWindow):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.summaryData = np.vstack((self.summaryData, np.hstack((time, data))))
-
-        print(self.JV.shape[0])
         if self.JV.shape[0] == 0:
-            self.JV = JV
-        else:
-            self.JV = np.hstack((self.JV,JV))
-        print(self.JV)
-        
-        self.plotJVresp(JV)
-        
-        self.plotTVoc(self.summaryData)
-        self.plotMPP(self.summaryData)
-        self.plotTJsc(self.summaryData)
+            self.JV.resize((0,JV.shape[0],2))
+        self.JV = np.vstack([self.JV,[JV]])
+
         lastRowInd = self.resTableWidget.rowCount() -1
+
+        # Plot results
+        self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
+
+        # Populate table.
         self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
         self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
-        
+
+    def plotData(self, deviceID, data, JV):
+        self.plotJVresp(JV)
+        self.plotTVoc(data)
+        self.plotMPP(data)
+        self.plotTJsc(data)
         self.show()
+
     
     ### Open JV from file
     def open_data(self):
