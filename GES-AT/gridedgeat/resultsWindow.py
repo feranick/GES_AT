@@ -17,7 +17,7 @@ the Free Software Foundation; either version 2 of the License, or
 import sys, random, math
 import numpy as np
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem)
+from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem,QAction)
 from PyQt5.QtCore import (QRect,pyqtSlot)
 from PyQt5.QtGui import QColor
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -55,7 +55,7 @@ class ResultsWindow(QMainWindow):
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QRect(20, 40, 1100, 710))
+        self.gridLayoutWidget.setGeometry(QRect(20, 30, 1100, 710))
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         
@@ -90,29 +90,32 @@ class ResultsWindow(QMainWindow):
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
 
+        # Make Menu for plot related calls
         self.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 1447, 22))
-        self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
+        self.randomMenu = QAction("&Plot Random Data", self)
+        self.randomMenu.setShortcut("Ctrl+r")
+        self.randomMenu.setStatusTip('Plot random data')
+        self.randomMenu.triggered.connect(self.temporaryAcquisition)
+        self.openMenu = QAction("&Open Data", self)
+        self.openMenu.setShortcut("Ctrl+o")
+        self.openMenu.setStatusTip('Plot data from saved file')
+        self.openMenu.triggered.connect(self.open_data)
+        self.clearMenu = QAction("&Clear Plots", self)
+        self.clearMenu.setShortcut("Ctrl+x")
+        self.clearMenu.setStatusTip('Clear plots')
+        self.clearMenu.triggered.connect(self.clearPlots)
+        
+        self.menuBar = QMenuBar(self)
+        plotMenu = self.menuBar.addMenu('&Plot')
+        plotMenu.addAction(self.randomMenu)
+        plotMenu.addAction(self.openMenu)
+        plotMenu.addSeparator()
+        plotMenu.addAction(self.clearMenu)
+
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
-        
-        # Just some button connected to `plot` method
-        self.randomButton = QPushButton(self.centralwidget)
-        self.randomButton.setGeometry(QRect(500, 10, 200, 30))
-        self.openButton = QPushButton(self.centralwidget)
-        self.openButton.setGeometry(QRect(700, 10, 200, 30))
-        self.clearButton = QPushButton(self.centralwidget)
-        self.clearButton.setGeometry(QRect(900, 10, 200, 30))
 
-        self.randomButton.setText("Plot Random Data")
-        self.openButton.setText("Open Data")
-        self.clearButton.setText("Clear Data")
-        self.randomButton.clicked.connect(self.temporaryAcquisition)
-        self.openButton.clicked.connect(self.open_data)
-        self.clearButton.clicked.connect(self.clearPlots)
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
