@@ -220,6 +220,9 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             row = self.resTableWidget.selectedItems()[0].row()
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
+
+        self.plotData(self.deviceID,self.summaryData, self.JV[row])
+
     
     ###### Processing #############
     def processData(self, deviceID, time, data, JV):
@@ -237,6 +240,7 @@ class ResultsWindow(QMainWindow):
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
 
+        QApplication.processEvents()
         lastRowInd = self.resTableWidget.rowCount() -1
 
         # Plot results
@@ -248,8 +252,6 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
-        print(self.JV.shape)
-
 
     def plotData(self, deviceID, data, JV):
         self.plotJVresp(JV)
