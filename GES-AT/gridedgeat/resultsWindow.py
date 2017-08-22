@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, random, math
+import sys, random, math, json
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -252,8 +252,12 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
         QApplication.processEvents()
 
-        self.devDataFrame = self.makeDataFrame(self.deviceID,self.summaryData,self.JV[lastRowInd])
-        self.save_file(self.devDataFrame, lastRowInd)
+        dfDeviceID = self.makeDFDeviceID(self.deviceID)
+        dfData = self.makeDFData(self.summaryData)
+        dfJV = self.makeDFJV(self.JV[lastRowInd])
+        
+        self.save_csv(dfDeviceID, dfData, dfJV, lastRowInd)
+        self.save_json(dfDeviceID, dfData, dfJV, lastRowInd)
 
     def plotData(self, deviceID, data, JV):
         self.plotJVresp(JV)
@@ -262,19 +266,39 @@ class ResultsWindow(QMainWindow):
         self.plotTJsc(data)
         self.show()
 
-
-    def makeDataFrame(self,deviceID,data,JV):
-        dfSummary = pd.DataFrame({'sample': deviceID[0][0], 'time': data[:,0], 'Voc': data[:,1], 'Jsc':data[:,2], 'MPP':data[:,3]})
-        dfSummary = dfSummary[['sample', 'time', 'Voc', 'Jsc', 'MPP']]
+    ### Create DataFrames for saving csv and jsons
+    def makeDFDeviceID(self,deviceID):
+        dfDeviceID = pd.DataFrame({'device': deviceID[0]})
+        return dfDeviceID
+        
+    def makeDFData(self,data):
+        dfSummaryData = pd.DataFrame({'time': data[:,0], 'Voc': data[:,1], 'Jsc': data[:,2], 'MPP': data[:,3]})
+        dfSummaryData = dfSummaryData[['time', 'Voc', 'Jsc', 'MPP']]
+        return dfSummaryData
+    
+    def makeDFJV(self,JV):
         dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
         dfJV = dfJV[['V', 'J']]
-        return pd.concat([dfSummary,dfJV], axis = 1)
+        return dfJV
 
-    ### Save device acquisition
-    def save_file(self,dataFrame,index):
-        csvFilename = str(dataFrame.get_value(index,'sample'))+"_"+str(int(dataFrame.get_value(index,'time')))+".csv"
-        dataFrame.to_csv(csvFilename, sep=',', index=False)
+    ### Save device acquisition as csv
+    def save_csv(self,dfDeviceID, dfSummaryData, dfJV, index):
+        dfTot = pd.concat([dfDeviceID, dfSummaryData], axis = 1)
+        dfTot = pd.concat([dfTot,dfJV], axis = 1)
+        csvFilename = str(dfDeviceID.get_value(0,'device'))+"_"+str(int(dfSummaryData.get_value(index,'time')))+".csv"
+        dfTot.to_csv(csvFilename, sep=',', index=False)
         print("Device data saved on: ",csvFilename)
+    
+    ### Prepare json for device data
+    def save_json(self,dfDeviceID, dfSummaryData, dfJV, index):
+        listTot = dict(dfDeviceID.to_dict(orient='list'))
+        listSummaryData = dict(dfSummaryData.to_dict(orient='list'))
+        listJV = dict(dfJV.to_dict(orient='list'))
+        listTot.update(listSummaryData)
+        listTot.update(listJV)
+        jsonTot = json.dumps(listTot)
+        return jsonTot
+
     
     ### Open JV from file
     def open_data(self):
@@ -288,8 +312,6 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
 
-    
-    
     ################################################################
     def generateRandomJV(self):
         VStart = 0
@@ -312,4 +334,4 @@ class ResultsWindow(QMainWindow):
     ### This will only be used for testing, to sumulate an actual experiment
     def temporaryAcquisition(self):
         self.time = self.time + 1
-        self.processData("test", self.time, [random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10], self.generateRandomJV())
+        self.processData("random-test", self.time, [random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10], self.generateRandomJV())
