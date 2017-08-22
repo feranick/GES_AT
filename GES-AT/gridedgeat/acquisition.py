@@ -14,29 +14,30 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import numpy as np
+import pandas as pd
 import time, random, math
 from .acquisitionWindow import *
 
 class Acquisition():
-    def __init__(self):
-        self.acqwind = AcquisitionWindow()
     
-    def getAcqParameters(self):
-        self.acqMinVoltage = self.acqwind.minVText.value()
-        self.acqMaxVoltage = self.acqwind.maxVText.value()
-        self.acqStartVoltage = self.acqwind.startVText.value()
-        self.acqStepVoltage = float(self.acqwind.stepVText.text())
-        self.acqNumAvScans = self.acqwind.numAverScansText.value()
-        self.acqDelBeforeMeas = self.acqwind.delayBeforeMeasText.value()
-        self.acqTrackNumPoints = self.acqwind.numPointsText.value()
-        self.acqTrackInterval = self.acqwind.IntervalText.value()
+    def getAcqParameters(self,obj):
+        self.acqMinVoltage = obj.acquisitionwind.minVText.value()
+        self.acqMaxVoltage = obj.acquisitionwind.maxVText.value()
+        self.acqStartVoltage = obj.acquisitionwind.startVText.value()
+        self.acqStepVoltage = float(obj.acquisitionwind.stepVText.text())
+        self.acqNumAvScans = obj.acquisitionwind.numAverScansText.value()
+        self.acqDelBeforeMeas = obj.acquisitionwind.delayBeforeMeasText.value()
+        self.acqTrackNumPoints = obj.acquisitionwind.numPointsText.value()
+        self.acqTrackInterval = obj.acquisitionwind.IntervalText.value()
+        self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
+        self.operatorID = obj.samplewind.operatorText.text()
+        self.inputParams = pd.DataFrame({'device': [self.deviceID], 'operator': [self.operatorID]})
+        self.inputParams = self.inputParams[['operator','device']]
 
-    
     def start(self, obj):
-        self.getAcqParameters()
+        self.getAcqParameters(obj)
         #Eventually a loop across samples will start here
         self.time = 0
-        self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
         obj.statusBar().showMessage("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
         print("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
         obj.resultswind.clearPlots()
@@ -49,7 +50,7 @@ class Acquisition():
             self.JV = self.generateRandomJV()
             self.perfData = self.analyseJV(self.JV)
             
-            obj.resultswind.processData(self.deviceID, self.time, self.perfData, self.JV)
+            obj.resultswind.processData(self.inputParams, self.time, self.perfData, self.JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
