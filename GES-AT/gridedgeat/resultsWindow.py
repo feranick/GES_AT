@@ -252,7 +252,8 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
         QApplication.processEvents()
 
-        self.save_file(self.deviceID,self.summaryData,self.JV)
+        self.devDataFrame = self.makeDataFrame(self.deviceID,self.summaryData,self.JV[lastRowInd])
+        self.save_file(self.devDataFrame, lastRowInd)
 
     def plotData(self, deviceID, data, JV):
         self.plotJVresp(JV)
@@ -261,6 +262,19 @@ class ResultsWindow(QMainWindow):
         self.plotTJsc(data)
         self.show()
 
+
+    def makeDataFrame(self,deviceID,data,JV):
+        dfSummary = pd.DataFrame({'sample': deviceID[0][0], 'time': data[:,0], 'Voc': data[:,1], 'Jsc':data[:,2], 'MPP':data[:,3]})
+        dfSummary = dfSummary[['sample', 'time', 'Voc', 'Jsc', 'MPP']]
+        dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
+        dfJV = dfJV[['V', 'J']]
+        return pd.concat([dfSummary,dfJV], axis = 1)
+
+    ### Save device acquisition
+    def save_file(self,dataFrame,index):
+        csvFilename = str(dataFrame.get_value(index,'sample'))+"_"+str(int(dataFrame.get_value(index,'time')))+".csv"
+        dataFrame.to_csv(csvFilename, sep=',', index=False)
+        print("Device data saved on: ",csvFilename)
     
     ### Open JV from file
     def open_data(self):
@@ -274,11 +288,6 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
 
-    def save_file(self,deviceID,data,JV):
-        print(JV[0][0])
-        dfSummary = pd.DataFrame({'sample': deviceID[0][0], 'Voc': data[:,1], 'Jsc':data[:,0], 'MPP':data[:,3]})
-        dfJV = pd.DataFrame({'V':JV[0][0], 'J':JV[0][1]})
-        pd.concat([dfSummary,dfJV], axis = 1).to_csv("test.csv", sep=',', index=False)
     
     
     ################################################################
