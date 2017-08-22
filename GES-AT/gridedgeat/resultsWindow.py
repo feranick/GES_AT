@@ -213,16 +213,14 @@ class ResultsWindow(QMainWindow):
     # Action upon selecting a row in the table.
     @pyqtSlot()
     def onCellClick(self):
+        row = self.resTableWidget.selectedItems()[0].row()
         for j in range(self.resTableWidget.columnCount()):
             for i in range(self.resTableWidget.rowCount()):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
   
-        for j in range(self.resTableWidget.columnCount()):
-            row = self.resTableWidget.selectedItems()[0].row()
-            self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-
         self.plotData(self.deviceID,self.summaryData, self.JV[row])
-
+        for j in range(self.resTableWidget.columnCount()):
+            self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
     def processData(self, deviceID, time, data, JV):
@@ -242,16 +240,18 @@ class ResultsWindow(QMainWindow):
 
         lastRowInd = self.resTableWidget.rowCount() -1
 
-        # Plot results
-        #self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
-
         # Populate table.
         self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
         self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
         self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
         self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
         self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
-    
+        
+        QApplication.processEvents()
+        # Plot results
+        self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
+        QApplication.processEvents()
+
         self.save_file(self.deviceID,self.summaryData,self.JV)
 
     def plotData(self, deviceID, data, JV):
