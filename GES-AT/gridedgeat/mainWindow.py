@@ -140,17 +140,17 @@ class MainWindow(QMainWindow):
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)
-        self.startAcqButton.setGeometry(QRect(20, 120, 150, 50))
+        self.startAcqButton.setGeometry(QRect(10, 120, 160, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
         self.startAcqButton.clicked.connect(lambda: self.acquisition.start(self))
         self.stopAcqButton = QPushButton(self)
-        self.stopAcqButton.setGeometry(QRect(190, 120, 150, 50))
+        self.stopAcqButton.setGeometry(QRect(170, 120, 160, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
         self.stopAcqButton.clicked.connect(lambda: self.acquisition.stop(self))
         self.logo = QLabel(self)
-        self.logo.setGeometry(QRect(30, 55, 311, 61))
+        self.logo.setGeometry(QRect(20, 55, 311, 61))
         self.logo.setText("")
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")
@@ -158,6 +158,13 @@ class MainWindow(QMainWindow):
     def fileQuit(self):
         """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
+    
+    def enableButtonsAcq(self,flag):
+        if flag is False:
+            self.startAcqButton.setText("Acquisition Running...")
+        else:
+            self.startAcqButton.setText("Start Acquisition")
+        self.startAcqButton.setEnabled(flag)
     
     ### Utility definitions to create menus actions
     def createAction(self, text, slot=None, shortcut=None, icon=None,

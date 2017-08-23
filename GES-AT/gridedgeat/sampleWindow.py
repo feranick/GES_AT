@@ -105,3 +105,11 @@ class SampleWindow(QMainWindow):
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             print("Selected cell: ",currentQTableWidgetItem.text())
+
+    # Enable and disable fields (flag is either True or False) during acquisition.
+    def enableSamplePanel(self, flag):
+        self.holderTypeCBox.setEnabled(flag)
+        self.operatorText.setEnabled(flag)
+        self.sizeSubsCBox.setEnabled(flag)
+        self.applyButton.setEnabled(flag)
+        self.tableWidget.setEnabled(flag)

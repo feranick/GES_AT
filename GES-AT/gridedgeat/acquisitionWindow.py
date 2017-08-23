@@ -147,7 +147,6 @@ class AcquisitionWindow(QMainWindow):
         config.acqTrackInterval = self.IntervalText.value()
         self.timePerDevice()
     
-
     def defaultParameters(self):
         self.minVText.setValue(config.acqMinVoltage)
         self.maxVText.setValue(config.acqMaxVoltage)
@@ -162,6 +161,20 @@ class AcquisitionWindow(QMainWindow):
     def timePerDevice(self):
         timePerDevice = (config.acqNumAvScans * (0.1+config.acqDelBeforeMeas) + config.acqTrackInterval) * config.acqTrackNumPoints
         self.totTimePerDeviceLabel.setText("Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
+
+    # Enable and disable fields (flag is either True or False) during acquisition.
+    def enableAcqPanel(self, flag):
+        self.minVText.setEnabled(flag)
+        self.maxVText.setEnabled(flag)
+        self.startVText.setEnabled(flag)
+        self.stepVText.setEnabled(flag)
+        self.numAverScansText.setEnabled(flag)
+        self.delayBeforeMeasText.setEnabled(flag)
+        self.numPointsText.setEnabled(flag)
+        self.IntervalText.setEnabled(flag)
+        self.applyButton.setEnabled(flag)
+        self.defaultButton.setEnabled(flag)
+
 
 
 

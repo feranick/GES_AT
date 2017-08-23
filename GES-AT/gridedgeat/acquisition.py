@@ -35,6 +35,10 @@ class Acquisition():
         self.inputParams = self.inputParams[['operator','device']]
 
     def start(self, obj):
+        obj.acquisitionwind.enableAcqPanel(False)
+        obj.samplewind.enableSamplePanel(False)
+        obj.enableButtonsAcq(False)
+        QApplication.processEvents()
         self.getAcqParameters(obj)
         #Eventually a loop across samples will start here
         self.time = 0
@@ -59,6 +63,9 @@ class Acquisition():
             time.sleep(1)
         ############  This part is temporary  ###########################
         print("Acquisition: Completed")
+        obj.acquisitionwind.enableAcqPanel(True)
+        obj.samplewind.enableSamplePanel(True)
+        obj.enableButtonsAcq(True)
         obj.statusBar().showMessage("Acquisition completed", 5000)
         
     def stop(self, obj):
