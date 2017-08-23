@@ -106,8 +106,9 @@ class Acquisition():
             
             self.JV = self.generateRandomJV()
             self.perfData = self.analyseJV(self.JV)
+            self.perfData = np.hstack((self.time, self.perfData))
             
-            obj.resultswind.processData(self.inputParams, self.time, self.perfData, self.JV)
+            obj.resultswind.processData(self.inputParams, self.perfData, self.JV)
             
             QApplication.processEvents()
             obj.resultswind.show()

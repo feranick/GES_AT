@@ -218,7 +218,7 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
-    def processData(self, inputParams, time, data, JV):
+    def processData(self, inputParams, perfData, JV):
     
         # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
@@ -228,7 +228,7 @@ class ResultsWindow(QMainWindow):
     
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([inputParams.get_value(0,'device')])))
-        self.summaryData = np.vstack((self.summaryData, np.hstack((time, data))))
+        self.summaryData = np.vstack((self.summaryData, perfData))
         if self.JV.shape[0] == 0:
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
@@ -254,16 +254,16 @@ class ResultsWindow(QMainWindow):
         self.save_csv(inputParams, dfData, dfJV, lastRowInd)
         self.save_json(inputParams, dfData, dfJV, lastRowInd)
 
-    def plotData(self, deviceID, data, JV):
+    def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
-        self.plotTVoc(data)
-        self.plotMPP(data)
-        self.plotTJsc(data)
+        self.plotTVoc(perfData)
+        self.plotMPP(perfData)
+        self.plotTJsc(perfData)
         self.show()
 
     ### Create DataFrames for saving csv and jsons
-    def makeDFData(self,data):
-        dfSummaryData = pd.DataFrame({'time': data[:,0], 'Voc': data[:,1], 'Jsc': data[:,2], 'MPP': data[:,3]})
+    def makeDFData(self,perfData):
+        dfSummaryData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1], 'Jsc': perfData[:,2], 'MPP': perfData[:,3]})
         dfSummaryData = dfSummaryData[['time', 'Voc', 'Jsc', 'MPP']]
         return dfSummaryData
     
