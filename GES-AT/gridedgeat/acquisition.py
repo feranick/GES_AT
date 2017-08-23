@@ -29,10 +29,12 @@ class Acquisition():
         self.acqDelBeforeMeas = obj.acquisitionwind.delayBeforeMeasText.value()
         self.acqTrackNumPoints = obj.acquisitionwind.numPointsText.value()
         self.acqTrackInterval = obj.acquisitionwind.IntervalText.value()
-        #self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
         self.operatorID = obj.samplewind.operatorText.text()
-        #self.inputParams = pd.DataFrame({'device': [self.deviceID], 'operator': [self.operatorID]})
-        #self.inputParams = self.inputParams[['operator','device']]
+        self.acqParam = pd.DataFrame({'operator': [self.operatorID], 'Acq Min Voltage': [self.acqMinVoltage],
+                'Acq Max Voltage': [self.acqMaxVoltage],'Acq Start Voltage': [self.acqStartVoltage],
+                'Acq Step Voltage': [self.acqStepVoltage],'Acq Num Aver Scans': [self.acqNumAvScans],
+                'Delay Before Meas': [self.acqDelBeforeMeas], 'Num Track Points': [self.acqTrackNumPoints],
+                'Track Interval': [self.acqTrackInterval]})
 
     def start(self, obj):
         ### Setup interface and get parameters before acquisition
