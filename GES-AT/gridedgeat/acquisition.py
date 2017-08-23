@@ -49,25 +49,11 @@ class Acquisition():
         obj.resultswind.show()
         QApplication.processEvents()
         
-        #Eventually a loop across samples will start here
-        ############  Temporary section STARTS here ###########################
-        self.time = 0
-        for i in range(self.acqTrackNumPoints):
-            if obj.stopAcqFlag is True:
-                break
-            print("JV #",i+1)
-            
-            self.JV = self.generateRandomJV()
-            self.perfData = self.analyseJV(self.JV)
-            
-            obj.resultswind.processData(self.inputParams, self.time, self.perfData, self.JV)
-            
-            QApplication.processEvents()
-            obj.resultswind.show()
-            QApplication.processEvents()
-            self.time = self.time + 1
-            time.sleep(1)
-        ############  Temporary section ENDS here ###########################
+        ### Acquisition loop should land here ###############
+        
+        self.fakeAcq1(obj)
+        
+        #####################################################
         
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
@@ -92,7 +78,7 @@ class Acquisition():
         data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
         return data
     
-    ################################################################
+    ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
         VStart = self.acqStartVoltage
         VEnd = self.acqMaxVoltage
@@ -110,5 +96,26 @@ class Acquisition():
             JV = np.vstack([JV,[i,temp]])
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
+
+    def fakeAcq1(self, obj):
+        self.time = 0
+        for i in range(self.acqTrackNumPoints):
+            if obj.stopAcqFlag is True:
+                break
+            print("JV #",i+1)
+            
+            self.JV = self.generateRandomJV()
+            self.perfData = self.analyseJV(self.JV)
+            
+            obj.resultswind.processData(self.inputParams, self.time, self.perfData, self.JV)
+            
+            QApplication.processEvents()
+            obj.resultswind.show()
+            QApplication.processEvents()
+            self.time = self.time + 1
+            time.sleep(1)
+
+    ############  Temporary section ENDS here ###########################
+
 
 
