@@ -95,10 +95,6 @@ class ResultsWindow(QMainWindow):
 
         # Make Menu for plot related calls
         self.setCentralWidget(self.centralwidget)
-        self.randomMenu = QAction("&Plot Random Data", self)
-        self.randomMenu.setShortcut("Ctrl+r")
-        self.randomMenu.setStatusTip('Plot random data')
-        self.randomMenu.triggered.connect(self.temporaryAcquisition)
         self.openMenu = QAction("&Open Data", self)
         self.openMenu.setShortcut("Ctrl+o")
         self.openMenu.setStatusTip('Plot data from saved file')
@@ -110,7 +106,6 @@ class ResultsWindow(QMainWindow):
         
         self.menuBar = QMenuBar(self)
         plotMenu = self.menuBar.addMenu('&Plot')
-        plotMenu.addAction(self.randomMenu)
         plotMenu.addAction(self.openMenu)
         plotMenu.addSeparator()
         plotMenu.addAction(self.clearMenu)
@@ -307,27 +302,3 @@ class ResultsWindow(QMainWindow):
                 self.plotJVresp(M)
         except:
             print("Loading files failed")
-
-    ################################################################
-    def generateRandomJV(self):
-        VStart = 0
-        VEnd = 1
-        VStep = 0.02
-        I0 = 1e-10
-        Il = 0.5
-        n = 1+ random.randrange(0,20,1)/10
-        T = 300
-        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
-        q = 1.60217662E-19  # Electron charge
-        
-        JV = np.zeros((0,2))
-        for i in np.arange(VStart,VEnd,VStep):
-            temp = Il - I0*math.exp(q*i/(n*kB*T))
-            JV = np.vstack([JV,[i,temp]])
-        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
-        return JV
-
-    ### This will only be used for testing, to sumulate an actual experiment
-    def temporaryAcquisition(self):
-        self.time = self.time + 1
-        self.processData("random-test", self.time, [random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10,random.randrange(0,20,1)/10], self.generateRandomJV())
