@@ -35,6 +35,7 @@ class Acquisition():
         self.inputParams = self.inputParams[['operator','device']]
 
     def start(self, obj):
+        obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
         obj.samplewind.enableSamplePanel(False)
         obj.enableButtonsAcq(False)
@@ -49,6 +50,8 @@ class Acquisition():
         QApplication.processEvents()
         ############  This part is temporary  ###########################
         for i in range(self.acqTrackNumPoints):
+            if obj.stopAcqFlag is True:
+                break
             print("JV #",i+1)
             
             self.JV = self.generateRandomJV()
@@ -69,8 +72,9 @@ class Acquisition():
         obj.statusBar().showMessage("Acquisition completed", 5000)
         
     def stop(self, obj):
-        obj.statusBar().showMessage("Not yet implemented", 5000)
-        print("Not yet implemented")
+        obj.statusBar().showMessage("Acquisition stopped", 5000)
+        obj.stopAcqFlag = True
+        print("Acquisition stopped")
     
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
