@@ -113,3 +113,13 @@ class SampleWindow(QMainWindow):
         self.sizeSubsCBox.setEnabled(flag)
         self.applyButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
+
+    def colorCellAcq(self,row,column,color):
+        if color is "red":
+            self.tableWidget.item(row, col).setBackground(QColor(255,0,0))
+        if color is "white":
+            self.tableWidget.item(row, col).setBackground(QColor(255,255,255))
+        if color is "green":
+            self.tableWidget.item(row, col).setBackground(QColor(0,255,0))
+
+
