@@ -35,20 +35,23 @@ class Acquisition():
         self.inputParams = self.inputParams[['operator','device']]
 
     def start(self, obj):
+        ### Setup interface and get parameters before acquisition
+        
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
         obj.samplewind.enableSamplePanel(False)
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
         self.getAcqParameters(obj)
-        #Eventually a loop across samples will start here
-        self.time = 0
         obj.statusBar().showMessage("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
         print("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
         obj.resultswind.clearPlots()
         obj.resultswind.show()
         QApplication.processEvents()
-        ############  This part is temporary  ###########################
+        
+        #Eventually a loop across samples will start here
+        ############  Temporary section STARTS here ###########################
+        self.time = 0
         for i in range(self.acqTrackNumPoints):
             if obj.stopAcqFlag is True:
                 break
@@ -64,7 +67,8 @@ class Acquisition():
             QApplication.processEvents()
             self.time = self.time + 1
             time.sleep(1)
-        ############  This part is temporary  ###########################
+        ############  Temporary section ENDS here ###########################
+        
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
@@ -107,7 +111,4 @@ class Acquisition():
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    ### This will only be used for testing, to sumulate an actual experiment
-    def temporaryAcquisition(self):
-        self.resultswind.time = self.resultswind.time + 1
-        self.resultswind.processData(self.generateRandomJV())
+
