@@ -48,7 +48,7 @@ class Acquisition():
         for i in range(config.numSubsHolderCol):
             for j in range(config.numSubsHolderRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
-                    deviceID = obj.samplewind.tableWidget.item(0,0).text()
+                    deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
                     print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
                     
