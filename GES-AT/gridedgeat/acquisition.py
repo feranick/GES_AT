@@ -29,10 +29,10 @@ class Acquisition():
         self.acqDelBeforeMeas = obj.acquisitionwind.delayBeforeMeasText.value()
         self.acqTrackNumPoints = obj.acquisitionwind.numPointsText.value()
         self.acqTrackInterval = obj.acquisitionwind.IntervalText.value()
-        self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
+        #self.deviceID = obj.samplewind.tableWidget.item(0,0).text()
         self.operatorID = obj.samplewind.operatorText.text()
-        self.inputParams = pd.DataFrame({'device': [self.deviceID], 'operator': [self.operatorID]})
-        self.inputParams = self.inputParams[['operator','device']]
+        #self.inputParams = pd.DataFrame({'device': [self.deviceID], 'operator': [self.operatorID]})
+        #self.inputParams = self.inputParams[['operator','device']]
 
     def start(self, obj):
         ### Setup interface and get parameters before acquisition
@@ -43,15 +43,22 @@ class Acquisition():
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
         self.getAcqParameters(obj)
-        obj.statusBar().showMessage("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
-        print("Acquiring from: " + self.deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
         obj.resultswind.clearPlots()
         obj.resultswind.show()
         QApplication.processEvents()
         
+        for i in range(config.numSubsHolderCol):
+            for j in range(config.numSubsHolderRow):
+                if obj.samplewind.tableWidget.item(i,j).text() != "":
+                    deviceID = obj.samplewind.tableWidget.item(0,0).text()
+                    obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
+                    print("Acquiring from: " + deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
+                    inputParams = pd.DataFrame({'device': [deviceID], 'operator': [self.operatorID]})
+                    inputParams = inputParams[['operator','device']]
+                    
         ### Acquisition loop should land here ###############
-        
-        self.fakeAcq1(obj)
+                    
+                    self.fakeAcq1(obj, inputParams)
         
         #####################################################
         
@@ -97,23 +104,23 @@ class Acquisition():
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    def fakeAcq1(self, obj):
-        self.time = 0
+    def fakeAcq1(self, obj, inputParams):
+        timeAcq = 0
         for i in range(self.acqTrackNumPoints):
             if obj.stopAcqFlag is True:
                 break
             print("JV #",i+1)
             
-            self.JV = self.generateRandomJV()
-            self.perfData = self.analyseJV(self.JV)
-            self.perfData = np.hstack((self.time, self.perfData))
+            JV = self.generateRandomJV()
+            perfData = self.analyseJV(JV)
+            perfData = np.hstack((timeAcq, perfData))
             
-            obj.resultswind.processData(self.inputParams, self.perfData, self.JV)
+            obj.resultswind.processData(inputParams, perfData, JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
             QApplication.processEvents()
-            self.time = self.time + 1
+            timeAcq = timeAcq + 1
             time.sleep(1)
 
     ############  Temporary section ENDS here ###########################
