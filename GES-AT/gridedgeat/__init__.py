@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-__version__ = "0.0.10"
+__version__ = "0.0.11"
 __author__ = "Nicola Ferralis"
 
 # import packages
