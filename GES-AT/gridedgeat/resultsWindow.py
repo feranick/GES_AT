@@ -33,8 +33,9 @@ from . import config
 class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
-        self.deviceID = np.zeros((0,1))
-        self.perfData = np.zeros((0,5))
+        self.deviceID = np.zeros((0,0,1))
+        self.perfData = np.ones((1,1,5))
+        
         self.JV = np.array([])
         self.initUI()
         self.initPlots(self.perfData)
@@ -128,7 +129,7 @@ class ResultsWindow(QMainWindow):
         self.axTJsc.set_autoscale_on(True)
         self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
-        self.lineTJsc, = self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
+        #self.lineTJsc, = self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
         
         self.figureTVoc.clf()
         self.axTVoc = self.figureTVoc.add_subplot(111)
@@ -138,7 +139,7 @@ class ResultsWindow(QMainWindow):
         self.axTVoc.set_autoscale_on(True)
         self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
-        self.lineTVoc, = self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
+        #self.lineTVoc, = self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
         
         self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
@@ -148,7 +149,7 @@ class ResultsWindow(QMainWindow):
         self.axMPP.set_autoscale_on(True)
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
-        self.lineMPP, = self.axMPP.plot(data[:,0],data[:,4], '.-',linewidth=0.5)
+        #self.lineMPP, = self.axMPP.plot(data[:,0],data[:,4], '.-',linewidth=0.5)
     
     # Initialize JV and PV plots
     def initJVPlot(self):
@@ -214,43 +215,52 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.deviceID,self.perfData, self.JV[row])
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-    
-    ###### Processing #############
-    def processData(self, deviceID, dfAcqParams, perfData, JV):
-    
+
+    def setupResultTable(self):
         # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
+        self.lastRowInd = self.resTableWidget.rowCount() - 1
+    
+    ###### Processing #############
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
     
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
-        self.perfData = np.vstack((self.perfData, perfData))
+        #self.perfData = np.vstack((self.perfData, np.array([0,perfData])))
+        print(perfData)
+        print(self.perfData)
+        '''
+        self.perfData = np.append(self.perfData, [perfData])
+        
         if self.JV.shape[0] == 0:
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
-
-        lastRowInd = self.resTableWidget.rowCount() -1
+        
+        print(self.perfData.shape)
 
         # Populate table.
-        self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,1]))))
-        self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,2]))))
-        self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,3]))))
-        self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,0]))))
-        
+        self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,1]))))
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,2]))))
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,3]))))
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,0]))))
+        '''
+        '''
         QApplication.processEvents()
         # Plot results
-        self.plotData(self.deviceID,self.perfData, self.JV[lastRowInd])
+        self.plotData(self.deviceID,self.perfData, self.JV[self.lastRowInd])
         QApplication.processEvents()
 
         #dfDeviceID = self.makeDFDeviceID(self.deviceID)
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[lastRowInd])
         
-        self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV, lastRowInd)
-        self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV, lastRowInd)
+        self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV, self.lastRowInd)
+        self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV, self.lastRowInd)
+        '''
 
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
