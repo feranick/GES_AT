@@ -33,12 +33,11 @@ from . import config
 class ResultsWindow(QMainWindow):
     def __init__(self):
         super(ResultsWindow, self).__init__()
-        self.time = 0  #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
-        self.summaryData = np.zeros((0,5))
+        self.perfData = np.zeros((0,5))
         self.JV = np.array([])
         self.initUI()
-        self.initPlots(self.summaryData)
+        self.initPlots(self.perfData)
         self.initJVPlot()
     
     def initUI(self):
@@ -194,11 +193,10 @@ class ResultsWindow(QMainWindow):
     
     # Clear all plots and fields
     def clearPlots(self):
-        self.time = 0   #### This will be removed once testing of random plotting is done
         self.deviceID = np.zeros((0,1))
-        self.summaryData = np.zeros((0,5))
+        self.perfData = np.zeros((0,5))
         self.JV = np.array([])
-        self.initPlots(self.summaryData)
+        self.initPlots(self.perfData)
         self.initJVPlot()
         self.resTableWidget.setRowCount(0)
         QApplication.processEvents()
@@ -213,12 +211,12 @@ class ResultsWindow(QMainWindow):
             for i in range(self.resTableWidget.rowCount()):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
   
-        self.plotData(self.deviceID,self.summaryData, self.JV[row])
+        self.plotData(self.deviceID,self.perfData, self.JV[row])
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
     
     ###### Processing #############
-    def processData(self, inputParams, perfData, JV):
+    def processData(self, deviceID, dfAcqParams, perfData, JV):
     
         # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
@@ -227,8 +225,8 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
     
         # create numpy arrays for all devices as well as dataframes for csv and jsons
-        self.deviceID = np.vstack((self.deviceID, np.array([inputParams.get_value(0,'device')])))
-        self.summaryData = np.vstack((self.summaryData, perfData))
+        self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
+        self.perfData = np.vstack((self.perfData, perfData))
         if self.JV.shape[0] == 0:
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
@@ -236,23 +234,23 @@ class ResultsWindow(QMainWindow):
         lastRowInd = self.resTableWidget.rowCount() -1
 
         # Populate table.
-        self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(inputParams.get_value(0,'device')))
-        self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,1]))))
-        self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,2]))))
-        self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,3]))))
-        self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.summaryData[:,0]))))
+        self.resTableWidget.setItem(lastRowInd, 0,QTableWidgetItem(deviceID))
+        self.resTableWidget.setItem(lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,1]))))
+        self.resTableWidget.setItem(lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,2]))))
+        self.resTableWidget.setItem(lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,3]))))
+        self.resTableWidget.setItem(lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,0]))))
         
         QApplication.processEvents()
         # Plot results
-        self.plotData(self.deviceID,self.summaryData, self.JV[lastRowInd])
+        self.plotData(self.deviceID,self.perfData, self.JV[lastRowInd])
         QApplication.processEvents()
 
         #dfDeviceID = self.makeDFDeviceID(self.deviceID)
-        dfData = self.makeDFData(self.summaryData)
+        dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[lastRowInd])
         
-        self.save_csv(inputParams, dfData, dfJV, lastRowInd)
-        self.save_json(inputParams, dfData, dfJV, lastRowInd)
+        self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV, lastRowInd)
+        self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV, lastRowInd)
 
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
@@ -262,10 +260,10 @@ class ResultsWindow(QMainWindow):
         self.show()
 
     ### Create DataFrames for saving csv and jsons
-    def makeDFData(self,perfData):
-        dfSummaryData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1], 'Jsc': perfData[:,2], 'MPP': perfData[:,3]})
-        dfSummaryData = dfSummaryData[['time', 'Voc', 'Jsc', 'MPP']]
-        return dfSummaryData
+    def makeDFPerfData(self,perfData):
+        dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1], 'Jsc': perfData[:,2], 'MPP': perfData[:,3]})
+        dfPerfData = dfPerfData[['time', 'Voc', 'Jsc', 'MPP']]
+        return dfPerfData
     
     def makeDFJV(self,JV):
         dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
@@ -273,24 +271,29 @@ class ResultsWindow(QMainWindow):
         return dfJV
 
     ### Save device acquisition as csv
-    def save_csv(self,dfDeviceID, dfSummaryData, dfJV, index):
-        dfTot = pd.concat([dfDeviceID, dfSummaryData], axis = 1)
+    def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV, index):
+        dfDeviceID = pd.DataFrame({'device':[deviceID]})
+        dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
-        csvFilename = str(dfDeviceID.get_value(0,'device'))+"_"+str(int(dfSummaryData.get_value(index,'time')))+".csv"
+        dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
+        csvFilename = str(dfDeviceID.get_value(0,'device'))+"_"+str(int(dfPerfData.get_value(index,'time')))+".csv"
         dfTot.to_csv(csvFilename, sep=',', index=False)
         print("Device data saved on: ",csvFilename)
     
     ### Prepare json for device data
-    def save_json(self,dfDeviceID, dfSummaryData, dfJV, index):
+    def save_json(self,deviceID, dfAcqParams, dfPerfData, dfJV, index):
+        dfDeviceID = pd.DataFrame({'device':[deviceID]})
         listTot = dict(dfDeviceID.to_dict(orient='list'))
-        listSummaryData = dict(dfSummaryData.to_dict(orient='list'))
+        listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
+        listPerfData = dict(dfPerfData.to_dict(orient='list'))
         listJV = dict(dfJV.to_dict(orient='list'))
-        listTot.update(listSummaryData)
+        
+        listTot.update(listPerfData)
         listTot.update(listJV)
+        listTot.update(listAcqParams)
         jsonTot = json.dumps(listTot)
         return jsonTot
 
-    
     ### Open JV from file
     def open_data(self):
         filenames = QFileDialog.getOpenFileNames(self,

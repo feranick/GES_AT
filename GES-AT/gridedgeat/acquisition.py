@@ -19,22 +19,18 @@ import time, random, math
 from .acquisitionWindow import *
 
 class Acquisition():
-    
+
+    # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
-        self.acqMinVoltage = obj.acquisitionwind.minVText.value()
-        self.acqMaxVoltage = obj.acquisitionwind.maxVText.value()
-        self.acqStartVoltage = obj.acquisitionwind.startVText.value()
-        self.acqStepVoltage = float(obj.acquisitionwind.stepVText.text())
-        self.acqNumAvScans = obj.acquisitionwind.numAverScansText.value()
-        self.acqDelBeforeMeas = obj.acquisitionwind.delayBeforeMeasText.value()
-        self.acqTrackNumPoints = obj.acquisitionwind.numPointsText.value()
-        self.acqTrackInterval = obj.acquisitionwind.IntervalText.value()
-        self.operatorID = obj.samplewind.operatorText.text()
-        self.acqParam = pd.DataFrame({'operator': [self.operatorID], 'Acq Min Voltage': [self.acqMinVoltage],
-                'Acq Max Voltage': [self.acqMaxVoltage],'Acq Start Voltage': [self.acqStartVoltage],
-                'Acq Step Voltage': [self.acqStepVoltage],'Acq Num Aver Scans': [self.acqNumAvScans],
-                'Delay Before Meas': [self.acqDelBeforeMeas], 'Num Track Points': [self.acqTrackNumPoints],
-                'Track Interval': [self.acqTrackInterval]})
+        return pd.DataFrame({'operator': [obj.samplewind.operatorText.text()],
+                'Acq Min Voltage': [obj.acquisitionwind.minVText.value()],
+                'Acq Max Voltage': [obj.acquisitionwind.maxVText.value()],
+                'Acq Start Voltage': [obj.acquisitionwind.startVText.value()],
+                'Acq Step Voltage': [float(obj.acquisitionwind.stepVText.text())],
+                'Acq Num Aver Scans': [obj.acquisitionwind.numAverScansText.value()],
+                'Delay Before Meas': [obj.acquisitionwind.delayBeforeMeasText.value()],
+                'Num Track Points': [obj.acquisitionwind.numPointsText.value()],
+                'Track Interval': [obj.acquisitionwind.IntervalText.value()]})
 
     def start(self, obj):
         ### Setup interface and get parameters before acquisition
@@ -44,7 +40,7 @@ class Acquisition():
         obj.samplewind.enableSamplePanel(False)
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
-        self.getAcqParameters(obj)
+        self.dfAcqParams = self.getAcqParameters(obj)
         obj.resultswind.clearPlots()
         obj.resultswind.show()
         QApplication.processEvents()
@@ -53,16 +49,14 @@ class Acquisition():
             for j in range(config.numSubsHolderRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     deviceID = obj.samplewind.tableWidget.item(0,0).text()
-                    obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs", 5000)
-                    print("Acquiring from: " + deviceID + ", " + str(self.acqNumAvScans) + " sets of JVs")
-                    inputParams = pd.DataFrame({'device': [deviceID], 'operator': [self.operatorID]})
-                    inputParams = inputParams[['operator','device']]
+                    obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
+                    print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
                     
-        ### Acquisition loop should land here ###############
+        ### Acquisition loop should land here ##################
                     
-                    self.fakeAcq1(obj, inputParams)
+                    self.fakeAcq1(obj, deviceID, self.dfAcqParams)
         
-        #####################################################
+        ########################################################
         
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
@@ -89,9 +83,9 @@ class Acquisition():
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
-        VStart = self.acqStartVoltage
-        VEnd = self.acqMaxVoltage
-        VStep = self.acqStepVoltage
+        VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
+        VEnd = self.dfAcqParams.get_value(0,'Acq Max Voltage')
+        VStep = self.dfAcqParams.get_value(0,'Acq Step Voltage')
         I0 = 1e-10
         Il = 0.5
         n = 1 + random.randrange(0,20,1)/10
@@ -106,9 +100,9 @@ class Acquisition():
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    def fakeAcq1(self, obj, inputParams):
+    def fakeAcq1(self, obj, deviceID, dfAcqParams):
         timeAcq = 0
-        for i in range(self.acqTrackNumPoints):
+        for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
                 break
             print("JV #",i+1)
@@ -117,7 +111,7 @@ class Acquisition():
             perfData = self.analyseJV(JV)
             perfData = np.hstack((timeAcq, perfData))
             
-            obj.resultswind.processData(inputParams, perfData, JV)
+            obj.resultswind.processData(deviceID, dfAcqParams, perfData, JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
