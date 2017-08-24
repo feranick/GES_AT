@@ -37,6 +37,7 @@ class Acquisition():
         
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
+        obj.samplewind.resetCellAcq()
         obj.samplewind.enableSamplePanel(False)
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
@@ -54,6 +55,7 @@ class Acquisition():
                     print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
                     obj.resultswind.clearPlots(False)
                     obj.resultswind.setupResultTable()
+                    obj.samplewind.colorCellAcq(i,j,"red")
                     
         ### Acquisition loop should land here ##################
                     
@@ -61,6 +63,7 @@ class Acquisition():
         
         ########################################################
                     obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd)
+                    obj.samplewind.colorCellAcq(i,j,"green")
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)

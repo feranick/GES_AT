@@ -106,7 +106,7 @@ class SampleWindow(QMainWindow):
     @pyqtSlot()
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
-            print("Selected cell: ",currentQTableWidgetItem.text())
+            print(" Selected cell: ",currentQTableWidgetItem.text())
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
@@ -116,12 +116,19 @@ class SampleWindow(QMainWindow):
         self.applyButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
 
+    # Change color in sample cells depending on the acqusition status
     def colorCellAcq(self,row,column,color):
         if color is "red":
-            self.tableWidget.item(row, col).setBackground(QColor(255,0,0))
+            self.tableWidget.item(row, column).setBackground(QColor(255,0,0))
         if color is "white":
-            self.tableWidget.item(row, col).setBackground(QColor(255,255,255))
+            self.tableWidget.item(row, column).setBackground(QColor(255,255,255))
         if color is "green":
-            self.tableWidget.item(row, col).setBackground(QColor(0,255,0))
+            self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
+
+    # Reset color in sample cells to white
+    def resetCellAcq(self):
+        for i in range(config.numSubsHolderCol):
+            for j in range(config.numSubsHolderRow):
+                self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
 
