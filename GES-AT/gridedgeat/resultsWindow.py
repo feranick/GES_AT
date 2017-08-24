@@ -272,9 +272,6 @@ class ResultsWindow(QMainWindow):
         self.dfTotDeviceID[index] = [self.deviceID]
         self.dfTotPerfData[index] = [self.perfData]
         self.dfTotJV[index] = [self.JV]
-        print(self.dfTotDeviceID)
-        print(self.dfTotPerfData)
-        print(self.dfTotJV)
 
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
