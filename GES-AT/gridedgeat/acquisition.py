@@ -43,6 +43,7 @@ class Acquisition():
         self.dfAcqParams = self.getAcqParameters(obj)
         obj.resultswind.clearPlots()
         obj.resultswind.show()
+        obj.resultswind.setupDataFrame()
         QApplication.processEvents()
         
         for i in range(config.numSubsHolderCol):
@@ -51,6 +52,7 @@ class Acquisition():
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
                     print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
+                    obj.resultswind.clearPlots()
                     obj.resultswind.setupResultTable()
                     
         ### Acquisition loop should land here ##################
@@ -58,7 +60,7 @@ class Acquisition():
                     self.fakeAcq1(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
-        
+                    obj.resultswind.makeInternalDataFrames(i)
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)

@@ -200,8 +200,6 @@ class ResultsWindow(QMainWindow):
         self.initJVPlot()
         self.resTableWidget.setRowCount(0)
         QApplication.processEvents()
-
-    
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -222,6 +220,11 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount() - 1
+        
+    def setupDataFrame(self):
+        self.dfTotDeviceID = pd.DataFrame()
+        self.dfTotPerfData = pd.DataFrame()
+        self.dfTotJV = pd.DataFrame()
     
     ###### Processing #############
     def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
@@ -247,14 +250,13 @@ class ResultsWindow(QMainWindow):
         # Plot results
         self.plotData(self.deviceID,self.perfData, self.JV[self.lastRowInd])
         QApplication.processEvents()
-        '''
-        #dfDeviceID = self.makeDFDeviceID(self.deviceID)
+        
         dfPerfData = self.makeDFPerfData(self.perfData)
-        dfJV = self.makeDFJV(self.JV[lastRowInd])
+        dfJV = self.makeDFJV(self.JV[self.lastRowInd])
         
         self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV, self.lastRowInd)
         self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV, self.lastRowInd)
-        '''
+        
 
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
@@ -262,6 +264,15 @@ class ResultsWindow(QMainWindow):
         self.plotMPP(perfData)
         self.plotTJsc(perfData)
         self.show()
+
+    def makeInternalDataFrames(self, index):
+        self.dfTotDeviceID = self.dfTotDeviceID.append(pd.DataFrame({index: [self.deviceID]}))
+        self.dfTotPerfData = self.dfTotPerfData.append(pd.DataFrame({index: [self.perfData]}))
+        self.dfTotJV = self.dfTotJV.append(pd.DataFrame({index: [self.JV]}))
+        print(self.dfTotDeviceID)
+        print(self.dfTotPerfData)
+        print(self.dfTotJV)
+
 
     ### Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
