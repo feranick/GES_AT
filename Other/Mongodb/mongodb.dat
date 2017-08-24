@@ -1,0 +1,12 @@
+host name 
+localhost
+port number 
+27017
+database name 
+test
+username 
+
+password  
+
+mechanism 
+SCRAM-SHA-1
