@@ -28,6 +28,13 @@ print(df1)
 dftot2 = dftot.append(df1)
 print(dftot2)
 
+dftot3 = dftot.append(pd.DataFrame({'dev1': [np1]}))
+print(dftot3)
+
+dftot4 = df1
+print(dftot4)
+dftot4['dev_new']=[np1]
+print(dftot4)
 
 '''
 np1 = np.zeros((5,2))
