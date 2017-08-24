@@ -49,8 +49,8 @@ powermeterID = "USB0::0x1313::0x8072::P2008173::INSTR"
 
 ## Data-management interaction ##
 DbHostname = "18.82.1.200"
-DbPortNumber = "7101"
-DbName = "Tata"
-DbUsername = "user1"
-DbPassword = "user1"
+DbPortNumber = "27017"
+DbName = "test"
+DbUsername = ""
+DbPassword = ""
 

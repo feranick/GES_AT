@@ -52,7 +52,7 @@ class DataManagementDB:
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
         client = self.connectDB()
-        db = client.Tata
+        db = client.[self.dbName]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
             print(" Data entry successful (id:",db_entry.inserted_id,")\n")
