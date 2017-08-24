@@ -41,8 +41,9 @@ class Acquisition():
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
         self.dfAcqParams = self.getAcqParameters(obj)
-        obj.resultswind.clearPlots()
+        obj.resultswind.clearPlots(True)
         obj.resultswind.show()
+        obj.resultswind.setupDataFrame()
         QApplication.processEvents()
         
         for i in range(config.numSubsHolderCol):
@@ -51,13 +52,15 @@ class Acquisition():
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
                     print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
+                    obj.resultswind.clearPlots(False)
+                    obj.resultswind.setupResultTable()
                     
         ### Acquisition loop should land here ##################
                     
-                    self.fakeAcq1(obj, deviceID, self.dfAcqParams)
+                    self.fakeAcq1(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
-        
+                    obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd)
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
@@ -100,7 +103,7 @@ class Acquisition():
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    def fakeAcq1(self, obj, deviceID, dfAcqParams):
+    def fakeAcq1(self, row, column, obj, deviceID, dfAcqParams):
         timeAcq = 0
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
@@ -111,7 +114,7 @@ class Acquisition():
             perfData = self.analyseJV(JV)
             perfData = np.hstack((timeAcq, perfData))
             
-            obj.resultswind.processData(deviceID, dfAcqParams, perfData, JV)
+            obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
