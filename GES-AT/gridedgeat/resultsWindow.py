@@ -265,7 +265,8 @@ class ResultsWindow(QMainWindow):
         self.plotTJsc(perfData)
         self.show()
 
-    def makeInternalDataFrames(self, index):
+    def makeInternalDataFrames(self, i,j):
+        index = str(i)+'_'+str(j)
         self.dfTotDeviceID[index] = [self.deviceID]
         self.dfTotPerfData[index] = [self.perfData]
         self.dfTotJV[index] = [self.JV]
