@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 __version__ = "0.0.12"
-__author__ = "Nicola Ferralis"
+__author__ = "<qt><a href = mailto:ferralis@mit.edu> Nicola Ferralis</a></qt>"
 
 # import packages
 # order of loading is important and should not be changed
