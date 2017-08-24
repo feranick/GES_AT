@@ -60,7 +60,7 @@ class Acquisition():
                     self.fakeAcq1(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
-                    obj.resultswind.makeInternalDataFrames(i,j)
+                    obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd)
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)

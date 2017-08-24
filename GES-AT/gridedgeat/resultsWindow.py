@@ -209,26 +209,28 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             for i in range(self.resTableWidget.rowCount()):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
-  
-        self.plotData(self.deviceID,self.perfData, self.JV[row])
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
+        
+        self.plotData(self.dfTotDeviceID.get_value(0,row),
+                self.dfTotPerfData.get_value(0,row),
+                self.dfTotJV.get_value(0,row)[self.dfTotJV.get_value(0,row).shape[0]-1])
 
+    # Add row and initialize it within the table
     def setupResultTable(self):
-        # Add row and initialize it within the table
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount()-1
-        print(self.lastRowInd)
-    
+
+    # Create internal dataframe with all the data. This is needed for plotting data after acquisition
     def setupDataFrame(self):
         self.dfTotDeviceID = pd.DataFrame()
         self.dfTotPerfData = pd.DataFrame()
         self.dfTotJV = pd.DataFrame()
     
-    ###### Processing #############
+    # Process data from devices
     def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
     
         # create numpy arrays for all devices as well as dataframes for csv and jsons
@@ -257,16 +259,16 @@ class ResultsWindow(QMainWindow):
         self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
         self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV)
         
-
+    # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
         self.plotTVoc(perfData)
         self.plotMPP(perfData)
         self.plotTJsc(perfData)
         self.show()
-
-    def makeInternalDataFrames(self, i,j):
-        index = str(i)+'_'+str(j)
+    
+    # Create internal dataframe with all the data. This is needed for plotting data after acquisition
+    def makeInternalDataFrames(self, index):
         self.dfTotDeviceID[index] = [self.deviceID]
         self.dfTotPerfData[index] = [self.perfData]
         self.dfTotJV[index] = [self.JV]
@@ -274,8 +276,7 @@ class ResultsWindow(QMainWindow):
         print(self.dfTotPerfData)
         print(self.dfTotJV)
 
-
-    ### Create DataFrames for saving csv and jsons
+    # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
         dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1], 'Jsc': perfData[:,2], 'MPP': perfData[:,3]})
         dfPerfData = dfPerfData[['time', 'Voc', 'Jsc', 'MPP']]
