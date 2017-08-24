@@ -266,9 +266,12 @@ class ResultsWindow(QMainWindow):
         self.show()
 
     def makeInternalDataFrames(self, index):
-        self.dfTotDeviceID = self.dfTotDeviceID.append(pd.DataFrame({index: [self.deviceID]}))
-        self.dfTotPerfData = self.dfTotPerfData.append(pd.DataFrame({index: [self.perfData]}))
-        self.dfTotJV = self.dfTotJV.append(pd.DataFrame({index: [self.JV]}))
+        #self.dfTotDeviceID = self.dfTotDeviceID.append(pd.DataFrame({index: [self.deviceID]}))
+        #self.dfTotPerfData = self.dfTotPerfData.append(pd.DataFrame({index: [self.perfData]}))
+        #self.dfTotJV = self.dfTotJV.append(pd.DataFrame({index: [self.JV]}))
+        self.dfTotDeviceID[index] = [self.deviceID]
+        self.dfTotPerfData[index] = [self.perfData]
+        self.dfTotJV[index] = [self.JV]
         print(self.dfTotDeviceID)
         print(self.dfTotPerfData)
         print(self.dfTotJV)
