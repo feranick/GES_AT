@@ -113,7 +113,6 @@ class ResultsWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
-    
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
