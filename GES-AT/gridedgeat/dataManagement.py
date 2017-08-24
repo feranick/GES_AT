@@ -30,7 +30,10 @@ class DataManagementDB:
     def connectDB(self):
         from pymongo import MongoClient
         client = MongoClient(self.dbHostname, int(self.dbPortNum))
-        auth_status = client[self.dbName].authenticate(self.dbUsername, self.dbPassword, mechanism='SCRAM-SHA-1')
+        if self.dbUsername != "" and self.dbPassword != "":
+            auth_status = client[self.dbName].authenticate(self.dbUsername, self.dbPassword)
+        else:
+            auth_status = client[self.dbName]
         print(' Authentication status = {0} \n'.format(auth_status))
         return status, client
 
@@ -52,7 +55,7 @@ class DataManagementDB:
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
         client = self.connectDB()
-        db = client.[self.dbName]
+        db = client[self.dbName]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
             print(" Data entry successful (id:",db_entry.inserted_id,")\n")

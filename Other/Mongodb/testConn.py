@@ -14,7 +14,6 @@
 
 import sys, math, json, os.path, time
 
-
 global MongoDBhost
 
 def main():
@@ -59,7 +58,8 @@ class GEmongoDB:
         client = MongoClient(self.hostname, int(self.port_num))
         print(client[self.dbname])
         print(client.test)
-        auth_status = client[self.dbname].authenticate(self.username, self.password, mechanism='SCRAM-SHA-1')
+        #auth_status = client[self.dbname].authenticate(self.username, self.password, mechanism='SCRAM-SHA-1')
+        auth_status = client[self.dbname]
         print(' Authentication status = {0} \n'.format(auth_status))
         return client
 
@@ -79,6 +79,9 @@ class GEmongoDB:
     
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
+        print(jsonData)
+        self.printAuthInfo()
+
         client = self.connectDB()
         db = client[self.dbname]
         try:
@@ -102,3 +105,4 @@ def getIP():
 #************************************
 if __name__ == "__main__":
     sys.exit(main())
+
