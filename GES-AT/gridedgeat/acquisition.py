@@ -41,7 +41,7 @@ class Acquisition():
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
         self.dfAcqParams = self.getAcqParameters(obj)
-        obj.resultswind.clearPlots()
+        obj.resultswind.clearPlots(True)
         obj.resultswind.show()
         obj.resultswind.setupDataFrame()
         QApplication.processEvents()
@@ -52,7 +52,7 @@ class Acquisition():
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
                     print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
-                    obj.resultswind.clearPlots()
+                    obj.resultswind.clearPlots(False)
                     obj.resultswind.setupResultTable()
                     
         ### Acquisition loop should land here ##################
