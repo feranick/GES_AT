@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.acquisitionwind = AcquisitionWindow(parent=self)
         self.powermeterwind = PowermeterWindow(parent=self)
         self.stagewind = StageWindow(parent=self)
-        self.dbconnectionwind = DBConnection(parent=self)
+        self.dbconnectionwind = DataManagementWindow(parent=self)
      
         #### define actions ####
         # actions for "File" menu

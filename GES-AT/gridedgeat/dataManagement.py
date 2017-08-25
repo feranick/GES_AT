@@ -1,6 +1,6 @@
 '''
 dataManagement.py
--------------
+-----------------
 Class for providing access to data-management database
 
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
@@ -18,7 +18,7 @@ global MongoDBhost
 #************************************
 ''' Class Database '''
 #************************************
-class DataManagementDB:
+class DataManagement:
     def __init__(self, info):
         #self.info = info
         self.dbHostname = info[0]

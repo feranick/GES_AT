@@ -313,7 +313,7 @@ class ResultsWindow(QMainWindow):
     def submit_DM(self,jsonData):
         self.dbConnectInfo = [config.DbHostname,config.DbPortNumber,
                  config.DbName,config.DbUsername,config.DbPassword]
-        conn = DataManagementDB(self.dbConnectInfo)
+        conn = DataManagement(self.dbConnectInfo)
         client, _ = conn.connectDB()
         db = client[self.dbConnectInfo[2]]
         try:

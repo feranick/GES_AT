@@ -29,9 +29,9 @@ from .dataManagement import *
    DBConnection Widget
    Definition of Database connection Widget
 '''
-class DBConnection(QMainWindow):
+class DataManagementWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(DBConnection, self).__init__(parent)
+        super(DataManagementWindow, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self,Panel):
@@ -105,7 +105,7 @@ class DBConnection(QMainWindow):
 
     def dbCheckConnect(self):
         self.getDbConnectionInfo()
-        self.dbConnect = DataManagementDB(self.dbConnectInfo)
+        self.dbConnect = DataManagement(self.dbConnectInfo)
         try:
             if self.dbConnect.connectDB()[1] is True:
                 self.dbConnectResultLabel.setText("Connection successful")
