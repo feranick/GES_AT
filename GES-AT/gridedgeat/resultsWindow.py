@@ -100,7 +100,9 @@ class ResultsWindow(QMainWindow):
         self.openMenu = QAction("&Open Data", self)
         self.openMenu.setShortcut("Ctrl+o")
         self.openMenu.setStatusTip('Plot data from saved file')
-        self.openMenu.triggered.connect(self.open_data)
+        #self.openMenu.triggered.connect(self.open_data)
+        self.openMenu.triggered.connect(self.read_csv)
+        
         self.clearMenu = QAction("&Clear Plots", self)
         self.clearMenu.setShortcut("Ctrl+x")
         self.clearMenu.setStatusTip('Clear plots')
@@ -214,7 +216,7 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-        
+                
         self.plotData(self.dfTotDeviceID.get_value(0,row),
                 self.dfTotPerfData.get_value(0,row),
                 self.dfTotJV.get_value(0,row)[self.dfTotJV.get_value(0,row).shape[0]-1])
@@ -324,14 +326,24 @@ class ResultsWindow(QMainWindow):
         except:
             print(" Submission to DM: failed.\n")
 
-    ### Open JV from file
-    def open_data(self):
+    ### Load data from saved CSV
+    def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
-                        "Open ASCII JV data", "","*.txt")
-        try:
-            for filename in filenames:
-                data = open(filename)
-                M = np.loadtxt(data,unpack=False)
-                self.plotJVresp(M)
-        except:
-            print("Loading files failed")
+                        "Open csv data", "","*.csv")
+
+        #try:
+        for filename in filenames[0]:
+            print(filename)
+            dftot = pd.read_csv(filename, na_filter=False)
+            #print(dftot)
+            deviceID = dftot.get_value(0,'device')
+            perfData = [dftot['time'],
+                    dftot['Voc'],dftot['Jsc'],dftot['MPP']]
+            JV = [dftot['V'],dftot['J']]
+
+            print(dftot['V'])
+
+            #self.plotData(deviceID,perfData,JV)
+        #except:
+        #    print("Loading files failed")
+
