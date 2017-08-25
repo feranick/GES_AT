@@ -35,5 +35,5 @@ class PowermeterWindow(QMainWindow):
             self.powerMeterLabel.setText("Powermeter libraries or connection failed")
         else:
             while True:
-                self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*power_meter.read))
+                self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*pm.get_power().read))
                 time.sleep(1)
