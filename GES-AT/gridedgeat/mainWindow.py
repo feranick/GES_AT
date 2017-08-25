@@ -39,10 +39,8 @@ from .dataManagementWindow import *
    Definition of Main Panel
 '''
 class MainWindow(QMainWindow):
- 
     def __init__(self):
         super(MainWindow, self).__init__(None)
-        self.myname = "nicola"
         self.initUI()
     
     def initUI(self):
@@ -55,8 +53,8 @@ class MainWindow(QMainWindow):
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
         self.acquisitionwind = AcquisitionWindow(parent=self)
-        self.powermeterwind = PowermeterWindow()
-        self.stagewind = StageWindow()
+        self.powermeterwind = PowermeterWindow(parent=self)
+        self.stagewind = StageWindow(parent=self)
         self.dbconnectionwind = DBConnection()
      
         #### define actions ####

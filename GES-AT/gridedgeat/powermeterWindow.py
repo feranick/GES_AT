@@ -16,12 +16,12 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget, QMainWindow)
 from .modules.powermeter import *
 
-class PowermeterWindow(QWidget):
-    def __init__(self):
-        super(PowermeterWindow, self).__init__()
+class PowermeterWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super(PowermeterWindow, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self, PowermeterWindow):
