@@ -26,6 +26,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 from . import config
+from .dataManagement import *
 
 '''
    Results Window
@@ -256,7 +257,8 @@ class ResultsWindow(QMainWindow):
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
         self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-        self.save_json(deviceID, dfAcqParams, dfPerfData, dfJV)
+        #self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV)
+        self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
         
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -294,7 +296,7 @@ class ResultsWindow(QMainWindow):
         print("Device data saved on: ",csvFilename)
     
     ### Prepare json for device data
-    def save_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
+    def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
         dfDeviceID = pd.DataFrame({'device':[deviceID]})
         listTot = dict(dfDeviceID.to_dict(orient='list'))
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
@@ -306,6 +308,19 @@ class ResultsWindow(QMainWindow):
         listTot.update(listAcqParams)
         jsonTot = json.dumps(listTot)
         return jsonTot
+    
+    ### Submit json for device data to Data-Management
+    def submit_DM(self,jsonData):
+        self.dbConnectInfo = [config.DbHostname,config.DbPortNumber,
+                 config.DbName,config.DbUsername,config.DbPassword]
+        conn = DataManagementDB(self.dbConnectInfo)
+        client, _ = conn.connectDB()
+        db = client[self.dbConnectInfo[2]]
+        try:
+            db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
+            print(" Submission to DM: successful (id:",db_entry.inserted_id,")\n")
+        except:
+            print(" Submission to DM: failed.\n")
 
     ### Open JV from file
     def open_data(self):
