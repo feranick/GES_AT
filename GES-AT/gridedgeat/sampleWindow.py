@@ -90,10 +90,13 @@ class SampleWindow(QMainWindow):
         self.applyButton.setObjectName("applyButton")
 
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(MainWindow)
-        self.menubar.setGeometry(QRect(0, 0, 774, 22))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
+        self.menuBar = QMenuBar(MainWindow)
+        self.menuBar.setGeometry(QRect(0, 0, 774, 22))
+        self.menuBar.setObjectName("menubar")
+        
+        self.parent().viewWindowMenus(self.menuBar, self.parent())
+
+        MainWindow.setMenuBar(self.menuBar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)

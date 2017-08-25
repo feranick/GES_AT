@@ -112,6 +112,7 @@ class MainWindow(QMainWindow):
 
         toolsMenu = self.menuBar().addMenu("&Tools")
         self.addActions(toolsMenu, self.toolsActions)
+        
 
         helpMenu = self.menuBar().addMenu("&Help")
         self.addActions(helpMenu, self.helpActions)
@@ -195,6 +196,38 @@ class MainWindow(QMainWindow):
                 target.addSeparator()
             else:
                 target.addAction(action)
+
+    # Adds Menus to expose other Windows.
+    def viewWindowMenus(self, menuObj, obj):
+        viewMainWindowMenu = QAction("&Main Window", self)
+        viewMainWindowMenu.setShortcut("Ctrl+m")
+        viewMainWindowMenu.setStatusTip('Display Main Window')
+        viewMainWindowMenu.triggered.connect(lambda: self.displayMainWindow(obj))
+        viewSampleMenu = QAction("&Device Window", self)
+        viewSampleMenu.setShortcut("Ctrl+d")
+        viewSampleMenu.setStatusTip('Display Device Window')
+        viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(obj.samplewind))
+        viewAcquisitionMenu = QAction("&Acquisition Window", self)
+        viewAcquisitionMenu.setShortcut("Ctrl+a")
+        viewAcquisitionMenu.setStatusTip('Display Acquisition Window')
+        viewAcquisitionMenu.triggered.connect(lambda: self.displayMainWindow(obj.acquisitionwind))
+        viewResultsMenu = QAction("&Results Window", self)
+        viewResultsMenu.setShortcut("Ctrl+r")
+        viewResultsMenu.setStatusTip('Display Results Window')
+        viewResultsMenu.triggered.connect(lambda: self.displayMainWindow(obj.resultswind))
+
+        windowMenu = menuObj.addMenu('&Window')
+        windowMenu.addAction(viewMainWindowMenu)
+        windowMenu.addAction(viewSampleMenu)
+        windowMenu.addAction(viewAcquisitionMenu)
+        windowMenu.addAction(viewResultsMenu)
+
+
+    def displayMainWindow(self, obj):
+        obj.show()
+        obj.setWindowState(obj.windowState() & Qt.WindowMinimized | Qt.WindowActive)
+        obj.raise_()
+        obj.activateWindow()
 
 '''
    WebLinks Widget
