@@ -18,7 +18,9 @@ import pandas as pd
 import time, random, math
 from .acquisitionWindow import *
 
-class Acquisition():
+class Acquisition(QWidget):
+    def __init__(self, parent=None):
+        super(Acquisition, self).__init__(parent)
 
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):

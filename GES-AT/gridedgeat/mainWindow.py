@@ -40,7 +40,7 @@ from .dataManagement import *
 class MainWindow(QMainWindow):
  
     def __init__(self):
-        super().__init__()
+        super(MainWindow, self).__init__(None)
         self.initUI()
     
     def initUI(self):
@@ -48,14 +48,14 @@ class MainWindow(QMainWindow):
         self.setGeometry(10,30,350,200)
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow()
-        self.resultswind = ResultsWindow()
+        self.resultswind = ResultsWindow(parent=self)
         self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
         self.acquisitionwind = AcquisitionWindow()
         self.powermeterwind = PowermeterWindow()
         self.stagewind = StageWindow()
-        self.dbconnectionwid = DBConnection()
+        self.dbconnectionwind = DBConnection()
      
         #### define actions ####
         # actions for "File" menu
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
                         self.cameraAction, None, self.stageAction]
 
         # actions for "Tools" menu
-        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwid.show,
+        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwind.show,
                 QKeySequence("Ctrl+T"), None,
                 "Test connectivity to data-management")
         

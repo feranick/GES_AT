@@ -28,8 +28,8 @@ from . import config
    Camera Window
 '''
 class CameraWindow(QMainWindow):
-    def __init__(self):
-        super(CameraWindow, self).__init__()
+    def __init__(self, parent=None):
+        super(CameraWindow, self).__init__(parent)
         self.initUI()
     
     def initUI(self):

@@ -20,8 +20,8 @@ from .modules.powermeter import *
 
 class StageWindow(QWidget):
 
-    def __init__(self):
-        super(StageWindow, self).__init__()
+    def __init__(self, parent=None):
+        super(StageWindow, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self, StageWindow):

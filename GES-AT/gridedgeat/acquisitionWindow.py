@@ -29,8 +29,8 @@ from . import config
    Acquisition Window
 '''
 class AcquisitionWindow(QMainWindow):
-    def __init__(self):
-        super(AcquisitionWindow, self).__init__()
+    def __init__(self, parent=None):
+        super(AcquisitionWindow, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self,MainWindow):
