@@ -58,10 +58,18 @@ class GEmongoDB:
         client = MongoClient(self.hostname, int(self.port_num))
         print(client[self.dbname])
         print(client.test)
-        #auth_status = client[self.dbname].authenticate(self.username, self.password, mechanism='SCRAM-SHA-1')
-        auth_status = client[self.dbname]
-        print(' Authentication status = {0} \n'.format(auth_status))
-        return client
+        if self.username != "" and self.password !="":
+            client[self.dbname].authenticate(self.username, self.password)
+        else:
+            client[self.dbname]
+        try:
+            client.admin.command('ismaster')
+            print(" Server Available!")
+            flag = True
+        except:
+            print(" Server not available")
+            flag = False
+        return client, flag
 
     def printAuthInfo(self):
         print(self.hostname)
@@ -82,7 +90,7 @@ class GEmongoDB:
         print(jsonData)
         self.printAuthInfo()
 
-        client = self.connectDB()
+        client, _ = self.connectDB()
         db = client[self.dbname]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))

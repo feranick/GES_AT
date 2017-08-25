@@ -30,12 +30,18 @@ class DataManagementDB:
     def connectDB(self):
         from pymongo import MongoClient
         client = MongoClient(self.dbHostname, int(self.dbPortNum))
-        if self.dbUsername != "" and self.dbPassword != "":
-            auth_status = client[self.dbName].authenticate(self.dbUsername, self.dbPassword)
+        if self.dbUsername != "" and self.dbPassword !="":
+            client[self.dbName].authenticate(self.dbUsername, self.dbPassword)
         else:
-            auth_status = client[self.dbName]
-        print(' Authentication status = {0} \n'.format(auth_status))
-        return status, client
+            client[self.dbName]
+        try:
+            client.admin.command('ismaster')
+            print(" Server Available!")
+            flag = True
+        except:
+            print(" Server not available")
+            flag = False
+        return client, flag
 
     def printAuthInfo(self):
         print(self.dbHostname)
@@ -54,7 +60,7 @@ class DataManagementDB:
 
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
-        client = self.connectDB()
+        client, _ = self.connectDB()
         db = client[self.dbName]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))

@@ -318,16 +318,20 @@ class DBConnection(QWidget):
         self.dbUsernameText.setText(config.DbUsername)
         self.dbPasswordText.setText(config.DbPassword)
         
-        self.dbConnectInfo = [config.DbHostname,config.DbPortNumber,
-                config.DbName,config.DbUsername,config.DbPassword]
-        
         self.dbTestConnectButton.clicked.connect(self.dbCheckConnect)
+    
+    def getDbConnectionInfo(self):
+        self.dbConnectInfo = [self.dbHostnameText.text(),
+                    self.dbPortNumText.text(),
+                    self.dbNameText.text(),
+                    self.dbUsernameText.text(),
+                    self.dbPasswordText.text()]
 
     def dbCheckConnect(self):
+        self.getDbConnectionInfo()
         self.dbConnect = DataManagementDB(self.dbConnectInfo)
-        try:
-            self.dbConnect.connectDB()
+        if self.dbConnect.connectDB() is True:
             self.dbConnectResultLabel.setText("Connection successful")
-        except:
+        else:
             self.dbConnectResultLabel.setText("Connection failed")
 
