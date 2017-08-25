@@ -56,86 +56,88 @@ class MainWindow(QMainWindow):
         self.powermeterwind = PowermeterWindow(parent=self)
         self.stagewind = StageWindow(parent=self)
         self.dbconnectionwind = DataManagementWindow(parent=self)
-     
-        #### define actions ####
-        # actions for "File" menu
-        #self.fileOpenAction = self.createAction("&Open...", self.camerawind.fileOpen,
-        #        QKeySequence.Open, None,
-        #        "Open a directory containing the image files.")
-        self.fileQuitAction = self.createAction("&Quit", self.fileQuit,
-                QKeySequence("Ctrl+q"), None,
-                "Close the application")
-                
-        self.fileActions = [None, self.fileQuitAction]
         
-        # actions for "Instruments" menu
-        self.stageAction = self.createAction("&Stage", self.stagewind.show,
-                QKeySequence("Ctrl+s"), None,
-                "Stage")
+        # Create menu
+        self.menuBar = QMenuBar(self)
+        self.quitMenu = QAction("&Quit", self)
+        self.quitMenu.setShortcut("Ctrl+q")
+        self.quitMenu.setStatusTip('Quit')
+        self.quitMenu.triggered.connect(self.fileQuit)
         
-        self.powermeterAction = self.createAction("&Powermeter", self.powermeterwind.show,
-                QKeySequence("Ctrl+p"), None,
-                "Powermeter")
-        self.cameraAction = self.createAction("&Camera", self.camerawind.show,
-                QKeySequence("Ctrl+c"), None,
-                "Camera panel")
-
-        self.instrumentsActions = [None, self.powermeterAction, None,
-                        self.cameraAction, None, self.stageAction]
-
-        # actions for "Tools" menu
-        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwind.show,
-                QKeySequence("Ctrl+T"), None,
-                "Test connectivity to data-management")
+        fileMenu = self.menuBar.addMenu('&File')
+        fileMenu.addAction(self.quitMenu)
         
-        self.toolsActions = [None, self.dbConnectionAction]
-                
-        # actions for "Help" menu
-        self.helpAction = self.createAction("&Help", self.weblinks.help,
-                None, None,
-                "Show help")
-        self.devAction = self.createAction("&Development and Bugs", self.weblinks.dev,
-                None, None,
-                "Development and Bugs")
-        self.aboutAction = self.createAction("&About", self.aboutwid.show,
-                None, None,
-                "About GridEdge AutoTesting")
-        self.helpActions = [None, self.helpAction, None, self.devAction,
-                None, self.aboutAction]
-                
-        #### Create menu bar ####
-        fileMenu = self.menuBar().addMenu("&File")
-        self.addActions(fileMenu, self.fileActions)
+        self.powermeterMenu = QAction("&Powermeter", self)
+        self.powermeterMenu.setShortcut("Ctrl+p")
+        self.powermeterMenu.setStatusTip('Powermeter controls')
+        self.powermeterMenu.triggered.connect(self.powermeterwind.show)
+        self.stageMenu = QAction("&Stage", self)
+        self.stageMenu.setShortcut("Ctrl+x")
+        self.stageMenu.setStatusTip('Stage controls')
+        self.stageMenu.triggered.connect(self.stagewind.show)
+        self.cameraMenu = QAction("&Camera", self)
+        self.cameraMenu.setShortcut("Ctrl+c")
+        self.cameraMenu.setStatusTip('Camera controls')
+        self.cameraMenu.triggered.connect(self.camerawind.show)
 
-        instrumentsMenu = self.menuBar().addMenu("&Instruments")
-        self.addActions(instrumentsMenu, self.instrumentsActions)
-
-        toolsMenu = self.menuBar().addMenu("&Tools")
-        self.addActions(toolsMenu, self.toolsActions)
+        instrumentsMenu = self.menuBar.addMenu('&Instruments')
+        instrumentsMenu.addAction(self.powermeterMenu)
+        instrumentsMenu.addAction(self.stageMenu)
+        instrumentsMenu.addAction(self.cameraMenu)
         
+        self.dataManagementMenu = QAction("&Data Management", self)
+        self.dataManagementMenu.setShortcut("Ctrl+d")
+        self.dataManagementMenu.setStatusTip('Data Management Settings')
+        self.dataManagementMenu.triggered.connect(self.dbconnectionwind.show)
+        
+        toolsMenu = self.menuBar.addMenu('&Tools')
+        toolsMenu.addAction(self.dataManagementMenu)
+        
+        self.viewWindowMenus(self.menuBar, self)
 
-        helpMenu = self.menuBar().addMenu("&Help")
-        self.addActions(helpMenu, self.helpActions)
-                
-        #### define actions ####
-        # actions for "Buttons" menu
-        self.sampleAction = self.createAction("&Sample", self.samplewind.show,
-                QKeySequence("Ctrl+s"), None,
-                "Sample panel")
-        self.acquisitionAction = self.createAction("&Acquisition", self.acquisitionwind.show,
-                QKeySequence("Ctrl+r"), None,
-                "Acquisition Setup panel")
-        self.resultsAction = self.createAction("&Results", self.resultswind.show,
-                QKeySequence("Ctrl+p"), None,
-                "Results panel")
-    
+        self.helpMenu = QAction("&Help", self)
+        self.helpMenu.setShortcut("Ctrl+h")
+        self.helpMenu.setStatusTip('Help')
+        self.helpMenu.triggered.connect(self.weblinks.help)
+        self.devBugsMenu = QAction("&Development and Bugs", self)
+        self.devBugsMenu.setShortcut("Ctrl+b")
+        self.devBugsMenu.setStatusTip('Development and bugs')
+        self.devBugsMenu.triggered.connect(self.weblinks.help)
+        self.aboutMenu = QAction("&About", self)
+        self.aboutMenu.setShortcut("Ctrl+a")
+        self.aboutMenu.setStatusTip('About')
+        self.aboutMenu.triggered.connect(self.aboutwid.show)
+        
+        aboutMenu = self.menuBar.addMenu('&Help')
+        aboutMenu.addAction(self.helpMenu)
+        aboutMenu.addAction(self.devBugsMenu)
+        aboutMenu.addSeparator()
+        aboutMenu.addAction(self.aboutMenu)
+        
         #### Create tool bar ####
-        toolBar = self.addToolBar("&Toolbar")
-        # adding actions to the toolbar, addActions-function creates a separator with "None"
-        self.toolBarActions = [self.sampleAction, None, self.acquisitionAction, None, self.resultsAction, None,
-                               self.cameraAction, None]
-        self.addActions(toolBar, self.toolBarActions)
+        self.sampleToolbar = QAction("&Sample", self)
+        self.sampleToolbar.setShortcut("Ctrl+s")
+        self.sampleToolbar.setStatusTip('Sample Configuration')
+        self.sampleToolbar.triggered.connect(self.samplewind.show)
         
+        self.acquisitionToolbar = QAction("&Acquisition", self)
+        self.acquisitionToolbar.setShortcut("Ctrl+a")
+        self.acquisitionToolbar.setStatusTip('Acquisition paramenters')
+        self.acquisitionToolbar.triggered.connect(self.acquisitionwind.show)
+        
+        self.resultsToolbar = QAction("&Results", self)
+        self.resultsToolbar.setShortcut("Ctrl+p")
+        self.resultsToolbar.setStatusTip('Results Panel')
+        self.resultsToolbar.triggered.connect(self.resultswind.show)
+        
+        toolBar = self.addToolBar("&Toolbar")
+        toolBar.addAction(self.sampleToolbar)
+        toolBar.addSeparator()
+        toolBar.addAction(self.acquisitionToolbar)
+        toolBar.addSeparator()
+        toolBar.addAction(self.resultsToolbar)
+        toolBar.addSeparator()
+       
         #### Create status bar ####
         self.statusBar().showMessage("Ready", 5000)
     
@@ -166,36 +168,6 @@ class MainWindow(QMainWindow):
         else:
             self.startAcqButton.setText("Start Acquisition")
         self.startAcqButton.setEnabled(flag)
-    
-    ### Utility definitions to create menus actions
-    def createAction(self, text, slot=None, shortcut=None, icon=None,
-                     tip=None, checkable=False, signal="triggered()"):
-        """ Convenience function that creates an action with the specified attributes. """
-        action = QAction(text, self)
-        if icon is not None:
-            action.setIcon(QIcon(":/{0}.png".format(icon)))
-        if shortcut is not None:
-            action.setShortcut(shortcut)
-        if tip is not None:
-            action.setToolTip(tip)
-            action.setStatusTip(tip)
-        if slot is not None:
-            action.triggered.connect(slot)
-        if checkable:
-            action.setCheckable(True)
-        return action
-            
-    def addActions(self, target, actions):
-        """
-        Convenience function that adds the actions to the target.
-        If an action is None a separator will be added.
-        
-        """
-        for action in actions:
-            if action is None:
-                target.addSeparator()
-            else:
-                target.addAction(action)
 
     # Adds Menus to expose other Windows.
     def viewWindowMenus(self, menuObj, obj):
@@ -221,7 +193,6 @@ class MainWindow(QMainWindow):
         windowMenu.addAction(viewSampleMenu)
         windowMenu.addAction(viewAcquisitionMenu)
         windowMenu.addAction(viewResultsMenu)
-
 
     def displayMainWindow(self, obj):
         obj.show()

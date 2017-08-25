@@ -115,13 +115,7 @@ class ResultsWindow(QMainWindow):
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
-    '''
-    def displayMainWindow(self, obj):
-        obj.show()
-        obj.setWindowState(obj.windowState() & Qt.WindowMinimized | Qt.WindowActive)
-        obj.raise_()
-        obj.activateWindow()
-    '''
+
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
