@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem,QAction)
-from PyQt5.QtCore import (QRect,pyqtSlot)
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
+from PyQt5.QtGui import (QColor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
@@ -95,6 +95,10 @@ class ResultsWindow(QMainWindow):
 
         # Make Menu for plot related calls
         self.setCentralWidget(self.centralwidget)
+        self.viewMainWindowMenu = QAction("&View Main Window", self)
+        self.viewMainWindowMenu.setShortcut("Ctrl+m")
+        self.viewMainWindowMenu.setStatusTip('Display Main Window')
+        self.viewMainWindowMenu.triggered.connect(self.displayMainWindow)
         self.openMenu = QAction("&Open Data", self)
         self.openMenu.setShortcut("Ctrl+o")
         self.openMenu.setStatusTip('Plot data from saved file')
@@ -105,6 +109,8 @@ class ResultsWindow(QMainWindow):
         self.clearMenu.triggered.connect(lambda: self.clearPlots(True))
         
         self.menuBar = QMenuBar(self)
+        plotMenu = self.menuBar.addMenu('&View')
+        plotMenu.addAction(self.viewMainWindowMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.openMenu)
         plotMenu.addSeparator()
@@ -113,6 +119,12 @@ class ResultsWindow(QMainWindow):
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
+    
+    def displayMainWindow(self):
+        self.parent().setWindowState(self.parent().windowState() & Qt.WindowMinimized | Qt.WindowActive)
+        self.parent().raise_()
+        #self.parent().showNormal()
+        self.parent().activateWindow()
 
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
