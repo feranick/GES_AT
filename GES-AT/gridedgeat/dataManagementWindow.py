@@ -29,9 +29,9 @@ from .dataManagement import *
    DBConnection Widget
    Definition of Database connection Widget
 '''
-class DBConnection(QWidget):    
-    def __init__(self):
-        super(DBConnection, self).__init__()
+class DBConnection(QMainWindow):
+    def __init__(self, parent=None):
+        super(DBConnection, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self,Panel):
