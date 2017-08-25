@@ -97,15 +97,14 @@ class DataManagementWindow(QMainWindow):
         self.dbTestConnectButton.clicked.connect(self.dbCheckConnect)
     
     def getDbConnectionInfo(self):
-        self.dbConnectInfo = [self.dbHostnameText.text(),
+        return [self.dbHostnameText.text(),
                     self.dbPortNumText.text(),
                     self.dbNameText.text(),
                     self.dbUsernameText.text(),
                     self.dbPasswordText.text()]
 
     def dbCheckConnect(self):
-        self.getDbConnectionInfo()
-        self.dbConnect = DataManagement(self.dbConnectInfo)
+        self.dbConnect = DataManagement(self.getDbConnectionInfo())
         try:
             if self.dbConnect.connectDB()[1] is True:
                 self.dbConnectResultLabel.setText("Connection successful")

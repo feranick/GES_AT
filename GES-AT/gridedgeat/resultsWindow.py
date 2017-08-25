@@ -311,8 +311,7 @@ class ResultsWindow(QMainWindow):
     
     ### Submit json for device data to Data-Management
     def submit_DM(self,jsonData):
-        self.dbConnectInfo = [config.DbHostname,config.DbPortNumber,
-                 config.DbName,config.DbUsername,config.DbPassword]
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         conn = DataManagement(self.dbConnectInfo)
         client, _ = conn.connectDB()
         db = client[self.dbConnectInfo[2]]
