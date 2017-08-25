@@ -95,10 +95,18 @@ class ResultsWindow(QMainWindow):
 
         # Make Menu for plot related calls
         self.setCentralWidget(self.centralwidget)
-        self.viewMainWindowMenu = QAction("&View Main Window", self)
+        self.viewMainWindowMenu = QAction("&Main Window", self)
         self.viewMainWindowMenu.setShortcut("Ctrl+m")
         self.viewMainWindowMenu.setStatusTip('Display Main Window')
-        self.viewMainWindowMenu.triggered.connect(self.displayMainWindow)
+        self.viewMainWindowMenu.triggered.connect(lambda: self.displayMainWindow(self.parent()))
+        self.viewAcquisitionMenu = QAction("&Acquisition Window", self)
+        self.viewAcquisitionMenu.setShortcut("Ctrl+a")
+        self.viewAcquisitionMenu.setStatusTip('Display Acquisition Window')
+        self.viewAcquisitionMenu.triggered.connect(lambda: self.displayMainWindow(self.parent().acquisitionwind))
+        self.viewSampleMenu = QAction("&Device Window", self)
+        self.viewSampleMenu.setShortcut("Ctrl+d")
+        self.viewSampleMenu.setStatusTip('Display Device Window')
+        self.viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(self.parent().samplewind))
         self.openMenu = QAction("&Open Data", self)
         self.openMenu.setShortcut("Ctrl+o")
         self.openMenu.setStatusTip('Plot data from saved file')
@@ -109,22 +117,24 @@ class ResultsWindow(QMainWindow):
         self.clearMenu.triggered.connect(lambda: self.clearPlots(True))
         
         self.menuBar = QMenuBar(self)
-        plotMenu = self.menuBar.addMenu('&View')
-        plotMenu.addAction(self.viewMainWindowMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.openMenu)
         plotMenu.addSeparator()
         plotMenu.addAction(self.clearMenu)
+        windowMenu = self.menuBar.addMenu('&Window')
+        windowMenu.addAction(self.viewMainWindowMenu)
+        windowMenu.addAction(self.viewSampleMenu)
+        windowMenu.addAction(self.viewAcquisitionMenu)
 
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
     
-    def displayMainWindow(self):
-        self.parent().setWindowState(self.parent().windowState() & Qt.WindowMinimized | Qt.WindowActive)
-        self.parent().raise_()
-        #self.parent().showNormal()
-        self.parent().activateWindow()
+    def displayMainWindow(self, obj):
+        obj.show()
+        obj.setWindowState(obj.windowState() & Qt.WindowMinimized | Qt.WindowActive)
+        obj.raise_()
+        obj.activateWindow()
 
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
