@@ -40,22 +40,22 @@ from .dataManagement import *
 class MainWindow(QMainWindow):
  
     def __init__(self):
-        super(MainWindow, self).__init__(None)
+        super().__init__()
         self.initUI()
     
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(10,30,350,200)
         self.aboutwid = AboutWidget()
-        self.samplewind = SampleWindow(parent=self)
-        self.resultswind = ResultsWindow(parent=self)
-        self.camerawind = CameraWindow(parent=self)
+        self.samplewind = SampleWindow()
+        self.resultswind = ResultsWindow()
+        self.camerawind = CameraWindow()
         self.weblinks = WebLinksWidget()
-        self.acquisition = Acquisition(parent=self)
-        self.acquisitionwind = AcquisitionWindow(parent=self)
+        self.acquisition = Acquisition()
+        self.acquisitionwind = AcquisitionWindow()
         self.powermeterwind = PowermeterWindow()
         self.stagewind = StageWindow()
-        self.dbconnectionwind = DBConnection()
+        self.dbconnectionwid = DBConnection()
      
         #### define actions ####
         # actions for "File" menu
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
                         self.cameraAction, None, self.stageAction]
 
         # actions for "Tools" menu
-        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwind.show,
+        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwid.show,
                 QKeySequence("Ctrl+T"), None,
                 "Test connectivity to data-management")
         
