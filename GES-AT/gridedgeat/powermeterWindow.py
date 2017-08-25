@@ -21,8 +21,8 @@ from .modules.powermeter import *
 
 class PowermeterWindow(QWidget):
 
-    def __init__(self, parent=None):
-        super(PowermeterWindow, self).__init__(parent)
+    def __init__(self):
+        super(PowermeterWindow, self).__init__()
         self.initUI(self)
     
     def initUI(self, PowermeterWindow):
