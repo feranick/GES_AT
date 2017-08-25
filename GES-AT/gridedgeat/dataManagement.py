@@ -60,7 +60,7 @@ class DataManagementDB:
 
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
-        client, _ = self.connectDB()
+        client,_= self.connectDB()
         db = client[self.dbName]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))

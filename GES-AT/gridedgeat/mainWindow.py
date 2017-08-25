@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
                         self.cameraAction, None, self.stageAction]
 
         # actions for "Tools" menu
-        self.dbConnectionAction = self.createAction("&TestDBConnection", self.dbconnectionwid.show,
+        self.dbConnectionAction = self.createAction("&Data-Management", self.dbconnectionwid.show,
                 QKeySequence("Ctrl+T"), None,
                 "Test connectivity to data-management")
         
@@ -260,7 +260,7 @@ class DBConnection(QWidget):
     
     def initUI(self,Panel):
         self.setGeometry(10, 200, 250, 300)
-        self.setWindowTitle('Testing connectivity to Data-management')
+        self.setWindowTitle('Data-management Settings')
         self.gridLayoutWidget = QWidget(Panel)
         self.gridLayoutWidget.setGeometry(QRect(10, 9, 230, 221))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
@@ -330,8 +330,9 @@ class DBConnection(QWidget):
     def dbCheckConnect(self):
         self.getDbConnectionInfo()
         self.dbConnect = DataManagementDB(self.dbConnectInfo)
-        if self.dbConnect.connectDB() is True:
-            self.dbConnectResultLabel.setText("Connection successful")
-        else:
+        try:
+            if self.dbConnect.connectDB()[1] is True:
+                self.dbConnectResultLabel.setText("Connection successful")
+        except:
             self.dbConnectResultLabel.setText("Connection failed")
 

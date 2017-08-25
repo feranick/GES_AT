@@ -1,12 +1,12 @@
 host name 
-localhost
+18.82.1.200
 port number 
 27017
 database name 
 test
 username 
-
+user
 password  
-
+Tata
 mechanism 
 SCRAM-SHA-1
