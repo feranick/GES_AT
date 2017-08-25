@@ -32,8 +32,8 @@ from .dataManagement import *
    Results Window
 '''
 class ResultsWindow(QMainWindow):
-    def __init__(self):
-        super(ResultsWindow, self).__init__()
+    def __init__(self, parent=None):
+        super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
         self.perfData = np.ones((0,5))
         self.JV = np.array([])

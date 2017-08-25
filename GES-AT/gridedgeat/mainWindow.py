@@ -41,19 +41,20 @@ from .dataManagementWindow import *
 class MainWindow(QMainWindow):
  
     def __init__(self):
-        super().__init__()
+        super(MainWindow, self).__init__(None)
+        self.myname = "nicola"
         self.initUI()
     
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(10,30,350,200)
         self.aboutwid = AboutWidget()
-        self.samplewind = SampleWindow()
-        self.resultswind = ResultsWindow()
-        self.camerawind = CameraWindow()
+        self.samplewind = SampleWindow(parent=self)
+        self.resultswind = ResultsWindow(parent=self)
+        self.camerawind = CameraWindow(parent=self)
         self.weblinks = WebLinksWidget()
         self.acquisition = Acquisition()
-        self.acquisitionwind = AcquisitionWindow()
+        self.acquisitionwind = AcquisitionWindow(parent=self)
         self.powermeterwind = PowermeterWindow()
         self.stagewind = StageWindow()
         self.dbconnectionwind = DBConnection()

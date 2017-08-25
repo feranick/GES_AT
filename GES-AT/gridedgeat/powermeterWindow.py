@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget)
 from .modules.powermeter import *
 
 class PowermeterWindow(QWidget):
-
     def __init__(self):
         super(PowermeterWindow, self).__init__()
         self.initUI(self)

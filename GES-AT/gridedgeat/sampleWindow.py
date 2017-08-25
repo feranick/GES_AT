@@ -29,8 +29,8 @@ from . import config
    Sample Window
 '''
 class SampleWindow(QMainWindow):
-    def __init__(self):
-        super(SampleWindow, self).__init__()
+    def __init__(self, parent=None):
+        super(SampleWindow, self).__init__(parent)
         self.initUI(self)
     
     def initUI(self,MainWindow):
