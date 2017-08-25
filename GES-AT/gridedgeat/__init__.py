@@ -36,6 +36,8 @@ from . import sampleWindow
 from . import resultsWindow
 from . import cameraWindow
 from . import dataManagement
+from . import dataManagementWindow
+from . import powermeterWindow
 
 
 
