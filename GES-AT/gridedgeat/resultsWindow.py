@@ -37,6 +37,7 @@ class ResultsWindow(QMainWindow):
         self.deviceID = np.zeros((0,1))
         self.perfData = np.ones((0,5))
         self.JV = np.array([])
+        self.setupDataFrame()
         self.initUI()
         self.initPlots(self.perfData)
         self.initJVPlot()
@@ -271,11 +272,11 @@ class ResultsWindow(QMainWindow):
         self.show()
     
     # Create internal dataframe with all the data. This is needed for plotting data after acquisition
-    def makeInternalDataFrames(self, index):
-        self.dfTotDeviceID[index] = [self.deviceID]
-        self.dfTotPerfData[index] = [self.perfData]
-        self.dfTotJV[index] = [self.JV]
-
+    def makeInternalDataFrames(self, index,deviceID,perfData,JV):
+        self.dfTotDeviceID[index] = [deviceID]
+        self.dfTotPerfData[index] = [perfData]
+        self.dfTotJV[index] = [JV]
+    
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
         dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1],
@@ -331,14 +332,17 @@ class ResultsWindow(QMainWindow):
                         "Open csv data", "","*.csv")
         try:
             for filename in filenames[0]:
+                print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
-                deviceID = dftot.get_value(0,'device')
-                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
-                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
-                self.plotData(deviceID,perfData,JV)
-            
+                self.deviceID = dftot.get_value(0,'device')
+                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
+                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
+                self.plotData(self.deviceID, self.perfData,self.JV)
+        
                 self.setupResultTable()
-                self.fillTableData(deviceID, perfData)
+                self.fillTableData(self.deviceID, self.perfData)
+                self.makeInternalDataFrames(self.lastRowInd, self.deviceID, self.perfData, np.array([self.JV]))
+
         except:
             print("Loading files failed")
 

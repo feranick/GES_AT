@@ -62,7 +62,9 @@ class Acquisition():
                     self.fakeAcq1(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
-                    obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd)
+                    obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
+                        obj.resultswind.deviceID,obj.resultswind.perfData,
+                        obj.resultswind.JV)
                     obj.samplewind.colorCellAcq(i,j,"green")
         print("Acquisition: Completed")
         obj.acquisitionwind.enableAcqPanel(True)
