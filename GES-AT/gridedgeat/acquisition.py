@@ -84,7 +84,7 @@ class Acquisition():
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
         FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        data = np.array([Voc, Jsc, FF,Vpmax*Jpmax])
+        data = np.array([Voc, Jsc, Vpmax*Jpmax,FF])
         return data
     
     ############  Temporary section STARTS here ###########################

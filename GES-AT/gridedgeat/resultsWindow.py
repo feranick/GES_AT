@@ -183,7 +183,7 @@ class ResultsWindow(QMainWindow):
 
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.lineMPP.set_data(data[:,0], data[:,4])
+        self.lineMPP.set_data(data[:,0], data[:,3])
         self.axMPP.relim()
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -245,6 +245,8 @@ class ResultsWindow(QMainWindow):
         if self.JV.shape[0] == 0:
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
+        
+        print(self.perfData)
 
         # Populate table.
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
@@ -330,20 +332,14 @@ class ResultsWindow(QMainWindow):
     def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
-
-        #try:
-        for filename in filenames[0]:
-            print(filename)
-            dftot = pd.read_csv(filename, na_filter=False)
-            #print(dftot)
-            deviceID = dftot.get_value(0,'device')
-            perfData = [dftot['time'],
-                    dftot['Voc'],dftot['Jsc'],dftot['MPP']]
-            JV = [dftot['V'],dftot['J']]
-
-            print(dftot['V'])
-
-            #self.plotData(deviceID,perfData,JV)
-        #except:
-        #    print("Loading files failed")
+        try:
+            for filename in filenames[0]:
+                dftot = pd.read_csv(filename, na_filter=False)
+                deviceID = dftot.get_value(0,'device')
+            
+                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,5)]
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(5,7)]
+                self.plotData(deviceID,perfData,JV)
+        except:
+            print("Loading files failed")
 
