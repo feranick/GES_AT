@@ -99,19 +99,19 @@ class ResultsWindow(QMainWindow):
         # Make Menu for plot related calls
         self.menuBar = QMenuBar(self)
 
-        self.openMenu = QAction("&Open Data", self)
-        self.openMenu.setShortcut("Ctrl+o")
-        self.openMenu.setStatusTip('Plot data from saved file')
-        #self.openMenu.triggered.connect(self.open_data)
-        self.openMenu.triggered.connect(self.read_csv)
+        self.loadMenu = QAction("&Load Data", self)
+        self.loadMenu.setShortcut("Ctrl+o")
+        self.loadMenu.setStatusTip('Load csv data from saved file')
+        self.loadMenu.triggered.connect(self.read_csv)
         
         self.clearMenu = QAction("&Clear Plots", self)
         self.clearMenu.setShortcut("Ctrl+x")
         self.clearMenu.setStatusTip('Clear plots')
         self.clearMenu.triggered.connect(lambda: self.clearPlots(True))
+        
+        fileMenu = self.menuBar.addMenu('&File')
+        fileMenu.addAction(self.loadMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
-        plotMenu.addAction(self.openMenu)
-        plotMenu.addSeparator()
         plotMenu.addAction(self.clearMenu)
         
         self.parent().viewWindowMenus(self.menuBar, self.parent())
