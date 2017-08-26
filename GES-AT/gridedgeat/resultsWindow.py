@@ -82,14 +82,15 @@ class ResultsWindow(QMainWindow):
 
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, 1100, 145))
-        self.resTableWidget.setColumnCount(5)
+        self.resTableWidget.setColumnCount(6)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Av Jsc [mA/cm^2]"))
-        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Time"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
+        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
+        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Time"))
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
         self.setCentralWidget(self.centralwidget)
@@ -246,15 +247,9 @@ class ResultsWindow(QMainWindow):
             self.JV.resize((0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
-        print(self.perfData)
-
         # Populate table.
-        self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,1]))))
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,2]))))
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,3]))))
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(self.perfData[:,0]))))
-        
+        self.fillTableData(deviceID, self.perfData)
+     
         QApplication.processEvents()
         # Plot results
         self.plotData(self.deviceID,self.perfData, JV)
@@ -283,8 +278,10 @@ class ResultsWindow(QMainWindow):
 
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
-        dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1], 'Jsc': perfData[:,2], 'MPP': perfData[:,3]})
-        dfPerfData = dfPerfData[['time', 'Voc', 'Jsc', 'MPP']]
+        dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1],
+                        'Jsc': perfData[:,2], 'MPP': perfData[:,3],
+                        'FF': perfData[:,4]})
+        dfPerfData = dfPerfData[['time', 'Voc', 'Jsc', 'MPP','FF']]
         return dfPerfData
     
     def makeDFJV(self,JV):
@@ -332,14 +329,25 @@ class ResultsWindow(QMainWindow):
     def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
-        try:
-            for filename in filenames[0]:
-                dftot = pd.read_csv(filename, na_filter=False)
-                deviceID = dftot.get_value(0,'device')
+        #try:
+        for filename in filenames[0]:
+            dftot = pd.read_csv(filename, na_filter=False)
+            deviceID = dftot.get_value(0,'device')
+            perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
+            JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
+            self.plotData(deviceID,perfData,JV)
             
-                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,5)]
-                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(5,7)]
-                self.plotData(deviceID,perfData,JV)
-        except:
-            print("Loading files failed")
+            self.setupResultTable()
+            self.fillTableData(deviceID, perfData)
+        #except:
+        #    print("Loading files failed")
+
+    # Populate table.
+    def fillTableData(self, deviceID, obj):
+        self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,1].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,0].astype(float)))))
 
