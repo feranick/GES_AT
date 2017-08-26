@@ -329,18 +329,18 @@ class ResultsWindow(QMainWindow):
     def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
-        #try:
-        for filename in filenames[0]:
-            dftot = pd.read_csv(filename, na_filter=False)
-            deviceID = dftot.get_value(0,'device')
-            perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
-            JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
-            self.plotData(deviceID,perfData,JV)
+        try:
+            for filename in filenames[0]:
+                dftot = pd.read_csv(filename, na_filter=False)
+                deviceID = dftot.get_value(0,'device')
+                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
+                self.plotData(deviceID,perfData,JV)
             
-            self.setupResultTable()
-            self.fillTableData(deviceID, perfData)
-        #except:
-        #    print("Loading files failed")
+                self.setupResultTable()
+                self.fillTableData(deviceID, perfData)
+        except:
+            print("Loading files failed")
 
     # Populate table.
     def fillTableData(self, deviceID, obj):
