@@ -108,5 +108,8 @@ class DataManagementWindow(QMainWindow):
         try:
             if self.dbConnect.connectDB()[1] is True:
                 self.dbConnectResultLabel.setText("Connection successful")
+                print("Connection to Data-Management successful")
         except:
             self.dbConnectResultLabel.setText("Connection failed")
+            print("Connection to Data-Management failed")
+

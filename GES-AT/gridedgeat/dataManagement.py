@@ -36,10 +36,10 @@ class DataManagement:
             client[self.dbName]
         try:
             client.admin.command('ismaster')
-            print(" Server Available!")
+            #print(" Server Available!")
             flag = True
         except:
-            print(" Server not available")
+            #print(" Server not available")
             flag = False
         return client, flag
 

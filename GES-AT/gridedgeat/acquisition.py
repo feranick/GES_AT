@@ -17,6 +17,8 @@ import numpy as np
 import pandas as pd
 import time, random, math
 from .acquisitionWindow import *
+from . import logger
+
 
 class Acquisition():
 
@@ -51,8 +53,10 @@ class Acquisition():
             for j in range(config.numSubsHolderRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
-                    obj.statusBar().showMessage("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs", 5000)
-                    print("Acquiring from: " + deviceID + ", " + str(self.dfAcqParams.get_value(0,'Acq Num Aver Scans')) + " sets of JVs")
+                    msg = "Acquiring from: " + deviceID + " - device("+str(i)+", "+str(j)+")\n"
+                    obj.statusBar().showMessage(msg, 5000)
+                    print(msg)
+                    logger.info(msg)
                     obj.resultswind.clearPlots(False)
                     obj.resultswind.setupResultTable()
                     obj.samplewind.colorCellAcq(i,j,"red")
@@ -66,16 +70,20 @@ class Acquisition():
                         obj.resultswind.deviceID,obj.resultswind.perfData,
                         obj.resultswind.JV)
                     obj.samplewind.colorCellAcq(i,j,"green")
-        print("Acquisition: Completed")
+        msg = "Acquisition: Completed"
+        print(msg)
+        logger.info(msg)
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
-        obj.statusBar().showMessage("Acquisition completed", 5000)
+        obj.statusBar().showMessage(msg, 5000)
         
     def stop(self, obj):
-        obj.statusBar().showMessage("Acquisition stopped", 5000)
+        msg = "Acquisition stopped"
+        obj.statusBar().showMessage(msg, 5000)
         obj.stopAcqFlag = True
-        print("Acquisition stopped")
+        print(msg)
+        logger.info(msg)
     
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
@@ -113,7 +121,9 @@ class Acquisition():
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
                 break
-            print("JV #",i+1)
+            msg = " Scan #"+str(i+1)
+            print(msg)
+            logger.info(msg)
             
             JV = self.generateRandomJV()
             perfData = self.analyseJV(JV)

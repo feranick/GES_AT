@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 
 from . import config
 from .dataManagement import *
+from . import logger
 
 '''
    Results Window
@@ -128,7 +129,9 @@ class ResultsWindow(QMainWindow):
 
     def set_dir_saved(self):
         self.csvFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        print("CSV Files will be saved in: ",self.csvFolder)
+        msg = "CSV Files will be saved in: "+self.csvFolder
+        print(msg)
+        logger.info(msg)
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
@@ -308,7 +311,9 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
         csvFilename = str(dfDeviceID.get_value(0,'device'))+".csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
-        print("Device data saved on: ",self.csvFolder+"/"+csvFilename)
+        msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
+        print(msg)
+        logger.info(msg)
     
     ### Prepare json for device data
     def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
@@ -332,9 +337,13 @@ class ResultsWindow(QMainWindow):
         db = client[self.dbConnectInfo[2]]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-            print(" Submission to DM: successful (id:",db_entry.inserted_id,")\n")
+            msg = " Submission to DM: successful (id:"+str(db_entry.inserted_id)+")\n"
+            print(msg)
+            logger.info(msg)
         except:
-            print(" Submission to DM: failed.\n")
+            msg = " Submission to DM: failed.\n"
+            print(msg)
+            logger.info(msg)
 
     ### Load data from saved CSV
     def read_csv(self):
