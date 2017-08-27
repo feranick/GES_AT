@@ -200,6 +200,16 @@ class MainWindow(QMainWindow):
         obj.raise_()
         obj.activateWindow()
 
+    def closeEvent(self, event):
+        quit_msg = "Are you sure you want to exit the program?"
+        reply = QMessageBox.question(self, 'Message',
+                     quit_msg, QMessageBox.Yes, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.close()
+        else:
+            event.ignore()
+
 '''
    WebLinks Widget
    Definition of Web links
