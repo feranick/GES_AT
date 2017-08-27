@@ -38,6 +38,7 @@ class ResultsWindow(QMainWindow):
         self.perfData = np.ones((0,5))
         self.JV = np.array([])
         self.setupDataFrame()
+        self.csvFolder = config.csvSavingFolder
         self.initUI()
         self.initPlots(self.perfData)
         self.initJVPlot()
@@ -103,6 +104,10 @@ class ResultsWindow(QMainWindow):
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load csv data from saved file')
         self.loadMenu.triggered.connect(self.read_csv)
+        self.directoryMenu = QAction("&Set saving directory", self)
+        self.directoryMenu.setShortcut("Ctrl+s")
+        self.directoryMenu.setStatusTip('Set directory for saved files')
+        self.directoryMenu.triggered.connect(self.set_dir_saved)
         
         self.clearMenu = QAction("&Clear Plots", self)
         self.clearMenu.setShortcut("Ctrl+x")
@@ -111,6 +116,7 @@ class ResultsWindow(QMainWindow):
         
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
+        fileMenu.addAction(self.directoryMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.clearMenu)
         
@@ -120,6 +126,9 @@ class ResultsWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
+    def set_dir_saved(self):
+        self.csvFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        print("CSV Files will be saved in: ",self.csvFolder)
     
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
@@ -259,8 +268,9 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
-        self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-        #self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV)
+        if config.saveLocalCsv is True:
+            self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
+
         self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
         
     # Plot data from devices
@@ -297,8 +307,8 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
         csvFilename = str(dfDeviceID.get_value(0,'device'))+".csv"
-        dfTot.to_csv(csvFilename, sep=',', index=False)
-        print("Device data saved on: ",csvFilename)
+        dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
+        print("Device data saved on: ",self.csvFolder+"/"+csvFilename)
     
     ### Prepare json for device data
     def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
@@ -342,7 +352,6 @@ class ResultsWindow(QMainWindow):
                 self.setupResultTable()
                 self.fillTableData(self.deviceID, self.perfData)
                 self.makeInternalDataFrames(self.lastRowInd, self.deviceID, self.perfData, np.array([self.JV]))
-
         except:
             print("Loading files failed")
 

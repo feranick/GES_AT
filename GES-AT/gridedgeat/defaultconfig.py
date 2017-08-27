@@ -18,6 +18,10 @@ import logging
 loggingLevel = logging.INFO
 loggingFilename = "gridedgeat.log"
 
+## Local file saving parameters
+csvSavingFolder = "."
+saveLocalCsv = True
+
 ## Sample holder parameters ##
 numSubsHolderRow = 4
 numSubsHolderCol = 4
