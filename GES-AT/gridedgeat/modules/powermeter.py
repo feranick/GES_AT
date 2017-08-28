@@ -17,12 +17,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 import time
 from .. import config
-from ThorlabsPM100 import ThorlabsPM100
+#from ThorlabsPM100 import ThorlabsPM100
 import visa
 
 class PowerMeter():
     def __init__(self):
         try:
+            from ThorlabsPM100 import ThorlabsPM100
             self.rm = visa.ResourceManager()
             self.PM100init = True
         except:

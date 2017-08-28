@@ -25,21 +25,24 @@ class PowermeterWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self, PowermeterWindow):
-        PowermeterWindow.resize(328, 500)
+        self.setGeometry(10, 200, 320, 90)
         self.powerMeterLabel = QLabel(PowermeterWindow)
         self.powerMeterLabel.setGeometry(QRect(20, 20, 300, 16))
-        PowermeterWindow.setWindowTitle("Powermeter")
+        PowermeterWindow.setWindowTitle("Powermeter Settings")
         self.powermeterButton = QPushButton(PowermeterWindow)
-        self.powermeterButton.setGeometry(QRect(10, 260, 230, 30))
+        self.powermeterButton.setGeometry(QRect(10, 50, 300, 30))
         self.powermeterButton.clicked.connect(self.powerConnect)
-
-    def powerConnect(self):
-        pm = PowerMeter()
-        if pm.PM100init is False:
+        self.powermeterButton.setText("Start")
+        self.pm = PowerMeter()
+        
+        if self.pm.PM100init is False:
+            self.powermeterButton.setEnabled(False)
             self.powerMeterLabel.setText("Powermeter libraries or connection failed")
         else:
-            while True:
-                #self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*pm.get_power().read))
-                #time.sleep(1)
-                print("OK")
+            pass
+
+    def powerConnect(self):
+        self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*pm.get_power().read))
+        time.sleep(1)
+        print("OK")
         
