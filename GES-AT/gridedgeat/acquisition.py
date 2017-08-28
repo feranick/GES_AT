@@ -140,7 +140,8 @@ class Acquisition():
             JV = self.generateRandomJV()
             perfData = self.analyseJV(JV)
             perfData = np.hstack((timeAcq, perfData))
-            
+            perfData = np.hstack((self.getDateTimeNow(), perfData))
+
             obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
             
             QApplication.processEvents()

@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.ones((0,5))
+        self.perfData = np.ones((0,6))
         self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = config.csvSavingFolder
@@ -85,7 +85,7 @@ class ResultsWindow(QMainWindow):
 
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, 1100, 145))
-        self.resTableWidget.setColumnCount(6)
+        self.resTableWidget.setColumnCount(7)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
@@ -94,6 +94,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Time"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Acq Date/Time"))
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
         self.setCentralWidget(self.centralwidget)
@@ -184,21 +185,21 @@ class ResultsWindow(QMainWindow):
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        self.lineTJsc.set_data(data[:,0], data[:,2])
+        self.lineTJsc.set_data(data[:,1], data[:,3])
         self.axTJsc.relim()
         self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
-        self.lineTVoc.set_data(data[:,0], data[:,1])
+        self.lineTVoc.set_data(data[:,1], data[:,2])
         self.axTVoc.relim()
         self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
 
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.lineMPP.set_data(data[:,0], data[:,3])
+        self.lineMPP.set_data(data[:,1], data[:,4])
         self.axMPP.relim()
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -214,7 +215,7 @@ class ResultsWindow(QMainWindow):
     # Clear all plots and fields
     def clearPlots(self, includeTable):
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.zeros((0,5))
+        self.perfData = np.zeros((0,6))
         self.JV = np.array([])
         self.initPlots(self.perfData)
         self.initJVPlot()
@@ -252,7 +253,7 @@ class ResultsWindow(QMainWindow):
     
     # Process data from devices
     def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
-    
+        
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = np.vstack((self.perfData, np.array([perfData])))
@@ -263,7 +264,6 @@ class ResultsWindow(QMainWindow):
         
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
-     
         QApplication.processEvents()
         # Plot results
         self.plotData(self.deviceID,self.perfData, JV)
@@ -293,10 +293,10 @@ class ResultsWindow(QMainWindow):
     
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
-        dfPerfData = pd.DataFrame({'time': perfData[:,0], 'Voc': perfData[:,1],
-                        'Jsc': perfData[:,2], 'MPP': perfData[:,3],
-                        'FF': perfData[:,4]})
-        dfPerfData = dfPerfData[['time', 'Voc', 'Jsc', 'MPP','FF']]
+        dfPerfData = pd.DataFrame({'time': perfData[:,1], 'Voc': perfData[:,2],
+                        'Jsc': perfData[:,3], 'MPP': perfData[:,4],
+                        'FF': perfData[:,5], 'Acq Date Time': perfData[:,0]})
+        dfPerfData = dfPerfData[['Acq Date Time','time', 'Voc', 'Jsc', 'MPP','FF']]
         return dfPerfData
     
     def makeDFJV(self,JV):
@@ -355,8 +355,8 @@ class ResultsWindow(QMainWindow):
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
                 self.deviceID = dftot.get_value(0,'device')
-                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,6)]
-                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(6,8)]
+                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,7)]
+                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(7,9)]
                 self.plotData(self.deviceID, self.perfData,self.JV)
         
                 self.setupResultTable()
@@ -368,9 +368,10 @@ class ResultsWindow(QMainWindow):
     # Populate table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,1].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,0].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,1].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem(obj[0,0]))
 
