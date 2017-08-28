@@ -17,7 +17,7 @@ import sys, webbrowser, random, time
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog)
+    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
@@ -45,7 +45,7 @@ class MainWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
-        self.setGeometry(10,30,350,200)
+        self.setGeometry(10,30,340,220)
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow(parent=self)
         self.resultswind = ResultsWindow(parent=self)
@@ -57,8 +57,13 @@ class MainWindow(QMainWindow):
         self.stagewind = StageWindow(parent=self)
         self.dbconnectionwind = DataManagementWindow(parent=self)
         
-        # Create menu
+        # Create menu and toolbar
         self.menuBar = QMenuBar(self)
+        self.menuBar.setGeometry(0,0,340,25)
+        self.toolBar = QToolBar(self)
+        self.toolBar.setGeometry(0,170,340,25)
+
+        # Menu entries
         self.quitMenu = QAction("&Quit", self)
         self.quitMenu.setShortcut("Ctrl+q")
         self.quitMenu.setStatusTip('Quit')
@@ -114,10 +119,10 @@ class MainWindow(QMainWindow):
         aboutMenu.addSeparator()
         aboutMenu.addAction(self.aboutMenu)
         
-        #### Create tool bar ####
-        self.sampleToolbar = QAction("&Sample", self)
+        # Toolbar Entries #
+        self.sampleToolbar = QAction("&Device", self)
         self.sampleToolbar.setShortcut("Ctrl+s")
-        self.sampleToolbar.setStatusTip('Sample Configuration')
+        self.sampleToolbar.setStatusTip('Device Configuration')
         self.sampleToolbar.triggered.connect(self.samplewind.show)
         
         self.acquisitionToolbar = QAction("&Acquisition", self)
@@ -130,30 +135,30 @@ class MainWindow(QMainWindow):
         self.resultsToolbar.setStatusTip('Results Panel')
         self.resultsToolbar.triggered.connect(self.resultswind.show)
         
-        toolBar = self.addToolBar("&Toolbar")
-        toolBar.addAction(self.sampleToolbar)
-        toolBar.addSeparator()
-        toolBar.addAction(self.acquisitionToolbar)
-        toolBar.addSeparator()
-        toolBar.addAction(self.resultsToolbar)
-        toolBar.addSeparator()
+        #toolBar = self.addToolBar("&Toolbar")
+        self.toolBar.addAction(self.sampleToolbar)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.acquisitionToolbar)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.resultsToolbar)
+        self.toolBar.addSeparator()
        
         #### Create status bar ####
         self.statusBar().showMessage("Ready", 5000)
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)
-        self.startAcqButton.setGeometry(QRect(10, 120, 160, 50))
+        self.startAcqButton.setGeometry(QRect(10, 110, 160, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
         self.startAcqButton.clicked.connect(lambda: self.acquisition.start(self))
         self.stopAcqButton = QPushButton(self)
-        self.stopAcqButton.setGeometry(QRect(170, 120, 160, 50))
+        self.stopAcqButton.setGeometry(QRect(170, 110, 160, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
         self.stopAcqButton.clicked.connect(lambda: self.acquisition.stop(self))
         self.logo = QLabel(self)
-        self.logo.setGeometry(QRect(20, 55, 311, 61))
+        self.logo.setGeometry(QRect(20, 40, 311, 61))
         self.logo.setText("")
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")

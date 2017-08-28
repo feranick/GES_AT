@@ -100,6 +100,7 @@ class ResultsWindow(QMainWindow):
 
         # Make Menu for plot related calls
         self.menuBar = QMenuBar(self)
+        self.menuBar.setGeometry(0,0,1150,25)
 
         self.loadMenu = QAction("&Load Data", self)
         self.loadMenu.setShortcut("Ctrl+o")
