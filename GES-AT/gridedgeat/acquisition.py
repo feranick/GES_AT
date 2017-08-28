@@ -16,6 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 import numpy as np
 import pandas as pd
 import time, random, math
+from datetime import datetime
 from .acquisitionWindow import *
 from . import logger
 
@@ -53,7 +54,15 @@ class Acquisition():
             for j in range(config.numSubsHolderRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
-                    msg = "Acquiring from: " + deviceID + " - device("+str(i)+", "+str(j)+")\n"
+                    operator = obj.samplewind.operatorText.text()
+                    msg = "Operator: " + operator
+                    print(msg)
+                    logger.info(msg)
+                    msg = "Acquisition started: "+self.getDateTimeNow()
+
+                    print(msg)
+                    logger.info(msg)
+                    msg = "Acquiring from: " + deviceID + " - device("+str(i)+", "+str(j)+")"
                     obj.statusBar().showMessage(msg, 5000)
                     print(msg)
                     logger.info(msg)
@@ -70,16 +79,16 @@ class Acquisition():
                         obj.resultswind.deviceID,obj.resultswind.perfData,
                         obj.resultswind.JV)
                     obj.samplewind.colorCellAcq(i,j,"green")
-        msg = "Acquisition: Completed"
-        print(msg)
-        logger.info(msg)
+        msg = "Acquisition Completed: "+ self.getDateTimeNow()
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
         obj.statusBar().showMessage(msg, 5000)
+        print(msg)
+        logger.info(msg)
         
     def stop(self, obj):
-        msg = "Acquisition stopped"
+        msg = "Acquisition stopped: " + self.getDateTimeNow()
         obj.statusBar().showMessage(msg, 5000)
         obj.stopAcqFlag = True
         print(msg)
@@ -96,6 +105,9 @@ class Acquisition():
         FF = Vpmax*Jpmax*100/(Voc*Jsc)
         data = np.array([Voc, Jsc, Vpmax*Jpmax,FF])
         return data
+        
+    def getDateTimeNow(self):
+        return str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
@@ -121,7 +133,7 @@ class Acquisition():
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
                 break
-            msg = " Scan #"+str(i+1)
+            msg = "Scan #"+str(i+1)
             print(msg)
             logger.info(msg)
             

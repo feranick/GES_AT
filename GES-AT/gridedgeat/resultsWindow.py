@@ -338,11 +338,11 @@ class ResultsWindow(QMainWindow):
         db = client[self.dbConnectInfo[2]]
         try:
             db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-            msg = " Submission to DM: successful (id:"+str(db_entry.inserted_id)+")\n"
+            msg = " Submission to DM: successful (id:"+str(db_entry.inserted_id)+")"
             print(msg)
             logger.info(msg)
         except:
-            msg = " Submission to DM: failed.\n"
+            msg = " Submission to DM: failed."
             print(msg)
             logger.info(msg)
 
