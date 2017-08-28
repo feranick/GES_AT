@@ -58,7 +58,7 @@ class Acquisition():
                     msg = "Operator: " + operator
                     print(msg)
                     logger.info(msg)
-                    msg = "Acquisition started: "+self.getDateTimeNow()
+                    msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
 
                     print(msg)
                     logger.info(msg)
@@ -79,7 +79,7 @@ class Acquisition():
                         obj.resultswind.deviceID,obj.resultswind.perfData,
                         obj.resultswind.JV)
                     obj.samplewind.colorCellAcq(i,j,"green")
-        msg = "Acquisition Completed: "+ self.getDateTimeNow()
+        msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
@@ -88,7 +88,7 @@ class Acquisition():
         logger.info(msg)
         
     def stop(self, obj):
-        msg = "Acquisition stopped: " + self.getDateTimeNow()
+        msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.statusBar().showMessage(msg, 5000)
         obj.stopAcqFlag = True
         print(msg)
@@ -107,7 +107,7 @@ class Acquisition():
         return data
         
     def getDateTimeNow(self):
-        return str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        return str(datetime.now().strftime('%Y-%m-%d')), str(datetime.now().strftime('%H-%M-%S'))
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
@@ -140,7 +140,8 @@ class Acquisition():
             JV = self.generateRandomJV()
             perfData = self.analyseJV(JV)
             perfData = np.hstack((timeAcq, perfData))
-            perfData = np.hstack((self.getDateTimeNow(), perfData))
+            perfData = np.hstack((self.getDateTimeNow()[1], perfData))
+            perfData = np.hstack((self.getDateTimeNow()[0], perfData))
 
             obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
             

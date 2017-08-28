@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.ones((0,6))
+        self.perfData = np.ones((0,7))
         self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = config.csvSavingFolder
@@ -85,7 +85,7 @@ class ResultsWindow(QMainWindow):
 
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, 1100, 145))
-        self.resTableWidget.setColumnCount(7)
+        self.resTableWidget.setColumnCount(8)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
@@ -93,8 +93,9 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Av Jsc [mA/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Time"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Acq Date/Time"))
+        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Time Step"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Acq Date"))
+        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Time"))
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
         self.setCentralWidget(self.centralwidget)
@@ -185,21 +186,21 @@ class ResultsWindow(QMainWindow):
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
-        self.lineTJsc.set_data(data[:,1], data[:,3])
+        self.lineTJsc.set_data(data[:,2], data[:,4])
         self.axTJsc.relim()
         self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
     
     # Plot Transient Voc
     def plotTVoc(self, data):
-        self.lineTVoc.set_data(data[:,1], data[:,2])
+        self.lineTVoc.set_data(data[:,2], data[:,3])
         self.axTVoc.relim()
         self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
 
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.lineMPP.set_data(data[:,1], data[:,4])
+        self.lineMPP.set_data(data[:,2], data[:,5])
         self.axMPP.relim()
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -215,7 +216,7 @@ class ResultsWindow(QMainWindow):
     # Clear all plots and fields
     def clearPlots(self, includeTable):
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.zeros((0,6))
+        self.perfData = np.zeros((0,7))
         self.JV = np.array([])
         self.initPlots(self.perfData)
         self.initJVPlot()
@@ -293,10 +294,10 @@ class ResultsWindow(QMainWindow):
     
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
-        dfPerfData = pd.DataFrame({'time': perfData[:,1], 'Voc': perfData[:,2],
-                        'Jsc': perfData[:,3], 'MPP': perfData[:,4],
-                        'FF': perfData[:,5], 'Acq Date Time': perfData[:,0]})
-        dfPerfData = dfPerfData[['Acq Date Time','time', 'Voc', 'Jsc', 'MPP','FF']]
+        dfPerfData = pd.DataFrame({'Time step': perfData[:,2], 'Voc': perfData[:,3],
+                        'Jsc': perfData[:,4], 'MPP': perfData[:,5],
+                        'FF': perfData[:,6], 'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1]})
+        dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc', 'Jsc', 'MPP','FF']]
         return dfPerfData
     
     def makeDFJV(self,JV):
@@ -306,11 +307,11 @@ class ResultsWindow(QMainWindow):
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
-        dfDeviceID = pd.DataFrame({'device':[deviceID]})
+        dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        csvFilename = str(dfDeviceID.get_value(0,'device'))+".csv"
+        csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
         msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
         print(msg)
@@ -318,7 +319,7 @@ class ResultsWindow(QMainWindow):
     
     ### Prepare json for device data
     def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
-        dfDeviceID = pd.DataFrame({'device':[deviceID]})
+        dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         listTot = dict(dfDeviceID.to_dict(orient='list'))
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
         listPerfData = dict(dfPerfData.to_dict(orient='list'))
@@ -354,9 +355,9 @@ class ResultsWindow(QMainWindow):
             for filename in filenames[0]:
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
-                self.deviceID = dftot.get_value(0,'device')
-                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['time']))][:,range(1,7)]
-                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(7,9)]
+                self.deviceID = dftot.get_value(0,'Device')
+                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,8)]
+                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(8,10)]
                 self.plotData(self.deviceID, self.perfData,self.JV)
         
                 self.setupResultTable()
@@ -368,10 +369,12 @@ class ResultsWindow(QMainWindow):
     # Populate table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,1].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem(obj[0,0]))
+        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,1]))
+
 
