@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import time
-from .. import config
+from gridedgeat import config
 #from ThorlabsPM100 import ThorlabsPM100
 import visa
 
