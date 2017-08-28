@@ -41,12 +41,15 @@ class PowermeterWindow(QMainWindow):
         else:
             self.powerMeterLabel.setText("Powermeter connection OK")
 
-
     def powerConnect(self):
         while True:
-            self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*self.pm.get_power().read))
-            time.sleep(0.5)
-            QApplication.processEvents()
-            print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
+            try:
+                self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*self.pm.get_power().read))
+                time.sleep(0.5)
+                QApplication.processEvents()
+                print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
+            except:
+                print("Connection failed")
+                break
             
         
