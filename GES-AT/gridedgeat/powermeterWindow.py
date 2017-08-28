@@ -25,29 +25,54 @@ class PowermeterWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self, PowermeterWindow):
-        self.setGeometry(10, 200, 320, 90)
-        self.powerMeterLabel = QLabel(PowermeterWindow)
-        self.powerMeterLabel.setGeometry(QRect(20, 20, 300, 16))
         PowermeterWindow.setWindowTitle("Powermeter Settings")
-        self.powermeterButton = QPushButton(PowermeterWindow)
-        self.powermeterButton.setGeometry(QRect(10, 50, 300, 30))
-        self.powermeterButton.clicked.connect(self.powerConnect)
-        self.powermeterButton.setText("Start")
+        self.setGeometry(10, 200, 320, 120)
+        self.powerMeterRefreshLabel = QLabel(PowermeterWindow)
+        self.powerMeterRefreshLabel.setGeometry(QRect(20, 10, 100, 20))
+        self.powerMeterRefreshLabel.setText("Refresh every [s]:")
+        self.powerMeterRefreshText = QLineEdit(PowermeterWindow)
+        self.powerMeterRefreshText.setGeometry(QRect(120, 10, 50, 20))
+        self.powerMeterRefreshText.setText("0.5")
+
+        self.powerMeterLabel = QLabel(PowermeterWindow)
+        self.powerMeterLabel.setGeometry(QRect(20, 40, 300, 20))        
+        self.powermeterStartButton = QPushButton(PowermeterWindow)
+        self.powermeterStartButton.setGeometry(QRect(20, 70, 140, 30))
+        self.powermeterStartButton.clicked.connect(self.startPMAcq)
+        self.powermeterStartButton.setText("Start")
+        self.powermeterStopButton = QPushButton(PowermeterWindow)
+        self.powermeterStopButton.setGeometry(QRect(160, 70, 140, 30))
+        self.powermeterStopButton.clicked.connect(self.stopPMAcq)
+        self.powermeterStopButton.setText("Stop")
+        self.powermeterStopButton.setEnabled(False)
+
         self.pm = PowerMeter()
         
         if self.pm.PM100init is False:
-            self.powermeterButton.setEnabled(False)
+            self.powermeterStartButton.setEnabled(False)
+            self.powermeterStopButton.setEnabled(False)
             self.powerMeterLabel.setText("Powermeter libraries or connection failed")
         else:
             self.powerMeterLabel.setText("Powermeter connection OK")
 
-    def powerConnect(self):
+    def stopPMAcq(self):
+        self.stopAcqFlag = True
+        self.powermeterStopButton.setEnabled(False)
+        self.powermeterStartButton.setEnabled(True)
+
+    def startPMAcq(self):
+        self.powermeterStartButton.setEnabled(False)
+        self.powermeterStopButton.setEnabled(True)
+
+        self.stopAcqFlag = False
         while True:
             try:
-                self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*self.pm.get_power().read))
-                time.sleep(0.5)
+                self.powerMeterLabel.setText("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
+                time.sleep(float(self.powerMeterRefreshText.text()))
                 QApplication.processEvents()
                 print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
+                if self.stopAcqFlag is True:
+                    break
             except:
                 print("Connection failed")
                 break
