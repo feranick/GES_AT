@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget, QMainWindow, QPushButton)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget, QMainWindow, QPushButton, QApplication)
 from .modules.powermeter import *
 
 class PowermeterWindow(QMainWindow):
@@ -39,10 +39,14 @@ class PowermeterWindow(QMainWindow):
             self.powermeterButton.setEnabled(False)
             self.powerMeterLabel.setText("Powermeter libraries or connection failed")
         else:
-            pass
+            self.powerMeterLabel.setText("Powermeter connection OK")
+
 
     def powerConnect(self):
-        self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*pm.get_power().read))
-        time.sleep(1)
-        print("OK")
+        while True:
+            self.powerMeterLabel.setText("Power levels [mW]: <qt><b>{0:0.4f}</b></qt>".format(1000*self.pm.get_power().read))
+            time.sleep(0.5)
+            QApplication.processEvents()
+            print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
+            
         

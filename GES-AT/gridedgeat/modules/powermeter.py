@@ -31,6 +31,7 @@ class PowerMeter():
         time.sleep(1)
 
     def get_power(self):
+        from ThorlabsPM100 import ThorlabsPM100
         inst = self.rm.open_resource(config.powermeterID, timeout=1)
         power_meter = ThorlabsPM100(inst=inst)
         return power_meter
