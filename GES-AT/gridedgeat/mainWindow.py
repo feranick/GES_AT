@@ -246,7 +246,7 @@ class AboutWidget(QWidget):
         self.logo = QLabel(self)
         self.logo.setGeometry(QRect(30, 30, 311, 61))
         self.logo.setText("GridEdge Solar @ MIT")
-        self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
+        self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo_about.png"))
         self.logo.setObjectName("logo")
 
         self.labelTitle = QLabel("<qt><b><big><a href = http://gridedgesolar.com>Autotesting %s</a></b></big></qt>" % __version__, self)
