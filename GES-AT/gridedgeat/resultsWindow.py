@@ -25,7 +25,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 
-from . import config
+from . import configuration
 from .dataManagement import *
 from . import logger
 
@@ -39,7 +39,7 @@ class ResultsWindow(QMainWindow):
         self.perfData = np.ones((0,7))
         self.JV = np.array([])
         self.setupDataFrame()
-        self.csvFolder = config.csvSavingFolder
+        self.csvFolder = self.parent().config.csvSavingFolder
         self.initUI()
         self.initPlots(self.perfData)
         self.initJVPlot()
@@ -132,6 +132,10 @@ class ResultsWindow(QMainWindow):
 
     def set_dir_saved(self):
         self.csvFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.parent().config.conf['System']['csvSavingFolder'] = str(self.csvFolder)
+        with open(self.parent().config.configFile, 'w') as configfile:
+            self.parent().config.conf.write(configfile)
+        self.parent().config.readConfig()
         msg = "CSV Files will be saved in: "+self.csvFolder
         print(msg)
         logger.info(msg)
@@ -273,7 +277,7 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
-        if config.saveLocalCsv is True:
+        if self.parent().config.saveLocalCsv is True:
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
 
         self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
