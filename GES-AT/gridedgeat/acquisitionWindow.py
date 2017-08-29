@@ -146,8 +146,8 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.conf['Acquisition']['acqDelBeforeMeas'] = str(self.delayBeforeMeasText.value())
         self.parent().config.conf['Acquisition']['acqTrackNumPoints'] = str(self.numPointsText.value())
         self.parent().config.conf['Acquisition']['acqTrackInterval'] = str(self.IntervalText.value())
-        with open(self.parent().config.configFile, 'w') as configfile:
-            self.parent().config.conf.write(configfile)
+
+        self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
         logger.info("Acquisition parameters saved as default")

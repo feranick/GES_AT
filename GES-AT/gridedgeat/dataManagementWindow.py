@@ -141,8 +141,7 @@ class DataManagementWindow(QMainWindow):
 
     def dbRestoreDefault(self):
         self.parent().config.defineConfDM()
-        with open(self.parent().config.configFile, 'w') as configfile:
-            self.parent().config.conf.write(configfile)
+        self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Restored default Data-Management settings")
         logger.info("Restored default Data-Management settings")
