@@ -310,18 +310,6 @@ class ResultsWindow(QMainWindow):
         dfJV = dfJV[['V', 'J']]
         return dfJV
 
-    ### Save device acquisition as csv
-    def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
-        dfDeviceID = pd.DataFrame({'Device':[deviceID]})
-        dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
-        dfTot = pd.concat([dfTot,dfJV], axis = 1)
-        dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
-        dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
-        msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
-        print(msg)
-        logger.info(msg)
-    
     ### Prepare json for device data
     def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
@@ -351,6 +339,18 @@ class ResultsWindow(QMainWindow):
             msg = " Submission to DM: failed."
             print(msg)
             logger.info(msg)
+
+    ### Save device acquisition as csv
+    def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
+        dfDeviceID = pd.DataFrame({'Device':[deviceID]})
+        dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
+        dfTot = pd.concat([dfTot,dfJV], axis = 1)
+        dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
+        csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
+        dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
+        msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
+        print(msg)
+        logger.info(msg)
 
     ### Load data from saved CSV
     def read_csv(self):
