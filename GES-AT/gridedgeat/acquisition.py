@@ -25,6 +25,8 @@ class Acquisition():
 
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
+        self.numRow = int(obj.config.numSubsHolderRow)
+        self.numCol = int(obj.config.numSubsHolderCol)
         return pd.DataFrame({'operator': [obj.samplewind.operatorText.text()],
                 'Acq Min Voltage': [obj.acquisitionwind.minVText.value()],
                 'Acq Max Voltage': [obj.acquisitionwind.maxVText.value()],
@@ -50,8 +52,8 @@ class Acquisition():
         obj.resultswind.setupDataFrame()
         QApplication.processEvents()
         
-        for i in range(config.numSubsHolderCol):
-            for j in range(config.numSubsHolderRow):
+        for i in range(self.numCol):
+            for j in range(self.numRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     operator = obj.samplewind.operatorText.text()

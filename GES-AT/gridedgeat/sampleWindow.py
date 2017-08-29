@@ -24,7 +24,6 @@ from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 #from . import config
-from . import configuration
 
 '''
    Sample Window

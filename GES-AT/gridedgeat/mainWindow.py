@@ -26,6 +26,7 @@ from PyQt5.QtCore import (pyqtSlot,QRectF)
 #from . import config
 from . import __version__
 from . import __author__
+from .configuration import *
 from .cameraWindow import *
 from .resultsWindow import *
 from .sampleWindow import *
@@ -35,7 +36,6 @@ from .powermeterWindow import *
 from .stageWindow import *
 from .dataManagement import *
 from .dataManagementWindow import *
-from .configuration import *
 
 '''
    Main Window

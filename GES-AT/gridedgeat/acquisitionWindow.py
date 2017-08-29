@@ -22,9 +22,6 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect)
 
-from . import config
-
-
 '''
    Acquisition Window
 '''
@@ -128,42 +125,51 @@ class AcquisitionWindow(QMainWindow):
         self.totTimePerDeviceLabel.setText("Total time per device")
         self.intervalLabel.setText("Interval")
         self.numPointsLabel.setText("Number of points")
-        self.applyButton = QPushButton(self.centralwidget)
-        self.applyButton.setGeometry(QRect(270, 380, 80, 60))
-        self.applyButton.setText("Apply")
-        self.applyButton.clicked.connect(self.applyParameters)
+        self.saveButton = QPushButton(self.centralwidget)
+        self.saveButton.setGeometry(QRect(270, 380, 80, 60))
+        self.saveButton.setText("Save")
+        self.saveButton.clicked.connect(self.saveParameters)
         
         self.defaultButton = QPushButton(self.centralwidget)
         self.defaultButton.setGeometry(QRect(190, 380, 80, 60))
         self.defaultButton.setText("Default")
         self.defaultButton.clicked.connect(self.defaultParameters)
         
-        self.defaultParameters()
+        self.initParameters()
 
-    def applyParameters(self):
-        config.acqMinVoltage = self.minVText.value()
-        config.acqMaxVoltage = self.maxVText.value()
-        config.acqStartVoltage = self.startVText.value()
-        config.acqStepVoltage = self.stepVText.text()
-        config.acqNumAvScans = self.numAverScansText.value()
-        config.acqDelBeforeMeas = self.delayBeforeMeasText.value()
-        config.acqTrackNumPoints = self.numPointsText.value()
-        config.acqTrackInterval = self.IntervalText.value()
+    def saveParameters(self):
+        self.parent().config.conf['Acquisition']['acqMinVoltage'] = str(self.minVText.value())
+        self.parent().config.conf['Acquisition']['acqMaxVoltage'] = str(self.maxVText.value())
+        self.parent().config.conf['Acquisition']['acqStartVoltage'] = str(self.startVText.value())
+        self.parent().config.conf['Acquisition']['acqStepVoltage'] = str(self.stepVText.text())
+        self.parent().config.conf['Acquisition']['acqNumAvScans'] = str(self.numAverScansText.value())
+        self.parent().config.conf['Acquisition']['acqDelBeforeMeas'] = str(self.delayBeforeMeasText.value())
+        self.parent().config.conf['Acquisition']['acqTrackNumPoints'] = str(self.numPointsText.value())
+        self.parent().config.conf['Acquisition']['acqTrackInterval'] = str(self.IntervalText.value())
+        with open(self.parent().config.configFile, 'w') as configfile:
+            self.parent().config.conf.write(configfile)
+        print("Save parameters as default")
         self.timePerDevice()
     
     def defaultParameters(self):
-        self.minVText.setValue(config.acqMinVoltage)
-        self.maxVText.setValue(config.acqMaxVoltage)
-        self.startVText.setValue(config.acqStartVoltage)
-        self.stepVText.setText(str(config.acqStepVoltage))
-        self.numAverScansText.setValue(config.acqNumAvScans)
-        self.delayBeforeMeasText.setValue(config.acqDelBeforeMeas)
-        self.numPointsText.setValue(config.acqTrackNumPoints)
-        self.IntervalText.setValue(config.acqTrackInterval)
+        self.parent().config.createConfig()
+        self.initParameters()
+        print("Restored default parameters")
+        self.timePerDevice()
+
+    def initParameters(self):
+        self.minVText.setValue(float(self.parent().config.acqMinVoltage))
+        self.maxVText.setValue(float(self.parent().config.acqMaxVoltage))
+        self.startVText.setValue(float(self.parent().config.acqStartVoltage))
+        self.stepVText.setText(str(self.parent().config.acqStepVoltage))
+        self.numAverScansText.setValue(float(self.parent().config.acqNumAvScans))
+        self.delayBeforeMeasText.setValue(float(self.parent().config.acqDelBeforeMeas))
+        self.numPointsText.setValue(int(self.parent().config.acqTrackNumPoints))
+        self.IntervalText.setValue(float(self.parent().config.acqTrackInterval))
         self.timePerDevice()
 
     def timePerDevice(self):
-        timePerDevice = (config.acqNumAvScans * (0.1+config.acqDelBeforeMeas) + config.acqTrackInterval) * config.acqTrackNumPoints
+        timePerDevice = (int(self.parent().config.acqNumAvScans) * (0.1+float(self.parent().config.acqDelBeforeMeas)) + float(self.parent().config.acqTrackInterval)) * int(self.parent().config.acqTrackNumPoints)
         self.totTimePerDeviceLabel.setText("Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
 
     # Enable and disable fields (flag is either True or False) during acquisition.
@@ -176,7 +182,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.setEnabled(flag)
         self.numPointsText.setEnabled(flag)
         self.IntervalText.setEnabled(flag)
-        self.applyButton.setEnabled(flag)
+        self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
 
 
