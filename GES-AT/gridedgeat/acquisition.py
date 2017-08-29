@@ -132,6 +132,9 @@ class Acquisition():
 
     def fakeAcq1(self, row, column, obj, deviceID, dfAcqParams):
         timeAcq = 0
+        # Add device number to substrate
+        # this is totally to fake the cquisition of a particular device in a batch
+        new_deviceID = deviceID+str(random.randrange(0,6,1))
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
                 break
@@ -144,8 +147,8 @@ class Acquisition():
             perfData = np.hstack((timeAcq, perfData))
             perfData = np.hstack((self.getDateTimeNow()[1], perfData))
             perfData = np.hstack((self.getDateTimeNow()[0], perfData))
-
-            obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
+            
+            obj.resultswind.processDeviceData(new_deviceID, dfAcqParams, perfData, JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
