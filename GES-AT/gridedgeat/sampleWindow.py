@@ -65,6 +65,11 @@ class SampleWindow(QMainWindow):
         self.sizeSubsCBox.setObjectName("sizeSubsCBox")
         self.windowGridLayout.addWidget(self.sizeSubsCBox, 2, 1, 1, 1)
        
+        self.sizeSubsCBox.addItem("1x1 in")
+        self.sizeSubsCBox.setEnabled(False)
+        self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+"x"+self.parent().config.numSubsHolderRow)
+        self.holderTypeCBox.setEnabled(False)
+       
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
         self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
