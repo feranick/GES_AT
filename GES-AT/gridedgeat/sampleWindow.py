@@ -86,7 +86,7 @@ class SampleWindow(QMainWindow):
         self.loadButton = QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QRect(310, 30, 100, 100))
         self.loadButton.setObjectName("loadButton")
-        self.loadButton.clicked.connect(self.saveCsvDevices)
+        self.loadButton.clicked.connect(self.loadCsvDevices)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
