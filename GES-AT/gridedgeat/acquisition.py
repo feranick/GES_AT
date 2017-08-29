@@ -96,6 +96,7 @@ class Acquisition():
         logger.info(msg)
     
     def analyseJV(self, JV):
+        Pin = 1360  #W/m^2
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -104,7 +105,8 @@ class Acquisition():
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
         FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        data = np.array([Voc, Jsc, Vpmax*Jpmax,FF])
+        effic = Voc*Jsc*FF/Pin
+        data = np.array([Voc, Jsc, Vpmax*Jpmax,FF,effic])
         return data
         
     def getDateTimeNow(self):
