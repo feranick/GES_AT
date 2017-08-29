@@ -86,7 +86,7 @@ class SampleWindow(QMainWindow):
         self.loadButton = QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QRect(310, 30, 100, 100))
         self.loadButton.setObjectName("loadButton")
-        self.loadButton.clicked.connect(self.loadCsvDevices)
+        self.loadButton.clicked.connect(self.saveCsvDevices)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
@@ -163,6 +163,21 @@ class SampleWindow(QMainWindow):
             print("Error in loading device configuration")
             logger.info("Error in loading device configuration")
 
+ # Save device names and configuration
+    def saveCsvDevices(self):
+        import csv
+        devConf=[['']*4 for i in range(4)]
+        for i in range(int(self.parent().config.numSubsHolderRow)):
+            for j in range(int(self.parent().config.numSubsHolderCol)):
+                devConf[i][j] = self.tableWidget.item(i,j).text()
+        #try:
+        filename = QFileDialog.getSaveFileName(self,
+                    "Save CSV device file", "","*.csv")
+        with open(filename[0], 'w') as inputFile:
+            csvwrite = csv.writer(inputFile)
+            csvwrite.writerow(devConf)
 
+        #except:
+        #    pass
 
 
