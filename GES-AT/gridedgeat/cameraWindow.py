@@ -22,7 +22,7 @@ from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
 from .modules.camera.camera import *
-from . import config
+from . import logger
 
 '''
    Camera Window
@@ -65,10 +65,11 @@ class CameraWindow(QMainWindow):
         self.checkAlignText.show()
         tb.addSeparator()
         
-        setDefaultBtn = QAction(QIcon(QPixmap()),"Set Default Alignment",self)
-        setDefaultBtn.setShortcut('Ctrl+d')
-        setDefaultBtn.setStatusTip('Set Default Alignment')
-        tb.addAction(setDefaultBtn)
+        self.setDefaultBtn = QAction(QIcon(QPixmap()),"Set Default Alignment",self)
+        self.setDefaultBtn.setShortcut('Ctrl+d')
+        self.setDefaultBtn.setStatusTip('Set Default Alignment')
+        self.setDefaultBtn.setEnabled(False)
+        tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
         
         self.cam = CameraFeed()
@@ -82,6 +83,7 @@ class CameraWindow(QMainWindow):
             self.setDefault()
 
     def cameraFeed(self):
+        self.setDefaultBtn.setEnabled(True)
         try:
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
             self.cam.grab_image()
@@ -89,10 +91,10 @@ class CameraWindow(QMainWindow):
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(self.cam.color_image_name() + \
                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
-            self.alignPerc, self.iMax = self.cam.check_alignment(self.image_data, config.alignmentIntThreshold)
+            self.alignPerc, self.iMax = self.cam.check_alignment(self.image_data, float(self.parent().config.alignmentIntThreshold))
 
             self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > float(config.alignmentContrastDefault) and float(self.iMax) > float(config.alignmentIntMax):
+            if float(self.alignPerc) > float(self.parent().config.alignmentContrastDefault) and float(self.iMax) > float(self.parent().config.alignmentIntMax):
                 self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
                 self.outAlignmentMessageBox()
             else:
@@ -122,20 +124,18 @@ class CameraWindow(QMainWindow):
 
         if ret == QMessageBox.Yes:
             self.filename = "calib"+str(datetime.now().strftime('_%Y%m%d_%H-%M-%S.png'))
-            print(config.alignmentContrastDefault)
-            print(config.alignmentIntMax)
-            config.alignmentContrastDefault = self.alignPerc
-            config.alignmentIntMax = self.iMax
-            print(config.alignmentContrastDefault)
-            print(config.alignmentIntMax)
-            print( " New alignment settings saved as default. Image saved in", self.filename)
+            self.parent().config.conf['Instruments']['alignmentContrastDefault'] = str(self.alignPerc)
+            self.parent().config.conf['Instruments']['alignmentIntMax'] = str(self.iMax)
+            with open(self.parent().config.configFile, 'w') as configfile:
+                self.parent().config.conf.write(configfile)
+            self.parent().config.readConfig()
+            print(" New alignment settings saved as default. Image saved in", self.filename)
+            logger.info(" New camera alignment settings saved as default. Image saved in"+self.filename)
             self.cam.save_image(self.filename)
             return True
         else:
             print( " Alignment settings not saved as default" )
             return False
-            
-        
 
     def outAlignmentMessageBox(self):
         msgBox = QMessageBox( self )
