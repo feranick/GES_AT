@@ -22,8 +22,8 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
-from . import config
 from .dataManagement import *
+from . import logger
 
 '''
    DBConnection Widget
@@ -35,7 +35,7 @@ class DataManagementWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self,Panel):
-        self.setGeometry(10, 200, 250, 300)
+        self.setGeometry(10, 200, 250, 390)
         self.setWindowTitle('Data-management Settings')
         self.gridLayoutWidget = QWidget(Panel)
         self.gridLayoutWidget.setGeometry(QRect(10, 9, 230, 221))
@@ -74,8 +74,15 @@ class DataManagementWindow(QMainWindow):
         self.dbPasswordLabel.setObjectName("dbPasswordLabel")
         self.gridLayout.addWidget(self.dbPasswordLabel, 4, 0, 1, 1)
         self.dbTestConnectButton = QPushButton(Panel)
-        self.dbTestConnectButton.setGeometry(QRect(10, 260, 230, 30))
+        self.dbTestConnectButton.setGeometry(QRect(10, 260, 230, 40))
         self.dbTestConnectButton.setObjectName("dbTestConnectButton")
+        self.dbSetDefaultButton = QPushButton(Panel)
+        self.dbSetDefaultButton.setGeometry(QRect(10, 300, 230, 40))
+        self.dbSetDefaultButton.setObjectName("dbSetDefaultButton")
+        self.dbRestoreDefaultButton = QPushButton(Panel)
+        self.dbRestoreDefaultButton.setGeometry(QRect(10, 340, 230, 40))
+        self.dbRestoreDefaultButton.setObjectName("dbRestoreDefaultButton")
+        
         self.dbConnectResultLabel = QLabel(Panel)
         self.dbConnectResultLabel.setGeometry(QRect(20, 230, 321, 20))
         self.dbConnectResultLabel.setObjectName("dbConnectResultLabel")
@@ -86,16 +93,23 @@ class DataManagementWindow(QMainWindow):
         self.dbUsernameLabel.setText("DB Username")
         self.dbPasswordLabel.setText("DB Password")
         self.dbTestConnectButton.setText("Test Connectivity")
+        self.dbSetDefaultButton.setText("Save settings")
+        self.dbRestoreDefaultButton.setText("Restore default settings")
         self.dbConnectResultLabel.setText("Idle")
-
-        self.dbHostnameText.setText(config.DbHostname)
-        self.dbPortNumText.setText(str(config.DbPortNumber))
-        self.dbNameText.setText(config.DbName)
-        self.dbUsernameText.setText(config.DbUsername)
-        self.dbPasswordText.setText(config.DbPassword)
+        
+        self.initParams()
         
         self.dbTestConnectButton.clicked.connect(self.dbCheckConnect)
-    
+        self.dbSetDefaultButton.clicked.connect(self.dbSetDefault)
+        self.dbRestoreDefaultButton.clicked.connect(self.dbRestoreDefault)
+
+    def initParams(self):
+        self.dbHostnameText.setText(self.parent().config.DbHostname)
+        self.dbPortNumText.setText(self.parent().config.DbPortNumber)
+        self.dbNameText.setText(self.parent().config.DbName)
+        self.dbUsernameText.setText(self.parent().config.DbUsername)
+        self.dbPasswordText.setText(self.parent().config.DbPassword)
+
     def getDbConnectionInfo(self):
         return [self.dbHostnameText.text(),
                     self.dbPortNumText.text(),
@@ -112,4 +126,27 @@ class DataManagementWindow(QMainWindow):
         except:
             self.dbConnectResultLabel.setText("Connection failed")
             print("Connection to Data-Management failed")
+
+    def dbSetDefault(self):
+        self.parent().config.conf['DM']['DbHostname'] = str(self.dbHostnameText.text())
+        self.parent().config.conf['DM']['DbPortNumber'] = str(self.dbPortNumText.text())
+        self.parent().config.conf['DM']['DbName'] = str(self.dbNameText.text())
+        self.parent().config.conf['DM']['DbUsername'] = str(self.dbUsernameText.text())
+        self.parent().config.conf['DM']['DbPassword'] = str(self.dbPasswordText.text())
+        with open(self.parent().config.configFile, 'w') as configfile:
+            self.parent().config.conf.write(configfile)
+        self.parent().config.readConfig()
+        print("New Data-Management settings saved as default")
+        logger.info("New Data-Management settings saved as default")
+
+    def dbRestoreDefault(self):
+        self.parent().config.defineConfDM()
+        with open(self.parent().config.configFile, 'w') as configfile:
+            self.parent().config.conf.write(configfile)
+        self.parent().config.readConfig()
+        print("Restored default Data-Management settings")
+        logger.info("Restored default Data-Management settings")
+        self.initParams()
+
+
 

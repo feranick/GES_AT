@@ -16,17 +16,12 @@ the Free Software Foundation; either version 2 of the License, or
 __version__ = "0.2.2"
 __author__ = "<qt><a href = mailto:ferralis@mit.edu> Nicola Ferralis</a></qt>"
 
-# import packages
-# order of loading is important and should not be changed
-try:
-    import sys
-    sys.path.append('..')
-    import config
-except:
-    from . import defaultconfig as config
+from .configuration import *
+config = Configuration()
+config.readConfig()
 
 import logging
-logging.basicConfig(filename=config.loggingFilename, level=config.loggingLevel)
+logging.basicConfig(filename=config.loggingFilename, level=int(config.loggingLevel))
 logger = logging.getLogger()
 
 from . import configuration

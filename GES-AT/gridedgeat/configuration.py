@@ -12,7 +12,6 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
 import configparser, logging
 
 class Configuration():
@@ -21,10 +20,21 @@ class Configuration():
         self.conf = configparser.ConfigParser()
     
     def createConfig(self):
+        self.defineConfDevices()
+        self.defineConfAcq()
+        self.defineConfInstr()
+        self.defineConfSystem()
+        self.defineConfDM()
+        with open(self.configFile, 'w') as configfile:
+            self.conf.write(configfile)
+
+    
+    def defineConfDevices(self):
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
             'numSubsHolderCol' : 4
             }
+    def defineConfAcq(self):
         self.conf['Acquisition'] = {
             'acqMinVoltage' : 0,
             'acqMaxVoltage' : 1,
@@ -35,25 +45,29 @@ class Configuration():
             'acqTrackNumPoints' : 5,
             'acqTrackInterval' : 2
             }
+    def defineConfInstr(self):
         self.conf['Instruments'] = {
             'alignmentIntThreshold' : 0.6,
             'alignmentContrastDefault' : 1,
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR"
             }
+    def defineConfSystem(self):
         self.conf['System'] = {
             'loggingLevel' : logging.INFO,
             'loggingFilename' : "gridedgeat.log",
             'csvSavingFolder' : ".",
             'saveLocalCsv' : True,
+            }
+    def defineConfDM(self):
+        self.conf['DM'] = {
             'DbHostname' : "18.82.1.200",
             'DbPortNumber' : "27017",
             'DbName' : "test",
             'DbUsername' : "user",
             'DbPassword' : "Tata"
             }
-        with open(self.configFile, 'w') as configfile:
-            self.conf.write(configfile)
+
 
     def readConfig(self):
         self.conf.read(self.configFile)
@@ -61,6 +75,8 @@ class Configuration():
         self.acqConfig = self.conf['Acquisition']
         self.instrConfig = self.conf['Instruments']
         self.sysConfig = self.conf['System']
+        self.dmConfig = self.conf['DM']
+
 
         self.numSubsHolderRow = self.devConfig['numSubsHolderRow']
         self.numSubsHolderCol = self.devConfig['numSubsHolderCol']
@@ -83,16 +99,18 @@ class Configuration():
         self.loggingFilename = self.sysConfig['loggingFilename']
         self.csvSavingFolder = self.sysConfig['csvSavingFolder']
         self.saveLocalCsv = self.sysConfig['saveLocalCsv']
-        self.DbHostname = self.sysConfig['DbHostname']
-        self.DbName = self.sysConfig['DbName']
-        self.DbUsername = self.sysConfig['DbUsername']
-        self.DbPassword = self.sysConfig['DbPassword']
+        self.DbHostname = self.dmConfig['DbHostname']
+        self.DbPortNumber = self.dmConfig['DbPortNumber']
+        self.DbName = self.dmConfig['DbName']
+        self.DbUsername = self.dmConfig['DbUsername']
+        self.DbPassword = self.dmConfig['DbPassword']
 
     def saveConfig(self):
         self.conf['Devices'] = self.devConfig
         self.conf['Acquisition'] = self.acqConfig
         self.conf['Instruments'] = self.instrConfig
         self.conf['System'] = self.sysConfig
+        self.conf['DM'] = self.dmConfig
         with open(self.configFile, 'w') as configfile:
             self.conf.write(self.configfile)
 
