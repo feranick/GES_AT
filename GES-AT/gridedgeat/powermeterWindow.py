@@ -26,12 +26,12 @@ class PowermeterWindow(QMainWindow):
     
     def initUI(self, PowermeterWindow):
         PowermeterWindow.setWindowTitle("Powermeter Settings")
-        self.setGeometry(10, 200, 320, 120)
+        self.setGeometry(10, 200, 320, 110)
         self.powerMeterRefreshLabel = QLabel(PowermeterWindow)
-        self.powerMeterRefreshLabel.setGeometry(QRect(20, 10, 100, 20))
+        self.powerMeterRefreshLabel.setGeometry(QRect(20, 10, 120, 20))
         self.powerMeterRefreshLabel.setText("Refresh every [s]:")
         self.powerMeterRefreshText = QLineEdit(PowermeterWindow)
-        self.powerMeterRefreshText.setGeometry(QRect(120, 10, 50, 20))
+        self.powerMeterRefreshText.setGeometry(QRect(140, 10, 50, 20))
         self.powerMeterRefreshText.setText("0.5")
 
         self.powerMeterLabel = QLabel(PowermeterWindow)
@@ -46,7 +46,7 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setText("Stop")
         self.powermeterStopButton.setEnabled(False)
 
-        self.pm = PowerMeter()
+        self.pm = PowerMeter(self.parent().config.powermeterID)
         
         if self.pm.PM100init is False:
             self.powermeterStartButton.setEnabled(False)

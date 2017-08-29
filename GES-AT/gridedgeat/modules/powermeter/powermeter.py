@@ -16,12 +16,12 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import time
-from gridedgeat import config
+from gridedgeat import configuration
 #from ThorlabsPM100 import ThorlabsPM100
 import visa
 
 class PowerMeter():
-    def __init__(self):
+    def __init__(self, powermeterID):
         try:
             from ThorlabsPM100 import ThorlabsPM100
             self.rm = visa.ResourceManager()
@@ -32,6 +32,6 @@ class PowerMeter():
 
     def get_power(self):
         from ThorlabsPM100 import ThorlabsPM100
-        inst = self.rm.open_resource(config.powermeterID, timeout=1)
+        inst = self.rm.open_resource(powermeterID, timeout=1)
         power_meter = ThorlabsPM100(inst=inst)
         return power_meter
