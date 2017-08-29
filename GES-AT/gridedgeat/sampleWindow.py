@@ -74,7 +74,7 @@ class SampleWindow(QMainWindow):
         for i in range(int(self.parent().config.numSubsHolderCol)):
             for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
-        self.tableWidget.item(0, 0).setText("test-sample")
+        #self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
         
