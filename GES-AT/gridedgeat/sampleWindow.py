@@ -23,6 +23,8 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
+from . import logger
+
 '''
    Sample Window
 '''
@@ -81,9 +83,10 @@ class SampleWindow(QMainWindow):
         # This enables editing by Double Click
         self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
-        self.applyButton = QPushButton(self.centralwidget)
-        self.applyButton.setGeometry(QRect(310, 30, 100, 100))
-        self.applyButton.setObjectName("applyButton")
+        self.loadButton = QPushButton(self.centralwidget)
+        self.loadButton.setGeometry(QRect(310, 30, 100, 100))
+        self.loadButton.setObjectName("loadButton")
+        self.loadButton.clicked.connect(self.loadCsvDevices)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
@@ -93,7 +96,7 @@ class SampleWindow(QMainWindow):
         self.loadMenu = QAction("&Load Devices", self)
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load device names and configuration from csv')
-        self.loadMenu.triggered.connect(self.openCsvDevices)
+        self.loadMenu.triggered.connect(self.loadCsvDevices)
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
 
@@ -107,7 +110,7 @@ class SampleWindow(QMainWindow):
         self.sizeSubsLabel.setText("Size of Substrate ")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
-        self.applyButton.setText("Apply")
+        self.loadButton.setText("Load")
 
     @pyqtSlot()
     def onCellClick(self):
@@ -137,21 +140,29 @@ class SampleWindow(QMainWindow):
             for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
-    def openCsvDevices(self):
+    # Load device names and configuration
+    def loadCsvDevices(self):
         import csv
-        #try:
-        filename = QFileDialog.getOpenFileName(self,
+        try:
+            filename = QFileDialog.getOpenFileName(self,
                         "Open CSV device file", "","*.csv")
-        with open(filename[0], 'rU') as inputFile:
-            input = csv.reader(inputFile)
-            devConf=[]
-            for row in input:
-                devConf.append(row)
-        for i in range(int(self.parent().config.numSubsHolderRow)):
-            for j in range(int(self.parent().config.numSubsHolderCol)):
-                self.tableWidget.item(i,j).setText(devConf[i][j])
-        print("Device configuration loaded from:",filename[0])
-        logger.info("Device configuration loaded from:"+filename[0])
+            with open(filename[0], 'rU') as inputFile:
+                input = csv.reader(inputFile)
+                devConf=[]
+                for row in input:
+                    devConf.append(row)
+            for i in range(int(self.parent().config.numSubsHolderRow)):
+                for j in range(int(self.parent().config.numSubsHolderCol)):
+                    try:
+                        self.tableWidget.item(i,j).setText(devConf[i][j])
+                    except:
+                        pass
+            print("Device configuration loaded from:",filename[0])
+            logger.info("Device configuration loaded from:"+filename[0])
+        except:
+            print("Error in loading device configuration")
+            logger.info("Error in loading device configuration")
+
 
 
 
