@@ -73,7 +73,7 @@ class Acquisition():
                     
         ### Acquisition loop should land here ##################
                     
-                    self.fakeAcq1(i, j, obj, deviceID, self.dfAcqParams)
+                    self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
                     obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
@@ -130,7 +130,7 @@ class Acquisition():
         JV[:,1] = JV[:,1]-np.amin(JV[:,1])
         return JV
 
-    def fakeAcq1(self, row, column, obj, deviceID, dfAcqParams):
+    def fakeAcq(self, row, column, obj, deviceID, dfAcqParams):
         timeAcq = 0
         # Add device number to substrate
         # this is totally to fake the cquisition of a particular device in a batch
