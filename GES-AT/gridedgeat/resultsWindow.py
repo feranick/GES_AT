@@ -277,7 +277,7 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
-        if self.parent().config.saveLocalCsv is True:
+        if bool(self.parent().config.saveLocalCsv) is True:
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
 
         self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
