@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
         self.initUI()
     
     def initUI(self):
+        logger.info("Gridedge Auto-testing v."+__version__)
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(10,30,340,220)
         self.aboutwid = AboutWidget()
