@@ -33,7 +33,7 @@ class SampleWindow(QMainWindow):
     
     def initUI(self,MainWindow):
         self.setGeometry(10, 300, 440, 330)
-        MainWindow.setWindowTitle("Sample configuration")
+        MainWindow.setWindowTitle("Devices configuration")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
@@ -65,8 +65,6 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
-        #self.tableWidget.setColumnCount(config.numSubsHolderRow)
-        #self.tableWidget.setRowCount(config.numSubsHolderCol)
         self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
         self.tableWidget.setRowCount(int(self.parent().config.numSubsHolderCol))
         
@@ -74,7 +72,6 @@ class SampleWindow(QMainWindow):
         for i in range(int(self.parent().config.numSubsHolderCol)):
             for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
-        #self.tableWidget.item(0, 0).setBackground(QColor(255,0,0))
         self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
@@ -93,6 +90,13 @@ class SampleWindow(QMainWindow):
         self.menuBar.setGeometry(QRect(0, 0, 774, 22))
         self.menuBar.setObjectName("menubar")
         
+        self.loadMenu = QAction("&Load Devices", self)
+        self.loadMenu.setShortcut("Ctrl+o")
+        self.loadMenu.setStatusTip('Load device names and configuration from csv')
+        self.loadMenu.triggered.connect(self.openCsvDevices)
+        fileMenu = self.menuBar.addMenu('&File')
+        fileMenu.addAction(self.loadMenu)
+
         self.parent().viewWindowMenus(self.menuBar, self.parent())
 
         MainWindow.setMenuBar(self.menuBar)
@@ -132,5 +136,22 @@ class SampleWindow(QMainWindow):
         for i in range(int(self.parent().config.numSubsHolderCol)):
             for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+
+    def openCsvDevices(self):
+        import csv
+        #try:
+        filename = QFileDialog.getOpenFileName(self,
+                        "Open CSV device file", "","*.csv")
+        with open(filename[0], 'rU') as inputFile:
+            input = csv.reader(inputFile)
+            devConf=[]
+            for row in input:
+                devConf.append(row)
+        for i in range(int(self.parent().config.numSubsHolderRow)):
+            for j in range(int(self.parent().config.numSubsHolderCol)):
+                self.tableWidget.item(i,j).setText(devConf[i][j])
+        print("Device configuration loaded from:",filename[0])
+        logger.info("Device configuration loaded from:"+filename[0])
+
 
 
