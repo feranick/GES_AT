@@ -13,15 +13,17 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, webbrowser, random, time
+import sys, webbrowser, random, time, os.path
+import configparser
 from datetime import datetime
+
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
     QGraphicsScene,QLineEdit,QMessageBox,QDialog,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
-from . import config
+#from . import config
 from . import __version__
 from . import __author__
 from .cameraWindow import *
@@ -33,6 +35,7 @@ from .powermeterWindow import *
 from .stageWindow import *
 from .dataManagement import *
 from .dataManagementWindow import *
+from .configuration import *
 
 '''
    Main Window
@@ -41,6 +44,11 @@ from .dataManagementWindow import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
+        self.config = Configuration()
+        if os.path.isfile(self.config.configFile) is False:
+            print("Config File does not exixt. Creating one")
+            self.config.createConfig()
+        self.config.readConfig()
         self.initUI()
     
     def initUI(self):

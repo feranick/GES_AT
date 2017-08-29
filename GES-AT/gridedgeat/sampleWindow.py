@@ -23,7 +23,8 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
-from . import config
+#from . import config
+from . import configuration
 
 '''
    Sample Window
@@ -67,13 +68,14 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
-        self.tableWidget.setColumnCount(config.numSubsHolderRow)
-        self.tableWidget.setRowCount(config.numSubsHolderCol)
-        #self.tableWidget.setItem(0,0, QTableWidgetItem(""))
+        #self.tableWidget.setColumnCount(config.numSubsHolderRow)
+        #self.tableWidget.setRowCount(config.numSubsHolderCol)
+        self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
+        self.tableWidget.setRowCount(int(self.parent().config.numSubsHolderCol))
         
         # This allows for background coloring of a cell
-        for i in range(config.numSubsHolderCol):
-            for j in range(config.numSubsHolderRow):
+        for i in range(int(self.parent().config.numSubsHolderCol)):
+            for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
         #self.tableWidget.item(0, 0).setBackground(QColor(255,0,0))
         self.tableWidget.item(0, 0).setText("test-sample")
@@ -130,8 +132,8 @@ class SampleWindow(QMainWindow):
 
     # Reset color in sample cells to white
     def resetCellAcq(self):
-        for i in range(config.numSubsHolderCol):
-            for j in range(config.numSubsHolderRow):
+        for i in range(int(self.parent().config.numSubsHolderCol)):
+            for j in range(int(self.parent().config.numSubsHolderRow)):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
 

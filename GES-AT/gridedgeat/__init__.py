@@ -29,6 +29,7 @@ import logging
 logging.basicConfig(filename=config.loggingFilename, level=config.loggingLevel)
 logger = logging.getLogger()
 
+from . import configuration
 from . import mainWindow
 from . import acquisition
 from . import acquisitionWindow
