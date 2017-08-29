@@ -27,7 +27,6 @@ class Configuration():
         self.defineConfDM()
         with open(self.configFile, 'w') as configfile:
             self.conf.write(configfile)
-
     
     def defineConfDevices(self):
         self.conf['Devices'] = {
@@ -68,15 +67,13 @@ class Configuration():
             'DbPassword' : "Tata"
             }
 
-
-    def readConfig(self):
-        self.conf.read(self.configFile)
+    def readConfig(self, configFile):
+        self.conf.read(configFile)
         self.devConfig = self.conf['Devices']
         self.acqConfig = self.conf['Acquisition']
         self.instrConfig = self.conf['Instruments']
         self.sysConfig = self.conf['System']
         self.dmConfig = self.conf['DM']
-
 
         self.numSubsHolderRow = self.devConfig['numSubsHolderRow']
         self.numSubsHolderCol = self.devConfig['numSubsHolderCol']
@@ -105,14 +102,9 @@ class Configuration():
         self.DbUsername = self.dmConfig['DbUsername']
         self.DbPassword = self.dmConfig['DbPassword']
 
-    def saveConfig(self):
-        self.conf['Devices'] = self.devConfig
-        self.conf['Acquisition'] = self.acqConfig
-        self.conf['Instruments'] = self.instrConfig
-        self.conf['System'] = self.sysConfig
-        self.conf['DM'] = self.dmConfig
-        with open(self.configFile, 'w') as configfile:
-            self.conf.write(self.configfile)
+    def saveConfig(self, configFile):
+        with open(configFile, 'w') as configfile:
+            self.conf.write(configfile)
 
 
 

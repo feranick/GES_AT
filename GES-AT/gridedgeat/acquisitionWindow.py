@@ -148,14 +148,16 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.conf['Acquisition']['acqTrackInterval'] = str(self.IntervalText.value())
         with open(self.parent().config.configFile, 'w') as configfile:
             self.parent().config.conf.write(configfile)
-        self.parent().config.readConfig()
-        print("Save parameters as default")
+        self.parent().config.readConfig(self.parent().config.configFile)
+        print("Acquisition parameters saved as default")
+        logger.info("Acquisition parameters saved as default")
         self.timePerDevice()
     
     def defaultParameters(self):
         self.parent().config.createConfig()
         self.initParameters()
-        print("Restored default parameters")
+        print("Default acquisition parameters restored")
+        logger.info("Default acquisition parameters restored")
         self.timePerDevice()
 
     def initParameters(self):

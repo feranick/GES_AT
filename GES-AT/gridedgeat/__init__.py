@@ -23,7 +23,7 @@ config = Configuration()
 if os.path.isfile(config.configFile) is False:
     print("Config File does not exixt. Creating one")
     config.createConfig()
-config.readConfig()
+config.readConfig(config.configFile)
 
 import logging
 logging.basicConfig(filename=config.loggingFilename, level=int(config.loggingLevel))

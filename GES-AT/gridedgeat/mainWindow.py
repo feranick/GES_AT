@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.config = Configuration()
-        self.config.readConfig()
+        self.config.readConfig(self.config.configFile)
         self.initUI()
     
     def initUI(self):
@@ -69,6 +69,16 @@ class MainWindow(QMainWindow):
         self.toolBar.setGeometry(0,170,340,25)
 
         # Menu entries
+        self.loadConfigMenu = QAction("&Load Configuration", self)
+        self.loadConfigMenu.setShortcut("Ctrl+l")
+        self.loadConfigMenu.setStatusTip('Quit')
+        self.loadConfigMenu.triggered.connect(self.loadConfig)
+        
+        self.saveConfigMenu = QAction("&Save Configuration", self)
+        self.saveConfigMenu.setShortcut("Ctrl+s")
+        self.saveConfigMenu.setStatusTip('Quit')
+        self.saveConfigMenu.triggered.connect(self.saveConfig)
+        
         self.quitMenu = QAction("&Quit", self)
         self.quitMenu.setShortcut("Ctrl+q")
         self.quitMenu.setStatusTip('Quit')
@@ -76,6 +86,9 @@ class MainWindow(QMainWindow):
         
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.quitMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.loadConfigMenu)
+        fileMenu.addAction(self.saveConfigMenu)
         
         self.powermeterMenu = QAction("&Powermeter", self)
         self.powermeterMenu.setShortcut("Ctrl+p")
@@ -168,8 +181,21 @@ class MainWindow(QMainWindow):
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")
     
+    def loadConfig(self):
+        filename = QFileDialog.getOpenFileName(self,
+                        "Open INI config file", "","*.ini")
+        self.config.readConfig(filename)
+        print("Confguration parameters loaded from:",filename[0])
+        logger.info("Confguration parameters loaded from:"+filename[0])
+    
+    def saveConfig(self):
+        filename = QFileDialog.getSaveFileName(self,
+                        "Save INI config file", "","*.ini")
+        self.config.saveConfig(filename[0])
+        print("Confguration parameters saved to:",filename[0])
+        logger.info("Confguration parameters saved to:"+filename[0])
+
     def fileQuit(self):
-        """Special quit-function as the normal window closing might leave something on the background """
         QApplication.closeAllWindows()
     
     def enableButtonsAcq(self,flag):

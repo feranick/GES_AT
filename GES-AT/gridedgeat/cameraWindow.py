@@ -128,7 +128,7 @@ class CameraWindow(QMainWindow):
             self.parent().config.conf['Instruments']['alignmentIntMax'] = str(self.iMax)
             with open(self.parent().config.configFile, 'w') as configfile:
                 self.parent().config.conf.write(configfile)
-            self.parent().config.readConfig()
+            self.parent().config.readConfig(self.parent().config.configFile)
             print(" New alignment settings saved as default. Image saved in", self.filename)
             logger.info(" New camera alignment settings saved as default. Image saved in"+self.filename)
             self.cam.save_image(self.filename)

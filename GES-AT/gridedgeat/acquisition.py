@@ -20,7 +20,6 @@ from datetime import datetime
 from .acquisitionWindow import *
 from . import logger
 
-
 class Acquisition():
 
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
