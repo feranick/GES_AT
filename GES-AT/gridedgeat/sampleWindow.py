@@ -84,9 +84,13 @@ class SampleWindow(QMainWindow):
         self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
         self.loadButton = QPushButton(self.centralwidget)
-        self.loadButton.setGeometry(QRect(310, 30, 100, 100))
+        self.loadButton.setGeometry(QRect(310, 30, 100, 40))
         self.loadButton.setObjectName("loadButton")
         self.loadButton.clicked.connect(self.loadCsvDevices)
+        self.saveButton = QPushButton(self.centralwidget)
+        self.saveButton.setGeometry(QRect(310, 80, 100, 40))
+        self.saveButton.setObjectName("saveButton")
+        self.saveButton.clicked.connect(self.saveCsvDevices)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
@@ -111,6 +115,8 @@ class SampleWindow(QMainWindow):
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.loadButton.setText("Load")
+        self.saveButton.setText("Save")
+
 
     @pyqtSlot()
     def onCellClick(self):
@@ -163,21 +169,24 @@ class SampleWindow(QMainWindow):
             print("Error in loading device configuration")
             logger.info("Error in loading device configuration")
 
- # Save device names and configuration
+    # Save device names and configuration
     def saveCsvDevices(self):
         import csv
         devConf=[['']*4 for i in range(4)]
         for i in range(int(self.parent().config.numSubsHolderRow)):
             for j in range(int(self.parent().config.numSubsHolderCol)):
                 devConf[i][j] = self.tableWidget.item(i,j).text()
-        #try:
-        filename = QFileDialog.getSaveFileName(self,
+        try:
+            filename = QFileDialog.getSaveFileName(self,
                     "Save CSV device file", "","*.csv")
-        with open(filename[0], 'w') as inputFile:
-            csvwrite = csv.writer(inputFile)
-            csvwrite.writerow(devConf)
-
-        #except:
-        #    pass
+            with open(filename[0], 'w') as inputFile:
+                csvwrite = csv.writer(inputFile)
+                for i in range(int(self.parent().config.numSubsHolderRow)):
+                    csvwrite.writerow(devConf[i])
+            print("Device configuration saved to:",filename[0])
+            logger.info("Device configuration saved to:"+filename[0])
+        except:
+            print("Error in saving device configuration")
+            logger.info("Error in saving device configuration")
 
 
