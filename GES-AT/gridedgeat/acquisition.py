@@ -134,7 +134,7 @@ class Acquisition():
         timeAcq = 0
         # Add device number to substrate
         # this is totally to fake the cquisition of a particular device in a batch
-        new_deviceID = deviceID+str(random.randrange(0,6,1))
+        new_deviceID = deviceID+str(random.randrange(1,7,1))
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
                 break
