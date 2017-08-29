@@ -21,12 +21,11 @@ from .acquisitionWindow import *
 from . import logger
 
 class Acquisition():
-
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
         self.numRow = int(obj.config.numSubsHolderRow)
         self.numCol = int(obj.config.numSubsHolderCol)
-        return pd.DataFrame({'operator': [obj.samplewind.operatorText.text()],
+        pdframe = pd.DataFrame({'Operator': [obj.samplewind.operatorText.text()],
                 'Acq Min Voltage': [obj.acquisitionwind.minVText.value()],
                 'Acq Max Voltage': [obj.acquisitionwind.maxVText.value()],
                 'Acq Start Voltage': [obj.acquisitionwind.startVText.value()],
@@ -34,8 +33,12 @@ class Acquisition():
                 'Acq Num Aver Scans': [obj.acquisitionwind.numAverScansText.value()],
                 'Delay Before Meas': [obj.acquisitionwind.delayBeforeMeasText.value()],
                 'Num Track Points': [obj.acquisitionwind.numPointsText.value()],
-                'Track Interval': [obj.acquisitionwind.IntervalText.value()]})
-
+                'Track Interval': [obj.acquisitionwind.IntervalText.value()],
+                'Comments': [obj.samplewind.commentsText.text()]})
+        return pdframe[['Acq Min Voltage','Acq Max Voltage','Acq Start Voltage',
+                'Acq Step Voltage','Acq Num Aver Scans','Delay Before Meas',
+                'Num Track Points','Track Interval','Operator','Comments']]
+                
     def start(self, obj):
         ### Setup interface and get parameters before acquisition
         

@@ -322,6 +322,7 @@ class ResultsWindow(QMainWindow):
         listTot.update(listJV)
         listTot.update(listAcqParams)
         jsonTot = json.dumps(listTot)
+        #print(jsonTot)
         return jsonTot
     
     ### Submit json for device data to Data-Management

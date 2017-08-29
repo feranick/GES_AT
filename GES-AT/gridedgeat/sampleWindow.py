@@ -34,7 +34,7 @@ class SampleWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self,MainWindow):
-        self.setGeometry(10, 300, 440, 330)
+        self.setGeometry(10, 300, 440, 370)
         MainWindow.setWindowTitle("Devices configuration")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -69,9 +69,19 @@ class SampleWindow(QMainWindow):
         self.sizeSubsCBox.setEnabled(False)
         self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+"x"+self.parent().config.numSubsHolderRow)
         self.holderTypeCBox.setEnabled(False)
+        
+        self.commentsLabel = QLabel(self.centralwidget)
+        self.commentsLabel.setObjectName("commentsLabel")
+        self.commentsLabel.setGeometry(QRect(10, 150, 80, 20))
+        #self.windowGridLayout.addWidget(self.commentsLabel, 3, 0, 1, 1)
+        self.commentsText = QLineEdit(self.centralwidget)
+        self.commentsText.setText("")
+        self.commentsText.setGeometry(QRect(90, 150, 330, 20))
+        self.commentsText.setObjectName("commentsText")
+        #self.windowGridLayout.addWidget(self.commentsText, 3, 1, 1, 1)
        
         self.tableWidget = QTableWidget(self.centralwidget)
-        self.tableWidget.setGeometry(QRect(10, 150, 420, 145))
+        self.tableWidget.setGeometry(QRect(10, 190, 420, 145))
         self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
         self.tableWidget.setRowCount(int(self.parent().config.numSubsHolderCol))
         
@@ -119,9 +129,9 @@ class SampleWindow(QMainWindow):
         self.sizeSubsLabel.setText("Size of Substrate ")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
+        self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
-
 
     @pyqtSlot()
     def onCellClick(self):
