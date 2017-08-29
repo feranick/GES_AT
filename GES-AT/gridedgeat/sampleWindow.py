@@ -122,7 +122,7 @@ class SampleWindow(QMainWindow):
         self.holderTypeCBox.setEnabled(flag)
         self.operatorText.setEnabled(flag)
         self.sizeSubsCBox.setEnabled(flag)
-        self.applyButton.setEnabled(flag)
+        self.loadButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
 
     # Change color in sample cells depending on the acqusition status
