@@ -49,7 +49,8 @@ class Configuration():
             'alignmentIntThreshold' : 0.6,
             'alignmentContrastDefault' : 1,
             'alignmentIntMax' : 10,
-            'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR"
+            'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
+            'powerIn1Sun' : 1360,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -91,6 +92,8 @@ class Configuration():
         self.alignmentContrastDefault = self.instrConfig['alignmentContrastDefault']
         self.alignmentIntMax = self.instrConfig['alignmentIntMax']
         self.powermeterID = self.instrConfig['powermeterID']
+        self.powermeterID = self.instrConfig['powerIn1Sun']
+
 
         self.loggingLevel = self.sysConfig['loggingLevel']
         self.loggingFilename = self.sysConfig['loggingFilename']

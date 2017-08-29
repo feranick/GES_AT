@@ -95,8 +95,7 @@ class Acquisition():
         print(msg)
         logger.info(msg)
     
-    def analyseJV(self, JV):
-        Pin = 1360  #W/m^2
+    def analyseJV(self, powerIn, JV):
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -105,7 +104,7 @@ class Acquisition():
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
         FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        effic = Voc*Jsc*FF/Pin
+        effic = Vpmax*Jpmax/powerIn
         data = np.array([Voc, Jsc, Vpmax*Jpmax,FF,effic])
         return data
         
@@ -141,7 +140,7 @@ class Acquisition():
             logger.info(msg)
             
             JV = self.generateRandomJV()
-            perfData = self.analyseJV(JV)
+            perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
             perfData = np.hstack((timeAcq, perfData))
             perfData = np.hstack((self.getDateTimeNow()[1], perfData))
             perfData = np.hstack((self.getDateTimeNow()[0], perfData))
