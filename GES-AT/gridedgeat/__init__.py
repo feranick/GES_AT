@@ -17,7 +17,12 @@ __version__ = "0.2.3"
 __author__ = "<qt><a href = mailto:ferralis@mit.edu> Nicola Ferralis</a></qt>"
 
 from .configuration import *
+import os.path
+
 config = Configuration()
+if os.path.isfile(config.configFile) is False:
+    print("Config File does not exixt. Creating one")
+    config.createConfig()
 config.readConfig()
 
 import logging

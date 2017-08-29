@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, webbrowser, random, time, os.path
+import sys, webbrowser, random, time
 import configparser
 from datetime import datetime
 
@@ -44,9 +44,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.config = Configuration()
-        if os.path.isfile(self.config.configFile) is False:
-            print("Config File does not exixt. Creating one")
-            self.config.createConfig()
         self.config.readConfig()
         self.initUI()
     
