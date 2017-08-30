@@ -92,8 +92,7 @@ class Configuration():
         self.alignmentContrastDefault = self.instrConfig['alignmentContrastDefault']
         self.alignmentIntMax = self.instrConfig['alignmentIntMax']
         self.powermeterID = self.instrConfig['powermeterID']
-        self.powermeterID = self.instrConfig['powerIn1Sun']
-
+        self.powerIn1Sun = self.instrConfig['powerIn1Sun']
 
         self.loggingLevel = self.sysConfig['loggingLevel']
         self.loggingFilename = self.sysConfig['loggingFilename']

@@ -63,7 +63,6 @@ class PowermeterWindow(QMainWindow):
     def startPMAcq(self):
         self.powermeterStartButton.setEnabled(False)
         self.powermeterStopButton.setEnabled(True)
-
         self.stopAcqFlag = False
         while True:
             try:
@@ -76,5 +75,7 @@ class PowermeterWindow(QMainWindow):
             except:
                 print("Connection failed")
                 break
-            
+
+    def closeEvent(self, event):
+       self.stopPMAcq()    
         
