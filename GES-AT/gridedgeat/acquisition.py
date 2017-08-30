@@ -26,14 +26,14 @@ class Acquisition():
         self.numRow = int(obj.config.numSubsHolderRow)
         self.numCol = int(obj.config.numSubsHolderCol)
         pdframe = pd.DataFrame({'Operator': [obj.samplewind.operatorText.text()],
-                'Acq Min Voltage': [obj.acquisitionwind.minVText.value()],
-                'Acq Max Voltage': [obj.acquisitionwind.maxVText.value()],
-                'Acq Start Voltage': [obj.acquisitionwind.startVText.value()],
+                'Acq Min Voltage': [float(obj.acquisitionwind.minVText.text())],
+                'Acq Max Voltage': [float(obj.acquisitionwind.maxVText.text())],
+                'Acq Start Voltage': [float(obj.acquisitionwind.startVText.text())],
                 'Acq Step Voltage': [float(obj.acquisitionwind.stepVText.text())],
-                'Acq Num Aver Scans': [obj.acquisitionwind.numAverScansText.value()],
-                'Delay Before Meas': [obj.acquisitionwind.delayBeforeMeasText.value()],
-                'Num Track Points': [obj.acquisitionwind.numPointsText.value()],
-                'Track Interval': [obj.acquisitionwind.IntervalText.value()],
+                'Acq Num Aver Scans': [float(obj.acquisitionwind.numAverScansText.text())],
+                'Delay Before Meas': [float(obj.acquisitionwind.delayBeforeMeasText.text())],
+                'Num Track Points': [int(obj.acquisitionwind.numPointsText.value())],
+                'Track Interval': [float(obj.acquisitionwind.IntervalText.text())],
                 'Comments': [obj.samplewind.commentsText.text()]})
         return pdframe[['Acq Min Voltage','Acq Max Voltage','Acq Start Voltage',
                 'Acq Step Voltage','Acq Num Aver Scans','Delay Before Meas',
