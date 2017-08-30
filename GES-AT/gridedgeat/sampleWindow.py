@@ -120,10 +120,16 @@ class SampleWindow(QMainWindow):
         self.saveMenu.setShortcut("Ctrl+s")
         self.saveMenu.setStatusTip('Save substrate names to csv')
         self.saveMenu.triggered.connect(self.saveCsvSubstrates)
+        self.clearMenu = QAction("&Clear Substrates", self)
+        self.clearMenu.setShortcut("Ctrl+x")
+        self.clearMenu.setStatusTip('Clear substrate from table')
+        self.clearMenu.triggered.connect(self.clearCells)
 
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
         fileMenu.addAction(self.saveMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.clearMenu)
 
         self.parent().viewWindowMenus(self.menuBar, self.parent())
 
@@ -162,10 +168,17 @@ class SampleWindow(QMainWindow):
         if color is "green":
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
 
-    # Reset color in sample cells to white
+    # Reset color in sample cells
     def resetCellAcq(self):
         for i in range(int(self.parent().config.numSubsHolderCol)):
             for j in range(int(self.parent().config.numSubsHolderRow)):
+                self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+
+    # Clear names in cells
+    def clearCells(self):
+        for i in range(int(self.parent().config.numSubsHolderCol)):
+            for j in range(int(self.parent().config.numSubsHolderRow)):
+                self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
     # Load device names and configuration

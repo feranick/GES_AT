@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         aboutMenu.addAction(self.aboutMenu)
         
         # Toolbar Entries #
-        self.sampleToolbar = QAction("&Devices", self)
+        self.sampleToolbar = QAction("&Substrates", self)
         self.sampleToolbar.setShortcut("Ctrl+s")
         self.sampleToolbar.setStatusTip('Device Configuration')
         self.sampleToolbar.triggered.connect(self.samplewind.show)
