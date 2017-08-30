@@ -19,7 +19,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QSpinBox,
     QGraphicsScene,QLineEdit,QMessageBox,QDialog,QDialogButtonBox,QMenuBar)
-from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
+from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QDoubleValidator)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect)
 
 from . import logger
@@ -60,6 +60,8 @@ class AcquisitionWindow(QMainWindow):
         self.startVLabel.setObjectName("startVLabel")
         self.gridLayout.addWidget(self.startVLabel, 2, 0, 1, 1)
         self.startVText = QLineEdit(self)
+        self.startVText.textChanged.connect(self.validateStartVoltage)
+        
         self.gridLayout.addWidget(self.startVText, 2, 1, 1, 1)
         self.stepVLabel = QLabel(self.gridLayoutWidget)
         self.stepVLabel.setObjectName("stepVLabel")
@@ -173,6 +175,13 @@ class AcquisitionWindow(QMainWindow):
         self.numPointsText.setValue(int(self.parent().config.acqTrackNumPoints))
         self.IntervalText.setText(self.parent().config.acqTrackInterval)
         self.timePerDevice()
+
+    def validateStartVoltage(self):
+        self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),float(self.maxVText.text()),1,self.startVText)
+        if self.validateStartVoltage.validate(self.startVText.text(),1)[0] != 2:
+            msg = "Start Voltage needs to be between\n Vmin="+self.minVText.text()+" and Vmax="+self.maxVText.text()+"\n\nPlease change \"Start Voltage\" in the Acquisition panel"
+            reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
+            self.show()
 
     def timePerDevice(self):
         timePerDevice = (int(self.parent().config.acqNumAvScans) * (0.1+float(self.parent().config.acqDelBeforeMeas)) + float(self.parent().config.acqTrackInterval)) * int(self.parent().config.acqTrackNumPoints)
