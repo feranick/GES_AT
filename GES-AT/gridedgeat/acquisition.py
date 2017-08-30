@@ -66,7 +66,7 @@ class Acquisition():
 
                     print(msg)
                     logger.info(msg)
-                    msg = "Acquiring from: " + deviceID + " - device("+str(i)+", "+str(j)+")"
+                    msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
                     obj.statusBar().showMessage(msg, 5000)
                     print(msg)
                     logger.info(msg)
