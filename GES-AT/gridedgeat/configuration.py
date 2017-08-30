@@ -16,7 +16,7 @@ import configparser, logging
 
 class Configuration():
     def __init__(self):
-        self.configFile = "ges.ini"
+        self.configFile = "GridEdgeAT.ini"
         self.conf = configparser.ConfigParser()
     
     def createConfig(self):
@@ -55,7 +55,7 @@ class Configuration():
     def defineConfSystem(self):
         self.conf['System'] = {
             'loggingLevel' : logging.INFO,
-            'loggingFilename' : "gridedgeat.log",
+            'loggingFilename' : "GridEdgeAT.log",
             'csvSavingFolder' : ".",
             'saveLocalCsv' : True,
             }
