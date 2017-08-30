@@ -59,7 +59,7 @@ class Configuration():
         self.conf['System'] = {
             'loggingLevel' : logging.INFO,
             'loggingFilename' : "GridEdgeAT.log",
-            'csvSavingFolder' : ".",
+            'csvSavingFolder' : "./data",
             'saveLocalCsv' : True,
             }
     def defineConfDM(self):
