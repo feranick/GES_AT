@@ -24,7 +24,7 @@ class StageWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self, StageWindow):
-        StageWindow.resize(330, 100)
+        StageWindow.resize(310, 100)
         StageWindow.setWindowTitle("XY stage control settings")
 
         self.stageLabel = QLabel(StageWindow)

@@ -21,7 +21,7 @@ import os.path
 
 config = Configuration()
 if os.path.isfile(config.configFile) is False:
-    print("Config File does not exixt. Creating one")
+    print("Configuration file does not exixt: Creating one.")
     config.createConfig()
 config.readConfig(config.configFile)
 
