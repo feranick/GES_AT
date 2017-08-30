@@ -25,6 +25,7 @@ import visa
 
 class PowerMeter():
     def __init__(self, powermeterID):
+        self.powermeterID = powermeterID
         try:
             self.rm = visa.ResourceManager()
             self.PM100init = True
@@ -33,6 +34,6 @@ class PowerMeter():
         time.sleep(1)
 
     def get_power(self):
-        inst = self.rm.open_resource(powermeterID, timeout=1)
+        inst = self.rm.open_resource(self.powermeterID, timeout=1)
         power_meter = ThorlabsPM100(inst=inst)
         return power_meter
