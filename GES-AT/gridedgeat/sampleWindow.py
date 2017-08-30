@@ -91,12 +91,12 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
         #self.tableWidget.item(0, 0).setText("test-sample")
 
-        self.tableWidget.itemClicked.connect(self.onCellClick)
+        self.tableWidget.itemDoubleClicked.connect(self.onCellClick)
         
         # This disable editing
-        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # This enables editing by Double Click
-        self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
+        self.tableWidget.setEditTriggers(QAbstractItemView.SelectedClicked)
 
         self.loadButton = QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QRect(310, 30, 100, 40))
@@ -136,7 +136,8 @@ class SampleWindow(QMainWindow):
     @pyqtSlot()
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
-            print(" Selected cell: ",currentQTableWidgetItem.text())
+            print(" Selected cell: (",self.tableWidget.row(currentQTableWidgetItem),
+                ", ",self.tableWidget.column(currentQTableWidgetItem),")")
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
