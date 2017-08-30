@@ -35,7 +35,7 @@ class SampleWindow(QMainWindow):
     
     def initUI(self,MainWindow):
         self.setGeometry(10, 300, 440, 370)
-        MainWindow.setWindowTitle("Devices configuration")
+        MainWindow.setWindowTitle("Substrates configuration")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
@@ -101,23 +101,29 @@ class SampleWindow(QMainWindow):
         self.loadButton = QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QRect(310, 30, 100, 40))
         self.loadButton.setObjectName("loadButton")
-        self.loadButton.clicked.connect(self.loadCsvDevices)
+        self.loadButton.clicked.connect(self.loadCsvSubstrates)
         self.saveButton = QPushButton(self.centralwidget)
         self.saveButton.setGeometry(QRect(310, 80, 100, 40))
         self.saveButton.setObjectName("saveButton")
-        self.saveButton.clicked.connect(self.saveCsvDevices)
+        self.saveButton.clicked.connect(self.saveCsvSubstrates)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setGeometry(QRect(0, 0, 774, 22))
         self.menuBar.setObjectName("menubar")
         
-        self.loadMenu = QAction("&Load Devices", self)
+        self.loadMenu = QAction("&Load Substrates", self)
         self.loadMenu.setShortcut("Ctrl+o")
-        self.loadMenu.setStatusTip('Load device names and configuration from csv')
-        self.loadMenu.triggered.connect(self.loadCsvDevices)
+        self.loadMenu.setStatusTip('Load substrate names from csv')
+        self.loadMenu.triggered.connect(self.loadCsvSubstrates)
+        self.saveMenu = QAction("&Save Substrates", self)
+        self.saveMenu.setShortcut("Ctrl+s")
+        self.saveMenu.setStatusTip('Save substrate names to csv')
+        self.saveMenu.triggered.connect(self.saveCsvSubstrates)
+
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
+        fileMenu.addAction(self.saveMenu)
 
         self.parent().viewWindowMenus(self.menuBar, self.parent())
 
@@ -163,11 +169,11 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
     # Load device names and configuration
-    def loadCsvDevices(self):
+    def loadCsvSubstrates(self):
         import csv
         try:
             filename = QFileDialog.getOpenFileName(self,
-                        "Open CSV device file", "","*.csv")
+                        "Open CSV substrates file", "","*.csv")
             with open(filename[0], 'rU') as inputFile:
                 input = csv.reader(inputFile)
                 devConf=[]
@@ -179,14 +185,14 @@ class SampleWindow(QMainWindow):
                         self.tableWidget.item(i,j).setText(devConf[i][j])
                     except:
                         pass
-            print("Device configuration loaded from:",filename[0])
-            logger.info("Device configuration loaded from:"+filename[0])
+            print("Substrates configuration loaded from:",filename[0])
+            logger.info("Substrates configuration loaded from:"+filename[0])
         except:
-            print("Error in loading device configuration")
-            logger.info("Error in loading device configuration")
+            print("Error in loading Substrates configuration")
+            logger.info("Error in loading Substrates configuration")
 
     # Save device names and configuration
-    def saveCsvDevices(self):
+    def saveCsvSubstrates(self):
         import csv
         devConf=[['']*4 for i in range(4)]
         for i in range(int(self.parent().config.numSubsHolderRow)):
@@ -194,15 +200,15 @@ class SampleWindow(QMainWindow):
                 devConf[i][j] = self.tableWidget.item(i,j).text()
         try:
             filename = QFileDialog.getSaveFileName(self,
-                    "Save CSV device file", "","*.csv")
+                    "Save CSV substrates file", "","*.csv")
             with open(filename[0], 'w') as inputFile:
                 csvwrite = csv.writer(inputFile)
                 for i in range(int(self.parent().config.numSubsHolderRow)):
                     csvwrite.writerow(devConf[i])
-            print("Device configuration saved to:",filename[0])
-            logger.info("Device configuration saved to:"+filename[0])
+            print("Substrate configuration saved to:",filename[0])
+            logger.info("Substrate configuration saved to:"+filename[0])
         except:
-            print("Error in saving device configuration")
-            logger.info("Error in saving device configuration")
+            print("Error in saving substrate configuration")
+            logger.info("Error in saving substrate configuration")
 
 
