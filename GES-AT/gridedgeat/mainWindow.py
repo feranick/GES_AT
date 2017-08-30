@@ -33,6 +33,8 @@ from .acquisition import *
 from .acquisitionWindow import *
 from .powermeterWindow import *
 from .stageWindow import *
+from .sourcemeterWindow import *
+from .switchboxWindow import *
 from .dataManagement import *
 from .dataManagementWindow import *
 
@@ -60,6 +62,8 @@ class MainWindow(QMainWindow):
         self.acquisitionwind = AcquisitionWindow(parent=self)
         self.powermeterwind = PowermeterWindow(parent=self)
         self.stagewind = StageWindow(parent=self)
+        self.sourcemeterwind = SourcemeterWindow(parent=self)
+        self.switchboxwind = SwitchboxWindow(parent=self)
         self.dbconnectionwind = DataManagementWindow(parent=self)
         
         # Create menu and toolbar
@@ -98,6 +102,14 @@ class MainWindow(QMainWindow):
         self.stageMenu.setShortcut("Ctrl+x")
         self.stageMenu.setStatusTip('Stage controls')
         self.stageMenu.triggered.connect(self.stagewind.show)
+        self.sourcemeterMenu = QAction("&Sourcemeter", self)
+        self.sourcemeterMenu.setShortcut("Ctrl+k")
+        self.sourcemeterMenu.setStatusTip('Sourcemeter controls')
+        self.sourcemeterMenu.triggered.connect(self.sourcemeterwind.show)
+        self.switchboxMenu = QAction("&Switchbox", self)
+        self.switchboxMenu.setShortcut("Ctrl+b")
+        self.switchboxMenu.setStatusTip('Switchbox controls')
+        self.switchboxMenu.triggered.connect(self.switchboxwind.show)
         self.cameraMenu = QAction("&Camera", self)
         self.cameraMenu.setShortcut("Ctrl+c")
         self.cameraMenu.setStatusTip('Camera controls')
@@ -106,6 +118,8 @@ class MainWindow(QMainWindow):
         instrumentsMenu = self.menuBar.addMenu('&Instruments')
         instrumentsMenu.addAction(self.powermeterMenu)
         instrumentsMenu.addAction(self.stageMenu)
+        instrumentsMenu.addAction(self.sourcemeterMenu)
+        instrumentsMenu.addAction(self.switchboxMenu)
         instrumentsMenu.addAction(self.cameraMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
