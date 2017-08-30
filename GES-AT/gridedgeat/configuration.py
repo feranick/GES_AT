@@ -20,13 +20,16 @@ class Configuration():
         self.conf = configparser.ConfigParser()
     
     def createConfig(self):
-        self.defineConfDevices()
-        self.defineConfAcq()
-        self.defineConfInstr()
-        self.defineConfSystem()
-        self.defineConfDM()
-        with open(self.configFile, 'w') as configfile:
-            self.conf.write(configfile)
+        try:
+            self.defineConfDevices()
+            self.defineConfAcq()
+            self.defineConfInstr()
+            self.defineConfSystem()
+            self.defineConfDM()
+            with open(self.configFile, 'w') as configfile:
+                self.conf.write(configfile)
+        except:
+            print("Error in creating configuration file")
     
     def defineConfDevices(self):
         self.conf['Devices'] = {
@@ -105,8 +108,11 @@ class Configuration():
         self.DbPassword = self.dmConfig['DbPassword']
 
     def saveConfig(self, configFile):
-        with open(configFile, 'w') as configfile:
-            self.conf.write(configfile)
+        try:
+            with open(configFile, 'w') as configfile:
+                self.conf.write(configfile)
+        except:
+            print("Error in saving parameters")
 
 
 

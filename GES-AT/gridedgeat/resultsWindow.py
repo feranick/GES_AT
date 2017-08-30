@@ -133,8 +133,7 @@ class ResultsWindow(QMainWindow):
     def set_dir_saved(self):
         self.csvFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.parent().config.conf['System']['csvSavingFolder'] = str(self.csvFolder)
-        with open(self.parent().config.configFile, 'w') as configfile:
-            self.parent().config.conf.write(configfile)
+        self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         msg = "CSV Files will be saved in: "+self.csvFolder
         print(msg)

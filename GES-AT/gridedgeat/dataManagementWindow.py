@@ -133,8 +133,7 @@ class DataManagementWindow(QMainWindow):
         self.parent().config.conf['DM']['DbName'] = str(self.dbNameText.text())
         self.parent().config.conf['DM']['DbUsername'] = str(self.dbUsernameText.text())
         self.parent().config.conf['DM']['DbPassword'] = str(self.dbPasswordText.text())
-        with open(self.parent().config.configFile, 'w') as configfile:
-            self.parent().config.conf.write(configfile)
+        self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         print("New Data-Management settings saved as default")
         logger.info("New Data-Management settings saved as default")
