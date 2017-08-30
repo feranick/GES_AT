@@ -28,9 +28,9 @@ class PowerMeter():
         self.powermeterID = powermeterID
         try:
             self.rm = visa.ResourceManager()
-            self.PM100init = True
+            self.PM100Init = True
         except:
-            self.PM100init = False
+            self.PM100Init = False
         time.sleep(1)
 
     def get_power(self):
