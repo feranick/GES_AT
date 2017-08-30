@@ -1,8 +1,7 @@
 # 20170817 - Joel Jean
 
 from PyAPT import APTMotor
-import time
-import math
+import time, math
 
 class XYstage():
 	def __init__(self):
@@ -23,40 +22,39 @@ class XYstage():
 		# Calculate center positions of all substrates and devices
 		self.get_suborigins_4x4()
 		self.get_devorigins_3x2()
-	
 
-	def get_curr_pos():
+	def get_curr_pos(self):
 	    '''Get current stage position as (x,y) coordinates'''
 	    xPos = self.stage1.getPos()
 	    yPos = self.stage2.getPos()
 	    return [xPos, yPos]
 
-	def move_abs(xPos, yPos):
+	def move_abs(self, xPos, yPos):
 	    '''Move to the specified position [mm]'''
 	    # Include backlash correction
 	    self.stage1.mbAbs(xPos)
 	    self.stage2.mbAbs(yPos)
 
-	def move_rel(xDelta, yDelta):
+	def move_rel(self, xDelta, yDelta):
 	    '''Move relative to current position [mm]'''
 	    # Include backlash correction
 	    self.stage1.mbRel(xDelta)
 	    self.stage2.mbRel(yDelta)
 
-	def move_home():
+	def move_home(self):
 	    '''Move stages to native (hardware) home positions'''
 	    # move_abs(5,5) # Start by moving close to home position to avoid timeout
 	    self.stage1.go_home()
 	    self.stage2.go_home()
 
-	def set_origin(useCurrPos, newPos):
+	def set_origin(self, useCurrPos, newPos):
 		'''Set stage origin to current position or specified origin [x,y]'''
 		if useCurrPos:
 			self.origin = self.get_curr_pos()
 		else:
 			self.origin = newPos
 
-	def set_ref_cell_origin(useCurrPos, newPos):
+	def set_ref_cell_origin(self, useCurrPos, newPos):
 		'''Set center position of reference cell to current position or specified position'''
 		if useCurrPos:
 			self.ref_cell_origin = self.get_curr_pos()
@@ -64,7 +62,7 @@ class XYstage():
 			self.ref_cell_origin = newPos
 			# Example: [self.origin[0] + 5*self.pitchSub, self.origin[1]] = 2 substrate pitches to the right of device 4
 
-	def get_suborigins_4x4():
+	def get_suborigins_4x4(self):
 	    '''Calculate the absolute position of each substrate center'''
 	    # xIndex:  1 ==> 4   yIndex:
 	    # 13 | 14 | 15 | 16     4
@@ -101,19 +99,19 @@ class XYstage():
 	        self.devOriginList[index] = [devOrigin1, devOrigin2, devOrigin3, devOrigin4, devOrigin5, devOrigin6]
 	    # return devOriginList
 
-	def move_to_substrate_4x4(subIndex):
+	def move_to_substrate_4x4(self, subIndex):
 	    '''Move to the center of the specified substrate (1-16)'''
 	    subOrigin = self.subOriginList[subIndex - 1] #Correct for zero-indexing
 	    self.move_abs(*subOrigin) #Expand list to individual args (xPos,yPos)
 	    return subOrigin
 
-	def move_to_device_3x2(subIndex, devIndex):
+	def move_to_device_3x2(self, subIndex, devIndex):
 	    '''Move to the center of the specified substrate (1-16) and device (1-6)'''
 	    devOrigin = self.devOriginList[subIndex - 1][devIndex - 1] #Correct for zero-indexing
 	    self.move_abs(*devOrigin) #Expand list to individual args (xPos,yPos)
 	    return devOrigin
 
-	def scan_selected_substrates(subsToScanList, waitTime):
+	def scan_selected_substrates(self, subsToScanList, waitTime):
 	    '''Move to center of each device on specified substrates'''
 	    for subIndex in subsToScanList:
 	        for devIndex in range(1,7):
@@ -121,7 +119,7 @@ class XYstage():
 	            print('S', subIndex, 'D', devIndex, ': ', devOrigin)
 	            time.sleep(waitTime)  # Pause for 1 second at each position
 
-	def end_stage_control():
+	def end_stage_control(self):
 	    '''Clean up APT objects and free up memory'''
 	    self.stage1.cleanUpAPT()
 	    self.stage2.cleanUpAPT()
