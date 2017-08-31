@@ -147,7 +147,9 @@ class Acquisition():
             try:
                 JV = self.generateRandomJV()
             except:
-                print("check your acquisition settints")
+                msg = "Check your acquisition settings (Start Voltage)"
+                print(msg)
+                logger.info(msg)
                 break
             perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
             perfData = np.hstack((timeAcq, perfData))

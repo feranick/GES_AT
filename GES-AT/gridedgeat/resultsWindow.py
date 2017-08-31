@@ -50,8 +50,8 @@ class ResultsWindow(QMainWindow):
         # a figure instance to plot on
         self.figureTJsc = plt.figure()
         self.figureTVoc = plt.figure()
-        self.figureJVresp = plt.figure()
         self.figureMPP = plt.figure()
+        self.figureJVresp = plt.figure()
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
@@ -185,6 +185,8 @@ class ResultsWindow(QMainWindow):
         self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
         self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
         self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=5)
+        self.axJVresp.axvline(x=0, linewidth=0.5)
+        self.axJVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
 
     # Plot Transient Jsc
