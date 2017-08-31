@@ -13,11 +13,9 @@ GridEdge Autotesting is written in `Python <http://www.python.org/>`_ and relies
 - [Scipy >0.9](<http://www.scipy.org/>)
 - [Matplotlib >0.9] (<http://matplotlib.org/>) 
 - [OpenCV >3.2] (<http://opencv.org/>)
+- [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 - [PyVisa] (<https://pyvisa.readthedocs.io/en/stable/index.html>)
 - [ThorlabsPM100] (<https://pypi.python.org/pypi/ThorlabsPM100> & <https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed 
-
-Additional libraries for images:
-- [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 
 ### Installing dependencies on Mac OSX
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
@@ -51,8 +49,7 @@ Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 After downloading the zip-file extract its content to a directory. If you have already installed the dependencies, you are ready to go.
 
 ### Linux/Mac OSX
-From the terminal, run:
-    python gridedge_AT_run.py
+From the terminal, run: ```python gridedge_AT_run.py```
     
 ### Windows
 Launch by double clicking the file ```gridedge_AT_windows.bat```
