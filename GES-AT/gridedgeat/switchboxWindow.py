@@ -27,5 +27,5 @@ class SwitchboxWindow(QMainWindow):
         SwitchboxWindow.resize(328, 60)
         self.stageLabel = QLabel(SwitchboxWindow)
         self.stageLabel.setGeometry(QRect(20, 20, 300, 16))
-        SwitchboxWindow.setWindowTitle("Sourcemeter controls")
+        SwitchboxWindow.setWindowTitle("Switchbox controls")
         self.stageLabel.setText("Functionality not yet implemented")
