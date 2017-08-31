@@ -336,18 +336,29 @@ class ResultsWindow(QMainWindow):
     ### Submit json for device data to Data-Management
     def submit_DM(self,jsonData):
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        conn = DataManagement(self.dbConnectInfo)
-        client, _ = conn.connectDB()
-        db = client[self.dbConnectInfo[2]]
+        
         try:
-            db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-            msg = " Submission to DM: successful (id:"+str(db_entry.inserted_id)+")"
-            print(msg)
-            logger.info(msg)
+            # This is for using POST HTTP
+            from urllib.request import urlopen
+            url = "http://"+self.dbConnectInfo[0]+":3000/api/measurement"
+            req = urlopen(url)
+            req.add_header('Content-Type', 'application/json')
+            response = urllib.urlopen(req, json.dumps(jsonData))
+            print(response)
+            msg = " Submission to DM via HTTP POST: successful"
         except:
-            msg = " Submission to DM: failed."
-            print(msg)
-            logger.info(msg)
+            # This is for direct submission via pymongo
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            try:
+                db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
+                msg = " Submission to DM via Mongo: successful (id:"+str(db_entry.inserted_id)+")"
+            except:
+                msg = " Submission to DM via Mongo: failed."
+        print(msg)
+        logger.info(msg)
+
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
