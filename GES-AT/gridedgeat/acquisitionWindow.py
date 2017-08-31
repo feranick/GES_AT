@@ -60,7 +60,7 @@ class AcquisitionWindow(QMainWindow):
         self.startVLabel.setObjectName("startVLabel")
         self.gridLayout.addWidget(self.startVLabel, 2, 0, 1, 1)
         self.startVText = QLineEdit(self)
-        self.startVText.textChanged.connect(self.validateStartVoltage)
+        self.startVText.textEdited.connect(self.validateStartVoltage)
         
         self.gridLayout.addWidget(self.startVText, 2, 1, 1, 1)
         self.stepVLabel = QLabel(self.gridLayoutWidget)
