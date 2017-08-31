@@ -19,6 +19,10 @@ Additional libraries for images:
 ## Installing dependencies on Windows
 The simplest way to get all the required python packages at once is to install the Python distribution [Anaconda](<https://www.continuum.io/downloads/>)
 
+
+### Installation:
+The software can be run "offline", meaning without being connected to the hardware, for example to load data, etc. The dependencies needed for running the "online" version (i.e. to be able to control the acquisition hardware) are listed as such below. These are not needed for running the "offline" version. If you are planning to use this software for "offline" use on your computer, do not install the "online" dependencies. The software automatically recognizes the presence (or lack thereof) of the required dependencies for online/offline use.
+ 
 ## Installing dependencies on Mac OSX
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
 
@@ -26,7 +30,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
     sudo port install py36-numpy, py36-scipy, py36-matplotlib, py36-pillow, py36-pandas
     sudo port install opencv
     sudo port install qt5 py3.6-pyqt5
-    sudo port install qt5-qtcreator
+    (optional) sudo port install qt5-qtcreator
         
 ## Installing dependencies on Ubuntu Linux
     sudo apt-get update; sudo apt-get upgrade
@@ -34,15 +38,18 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
     sudo apt-get install python3-matplotlib python3-pil python3-pandas
     sudo apt-get install qt5-default python3-pyqt5
     sudo apt-get install qtcreator
-    sudo apt-get install opencv-data
+    (optional) sudo apt-get install opencv-data
     
 ## Installing dependencies on Microsoft Windows
 Install python3 directly from [python.org](<http://www.python.org/>). You will use pip for installing most of the dependencies
 
     pip install numpy scipy matplotlib pillow pandas
     pip install QtPy5 opencv-python
-    
-Install Qt5 from the [qt.io](https://www.qt.io/download/) directly. 
+
+Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
+
+## "Online" dependencies for hardware control:
+    pip install pyvisa ThorlabsPM100
     
 ## Run
 After downloading the zip-file extract its content to a directory. If you have already installed the dependencies, you are ready to go and can open the graphical user interface by running ``gridedge_AT_run.py``.
