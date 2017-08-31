@@ -91,12 +91,12 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
         #self.tableWidget.item(0, 0).setText("test-sample")
 
-        self.tableWidget.itemDoubleClicked.connect(self.onCellClick)
+        self.tableWidget.itemClicked.connect(self.onCellClick)
         
         # This disable editing
         #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # This enables editing by Double Click
-        self.tableWidget.setEditTriggers(QAbstractItemView.SelectedClicked)
+        self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
         self.loadButton = QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QRect(310, 30, 100, 40))

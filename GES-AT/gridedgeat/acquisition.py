@@ -144,8 +144,11 @@ class Acquisition():
             msg = "Scan #"+str(i+1)
             print(msg)
             logger.info(msg)
-            
-            JV = self.generateRandomJV()
+            try:
+                JV = self.generateRandomJV()
+            except:
+                print("check your acquisition settints")
+                break
             perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
             perfData = np.hstack((timeAcq, perfData))
             perfData = np.hstack((self.getDateTimeNow()[1], perfData))

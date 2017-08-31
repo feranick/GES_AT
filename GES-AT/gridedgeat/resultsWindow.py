@@ -92,7 +92,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Av Jsc [mA/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PEC"))
+        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PCE"))
         self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Time Step"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
@@ -248,6 +248,15 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount()-1
+        self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem())
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem())
 
     # Create internal dataframe with all the data. This is needed for plotting data after acquisition
     def setupDataFrame(self):
