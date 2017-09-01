@@ -97,21 +97,30 @@ class StageWindow(QMainWindow):
         
     def activateStage(self):
         if self.activeStage == False:
+            self.activateStageButton.setEnabled(False)
+            self.stageLabel.setText("Activating XY stage...")
+            QApplication.processEvents()
             self.xystage = XYstage()
             if self.xystage.xystageInit is False:
                 self.enableButtons(False)
-                self.stageLabel.setText("XYstage libraries or connection failed")
+                self.stageLabel.setText("XY stage libraries or connection failed")
+                self.activateStageButton.setEnabled(False)
             else:
+                self.activateStageButton.setEnabled(True)
                 self.activateStageButton.setText("Deactivate Stage")
                 self.activeStage = True
                 self.enableButtons(True)
                 self.showCurrentPos()
         else:
-            self.activateStageButton.setText("Activate Stage")
-            self.enableButtons(False)
+            self.stageLabel.setText("Deactivating XY stage...")
+            QApplication.processEvents()
             if self.xystage.xystageInit is True:
                 self.xystage.end_stage_control()
-
+            self.activateStageButton.setText("Activate Stage")
+            self.enableButtons(False)
+            self.stageLabel.setText("XY stage deactivated")
+            self.activeStage = False
+            
     # Enable/disable buttons and fields
     def enableButtons(self, flag):
         self.homingButton.setEnabled(flag)
