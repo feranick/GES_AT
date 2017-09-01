@@ -256,6 +256,8 @@ class MainWindow(QMainWindow):
                      quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+            if self.stagewind.xystage.xystageInit is True:
+                self.stagewind.xystage.end_stage_control()
             self.close()
         else:
             event.ignore()

@@ -26,6 +26,7 @@ class XYstage():
     # Initialize X and Y stages
     def __init__(self):
         #Initialize stages
+        self.origin = [0, 0]
         self.SN1 = 45873236
         self.SN2 = 45873513
         try:
@@ -105,7 +106,7 @@ class XYstage():
             #return subOriginList
 
     # Calculate the absolute position of each device center, given list of substrate centers
-    def get_devorigins_3x2():
+    def get_devorigins_3x2(self):
         # Returns Nsubstrate-long list of 6-long lists of (x,y) positions
         # |          |
         # |   ----   |
@@ -114,7 +115,7 @@ class XYstage():
         # | 1 |  | 6 |
         # |   ----   |
         # |          |
-        self.devOriginList = [[[0,0] for x in range(6)] for y in range(len(subOriginList))]
+        self.devOriginList = [[[0,0] for x in range(6)] for y in range(len(self.subOriginList))]
         # Iterate through all substrates (index runs from 0-15)
         for index,subOrigin in enumerate(self.subOriginList):
             devOrigin1 = [subOrigin[0] - self.pitchDevX/2, subOrigin[1] - self.pitchDevY]

@@ -18,9 +18,7 @@ mcleung@stanford.edu
 from ctypes import c_long, c_buffer, c_float, windll, pointer
 
 import os
-print(os.getcwd())
-
-
+#print(os.getcwd())
 
 class APTMotor():
     def __init__(self, SerialNum=None, HWTYPE=42, verbose=False):
