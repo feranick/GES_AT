@@ -21,13 +21,11 @@ class StageWindow(QMainWindow):
     def __init__(self, parent=None):
         super(StageWindow, self).__init__(parent)
         self.initUI(self)
+        self.activeStage = False
     
     def initUI(self, StageWindow):
-        self.setGeometry(20, 200, 310, 250)
+        self.setGeometry(20, 200, 310, 300)
         StageWindow.setWindowTitle("XY stage control settings")
-
-        self.stageLabel = QLabel(StageWindow)
-        self.stageLabel.setGeometry(QRect(20, 220, 300, 20))
 
         self.homingButton = QPushButton(StageWindow)
         self.homingButton.setGeometry(QRect(10, 30, 100, 30))
@@ -87,13 +85,32 @@ class StageWindow(QMainWindow):
         self.subToButton.setText("Substrate/Device")
         self.subToButton.clicked.connect(self.moveToSubstrate)
         
-        self.xystage = XYstage()
+        self.stageLabel = QLabel(StageWindow)
+        self.stageLabel.setGeometry(QRect(20, 220, 300, 20))
         
-        if self.xystage.xystageInit is False:
-            self.enableButtons(False)
-            self.stageLabel.setText("XYstage libraries or connection failed")
+        self.activateStageButton = QPushButton(StageWindow)
+        self.activateStageButton.setGeometry(QRect(10, 250, 290, 40))
+        self.activateStageButton.setText("Activate Stage")
+        self.activateStageButton.clicked.connect(self.activateStage)
+    
+        self.enableButtons(False)
+        
+    def activateStage(self):
+        if self.activeStage == False:
+            self.xystage = XYstage()
+            if self.xystage.xystageInit is False:
+                self.enableButtons(False)
+                self.stageLabel.setText("XYstage libraries or connection failed")
+            else:
+                self.activateStageButton.setText("Deactivate Stage")
+                self.activeStage = True
+                self.enableButtons(True)
+                self.showCurrentPos()
         else:
-            self.showCurrentPos()
+            self.activateStageButton.setText("Activate Stage")
+            self.enableButtons(False)
+            if self.xystage.xystageInit is True:
+                self.xystage.end_stage_control()
 
     # Enable/disable buttons and fields
     def enableButtons(self, flag):
