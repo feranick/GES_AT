@@ -13,7 +13,6 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
 from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton, QWidget, QMainWindow, QApplication)
 from .modules.xystage.xystage import *
@@ -28,58 +27,64 @@ class StageWindow(QMainWindow):
         StageWindow.setWindowTitle("XY stage control settings")
 
         self.stageLabel = QLabel(StageWindow)
-        self.stageLabel.setGeometry(QRect(20, 20, 300, 20))
+        self.stageLabel.setGeometry(QRect(20, 220, 300, 20))
 
         self.homingButton = QPushButton(StageWindow)
-        self.homingButton.setGeometry(QRect(10, 65, 100, 30))
+        self.homingButton.setGeometry(QRect(10, 30, 100, 30))
         self.homingButton.setText("Move Home")
         self.homingButton.clicked.connect(self.moveHome)
         
         self.setCurPositOriginButton = QPushButton(StageWindow)
-        self.setCurPositOriginButton.setGeometry(QRect(190, 65, 100, 30))
+        self.setCurPositOriginButton.setGeometry(QRect(190, 30, 100, 30))
         self.setCurPositOriginButton.setText("Set Origin")
         self.setCurPositOriginButton.clicked.connect(self.setCurrentPosOrigin)
         
         self.upButton = QPushButton(StageWindow)
-        self.upButton.setGeometry(QRect(120, 50, 60, 60))
+        self.upButton.setGeometry(QRect(120, 20, 60, 60))
         self.upButton.setText("UP")
         self.upButton.clicked.connect(lambda: self.moveStageRel(0,1))
         self.downButton = QPushButton(StageWindow)
-        self.downButton.setGeometry(QRect(120, 170, 60, 60))
+        self.downButton.setGeometry(QRect(120, 140, 60, 60))
         self.downButton.setText("DOWN")
         self.downButton.clicked.connect(lambda: self.moveStageRel(0,-1))
         self.leftButton = QPushButton(StageWindow)
-        self.leftButton.setGeometry(QRect(50, 110, 60, 60))
+        self.leftButton.setGeometry(QRect(50, 80, 60, 60))
         self.leftButton.setText("LEFT")
         self.leftButton.clicked.connect(lambda: self.moveStageRel(-1,0))
         self.rightButton = QPushButton(StageWindow)
-        self.rightButton.setGeometry(QRect(190, 110, 60, 60))
+        self.rightButton.setGeometry(QRect(190, 80, 60, 60))
         self.rightButton.setText("RIGHT")
         self.rightButton.clicked.connect(lambda: self.moveStageRel(1,0))
         
         self.stepStageText = QLineEdit(StageWindow)
-        self.stepStageText.setGeometry(QRect(135, 140, 40, 25))
+        self.stepStageText.setGeometry(QRect(130, 100, 40, 25))
         self.stepStageText.setText("1")
         self.stepStageLabel = QLabel(StageWindow)
-        self.stepStageLabel.setGeometry(QRect(140, 115, 40, 25))
+        self.stepStageLabel.setGeometry(QRect(130, 75, 40, 25))
         self.stepStageLabel.setText("Step")
         
         self.xPosStageText = QLineEdit(StageWindow)
-        self.xPosStageText.setGeometry(QRect(70, 180, 40, 25))
+        self.xPosStageText.setGeometry(QRect(15, 180, 40, 25))
         self.yPosStageText = QLineEdit(StageWindow)
-        self.yPosStageText.setGeometry(QRect(70, 210, 40, 25))
+        self.yPosStageText.setGeometry(QRect(65, 180, 40, 25))
         self.goToButton = QPushButton(StageWindow)
-        self.goToButton.setGeometry(QRect(5, 177, 60, 60))
-        self.goToButton.setText("Go X\nGo Y")
+        self.goToButton.setGeometry(QRect(10, 150, 100, 30))
+        self.goToButton.setText("Go XY")
         self.goToButton.clicked.connect(self.moveStageAbs)
 
-        self.subPosStageText = QLineEdit(StageWindow)
-        self.subPosStageText.setGeometry(QRect(260, 190, 40, 25))
-        self.subPosStageText.setText("1")
+        self.subXPosStageText = QLineEdit(StageWindow)
+        self.subXPosStageText.setGeometry(QRect(190, 180, 30, 25))
+        self.subXPosStageText.setText("1")
+        self.subYPosStageText = QLineEdit(StageWindow)
+        self.subYPosStageText.setGeometry(QRect(225, 180, 30, 25))
+        self.subYPosStageText.setText("1")
+        self.devPosStageText = QLineEdit(StageWindow)
+        self.devPosStageText.setGeometry(QRect(270, 180, 30, 25))
+        self.devPosStageText.setText("1")
 
         self.subToButton = QPushButton(StageWindow)
-        self.subToButton.setGeometry(QRect(190, 177, 60, 60))
-        self.subToButton.setText("Go\n Subs")
+        self.subToButton.setGeometry(QRect(180, 150, 130, 30))
+        self.subToButton.setText("Substrate/Device")
         self.subToButton.clicked.connect(self.moveToSubstrate)
         
         self.xystage = XYstage()
@@ -102,7 +107,9 @@ class StageWindow(QMainWindow):
         self.xPosStageText.setEnabled(flag)
         self.yPosStageText.setEnabled(flag)
         self.goToButton.setEnabled(flag)
-        self.subPosStageText.setEnabled(flag)
+        self.subXPosStageText.setEnabled(flag)
+        self.subYPosStageText.setEnabled(False)
+        self.devPosStageText.setEnabled(False)
         self.subToButton.setEnabled(flag)
 
     # Move stage to home position
@@ -145,7 +152,7 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
-        sub = int(self.subPosStageText.text())
+        sub = int(self.subXPosStageText.text())
         self.xystage.move_to_substrate_4x4(sub)
         self.showCurrentPos()
 
