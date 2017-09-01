@@ -19,6 +19,7 @@ import time, random, math
 from datetime import datetime
 from .acquisitionWindow import *
 from . import logger
+from .modules.xystage.xystage import *
 
 class Acquisition():
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
@@ -53,27 +54,41 @@ class Acquisition():
         obj.resultswind.show()
         obj.resultswind.setupDataFrame()
         QApplication.processEvents()
-        
+
+        # Activate stage
+        try:
+            msg = "Activating stage..."
+            self.showMsg(obj, msg)
+            QApplication.processEvents()
+            self.xystage = XYstage()
+        except:
+            pass
         for i in range(self.numCol):
             for j in range(self.numRow):
+                substrateNum = (i+1)+j*4
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     operator = obj.samplewind.operatorText.text()
                     msg = "Operator: " + operator
-                    print(msg)
-                    logger.info(msg)
-                    msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+                    self.showMsg(obj, msg)
 
-                    print(msg)
-                    logger.info(msg)
+                    # Move stage to desired substrate
+                    if self.xystage.xystageInit is True:
+                        msg = "Moving stage to substrate("+str(i)+", "+str(j)+")"
+                        self.showMsg(obj, msg)
+                        self.xystage.move_to_substrate_4x4(substrateNum)
+                        time.sleep(0.1)
+                    else:
+                        break
+                    self.showMsg(obj, msg)
+                    
+                    msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+                    self.showMsg(obj, msg)
                     msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
-                    obj.statusBar().showMessage(msg, 5000)
-                    print(msg)
-                    logger.info(msg)
+                    self.showMsg(obj, msg)
                     obj.resultswind.clearPlots(False)
                     obj.resultswind.setupResultTable()
                     obj.samplewind.colorCellAcq(i,j,"red")
-                    
         ### Acquisition loop should land here ##################
                     
                     self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
@@ -87,16 +102,22 @@ class Acquisition():
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
-        obj.statusBar().showMessage(msg, 5000)
-        print(msg)
-        logger.info(msg)
-        
+        self.showMsg(obj, msg)
+        print("Moving the stage to home position")
+        QApplication.processEvents()
+        self.xystage.move_home()
+        if self.xystage.xystageInit is True:
+            msg = "Deactivating Stage..."
+            self.showMsg(obj,msg)
+            QApplication.processEvents()
+            self.xystage.end_stage_control()
+            msg = "Stage deactivated"
+            self.showMsg(obj,msg)
+            
     def stop(self, obj):
         msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
-        obj.statusBar().showMessage(msg, 5000)
         obj.stopAcqFlag = True
-        print(msg)
-        logger.info(msg)
+        self.showMsg(obj, msg)
     
     def analyseJV(self, powerIn, JV):
         PV = np.zeros(JV.shape)
@@ -113,6 +134,11 @@ class Acquisition():
         
     def getDateTimeNow(self):
         return str(datetime.now().strftime('%Y-%m-%d')), str(datetime.now().strftime('%H-%M-%S'))
+
+    def showMsg(self, obj, msg):
+        obj.statusBar().showMessage(msg, 5000)
+        print(msg)
+        logger.info(msg)
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
