@@ -184,8 +184,8 @@ class StageWindow(QMainWindow):
 
     # Close connection upon closing window.
     def closeEvent(self, event):
-       if self.xystage.xystageInit is True:
-            self.xystage.end_stage_control()
+        if self.activeStage == True:
+            self.activateStage()
 
 
 
