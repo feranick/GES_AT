@@ -23,37 +23,49 @@ class PowermeterWindow(QMainWindow):
     def __init__(self, parent=None):
         super(PowermeterWindow, self).__init__(parent)
         self.initUI(self)
+        self.activatePowermeter = False
     
     def initUI(self, PowermeterWindow):
         PowermeterWindow.setWindowTitle("Powermeter Settings")
-        self.setGeometry(10, 200, 320, 110)
+        self.setGeometry(10, 200, 320, 140)
         self.powerMeterRefreshLabel = QLabel(PowermeterWindow)
         self.powerMeterRefreshLabel.setGeometry(QRect(20, 10, 120, 20))
         self.powerMeterRefreshLabel.setText("Refresh every [s]:")
         self.powerMeterRefreshText = QLineEdit(PowermeterWindow)
         self.powerMeterRefreshText.setGeometry(QRect(140, 10, 50, 20))
         self.powerMeterRefreshText.setText("0.5")
-
-        self.powerMeterLabel = QLabel(PowermeterWindow)
-        self.powerMeterLabel.setGeometry(QRect(20, 40, 300, 20))        
+      
         self.powermeterStartButton = QPushButton(PowermeterWindow)
-        self.powermeterStartButton.setGeometry(QRect(10, 70, 140, 30))
+        self.powermeterStartButton.setGeometry(QRect(10, 40, 140, 35))
         self.powermeterStartButton.clicked.connect(self.startPMAcq)
         self.powermeterStartButton.setText("Start")
         self.powermeterStopButton = QPushButton(PowermeterWindow)
-        self.powermeterStopButton.setGeometry(QRect(170, 70, 140, 30))
+        self.powermeterStopButton.setGeometry(QRect(170, 40, 140, 35))
         self.powermeterStopButton.clicked.connect(self.stopPMAcq)
         self.powermeterStopButton.setText("Stop")
         self.powermeterStopButton.setEnabled(False)
-
-        self.pm = PowerMeter(self.parent().config.powermeterID)
         
-        if self.pm.PM100Init is False:
-            self.powermeterStartButton.setEnabled(False)
-            self.powermeterStopButton.setEnabled(False)
-            self.powerMeterLabel.setText("Powermeter libraries or connection failed")
-        else:
-            self.powerMeterLabel.setText("Powermeter connection OK")
+        self.powerMeterLabel = QLabel(PowermeterWindow)
+        self.powerMeterLabel.setGeometry(QRect(20, 75, 300, 20))
+    
+        self.activatePowermeterButton = QPushButton(PowermeterWindow)
+        self.activatePowermeterButton.setGeometry(QRect(10, 100, 300, 35))
+        self.activatePowermeterButton.setText("Activate Powermeter")
+        self.activatePowermeterButton.clicked.connect(self.activatePowermeter)
+    
+        self.enableButtons(False)
+
+    def activatePowermeter(self):
+        if self.activatePowermeter == False:
+            self.pm = PowerMeter(self.parent().config.powermeterID)
+            if self.pm.PM100Init is False:
+                self.enableButtons(False)
+                self.powerMeterLabel.setText("Powermeter libraries or connection failed")
+            else:
+                self.activatePowermeterButton.setText("Deactivate Powermeter")
+                self.powerMeterLabel.setText("Powermeter connection OK")
+                self.activatePowermeter = True
+                self.enableButtons(True)
 
     def stopPMAcq(self):
         self.stopAcqFlag = True
@@ -75,6 +87,10 @@ class PowermeterWindow(QMainWindow):
             except:
                 print("Connection failed")
                 break
+    
+    def enableButtons(self,flag):
+        self.powermeterStartButton.setEnabled(flag)
+        self.powermeterStopButton.setEnabled(flag)
 
     def closeEvent(self, event):
        self.stopPMAcq()    

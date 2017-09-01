@@ -173,6 +173,11 @@ class StageWindow(QMainWindow):
         self.xystage.move_to_substrate_4x4(sub)
         self.showCurrentPos()
 
+    # Close connection upon closing window.
+    def closeEvent(self, event):
+       if self.xystage.xystageInit is True:
+            self.xystage.end_stage_control()
+
 
 
 
