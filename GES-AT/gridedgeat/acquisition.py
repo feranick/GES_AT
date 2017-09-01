@@ -41,8 +41,21 @@ class Acquisition():
                 'Num Track Points','Track Interval','Operator','Comments']]
                 
     def start(self, obj):
-        ### Setup interface and get parameters before acquisition
+        # Activate stage
+        msg = "Activating stage..."
+        self.showMsg(obj, msg)
+        QApplication.processEvents()
+        self.xystage = XYstage()
+        if self.xystage.xystageInit == False:
+            msg = "Stage not activated. Working offline: no acquisition possible"
+            self.showMsg(obj, msg)
+            QApplication.processEvents()
+            return
         
+        msg = "Stage activated."
+        self.showMsg(obj, msg)
+        
+        ### Setup interface and get parameters before acquisition
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
         obj.samplewind.resetCellAcq()
@@ -54,24 +67,12 @@ class Acquisition():
         obj.resultswind.show()
         obj.resultswind.setupDataFrame()
         QApplication.processEvents()
-
-        # Activate stage
-        try:
-            msg = "Activating stage..."
-            self.showMsg(obj, msg)
-            QApplication.processEvents()
-            self.xystage = XYstage()
-        except:
-            pass
+        
+        # If all is OK, start acquiring
         for i in range(self.numCol):
             for j in range(self.numRow):
                 substrateNum = (i+1)+j*4
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
-                    deviceID = obj.samplewind.tableWidget.item(i,j).text()
-                    operator = obj.samplewind.operatorText.text()
-                    msg = "Operator: " + operator
-                    self.showMsg(obj, msg)
-
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
                         msg = "Moving stage to substrate("+str(i)+", "+str(j)+")"
@@ -80,8 +81,10 @@ class Acquisition():
                         time.sleep(0.1)
                     else:
                         break
+                    deviceID = obj.samplewind.tableWidget.item(i,j).text()
+                    operator = obj.samplewind.operatorText.text()
+                    msg = "Operator: " + operator
                     self.showMsg(obj, msg)
-                    
                     msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
                     self.showMsg(obj, msg)
                     msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
@@ -103,10 +106,11 @@ class Acquisition():
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
         self.showMsg(obj, msg)
-        print("Moving the stage to home position")
-        QApplication.processEvents()
-        self.xystage.move_home()
         if self.xystage.xystageInit is True:
+            msg = "Moving the stage to home position"
+            self.showMsg(obj, msg)
+            QApplication.processEvents()
+            self.xystage.move_home()
             msg = "Deactivating Stage..."
             self.showMsg(obj,msg)
             QApplication.processEvents()
