@@ -107,10 +107,10 @@ class Acquisition():
         obj.enableButtonsAcq(True)
         self.showMsg(obj, msg)
         if self.xystage.xystageInit is True:
-            msg = "Moving the stage to home position"
+            msg = "Moving the stage to substrate 6 - (1, 1)"
             self.showMsg(obj, msg)
             QApplication.processEvents()
-            self.xystage.move_home()
+            self.xystage.move_to_substrate_4x4(6)
             msg = "Deactivating Stage..."
             self.showMsg(obj,msg)
             QApplication.processEvents()

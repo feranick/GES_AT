@@ -26,7 +26,6 @@ class XYstage():
     # Initialize X and Y stages
     def __init__(self):
         #Initialize stages
-        self.origin = [0, 0]
         self.SN1 = 45873236
         self.SN2 = 45873513
         try:
@@ -46,6 +45,10 @@ class XYstage():
         self.pitchDevX = 8 #Distance between center of left and right arms of racetrack
         self.pitchDevY = 4 + 2 #Pad height + spacing between adjacent pads
         # Calculate center positions of all substrates and devices
+        print("Homing stage")
+        self.move_home()
+        self.move_abs(3,3)
+        self.set_origin(True, [0,0])
         self.get_suborigins_4x4()
         self.get_devorigins_3x2()
 
