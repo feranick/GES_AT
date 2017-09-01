@@ -214,7 +214,7 @@ class SampleWindow(QMainWindow):
         try:
             filename = QFileDialog.getSaveFileName(self,
                     "Save CSV substrates file", "","*.csv")
-            with open(filename[0], 'w') as inputFile:
+            with open(filename[0], 'w', newline='') as inputFile:
                 csvwrite = csv.writer(inputFile)
                 for i in range(int(self.parent().config.numSubsHolderRow)):
                     csvwrite.writerow(devConf[i])
