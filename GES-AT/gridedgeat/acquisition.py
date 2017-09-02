@@ -4,6 +4,7 @@ acquisition.py
 Class for providing a procedural support for data acquisition
 
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
+Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,8 @@ from datetime import datetime
 from .acquisitionWindow import *
 from . import logger
 from .modules.xystage.xystage import *
+from .modules.sourcemeter.sourcemeter import *
+from .modules.switchbox.switchbox import *
 
 class Acquisition():
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
@@ -51,10 +54,39 @@ class Acquisition():
             self.showMsg(obj, msg)
             QApplication.processEvents()
             return
-        
         msg = "Stage activated."
         self.showMsg(obj, msg)
         
+        # Activate switchbox
+        msg = "Activating switchbox..."
+        self.showMsg(obj, msg)
+        QApplication.processEvents()
+        try:
+            self.switch_box = SwitchBox('GPIB0::16::INSTR')
+        except:
+            msg = "Switchbox not activated: no acquisition possible"
+            self.showMsg(obj, msg)
+            QApplication.processEvents()
+            return
+        msg = "Switchbox activated."
+        self.showMsg(obj, msg)
+
+        # Activate sourcemeter
+        msg = "Activating sourcemeter..."
+        self.showMsg(obj, msg)
+        QApplication.processEvents()
+        try:
+            self.source_meter = SourceMeter('GPIB0::24::INSTR')
+            self.source_meter.set_limit(voltage=20., current=1.)
+            self.source_meter.on()
+        except:
+            msg = "Sourcemeter not activated: no acquisition possible"
+            self.showMsg(obj, msg)
+            QApplication.processEvents()
+            return
+        msg = "Sourcemeter activated."
+        self.showMsg(obj, msg)
+
         ### Setup interface and get parameters before acquisition
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
@@ -116,17 +148,27 @@ class Acquisition():
         obj.samplewind.enableSamplePanel(True)
         obj.enableButtonsAcq(True)
         self.showMsg(obj, msg)
-        if self.xystage.xystageInit is True:
-            msg = "Moving the stage to substrate 6 - (2, 1)"
-            self.showMsg(obj, msg)
-            QApplication.processEvents()
-            self.xystage.move_to_substrate_4x4(6)
-            msg = "Deactivating Stage..."
-            self.showMsg(obj,msg)
-            QApplication.processEvents()
-            self.xystage.end_stage_control()
-            msg = "Stage deactivated"
-            self.showMsg(obj,msg)
+
+        #if self.xystage.xystageInit is True:
+        
+        msg = "Moving the stage to substrate 6 - (2, 1)"
+        self.showMsg(obj, msg)
+        QApplication.processEvents()
+        self.xystage.move_to_substrate_4x4(6)
+        msg = "Deactivating Stage..."
+        self.showMsg(obj,msg)
+        QApplication.processEvents()
+        self.xystage.end_stage_control()
+        del self.xystage
+        msg = "Stage deactivated"
+        self.showMsg(obj,msg)
+        self.source_meter.off()
+        del self.source_meter
+        msg = "Sourcemeter deactivated"
+        self.showMsg(obj,msg)
+        del self.switch_box
+        msg = "Switchbox deactivated"
+        self.showMsg(obj,msg)
 
     # Action for stop button
     def stop(self, obj):

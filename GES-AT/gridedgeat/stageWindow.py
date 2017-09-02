@@ -116,6 +116,7 @@ class StageWindow(QMainWindow):
             QApplication.processEvents()
             if self.xystage.xystageInit is True:
                 self.xystage.end_stage_control()
+                del self.xystage
             self.activateStageButton.setText("Activate Stage")
             self.enableButtons(False)
             self.stageLabel.setText("XY stage deactivated")

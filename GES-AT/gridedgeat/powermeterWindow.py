@@ -55,6 +55,7 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
         self.powerMeterLabel.setText("Powermeter stopped")
+        del self.pm
 
 
     def startPMAcq(self):
