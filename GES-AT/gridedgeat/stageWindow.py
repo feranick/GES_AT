@@ -72,7 +72,7 @@ class StageWindow(QMainWindow):
 
         self.subXPosStageText = QLineEdit(StageWindow)
         self.subXPosStageText.setGeometry(QRect(190, 180, 30, 25))
-        self.subXPosStageText.setText("1")
+        self.subXPosStageText.setText("2")
         self.subYPosStageText = QLineEdit(StageWindow)
         self.subYPosStageText.setGeometry(QRect(225, 180, 30, 25))
         self.subYPosStageText.setText("1")
@@ -134,7 +134,7 @@ class StageWindow(QMainWindow):
         self.yPosStageText.setEnabled(flag)
         self.goToButton.setEnabled(flag)
         self.subXPosStageText.setEnabled(flag)
-        self.subYPosStageText.setEnabled(False)
+        self.subYPosStageText.setEnabled(flag)
         self.devPosStageText.setEnabled(False)
         self.subToButton.setEnabled(flag)
 
@@ -178,14 +178,20 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
-        sub = int(self.subXPosStageText.text())
-        self.xystage.move_to_substrate_4x4(sub)
+        xCoord = int(self.subXPosStageText.text())
+        yCoord = int(self.subYPosStageText.text())
+        self.xystage.move_to_substrate_4x4(self.getSubstrateNumber(i,j))
         self.showCurrentPos()
 
     # Close connection upon closing window.
     def closeEvent(self, event):
         if self.activeStage == True:
             self.activateStage()
+
+    # Convert coordinates as in the Sample Windown Table into the
+    # correct substrate number as defined in xystage.py
+    def getSubstrateNumber(self, i,j):
+        return int((4-i)*4-(3-j))
 
 
 

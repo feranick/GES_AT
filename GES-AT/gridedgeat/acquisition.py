@@ -47,7 +47,7 @@ class Acquisition():
         QApplication.processEvents()
         self.xystage = XYstage()
         if self.xystage.xystageInit == False:
-            msg = "Stage not activated. Working offline: no acquisition possible"
+            msg = "Stage not activated: no acquisition possible"
             self.showMsg(obj, msg)
             QApplication.processEvents()
             return
@@ -69,9 +69,11 @@ class Acquisition():
         QApplication.processEvents()
         
         # If all is OK, start acquiring
-        for i in range(self.numCol):
-            for j in range(self.numRow):
-                substrateNum = (i+1)+j*4
+        for j in range(self.numCol):
+            for i in range(self.numRow):
+                # convert to correct substrate number in holder
+                substrateNum = obj.stagewind.getSubstrateNumber(i,j)
+                
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
@@ -81,6 +83,8 @@ class Acquisition():
                         time.sleep(0.1)
                     else:
                         break
+                    
+                    # prepare parameters, plots, tables for acquisition
                     deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     operator = obj.samplewind.operatorText.text()
                     msg = "Operator: " + operator
@@ -107,7 +111,7 @@ class Acquisition():
         obj.enableButtonsAcq(True)
         self.showMsg(obj, msg)
         if self.xystage.xystageInit is True:
-            msg = "Moving the stage to substrate 6 - (1, 1)"
+            msg = "Moving the stage to substrate 6 - (2, 1)"
             self.showMsg(obj, msg)
             QApplication.processEvents()
             self.xystage.move_to_substrate_4x4(6)
@@ -117,12 +121,14 @@ class Acquisition():
             self.xystage.end_stage_control()
             msg = "Stage deactivated"
             self.showMsg(obj,msg)
-            
+
+    # Action for stop button
     def stop(self, obj):
         msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.stopAcqFlag = True
         self.showMsg(obj, msg)
     
+    # Extract parameters from JV
     def analyseJV(self, powerIn, JV):
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
@@ -135,10 +141,12 @@ class Acquisition():
         effic = Vpmax*Jpmax/powerIn
         data = np.array([Voc, Jsc, Vpmax*Jpmax,FF,effic])
         return data
-        
+    
+    # Get date/time
     def getDateTimeNow(self):
         return str(datetime.now().strftime('%Y-%m-%d')), str(datetime.now().strftime('%H-%M-%S'))
 
+    # Show message on status bar, terminal and log
     def showMsg(self, obj, msg):
         obj.statusBar().showMessage(msg, 5000)
         print(msg)
