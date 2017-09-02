@@ -16,6 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton, QWidget, QMainWindow, QApplication)
 from .modules.xystage.xystage import *
+from .acquisition import *
 
 class StageWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -179,23 +180,17 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
+        ac = Acquisition()
         xCoord = int(self.subXPosStageText.text())
         yCoord = int(self.subYPosStageText.text())
-        self.xystage.move_to_substrate_4x4(self.getSubstrateNumber(i,j))
+        self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(i,j))
         self.showCurrentPos()
+        del ac
 
     # Close connection upon closing window.
     def closeEvent(self, event):
         if self.activeStage == True:
             self.activateStage()
-
-    # Convert coordinates as in the Sample Windown Table into the
-    # correct substrate number as defined in xystage.py
-    def getSubstrateNumber(self, i,j):
-        return int((4-i)*4-(3-j))
-
-
-
 
 
 

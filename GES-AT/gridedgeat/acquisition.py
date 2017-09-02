@@ -200,6 +200,11 @@ class Acquisition():
         print(msg)
         logger.info(msg)
     
+    # Convert coordinates as in the Sample Windown Table into the
+    # correct substrate number as defined in xystage.py
+    def getSubstrateNumber(self, i,j):
+        return int((4-i)*4-(3-j))
+    
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
         VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
