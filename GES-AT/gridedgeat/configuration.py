@@ -54,6 +54,8 @@ class Configuration():
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
             'powerIn1Sun' : 1360,
+            'switchboxID' : "GPIB0::16::INSTR",
+            'sourcemeterID' : "GPIB0::24::INSTR"
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -96,6 +98,8 @@ class Configuration():
         self.alignmentIntMax = self.instrConfig['alignmentIntMax']
         self.powermeterID = self.instrConfig['powermeterID']
         self.powerIn1Sun = self.instrConfig['powerIn1Sun']
+        self.switchboxID = self.instrConfig['switchboxID']
+        self.sourcemeterID = self.instrConfig['sourcemeterID']
 
         self.loggingLevel = self.sysConfig['loggingLevel']
         self.loggingFilename = self.sysConfig['loggingFilename']

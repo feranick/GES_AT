@@ -62,7 +62,7 @@ class Acquisition():
         self.showMsg(obj, msg)
         QApplication.processEvents()
         try:
-            self.switch_box = SwitchBox('GPIB0::16::INSTR')
+            self.switch_box = SwitchBox(obj.config.switchboxID)
         except:
             msg = "Switchbox not activated: no acquisition possible"
             self.showMsg(obj, msg)
@@ -76,7 +76,7 @@ class Acquisition():
         self.showMsg(obj, msg)
         QApplication.processEvents()
         try:
-            self.source_meter = SourceMeter('GPIB0::24::INSTR')
+            self.source_meter = SourceMeter(obj.config.sourcemeterID)
             self.source_meter.set_limit(voltage=20., current=1.)
             self.source_meter.on()
         except:
