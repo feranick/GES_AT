@@ -67,6 +67,9 @@ class Acquisition():
         obj.resultswind.show()
         obj.resultswind.setupDataFrame()
         QApplication.processEvents()
+        operator = obj.samplewind.operatorText.text()
+        msg = "Operator: " + operator
+        self.showMsg(obj, msg)
         
         # If all is OK, start acquiring
         for j in range(self.numCol):
@@ -84,27 +87,30 @@ class Acquisition():
                     else:
                         break
                     
-                    # prepare parameters, plots, tables for acquisition
-                    deviceID = obj.samplewind.tableWidget.item(i,j).text()
-                    operator = obj.samplewind.operatorText.text()
-                    msg = "Operator: " + operator
-                    self.showMsg(obj, msg)
-                    msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
-                    self.showMsg(obj, msg)
-                    msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
-                    self.showMsg(obj, msg)
-                    obj.resultswind.clearPlots(False)
-                    obj.resultswind.setupResultTable()
-                    obj.samplewind.colorCellAcq(i,j,"red")
+                    for k in range(1,7):
+                        msg = "Moving to device: "+str(k)
+                        self.showMsg(obj, msg)
+
+                        self.xystage.move_to_device_3x2(self, substrateNum, k)
+                    
+                        # prepare parameters, plots, tables for acquisition
+                        deviceID = obj.samplewind.tableWidget.item(i,j).text()+str(k)
+                        msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+                        self.showMsg(obj, msg)
+                        msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
+                        self.showMsg(obj, msg)
+                        obj.resultswind.clearPlots(False)
+                        obj.resultswind.setupResultTable()
+                        obj.samplewind.colorCellAcq(i,j,"red")
         ### Acquisition loop should land here ##################
                     
-                    self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
+                        self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
         
         ########################################################
-                    obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
+                        obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
                         obj.resultswind.deviceID,obj.resultswind.perfData,
                         obj.resultswind.JV)
-                    obj.samplewind.colorCellAcq(i,j,"green")
+                        obj.samplewind.colorCellAcq(i,j,"green")
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
@@ -176,7 +182,7 @@ class Acquisition():
         # Add device number to substrate
         # this is totally to fake the cquisition of a particular device in a batch
         #new_deviceID = deviceID+str(random.randrange(1,7,1)) # Use this for completely random device number
-        new_deviceID = deviceID+"4"  # Use this temporarily for pushing data through DM via POST
+        #new_deviceID = deviceID+"4"  # Use this temporarily for pushing data through DM via POST
         
         for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
             if obj.stopAcqFlag is True:
@@ -196,7 +202,7 @@ class Acquisition():
             perfData = np.hstack((self.getDateTimeNow()[1], perfData))
             perfData = np.hstack((self.getDateTimeNow()[0], perfData))
             
-            obj.resultswind.processDeviceData(new_deviceID, dfAcqParams, perfData, JV)
+            obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
             
             QApplication.processEvents()
             obj.resultswind.show()
