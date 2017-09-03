@@ -205,6 +205,149 @@ class Acquisition():
     def getSubstrateNumber(self, i,j):
         return int((4-i)*4-(3-j))
     
+    ## low level api
+    # xy substrate layout (default)
+    # column:  1 ==> 4     row:
+    # 13 | 14 | 15 | 16     4
+    # 9  | 10 | 11 | 12     3
+    # 5  | 6  | 7  | 8      2
+    # 1  | 2  | 3  | 4      1
+    # xy device layout (default)
+    # |   ----   |
+    # | 3 |  | 4 |
+    # | 2 |  | 5 |
+    # | 1 |  | 6 |
+    # |   ----   |
+    
+    # pcb substrate layout
+    # 1  | 2  | 3  | 4  (-3*4)
+    # 5  | 6  | 7  | 8  (-1*4)
+    # 9  | 10 | 11 | 12 (+1*4)
+    # 13 | 14 | 15 | 16 (+3*4)
+    # pcb device layout (default)
+    # |   ----   |
+    # | 1 |  | 4 |
+    # | 2 |  | 5 |
+    # | 3 |  | 6 |
+    # |   ----   |
+    __sub_xy_pcb = [
+        13, 14, 15, 16,
+        9,  10, 11, 12,
+        5,   6,  7,  8,
+        1,   2,  3,  4, ]
+    __dev_xy_pcb = [3, 2, 1, 4, 5, 6]
+    
+    def get_pcb_id(self, i,j, xy_dev_id):
+        "ID converison between xy to pcb"
+        return int((4-i)*4-(3-j)), self.__dev_xy_pcb[xy_dev_id-1]
+
+    def switch_device(self, sub_id, dev_id):
+        "Switch operation devices"
+        self.xy_stage.move_to_device_3x2(sub_id, dev_id)
+        self.switch_box.connect(*get_pcb_id(sub_id, dev_id))
+    
+    ## measurements: JV
+    # obj: self.source_meter
+    # dfAcqParams : self.dfAcqParams
+    def measure_JV(self, obj, dfAcqParams, filename):
+        #self.source_meter.set_mode('VOLT')
+        obj.set_mode('VOLT')
+        obj.on()
+
+        # measurement parameters
+        v_min = float(dfAcqParams(0,'Acq Min Voltage'))
+        v_max = float(dfAcqParams(0,'Acq Max Voltage'))
+        v_start = float(dfAcqParams(0,'Acq Start Voltage'))
+        v_step = float(dfAcqParams(0,'Acq Step Voltage'))
+        scans = float(dfAcqParams(0,'Acq Num Aver Scans'))
+        hold_time = float(dfAcqParams(0,'Delay Before Meas'))
+
+        # enforce
+        if v_start < v_min and v_start > v_max and v_min > v_max:
+            raise ValueError('Voltage Errors')
+
+        # create list of voltage to measure
+        v_list = np.arange(v_min-2., v_max + 2., v_step)
+        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
+        start_i = np.argmin(abs(v_start - v_list))
+
+        N = len(v_list)
+        i_list = list(range(0, N))[::-1] + list(range(0, N))
+        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
+
+        # create data array
+        data = np.zeros((N, 3))
+        data[:, 0] = v_list
+
+        # measure
+        for n in range(scans):
+            for i in i_list:
+                obj.set_output(voltage = v_list[i])
+                time.sleep(hold_time)
+                data[i, 2] += 1.
+                data[i, 1] = (obj.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
+                np.savetxt(filename, data[:, 0:2], delimiter=',', header='V,J')
+
+        return data[:, 0:2]
+
+    ## measurements: voc, jsp, mpp
+    # obj: self.source_meter
+    def measure_voc_jsc_mpp(self, obj, v_step, hold_time, powerIn):
+        # voc
+        obj.set_mode('CURR')
+        obj.on()
+        obj.set_output(current = 0.)
+        voc = obj.read_values()[0]
+
+        # jsc
+        obj.set_mode('VOLT')
+        obj.on()
+        obj.set_output(voltage = 0.)
+        jsc = obj.read_values()[1]
+
+        # measurement parameters
+        v_min = 0.
+        v_max = voc
+
+        # measure
+        JV = np.zeros((0,2))
+        for v in np.arange(0, voc, v_step):
+            obj.set_output(voltage = v)
+            time.sleep(hold_time)
+            j = obj.read_values()[1]
+            JV = np.vstack([JV,[v,j]])
+        PV = np.zeros(JV.shape)
+        PV[:,0] = JV[:,0]
+        PV[:,1] = JV[:,0]*JV[:,1]
+        
+        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
+        Jpmax = JV[np.where(PV == np.amax(PV)),1][1][0]
+        FF = Vpmax*Jpmax*100/(voc*jsc)
+        effic = Vpmax*Jpmax/powerIn
+        data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
+        return data
+        #return voc, jsc, Vpmax*Jpmax, FF, effic
+
+    # Tracking
+    # dfAcqParams : self.dfAcqParams
+    def tracking(self, dfAcqParams, filename):
+        num_points = float(dfAcqParams(0,'Num Track Points'))
+        track_time = float(dfAcqParams(0,'Track Interval'))
+        v_step = float(dfAcqParams(0,'Acq Step Voltage'))
+        hold_time = float(dfAcqParams(0,'Delay Before Meas'))
+
+        data = np.zeros((num_points, 4))
+        voc, jsc, mpp = self.measure_voc_jsc_mpp(v_step = v_step, hold_time = hold_time)
+        st = time.time()
+        data[0, :] = [0., voc, jsc, mpp]
+
+        for n in range(1, num_points):
+            time.sleep(track_time)
+            voc, jsc, mpp = self.measure_voc_jsc_mpp(v_step = v_step, hold_time = hold_time)
+            data[n, :] = [time.time()-st, voc, jsc, mpp]
+            np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
+
+
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
         VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
