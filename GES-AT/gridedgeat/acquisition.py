@@ -354,14 +354,14 @@ class Acquisition():
                 acq_params = acq_params,)
 
             self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
-            self.JVDeviceProcess(obj, JV, deviceID, dfAcqParams)
+            self.JVDeviceProcess(obj, JV, deviceID, dfAcqParams, 1)
         return np.argmax(max_power) + 1
     
     
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, obj, JV, deviceID, dfAcqParams):
+    def JVDeviceProcess(self, obj, JV, deviceID, dfAcqParams, timeAcq):
         perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
-        #perfData = np.hstack((timeAcq, perfData))
+        perfData = np.hstack((timeAcq, perfData))
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.getDateTimeNow()[0], perfData))
         
