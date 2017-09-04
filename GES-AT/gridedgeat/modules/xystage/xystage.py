@@ -1,5 +1,5 @@
 '''
-XYstage.py
+xystage.py
 -------------
 Class for providing a hardware support for 
 for the XYstage

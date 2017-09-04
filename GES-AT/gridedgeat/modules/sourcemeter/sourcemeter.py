@@ -1,6 +1,23 @@
+'''
+sourcemeter.py
+-------------
+Class for providing a hardware support for 
+for the sourcemeter
+
+Version: 20170817
+
+Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
+Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+'''
+
 ## numpy has errors with visa?
 import visa
-
 
 class SourceMeter(object):
     '''
@@ -116,8 +133,7 @@ class SourceMeter(object):
         self.write('OUTP OFF')
 
 
-
-
+'''
 if __name__ == '__main__':
     import time
     # test
@@ -132,7 +148,7 @@ if __name__ == '__main__':
         print(sc.read_buffer()[-1])
 
     pass
-
+'''
 
 
 

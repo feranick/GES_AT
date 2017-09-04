@@ -1,6 +1,21 @@
-import visa
-import os.path
+'''
+switchbox.py
+-------------
+Class for providing a hardware support for 
+for the switchbox
 
+Version: 20170817
+
+Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
+Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+'''
+import visa, os.path
 
 class SwitchBox(object):
     '''
@@ -81,13 +96,11 @@ class SwitchBox(object):
 
     
 
-
-
+'''
 if __name__ == '__main__':
     # test
     sb = SwitchBox()
     sb.connect(1, 2)
     print(sb.get_connect())
-
-
     pass
+'''
