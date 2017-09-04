@@ -15,6 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton, QWidget, QMainWindow, QApplication)
+from PyQt5.QtGui import (QIntValidator)
 from .modules.xystage.xystage import *
 from .acquisition import *
 
@@ -137,7 +138,7 @@ class StageWindow(QMainWindow):
         self.goToButton.setEnabled(flag)
         self.subXPosStageText.setEnabled(flag)
         self.subYPosStageText.setEnabled(flag)
-        self.devPosStageText.setEnabled(False)
+        self.devPosStageText.setEnabled(flag)
         self.subToButton.setEnabled(flag)
 
     # Move stage to home position
@@ -184,6 +185,11 @@ class StageWindow(QMainWindow):
         xCoord = int(self.subXPosStageText.text())
         yCoord = int(self.subYPosStageText.text())
         self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(i,j))
+        time.sleep(0.5)
+        validDevNum = QIntValidator(1,7,1,self.devPosStageText)
+        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2:
+            devNum = int(self.devPosStageText.text())
+            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(i,j),self.devPosStageText.text())
         self.showCurrentPos()
         del ac
 
