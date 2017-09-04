@@ -205,6 +205,8 @@ class Acquisition():
     def getSubstrateNumber(self, i,j):
         return int((4-i)*4-(3-j))
     
+    # New version to adapt to changes in Joel's stage code
+    # Conversion between device naming is no longer needed.
     ## low level api
     # xy substrate layout (default)
     # column:  1 ==> 4     row:
@@ -214,9 +216,9 @@ class Acquisition():
     # 1  | 2  | 3  | 4      1
     # xy device layout (default)
     # |   ----   |
-    # | 3 |  | 4 |
+    # | 1 |  | 4 |
     # | 2 |  | 5 |
-    # | 1 |  | 6 |
+    # | 3 |  | 6 |
     # |   ----   |
     
     # pcb substrate layout
@@ -230,21 +232,15 @@ class Acquisition():
     # | 2 |  | 5 |
     # | 3 |  | 6 |
     # |   ----   |
-    __sub_xy_pcb = [
-        13, 14, 15, 16,
-        9,  10, 11, 12,
-        5,   6,  7,  8,
-        1,   2,  3,  4, ]
-    __dev_xy_pcb = [3, 2, 1, 4, 5, 6]
     
     def get_pcb_id(self, i,j, xy_dev_id):
         "ID converison between xy to pcb"
-        return int((4-i)*4-(3-j)), self.__dev_xy_pcb[xy_dev_id-1]
+        return int((4-i)*4-(3-j)), xy_dev_id-1
 
-    def switch_device(self, sub_id, dev_id):
+    def switch_device(self, i,j, dev_id):
         "Switch operation devices"
-        self.xy_stage.move_to_device_3x2(sub_id, dev_id)
-        self.switch_box.connect(*get_pcb_id(sub_id, dev_id))
+        #self.xy_stage.move_to_device_3x2(sub_id, dev_id)
+        self.switch_box.connect(*get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
     # obj: self.source_meter
