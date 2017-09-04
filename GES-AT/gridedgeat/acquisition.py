@@ -106,12 +106,14 @@ class Acquisition():
         self.showMsg(obj, msg)
         
         # If all is OK, start acquiring
+        # Start from moving to the correct substrate
         for j in range(self.numCol):
             for i in range(self.numRow):
                 obj.samplewind.colorCellAcq(row,column,"red")
                 # convert to correct substrate number in holder
                 substrateNum = obj.stagewind.getSubstrateNumber(i,j)
                 
+                # Check if the holder has a substrate in that slot
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
@@ -121,10 +123,11 @@ class Acquisition():
                         time.sleep(0.1)
                     else:
                         break
-                    
-                maxPowDeviceNum = JVAcqDevice(self, row, column, obj, deviceID, dfAcqParams)
-                
+                # If all is OK, start acquiring over the 6 devices
+                maxPowDeviceNum = JVAcqDevice(self, obj, self.source_meter,
+                                    row, column, deviceID, self.dfAcqParams)
                 print("Device with max power: ",maxPowDeviceNum)
+                
                 obj.samplewind.colorCellAcq(row,column,"green")
 
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
@@ -133,8 +136,7 @@ class Acquisition():
         obj.enableButtonsAcq(True)
         self.showMsg(obj, msg)
 
-        #if self.xystage.xystageInit is True:
-        
+        # park the stage close to origin, deactivate.
         msg = "Moving the stage to substrate 6 - (2, 1)"
         self.showMsg(obj, msg)
         QApplication.processEvents()
@@ -227,12 +229,12 @@ class Acquisition():
         self.switch_box.connect(*get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
-    # obj: self.source_meter
+    # obj2: self.source_meter
     # dfAcqParams : self.dfAcqParams
-    def measure_JV(self, obj, dfAcqParams, filename):
+    def measure_JV(self, obj2, dfAcqParams):
         #self.source_meter.set_mode('VOLT')
-        obj.set_mode('VOLT')
-        obj.on()
+        obj2.set_mode('VOLT')
+        obj2.on()
 
         # measurement parameters
         v_min = float(dfAcqParams(0,'Acq Min Voltage'))
@@ -262,28 +264,28 @@ class Acquisition():
         # measure
         for n in range(scans):
             for i in i_list:
-                obj.set_output(voltage = v_list[i])
+                obj2.set_output(voltage = v_list[i])
                 time.sleep(hold_time)
                 data[i, 2] += 1.
-                data[i, 1] = (obj.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
-                np.savetxt(filename, data[:, 0:2], delimiter=',', header='V,J')
+                data[i, 1] = (obj2.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
+                #np.savetxt(filename, data[:, 0:2], delimiter=',', header='V,J')
 
         return data[:, 0:2]
 
     ## measurements: voc, jsp, mpp
     # obj: self.source_meter
-    def measure_voc_jsc_mpp(self, obj, v_step, hold_time, powerIn):
+    def measure_voc_jsc_mpp(self, obj2, v_step, hold_time, powerIn):
         # voc
-        obj.set_mode('CURR')
-        obj.on()
-        obj.set_output(current = 0.)
-        voc = obj.read_values()[0]
+        obj2.set_mode('CURR')
+        obj2.on()
+        obj2.set_output(current = 0.)
+        voc = obj2.read_values()[0]
 
         # jsc
-        obj.set_mode('VOLT')
-        obj.on()
-        obj.set_output(voltage = 0.)
-        jsc = obj.read_values()[1]
+        obj2.set_mode('VOLT')
+        obj2.on()
+        obj2.set_output(voltage = 0.)
+        jsc = obj2.read_values()[1]
 
         # measurement parameters
         v_min = 0.
@@ -292,9 +294,9 @@ class Acquisition():
         # measure
         JV = np.zeros((0,2))
         for v in np.arange(0, voc, v_step):
-            obj.set_output(voltage = v)
+            obj2.set_output(voltage = v)
             time.sleep(hold_time)
-            j = obj.read_values()[1]
+            j = obj2.read_values()[1]
             JV = np.vstack([JV,[v,j]])
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
@@ -310,7 +312,7 @@ class Acquisition():
 
     # Tracking
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, dfAcqParams, filename):
+    def tracking(self, dfAcqParams):
         num_points = float(dfAcqParams(0,'Num Track Points'))
         track_time = float(dfAcqParams(0,'Track Interval'))
         v_step = float(dfAcqParams(0,'Acq Step Voltage'))
@@ -325,10 +327,10 @@ class Acquisition():
             time.sleep(track_time)
             voc, jsc, mpp = self.measure_voc_jsc_mpp(v_step = v_step, hold_time = hold_time)
             data[n, :] = [time.time()-st, voc, jsc, mpp]
-            np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
+            #np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
 
     # Perform JV Acquisition over the 6 devices
-    def JVAcqDevice(self, row, column, obj, deviceID, dfAcqParams):
+    def JVAcqDevice(self, obj, obj2, row, column, deviceID, dfAcqParams):
         self.max_power = []
         for dev_id in range(1,7):
             if obj.stopAcqFlag is True:
@@ -346,12 +348,12 @@ class Acquisition():
             obj.resultswind.setupResultTable()
             
             ### Acquisition loop should land here ##################
-            self.switch_device(get_substrate_id(row, column), dev_id)
-            time.sleep(acq_params['acqDelBeforeMeas'])
+            self.switch_device(row, column, dev_id)
+            time.sleep(dfAcqParams['acqDelBeforeMeas'])
 
-            JV = self.measure_JV(
-                filename = deviceID+str(dev_id) + '.csv',
-                acq_params = acq_params,)
+            JV = self.measure_JV(obj2, dfAcqParams)
+                
+            #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
 
             self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
             self.JVDeviceProcess(obj, JV, deviceID, dfAcqParams, 1)
