@@ -289,8 +289,9 @@ class ResultsWindow(QMainWindow):
         
         if bool(self.parent().config.saveLocalCsv) is True:
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-
-        self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
+        
+        if self.parent().config.submitToDb is True:
+            self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
         
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -338,7 +339,6 @@ class ResultsWindow(QMainWindow):
     ### Submit json for device data to Data-Management
     def submit_DM(self,jsonData):
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        
         try:
             # This is for using POST HTTP
             from urllib.request import urlopen
@@ -349,15 +349,18 @@ class ResultsWindow(QMainWindow):
             print(response)
             msg = " Submission to DM via HTTP POST: successful"
         except:
-            # This is for direct submission via pymongo
-            conn = DataManagement(self.dbConnectInfo)
-            client, _ = conn.connectDB()
-            db = client[self.dbConnectInfo[2]]
             try:
-                db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-                msg = " Submission to DM via Mongo: successful (id:"+str(db_entry.inserted_id)+")"
+                # This is for direct submission via pymongo
+                conn = DataManagement(self.dbConnectInfo)
+                client, _ = conn.connectDB()
+                db = client[self.dbConnectInfo[2]]
+                try:
+                    db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
+                    msg = " Submission to DM via Mongo: successful (id:"+str(db_entry.inserted_id)+")"
+                except:
+                    msg = " Submission to DM via Mongo: failed."
             except:
-                msg = " Submission to DM via Mongo: failed."
+                msg = " Connection to DM server: failed."
         print(msg)
         logger.info(msg)
 

@@ -66,6 +66,7 @@ class Configuration():
             }
     def defineConfDM(self):
         self.conf['DM'] = {
+            'submitToDb' : False,
             'DbHostname' : "18.82.1.200",
             'DbPortNumber' : "27017",
             'DbName' : "test",
@@ -105,6 +106,7 @@ class Configuration():
         self.loggingFilename = self.sysConfig['loggingFilename']
         self.csvSavingFolder = self.sysConfig['csvSavingFolder']
         self.saveLocalCsv = self.sysConfig['saveLocalCsv']
+        self.submitToDb = self.dmConfig['submitToDb']
         self.DbHostname = self.dmConfig['DbHostname']
         self.DbPortNumber = self.dmConfig['DbPortNumber']
         self.DbName = self.dmConfig['DbName']
