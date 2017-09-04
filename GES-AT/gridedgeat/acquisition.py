@@ -102,10 +102,13 @@ class Acquisition():
         operator = obj.samplewind.operatorText.text()
         msg = "Operator: " + operator
         self.showMsg(obj, msg)
+        msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+        self.showMsg(obj, msg)
         
         # If all is OK, start acquiring
         for j in range(self.numCol):
             for i in range(self.numRow):
+                obj.samplewind.colorCellAcq(row,column,"red")
                 # convert to correct substrate number in holder
                 substrateNum = obj.stagewind.getSubstrateNumber(i,j)
                 
@@ -119,30 +122,11 @@ class Acquisition():
                     else:
                         break
                     
-                    for k in range(1,7):
-                        msg = "Moving to device: "+str(k)
-                        self.showMsg(obj, msg)
+                maxPowDeviceNum = JVAcqDevice(self, row, column, obj, deviceID, dfAcqParams)
+                
+                print("Device with max power: ",maxPowDeviceNum)
+                obj.samplewind.colorCellAcq(row,column,"green")
 
-                        self.xystage.move_to_device_3x2(self, substrateNum, k)
-                    
-                        # prepare parameters, plots, tables for acquisition
-                        deviceID = obj.samplewind.tableWidget.item(i,j).text()+str(k)
-                        msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
-                        self.showMsg(obj, msg)
-                        msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
-                        self.showMsg(obj, msg)
-                        obj.resultswind.clearPlots(False)
-                        obj.resultswind.setupResultTable()
-                        obj.samplewind.colorCellAcq(i,j,"red")
-        ### Acquisition loop should land here ##################
-                    
-                        self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
-        
-        ########################################################
-                        obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
-                        obj.resultswind.deviceID,obj.resultswind.perfData,
-                        obj.resultswind.JV)
-                        obj.samplewind.colorCellAcq(i,j,"green")
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.acquisitionwind.enableAcqPanel(True)
         obj.samplewind.enableSamplePanel(True)
@@ -343,7 +327,56 @@ class Acquisition():
             data[n, :] = [time.time()-st, voc, jsc, mpp]
             np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
 
+    # Perform JV Acquisition over the 6 devices
+    def JVAcqDevice(self, row, column, obj, deviceID, dfAcqParams):
+        self.max_power = []
+        for dev_id in range(1,7):
+            if obj.stopAcqFlag is True:
+                break
+            msg = "Moving to device: "+str(dev_id)
+            self.showMsg(obj, msg)
+            
+            self.xystage.move_to_device_3x2(self, substrateNum, dev_id)
+                    
+            # prepare parameters, plots, tables for acquisition
+            deviceID = obj.samplewind.tableWidget.item(i,j).text()+str(dev_id)
+            msg = "Acquiring JV from: " + deviceID + " - substrate("+str(row)+", "+str(column)+")"
+            self.showMsg(obj, msg)
+            obj.resultswind.clearPlots(False)
+            obj.resultswind.setupResultTable()
+            
+            ### Acquisition loop should land here ##################
+            self.switch_device(get_substrate_id(row, column), dev_id)
+            time.sleep(acq_params['acqDelBeforeMeas'])
 
+            JV = self.measure_JV(
+                filename = deviceID+str(dev_id) + '.csv',
+                acq_params = acq_params,)
+
+            self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
+            self.JVDeviceProcess(obj, JV, deviceID, dfAcqParams)
+        return np.argmax(max_power) + 1
+    
+    
+    # Process JV Acquisition to result page
+    def JVDeviceProcess(self, obj, JV, deviceID, dfAcqParams):
+        perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
+        #perfData = np.hstack((timeAcq, perfData))
+        perfData = np.hstack((self.getDateTimeNow()[1], perfData))
+        perfData = np.hstack((self.getDateTimeNow()[0], perfData))
+        
+        obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
+            
+        QApplication.processEvents()
+        obj.resultswind.show()
+        QApplication.processEvents()
+        time.sleep(1)
+            
+        obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
+            obj.resultswind.deviceID,obj.resultswind.perfData,
+            obj.resultswind.JV)
+
+    
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
         VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
