@@ -22,7 +22,7 @@ from PyQt5.QtCore import (QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
 from . import logger
 
-class Acquisition():
+class Acquisition():    
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
         self.numRow = int(obj.config.numSubsHolderRow)
@@ -78,9 +78,11 @@ class Acquisition():
                     
         ### Acquisition loop should land here ##################
                     
-                    self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
-                    #self.acqThread(i, j, obj, deviceID, self.dfAcqParams)
-                    
+                    #self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
+                    self.get_thread = acqThread(self.dfAcqParams)
+                    #self.get_thread.JVcomplete.connect(lambda: self.processFakeAcq(JV, obj, self.deviceID, self.dfAcqParams))
+                    self.get_thread.done.connect(self.printmsg)
+                    self.get_thread.start()
         
         ########################################################
                     obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
@@ -94,6 +96,9 @@ class Acquisition():
         obj.statusBar().showMessage(msg, 5000)
         print(msg)
         logger.info(msg)
+    
+    def printmsg(self, msg):
+        print(msg)
         
     def stop(self, obj):
         msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
@@ -119,10 +124,10 @@ class Acquisition():
         return str(datetime.now().strftime('%Y-%m-%d')), str(datetime.now().strftime('%H-%M-%S'))
     
     ############  Temporary section STARTS here ###########################
-    def generateRandomJV(self):
-        VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
-        VEnd = self.dfAcqParams.get_value(0,'Acq Max Voltage')
-        VStep = self.dfAcqParams.get_value(0,'Acq Step Voltage')
+    def generateRandomJV(self, dfAcqParams):
+        VStart = dfAcqParams.get_value(0,'Acq Start Voltage')
+        VEnd = dfAcqParams.get_value(0,'Acq Max Voltage')
+        VStep = dfAcqParams.get_value(0,'Acq Step Voltage')
         I0 = 1e-10
         Il = 0.5
         n = 1 + random.randrange(0,20,1)/10
@@ -150,23 +155,18 @@ class Acquisition():
             msg = "Scan #"+str(i+1)
             print(msg)
             logger.info(msg)
-            print('%s, %s,' % (threading.current_thread().name,
-                              threading.current_thread().ident))
-            try:
-                JV = self.generateRandomJV()
-            except:
-                msg = "Check your acquisition settings (Start Voltage)"
-                print(msg)
-                logger.info(msg)
-                break
-            print('%s, %s,' % (threading.current_thread().name,
-                              threading.current_thread().ident))
+            
+            JV = self.devFakeAcq()
+
             perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
             perfData = np.hstack((timeAcq, perfData))
             perfData = np.hstack((self.getDateTimeNow()[1], perfData))
             perfData = np.hstack((self.getDateTimeNow()[0], perfData))
             print('%s, %s,' % (threading.current_thread().name,
                               threading.current_thread().ident))
+            
+                              
+                              
             obj.resultswind.processDeviceData(new_deviceID, dfAcqParams, perfData, JV)
             
             #QApplication.processEvents()
@@ -175,39 +175,77 @@ class Acquisition():
             timeAcq = timeAcq + 1
             time.sleep(1)
 
+
+
+    def devFakeAcq(self):
+            try:
+                JV = self.generateRandomJV()
+            except:
+                msg = "Check your acquisition settings (Start Voltage)"
+                print(msg)
+                logger.info(msg)
+                return 0
+            return JV
+
+    def processFakeAcq(self, JV, obj, deviceID, dfAcqParams):
+        timeAcq = 0
+        # Add device number to substrate
+        # this is totally to fake the cquisition of a particular device in a batch
+        new_deviceID = deviceID+str(random.randrange(1,7,1)) # Use this for completely random device number
+
+        perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
+        perfData = np.hstack((timeAcq, perfData))
+        perfData = np.hstack((self.getDateTimeNow()[1], perfData))
+        perfData = np.hstack((self.getDateTimeNow()[0], perfData))
+
+        obj.resultswind.processDeviceData(new_deviceID, dfAcqParams, perfData, JV)
+            
+        QApplication.processEvents()
+        obj.resultswind.show()
+        QApplication.processEvents()
+        timeAcq = timeAcq + 1
+        time.sleep(1)
+
+
     ############  Temporary section ENDS here ###########################
+    
+class acqThread(QThread):
 
-    def acqThread(self, row, column, obj, deviceID, dfAcqParams):
-        self.my_thread = QThread()
-        self.my_thread.start()
+    JVcomplete = pyqtSignal(np.ndarray)
+    done = pyqtSignal(str)
+    
+    def __init__(self, dfAcqParams):
+        """
+        Make a new thread instance with the specified
+        subreddits as the first argument. The subreddits argument
+        will be stored in an instance variable called subreddits
+        which then can be accessed by all other class instance functions
 
-        # This causes my_worker.run() to eventually execute in my_thread:
-        my_worker = Worker(lambda: self.fakeAcq(row, column, obj, deviceID, dfAcqParams))
-        my_worker.moveToThread(self.my_thread)
-        my_worker.start.connect(my_worker.run)
-        my_worker.start.emit("hello")
-        # my_worker.finished.connect(self.xxx)
+        :param subreddits: A list of subreddit names
+        :type subreddits: list
+        """
+        QThread.__init__(self)
+        self.dfAcqParams = dfAcqParams
 
-        #self.threadPool.append(my_thread)
-        self.my_worker = my_worker
-        self.my_thread.quit()
+    def __del__(self):
+        self.wait()
 
-class Worker(QObject):
-    start = pyqtSignal(str)
-    finished = pyqtSignal()
+    def devFakeAcq(self):
+        print("Creating JV")
+        ac = Acquisition()
+        JV = ac.generateRandomJV(self.dfAcqParams)
+        del ac
+        return JV
 
-    def __init__(self, function, *args, **kwargs):
-        super(Worker, self).__init__()
-        #logthread('GenericWorker.__init__')
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        #self.start.connect(self.run)
-
-    @pyqtSlot()
-    def run(self, *args, **kwargs):
-        #logthread('GenericWorker.run')
-        self.function(*self.args, **self.kwargs)
-        self.finished.emit()
+    def run(self):
+        for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
+            msg = "Scan #"+str(i+1)
+            print(msg)
+            logger.info(msg)
+            
+            JV = self.devFakeAcq()
+            #self.emit(SIGNAL('processFakeAcq(JV, obj, self.deviceID, self.dfAcqParams)'), JV)
+            self.done.emit('Done with Thread!')
+            #self.JVcomplete.emit(JV)
 
 
