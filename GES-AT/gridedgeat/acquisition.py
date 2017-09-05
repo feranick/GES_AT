@@ -87,7 +87,7 @@ class Acquisition():
         ########################################################
                     obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
                         obj.resultswind.deviceID,obj.resultswind.perfData,
-                        obj.resultswind.JV1)
+                        obj.resultswind.JV)
                     obj.samplewind.colorCellAcq(i,j,"green")
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.acquisitionwind.enableAcqPanel(True)

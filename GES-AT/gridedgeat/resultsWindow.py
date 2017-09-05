@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
         self.perfData = np.ones((0,8))
-        self.JV1 = np.array([])
+        self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = self.parent().config.csvSavingFolder
         self.initUI()
@@ -222,7 +222,7 @@ class ResultsWindow(QMainWindow):
     def clearPlots(self, includeTable):
         self.deviceID = np.zeros((0,1))
         self.perfData = np.zeros((0,8))
-        self.JV1 = np.array([])
+        self.JV = np.array([])
         self.initPlots(self.perfData)
         self.initJVPlot()
         if includeTable is True:
@@ -275,13 +275,11 @@ class ResultsWindow(QMainWindow):
         
         print(JV.shape)
 
-        if self.JV1.shape[0] == 0:
+        if self.JV.shape[0] == 0:
             print("reshaping...")
-            self.JV1 = np.resize(self.JV1, (0,JV.shape[0],2))
-            #self.JV1.resize((0,JV.shape[0],2))
-        print(self.JV1.shape)
-        self.JV1 = np.vstack([self.JV1,[JV]])
-        print(self.JV1.shape)
+            self.JV = np.resize(self.JV, (0,JV.shape[0],2))
+            #self.JV.resize((0,JV.shape[0],2))
+        self.JV = np.vstack([self.JV,[JV]])
 
         
         # Populate table.
@@ -292,7 +290,7 @@ class ResultsWindow(QMainWindow):
         QApplication.processEvents()
         
         dfPerfData = self.makeDFPerfData(self.perfData)
-        dfJV = self.makeDFJV(self.JV1[self.JV1.shape[0]-1])
+        dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
         if bool(self.parent().config.saveLocalCsv) is True:
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
@@ -394,12 +392,12 @@ class ResultsWindow(QMainWindow):
                 dftot = pd.read_csv(filename, na_filter=False)
                 self.deviceID = dftot.get_value(0,'Device')
                 self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,9)]
-                self.JV1 = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
-                self.plotData(self.deviceID, self.perfData,self.JV1)
+                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
+                self.plotData(self.deviceID, self.perfData,self.JV)
         
                 self.setupResultTable()
                 self.fillTableData(self.deviceID, self.perfData)
-                self.makeInternalDataFrames(self.lastRowInd, self.deviceID, self.perfData, np.array([self.JV1]))
+                self.makeInternalDataFrames(self.lastRowInd, self.deviceID, self.perfData, np.array([self.JV]))
         except:
             print("Loading files failed")
 
