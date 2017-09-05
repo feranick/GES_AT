@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import time, random, math
 from datetime import datetime
+from PyQt5.QtWidgets import (QApplication)
 from .acquisitionWindow import *
 from . import logger
 from .modules.xystage.xystage import *
@@ -195,7 +196,7 @@ class Acquisition():
     # Convert coordinates as in the Sample Windown Table into the
     # correct substrate number as defined in xystage.py
     def getSubstrateNumber(self, i,j):
-        if i,j >3:
+        if i > 3 or j > 3:
             print("indexes outside boundaries, resetting to substrate 1")
             return 1
         else:
