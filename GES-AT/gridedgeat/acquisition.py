@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import time, random, math
 from datetime import datetime
-from PyQt5.QtWidgets import (QApplication)
+from PyQt5.QtWidgets import (QApplication,QAbstractItemView)
 from PyQt5.QtCore import (QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
 from . import logger
@@ -47,49 +47,8 @@ class Acquisition():
                 
     def start(self, obj):
         self.obj = obj
-        # Activate stage
-        msg = "Activating stage..."
-        self.showMsg(obj, msg)
-        QApplication.processEvents()
-        self.xystage = XYstage()
-        if self.xystage.xystageInit == False:
-            msg = "Stage not activated: no acquisition possible"
-            self.showMsg(obj, msg)
-            QApplication.processEvents()
-            return
-        msg = "Stage activated."
-        self.showMsg(obj, msg)
-        
-        # Activate switchbox
-        msg = "Activating switchbox..."
-        self.showMsg(obj, msg)
-        QApplication.processEvents()
-        try:
-            self.switch_box = SwitchBox(obj.config.switchboxID)
-        except:
-            msg = "Switchbox not activated: no acquisition possible"
-            self.showMsg(obj, msg)
-            QApplication.processEvents()
-            return
-        msg = "Switchbox activated."
-        self.showMsg(obj, msg)
-
-        # Activate sourcemeter
-        msg = "Activating sourcemeter..."
-        self.showMsg(obj, msg)
-        QApplication.processEvents()
-        try:
-            self.source_meter = SourceMeter(obj.config.sourcemeterID)
-            self.source_meter.set_limit(voltage=20., current=1.)
-            self.source_meter.on()
-        except:
-            msg = "Sourcemeter not activated: no acquisition possible"
-            self.showMsg(obj, msg)
-            QApplication.processEvents()
-            return
-        msg = "Sourcemeter activated."
-        self.showMsg(obj, msg)
-
+        self.dfAcqParams = self.getAcqParameters(obj)
+        JV = np.zeros((0,2))
         ### Setup interface and get parameters before acquisition
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
@@ -97,32 +56,22 @@ class Acquisition():
         obj.samplewind.enableSamplePanel(False)
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
-        self.dfAcqParams = self.getAcqParameters(obj)
         obj.resultswind.clearPlots(True)
-        obj.resultswind.show()
-        obj.resultswind.setupDataFrame()
-        QApplication.processEvents()
-        operator = obj.samplewind.operatorText.text()
-        msg = "Operator: " + operator
-        self.showMsg(obj, msg)
-        msg = "Acquisition started: "+self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
-        self.showMsg(obj, msg)
+
+        #obj.resultswind.show()
+        #QApplication.processEvents()
         
-        #*****************************************************************************
-        JV = np.zeros((0,2))
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
         self.acq_thread.acqJVComplete.connect(lambda JV,deviceID: self.JVDeviceProcess(JV, deviceID, self.dfAcqParams, 1))
         self.acq_thread.done.connect(self.printMsg)
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
-        #*****************************************************************************
 
-        
     # Action for stop button
     def stop(self, obj):
         msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.stopAcqFlag = True
-        self.showMsg(obj, msg)
+        self.printMsg(msg)
     
     # Extract parameters from JV
     def analyseJV(self, powerIn, JV):
@@ -142,12 +91,7 @@ class Acquisition():
     def getDateTimeNow(self):
         return str(datetime.now().strftime('%Y-%m-%d')), str(datetime.now().strftime('%H-%M-%S'))
 
-    # Show message on status bar, terminal and log
-    def showMsg(self, obj, msg):
-        obj.statusBar().showMessage(msg, 5000)
-        print(msg)
-        logger.info(msg)
-
+    # Show message on log and terminal
     def printMsg(self, msg):
         print(msg)
         logger.info(msg)
@@ -324,7 +268,7 @@ class acqThread(QThread):
     acqJVComplete = pyqtSignal(np.ndarray, str)
     maxPowerDev = pyqtSignal(int)
     done = pyqtSignal(str)
-    
+
     def __init__(self, parent_obj, numRow, numCol, dfAcqParams):
         QThread.__init__(self)
         self.dfAcqParams = dfAcqParams
@@ -342,6 +286,58 @@ class acqThread(QThread):
         return JV
 
     def run(self):
+        # Activate stage
+        msg = "Activating stage..."
+        self.parent_obj.printMsg(msg)
+        QApplication.processEvents()
+        self.parent_obj.xystage = XYstage()
+        if self.parent_obj.xystage.xystageInit == False:
+            msg = "Stage not activated: no acquisition possible"
+            self.parent_obj.printMsg(msg)
+            QApplication.processEvents()
+            return
+        msg = "Stage activated."
+        self.parent_obj.printMsg(msg)
+        
+        # Activate switchbox
+        msg = "Activating switchbox..."
+        self.parent_obj.printMsg(msg)
+        QApplication.processEvents()
+        try:
+            self.parent_obj.switch_box = SwitchBox(self.parent_obj.obj.config.switchboxID)
+        except:
+            msg = "Switchbox not activated: no acquisition possible"
+            self.parent_obj.printMsg(msg)
+            QApplication.processEvents()
+            return
+        msg = "Switchbox activated."
+        self.parent_obj.printMsg(msg)
+
+        # Activate sourcemeter
+        msg = "Activating sourcemeter..."
+        self.parent_obj.printMsg(msg)
+        QApplication.processEvents()
+        try:
+            self.parent_obj.source_meter = SourceMeter(self.parent_obj.obj.config.sourcemeterID)
+            self.parent_obj.source_meter.set_limit(voltage=20., current=1.)
+            self.parent_obj.source_meter.on()
+        except:
+            msg = "Sourcemeter not activated: no acquisition possible"
+            self.parent_obj.parent_obj.printMsg(msg)
+            QApplication.processEvents()
+            return
+        msg = "Sourcemeter activated."
+        self.parent_obj.printMsg(msg)
+
+        ### Setup interface and get parameters before acquisition
+        self.parent_obj.obj.resultswind.clearPlots(True)
+        self.parent_obj.obj.resultswind.setupDataFrame()
+        operator = self.parent_obj.obj.samplewind.operatorText.text()
+        msg = "Operator: " + operator
+        self.parent_obj.printMsg(msg)
+        msg = "Acquisition started: "+self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
+        self.parent_obj.printMsg(msg)
+        
         # If all is OK, start acquiring
         # Start from moving to the correct substrate
         for j in range(self.numCol):
@@ -409,6 +405,13 @@ class acqThread(QThread):
         del self.parent_obj.switch_box
         msg = "Switchbox deactivated"
         self.parent_obj.printMsg(msg)
+        
+        # Re-enable panels and buttons
+        self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
+        self.parent_obj.obj.samplewind.resetCellAcq()
+        self.parent_obj.obj.samplewind.enableSamplePanel(True)
+        self.parent_obj.obj.enableButtonsAcq(True)
+        QApplication.processEvents()
         msg = "System Ready"
         self.parent_obj.printMsg(msg)
 
