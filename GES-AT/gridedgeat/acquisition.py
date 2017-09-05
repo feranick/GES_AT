@@ -393,19 +393,20 @@ class Acquisition():
     
     # Experiental use of threads for acqusition JV Acquisition to result page
     def acqThread(self, obj, obj2, row, column, deviceID, dfAcqParams):
-        my_thread = QThread()
-        my_thread.start()
+        self.my_thread = QThread()
+        self.my_thread.start()
 
         # This causes my_worker.run() to eventually execute in my_thread:
-        my_worker = Worker(lambda: self.JVAcq6Devices(self, obj, obj2, row, column, deviceID, dfAcqParams))
+        my_worker = Worker(lambda: self.JVAcq6Devices(obj, obj2, row, column, deviceID, dfAcqParams))
         my_worker.moveToThread(my_thread)
         my_worker.start.connect(my_worker.run)
         my_worker.start.emit("hello")
         # my_worker.finished.connect(self.xxx)
 
-        self.threadPool.append(my_thread)
+        self.threadPool.append(self.my_thread)
         self.my_worker = my_worker
-        del my_thread
+        self.my_thread.quit()
+    
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
