@@ -273,9 +273,16 @@ class ResultsWindow(QMainWindow):
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = np.vstack((self.perfData, np.array([perfData])))
         
+        print(JV.shape)
+
         if self.JV1.shape[0] == 0:
-            self.JV1.resize((0,JV.shape[0],2))
+            print("reshaping...")
+            self.JV1 = np.resize(self.JV1, (0,JV.shape[0],2))
+            #self.JV1.resize((0,JV.shape[0],2))
+        print(self.JV1.shape)
         self.JV1 = np.vstack([self.JV1,[JV]])
+        print(self.JV1.shape)
+
         
         # Populate table.
         self.fillTableData(deviceID, self.perfData)

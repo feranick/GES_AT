@@ -77,10 +77,10 @@ class Acquisition():
                     obj.samplewind.colorCellAcq(i,j,"red")
                     
         ### Acquisition loop should land here ##################
-                    
+                    JV = np.zeros((0,2))
                     #self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
                     self.get_thread = acqThread(self.dfAcqParams)
-                    #self.get_thread.JVcomplete.connect(lambda: self.processFakeAcq(JV, obj, self.deviceID, self.dfAcqParams))
+                    self.get_thread.JVcomplete.connect(lambda jv = JV: self.processFakeAcq(jv, obj, deviceID, self.dfAcqParams))
                     self.get_thread.done.connect(self.printmsg)
                     self.get_thread.start()
         
@@ -244,8 +244,7 @@ class acqThread(QThread):
             logger.info(msg)
             
             JV = self.devFakeAcq()
-            #self.emit(SIGNAL('processFakeAcq(JV, obj, self.deviceID, self.dfAcqParams)'), JV)
             self.done.emit('Done with Thread!')
-            #self.JVcomplete.emit(JV)
+            self.JVcomplete.emit(JV)
 
 
