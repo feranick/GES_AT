@@ -19,7 +19,6 @@ import pandas as pd
 import time, random, math
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication)
-from PyQt5.QtCore import (QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
 from . import logger
 from .modules.xystage.xystage import *
@@ -391,23 +390,6 @@ class Acquisition():
             obj.resultswind.deviceID,obj.resultswind.perfData,
             obj.resultswind.JV)
     
-    # Experiental use of threads for acqusition JV Acquisition to result page
-    def acqThread(self, obj, obj2, row, column, deviceID, dfAcqParams):
-        self.my_thread = QThread()
-        self.my_thread.start()
-
-        # This causes my_worker.run() to eventually execute in my_thread:
-        my_worker = Worker(lambda: self.JVAcq6Devices(obj, obj2, row, column, deviceID, dfAcqParams))
-        my_worker.moveToThread(my_thread)
-        my_worker.start.connect(my_worker.run)
-        my_worker.start.emit("hello")
-        # my_worker.finished.connect(self.xxx)
-
-        self.threadPool.append(self.my_thread)
-        self.my_worker = my_worker
-        self.my_thread.quit()
-    
-    
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):
         VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
@@ -462,22 +444,5 @@ class Acquisition():
 
     ############  Temporary section ENDS here ###########################
 
-class Worker(QObject):
-    start = pyqtSignal(str)
-    finished = pyqtSignal()
-
-    def __init__(self, function, *args, **kwargs):
-        super(Worker, self).__init__()
-        #logthread('GenericWorker.__init__')
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        #self.start.connect(self.run)
-
-    @pyqtSlot()
-    def run(self, *args, **kwargs):
-        #logthread('GenericWorker.run')
-        self.function(*self.args, **self.kwargs)
-        self.finished.emit()
 
 
