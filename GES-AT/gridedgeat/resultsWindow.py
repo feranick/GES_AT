@@ -274,7 +274,8 @@ class ResultsWindow(QMainWindow):
         self.perfData = np.vstack((self.perfData, np.array([perfData])))
         
         if self.JV.shape[0] == 0:
-            self.JV.resize((0,JV.shape[0],2))
+            #self.JV.resize((0,JV.shape[0],2))
+            self.JV = np.resize(self.JV, (0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
         # Populate table.
