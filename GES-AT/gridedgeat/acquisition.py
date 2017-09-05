@@ -19,6 +19,7 @@ import pandas as pd
 import time, random, math
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication)
+from PyQt5.QtCore import (QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
 from . import logger
 from .modules.xystage.xystage import *
@@ -127,12 +128,23 @@ class Acquisition():
                         time.sleep(0.1)
                     else:
                         break
-                    # If all is OK, start acquiring over the 6 devices
-                    QApplication.processEvents()
-                    maxPowDeviceNum = self.JVAcq6Devices(obj, self.source_meter,
-                                    i, j, deviceID, self.dfAcqParams)
-                    print("Device with max power: ",maxPowDeviceNum)
                 
+                #*****************************************************************************
+                    # If all is OK, start acquiring over the 6 devices
+
+                    #maxPowDeviceNum = self.JVAcq6Devices(obj, self.source_meter,
+                    #                i, j, deviceID, self.dfAcqParams)
+                
+                #*****************************************************************************
+
+                    JV = np.zeros((0,2))
+                    self.acq_thread = acqThread(self, self.dfAcqParams)
+                    self.acq_thread.acqJVComplete.connect(lambda jv = JV: self.JVDeviceProcess(jv, obj, deviceID, self.dfAcqParams, 1))
+                    self.acq_thread.done.connect(self.printmsg)
+                    self.acq_thread.maxPowerDev.connect(self.printmsg)
+                    self.acq_thread.start()
+                #*****************************************************************************
+
                     obj.samplewind.colorCellAcq(i,j,"green")
                 else:
                     obj.samplewind.colorCellAcq(i,j,"white")
@@ -162,6 +174,9 @@ class Acquisition():
         del self.switch_box
         msg = "Switchbox deactivated"
         self.showMsg(obj,msg)
+
+    def printmsg(self, msg):
+        print(msg)
 
     # Action for stop button
     def stop(self, obj):
@@ -350,20 +365,13 @@ class Acquisition():
             msg = "Moving to device: "+str(dev_id)
             self.showMsg(obj, msg)
             
-            self.xystage.move_to_device_3x2(self.getSubstrateNumber(row,column), dev_id)
-                    
             # prepare parameters, plots, tables for acquisition
-            deviceID = obj.samplewind.tableWidget.item(row,column).text()+str(dev_id)
             msg = "Acquiring JV from: " + deviceID + " - substrate("+str(row+1)+", "+str(column+1)+")"
             self.showMsg(obj, msg)
-            obj.resultswind.clearPlots(False)
-            obj.resultswind.setupResultTable()
+
             
             # Switch to correct device and start acquisition of JV
-            self.switch_device(row, column, dev_id)
-            time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
-            QApplication.processEvents()
-            JV = self.measure_JV(obj2, dfAcqParams)
+
                 
             #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
 
@@ -374,6 +382,9 @@ class Acquisition():
     
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, obj, JV, deviceID, dfAcqParams, timeAcq):
+        deviceID = obj.samplewind.tableWidget.item(row,column).text()+str(dev_id)
+        obj.resultswind.clearPlots(False)
+        obj.resultswind.setupResultTable()
         perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
         perfData = np.hstack((timeAcq, perfData))
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
@@ -389,60 +400,59 @@ class Acquisition():
         obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
             obj.resultswind.deviceID,obj.resultswind.perfData,
             obj.resultswind.JV)
+
+
+class acqThread(QThread):
+
+    acqJVComplete = pyqtSignal(np.ndarray)
+    maxPowerDev = pyqtSignal(int)
+    done = pyqtSignal(str)
     
-    ############  Temporary section STARTS here ###########################
-    def generateRandomJV(self):
-        VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
-        VEnd = self.dfAcqParams.get_value(0,'Acq Max Voltage')
-        VStep = self.dfAcqParams.get_value(0,'Acq Step Voltage')
-        I0 = 1e-10
-        Il = 0.5
-        n = 1 + random.randrange(0,20,1)/10
-        T = 300
-        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
-        q = 1.60217662E-19  # Electron charge
-        
-        JV = np.zeros((0,2))
-        for i in np.arange(VStart,VEnd,VStep):
-            temp = Il - I0*math.exp(q*i/(n*kB*T))
-            JV = np.vstack([JV,[i,temp]])
-        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
+    def __init__(self, parent_obj, dfAcqParams):
+        """
+        Make a new thread instance with the specified
+        subreddits as the first argument. The subreddits argument
+        will be stored in an instance variable called subreddits
+        which then can be accessed by all other class instance functions
+
+        :param subreddits: A list of subreddit names
+        :type subreddits: list
+        """
+        QThread.__init__(self)
+        self.dfAcqParams = dfAcqParams
+        self.parent_obj = parent_obj
+
+
+    def __del__(self):
+        self.wait()
+
+    def devAcq(self):
+        parent_obj.xystage.move_to_device_3x2(parent_obj.getSubstrateNumber(row,column), dev_id)
+        # Switch to correct device and start acquisition of JV
+        parent_obj.switch_device(row, column, dev_id)
+        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
+        JV = self.measure_JV(parent_obj.source_meter, self.dfAcqParams)
         return JV
 
-    def fakeAcq(self, row, column, obj, deviceID, dfAcqParams):
-        timeAcq = 0
-        # Add device number to substrate
-        # this is totally to fake the cquisition of a particular device in a batch
-        #new_deviceID = deviceID+str(random.randrange(1,7,1)) # Use this for completely random device number
-        #new_deviceID = deviceID+"4"  # Use this temporarily for pushing data through DM via POST
-        
-        for i in range(self.dfAcqParams.get_value(0,'Num Track Points')):
-            if obj.stopAcqFlag is True:
-                break
-            msg = "Scan #"+str(i+1)
-            print(msg)
-            logger.info(msg)
-            try:
-                JV = self.generateRandomJV()
-            except:
-                msg = "Check your acquisition settings (Start Voltage)"
-                print(msg)
-                logger.info(msg)
-                break
-            perfData = self.analyseJV(float(obj.config.conf['Instruments']['powerIn1Sun']),JV)
-            perfData = np.hstack((timeAcq, perfData))
-            perfData = np.hstack((self.getDateTimeNow()[1], perfData))
-            perfData = np.hstack((self.getDateTimeNow()[0], perfData))
+    def run(self):
+        self.max_power = []
+        for dev_id in range(1,7):
+            msg = "Moving to device: "+str(dev_id)
+            self.showMsg(obj, msg)
             
-            obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
-            
-            QApplication.processEvents()
-            obj.resultswind.show()
-            QApplication.processEvents()
-            timeAcq = timeAcq + 1
-            time.sleep(1)
+            # prepare parameters, plots, tables for acquisition
+            msg = "Acquiring JV from device: " + dev_id
+            self.showMsg(obj, msg)
 
-    ############  Temporary section ENDS here ###########################
+            # Switch to correct device and start acquisition of JV
+
+            JV = self.devAcq()
+            #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
+            self.acqJVComplete.emit(JV)
+            self.max_power.append(np.max(self.JV[:, 0] * self.JV[:, 1]))
+            self.done.emit('Done with Thread!')
+
+        self.maxPowerDev.emit("Device with max power: "+str(np.argmax(self.max_power) + 1))
 
 
 
