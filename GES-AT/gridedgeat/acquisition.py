@@ -109,26 +109,32 @@ class Acquisition():
         # Start from moving to the correct substrate
         for j in range(self.numCol):
             for i in range(self.numRow):
-                obj.samplewind.colorCellAcq(row,column,"red")
+                obj.samplewind.colorCellAcq(i,j,"red")
                 # convert to correct substrate number in holder
-                substrateNum = obj.stagewind.getSubstrateNumber(i,j)
+                substrateNum = self.getSubstrateNumber(i,j)
+                print("Substrate Number:", substrateNum)
+                deviceID = obj.samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
-                        msg = "Moving stage to substrate("+str(i)+", "+str(j)+")"
+                        msg = "Moving stage to substrate("+str(i+1)+", "+str(j+1)+")"
                         self.showMsg(obj, msg)
+                        QApplication.processEvents()
                         self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
                     else:
                         break
-                # If all is OK, start acquiring over the 6 devices
-                maxPowDeviceNum = JVAcqDevice(self, obj, self.source_meter,
-                                    row, column, deviceID, self.dfAcqParams)
-                print("Device with max power: ",maxPowDeviceNum)
+                    # If all is OK, start acquiring over the 6 devices
+                    QApplication.processEvents()
+                    maxPowDeviceNum = self.JVAcq6Devices(obj, self.source_meter,
+                                    i, j, deviceID, self.dfAcqParams)
+                    print("Device with max power: ",maxPowDeviceNum)
                 
-                obj.samplewind.colorCellAcq(row,column,"green")
+                    obj.samplewind.colorCellAcq(i,j,"green")
+                else:
+                    obj.samplewind.colorCellAcq(i,j,"white")
 
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
         obj.acquisitionwind.enableAcqPanel(True)
@@ -189,7 +195,11 @@ class Acquisition():
     # Convert coordinates as in the Sample Windown Table into the
     # correct substrate number as defined in xystage.py
     def getSubstrateNumber(self, i,j):
-        return int((4-i)*4-(3-j))
+        if i,j >3:
+            print("indexes outside boundaries, resetting to substrate 1")
+            return 1
+        else:
+            return int((4-i)*4-(3-j))
     
     # New version to adapt to changes in Joel's stage code
     # Conversion between device naming is no longer needed.
@@ -221,12 +231,12 @@ class Acquisition():
     
     def get_pcb_id(self, i,j, xy_dev_id):
         "ID converison between xy to pcb"
-        return int((4-i)*4-(3-j)), xy_dev_id-1
+        return int((4-i)*4-(3-j)), xy_dev_id
 
     def switch_device(self, i,j, dev_id):
         "Switch operation devices"
         #self.xy_stage.move_to_device_3x2(sub_id, dev_id)
-        self.switch_box.connect(*get_pcb_id(i,j, dev_id))
+        self.switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
     # obj2: self.source_meter
@@ -237,12 +247,12 @@ class Acquisition():
         obj2.on()
 
         # measurement parameters
-        v_min = float(dfAcqParams(0,'Acq Min Voltage'))
-        v_max = float(dfAcqParams(0,'Acq Max Voltage'))
-        v_start = float(dfAcqParams(0,'Acq Start Voltage'))
-        v_step = float(dfAcqParams(0,'Acq Step Voltage'))
-        scans = float(dfAcqParams(0,'Acq Num Aver Scans'))
-        hold_time = float(dfAcqParams(0,'Delay Before Meas'))
+        v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
+        v_max = float(dfAcqParams.get_value(0,'Acq Max Voltage'))
+        v_start = float(dfAcqParams.get_value(0,'Acq Start Voltage'))
+        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
+        scans = int(dfAcqParams.get_value(0,'Acq Num Aver Scans'))
+        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
 
         # enforce
         if v_start < v_min and v_start > v_max and v_min > v_max:
@@ -330,7 +340,7 @@ class Acquisition():
             #np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
 
     # Perform JV Acquisition over the 6 devices
-    def JVAcqDevice(self, obj, obj2, row, column, deviceID, dfAcqParams):
+    def JVAcq6Devices(self, obj, obj2, row, column, deviceID, dfAcqParams):
         self.max_power = []
         for dev_id in range(1,7):
             if obj.stopAcqFlag is True:
@@ -338,26 +348,26 @@ class Acquisition():
             msg = "Moving to device: "+str(dev_id)
             self.showMsg(obj, msg)
             
-            self.xystage.move_to_device_3x2(self, substrateNum, dev_id)
+            self.xystage.move_to_device_3x2(self.getSubstrateNumber(row,column), dev_id)
                     
             # prepare parameters, plots, tables for acquisition
-            deviceID = obj.samplewind.tableWidget.item(i,j).text()+str(dev_id)
-            msg = "Acquiring JV from: " + deviceID + " - substrate("+str(row)+", "+str(column)+")"
+            deviceID = obj.samplewind.tableWidget.item(row,column).text()+str(dev_id)
+            msg = "Acquiring JV from: " + deviceID + " - substrate("+str(row+1)+", "+str(column+1)+")"
             self.showMsg(obj, msg)
             obj.resultswind.clearPlots(False)
             obj.resultswind.setupResultTable()
             
-            ### Acquisition loop should land here ##################
+            # Switch to correct device and start acquisition of JV
             self.switch_device(row, column, dev_id)
-            time.sleep(dfAcqParams['acqDelBeforeMeas'])
-
+            time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
+            QApplication.processEvents()
             JV = self.measure_JV(obj2, dfAcqParams)
                 
             #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
 
             self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
             self.JVDeviceProcess(obj, JV, deviceID, dfAcqParams, 1)
-        return np.argmax(max_power) + 1
+        return np.argmax(self.max_power) + 1
     
     
     # Process JV Acquisition to result page
@@ -377,7 +387,6 @@ class Acquisition():
         obj.resultswind.makeInternalDataFrames(obj.resultswind.lastRowInd,
             obj.resultswind.deviceID,obj.resultswind.perfData,
             obj.resultswind.JV)
-
     
     ############  Temporary section STARTS here ###########################
     def generateRandomJV(self):

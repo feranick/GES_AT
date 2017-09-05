@@ -42,19 +42,19 @@ class StageWindow(QMainWindow):
         self.upButton = QPushButton(StageWindow)
         self.upButton.setGeometry(QRect(120, 20, 60, 60))
         self.upButton.setText("UP")
-        self.upButton.clicked.connect(lambda: self.moveStageRel(0,1))
+        self.upButton.clicked.connect(lambda: self.moveStageRel(0,-1))
         self.downButton = QPushButton(StageWindow)
         self.downButton.setGeometry(QRect(120, 140, 60, 60))
         self.downButton.setText("DOWN")
-        self.downButton.clicked.connect(lambda: self.moveStageRel(0,-1))
+        self.downButton.clicked.connect(lambda: self.moveStageRel(0,1))
         self.leftButton = QPushButton(StageWindow)
         self.leftButton.setGeometry(QRect(50, 80, 60, 60))
         self.leftButton.setText("LEFT")
-        self.leftButton.clicked.connect(lambda: self.moveStageRel(-1,0))
+        self.leftButton.clicked.connect(lambda: self.moveStageRel(1,0))
         self.rightButton = QPushButton(StageWindow)
         self.rightButton.setGeometry(QRect(190, 80, 60, 60))
         self.rightButton.setText("RIGHT")
-        self.rightButton.clicked.connect(lambda: self.moveStageRel(1,0))
+        self.rightButton.clicked.connect(lambda: self.moveStageRel(-1,0))
         
         self.stepStageText = QLineEdit(StageWindow)
         self.stepStageText.setGeometry(QRect(130, 100, 40, 25))
@@ -181,17 +181,25 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
-        ac = Acquisition()
-        xCoord = int(self.subXPosStageText.text())
-        yCoord = int(self.subYPosStageText.text())
-        self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(i,j))
-        time.sleep(0.5)
-        validDevNum = QIntValidator(1,7,1,self.devPosStageText)
-        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2:
+        validXCoord = QIntValidator(1,4,self.subXPosStageText)
+        validYCoord = QIntValidator(1,4,self.subYPosStageText)
+        validDevNum = QIntValidator(1,6,self.devPosStageText)
+
+        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 and validXCoord.validate(self.subXPosStageText.text(),1)[0] == 2 and validYCoord.validate(self.subYPosStageText.text(),1)[0] == 2:
+            xCoord = int(self.subXPosStageText.text())-1
+            yCoord = int(self.subYPosStageText.text())-1
+            ac = Acquisition()
+            self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(xCoord,yCoord))
+            time.sleep(0.5)
             devNum = int(self.devPosStageText.text())
-            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(i,j),self.devPosStageText.text())
-        self.showCurrentPos()
-        del ac
+            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,yCoord),int(self.devPosStageText.text()))
+            self.showCurrentPos()
+            print("Substrate number:",ac.getSubstrateNumber(xCoord,yCoord))
+            del ac
+        else:
+            msg = "Substrates/device indeces out of range"
+            self.stageLabel.setText(msg)
+            print(msg)
 
     # Close connection upon closing window.
     def closeEvent(self, event):

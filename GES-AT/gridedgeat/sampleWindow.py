@@ -148,8 +148,8 @@ class SampleWindow(QMainWindow):
     @pyqtSlot()
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
-            print(" Selected cell: (",self.tableWidget.row(currentQTableWidgetItem),
-                ", ",self.tableWidget.column(currentQTableWidgetItem),")")
+            print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
+                ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
