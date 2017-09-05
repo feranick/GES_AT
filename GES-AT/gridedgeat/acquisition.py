@@ -57,9 +57,6 @@ class Acquisition():
         obj.enableButtonsAcq(False)
         QApplication.processEvents()
         obj.resultswind.clearPlots(True)
-
-        #obj.resultswind.show()
-        #QApplication.processEvents()
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
         self.acq_thread.acqJVComplete.connect(lambda JV,deviceID: self.JVDeviceProcess(JV, deviceID, self.dfAcqParams, 1))
@@ -262,11 +259,12 @@ class Acquisition():
             self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
             self.obj.resultswind.JV)
 
-
+# Main Class for Acquisition
+# Everything happens here!
 class acqThread(QThread):
 
     acqJVComplete = pyqtSignal(np.ndarray, str)
-    maxPowerDev = pyqtSignal(int)
+    maxPowerDev = pyqtSignal(str)
     done = pyqtSignal(str)
 
     def __init__(self, parent_obj, numRow, numCol, dfAcqParams):
@@ -348,7 +346,6 @@ class acqThread(QThread):
                 
                 # Check if the holder has a substrate in that slot
                 if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != "":
-                    #self.parent_obj.obj.samplewind.colorCellAcq(i,j,"red")
                     # Move stage to desired substrate
                     if self.parent_obj.xystage.xystageInit is True:
                         msg = "Moving stage to substrate: ("+str(i+1)+", "+str(j+1)+")"
@@ -379,7 +376,7 @@ class acqThread(QThread):
                         self.done.emit('  Device '+deviceID+' acquisition: complete')
                         self.devMaxPower =  np.argmax(self.max_power) + 1
 
-                    self.maxPowerDev.emit("Device with max power: "+str(self.devMaxPower))
+                    self.maxPowerDev.emit("Main: Device with max power: "+str(self.devMaxPower))
                     self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
         msg = "Acquisition Completed: "+ self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
