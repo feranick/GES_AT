@@ -15,6 +15,7 @@ exitButton=QPushButton("Exit")
 while True:
 
     exitButton.clicked.connect(app.exit)
+    
     exitButton.show()
 
 

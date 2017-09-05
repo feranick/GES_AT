@@ -344,6 +344,7 @@ class Acquisition():
     def JVAcq6Devices(self, obj, obj2, row, column, deviceID, dfAcqParams):
         self.max_power = []
         for dev_id in range(1,7):
+            QApplication.processEvent()
             if obj.stopAcqFlag is True:
                 break
             msg = "Moving to device: "+str(dev_id)
