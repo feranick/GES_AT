@@ -260,6 +260,7 @@ class Acquisition():
             self.obj.resultswind.JV)
         self.obj.samplewind.colorCellAcq(i,j,"green")
 
+
 # Main Class for Acquisition
 # Everything happens here!
 class acqThread(QThread):
@@ -372,7 +373,8 @@ class acqThread(QThread):
                         # Switch to correct device and start acquisition of JV
                         #self.parent_obj.xystage.move_to_device_3x2(self.parent_obj.getSubstrateNumber(i, j), dev_id)
                         #self.parent_obj.switch_device(i, j, dev_id)
-                        JV = self.devAcq()
+                        #JV = self.devAcq()
+                        JV = self.generateRandomJV()
                     
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
                         self.acqJVComplete.emit(JV, deviceID, i, j)
@@ -416,6 +418,24 @@ class acqThread(QThread):
         QApplication.processEvents()
         msg = "System Ready"
         self.parent_obj.printMsg(msg)
+
+    def generateRandomJV(self):
+        VStart = self.dfAcqParams.get_value(0,'Acq Start Voltage')
+        VEnd = self.dfAcqParams.get_value(0,'Acq Max Voltage')
+        VStep = self.dfAcqParams.get_value(0,'Acq Step Voltage')
+        I0 = 1e-10
+        Il = 0.5
+        n = 1 + random.randrange(0,20,1)/10
+        T = 300
+        kB = 1.38064852e-23  # Boltzman constant m^2 kg s^-2 K^-1
+        q = 1.60217662E-19  # Electron charge
+        
+        JV = np.zeros((0,2))
+        for i in np.arange(VStart,VEnd,VStep):
+            temp = Il - I0*math.exp(q*i/(n*kB*T))
+            JV = np.vstack([JV,[i,temp]])
+        JV[:,1] = JV[:,1]-np.amin(JV[:,1])
+        return JV
 
                 
 
