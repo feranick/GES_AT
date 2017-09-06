@@ -59,7 +59,7 @@ class Acquisition():
         for i in range(self.numCol):
             for j in range(self.numRow):
                 if obj.samplewind.tableWidget.item(i,j).text() != "":
-                    deviceID = obj.samplewind.tableWidget.item(i,j).text()
+                    #deviceID = obj.samplewind.tableWidget.item(i,j).text()
                     operator = obj.samplewind.operatorText.text()
                     msg = "Operator: " + operator
                     print(msg)
@@ -68,7 +68,7 @@ class Acquisition():
 
                     print(msg)
                     logger.info(msg)
-                    msg = "Acquiring from: " + deviceID + " - substrate("+str(i)+", "+str(j)+")"
+                    msg = "Acquiring from: substrate("+str(i)+", "+str(j)+")"
                     obj.statusBar().showMessage(msg, 5000)
                     print(msg)
                     logger.info(msg)
@@ -80,7 +80,7 @@ class Acquisition():
                     JV = np.zeros((0,2))
                     #self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
                     self.get_thread = acqThread(self.dfAcqParams)
-                    self.get_thread.JVcomplete.connect(lambda JV: self.processFakeAcq(JV, obj, deviceID, self.dfAcqParams))
+                    self.get_thread.JVcomplete.connect(lambda JV, deviceID: self.processFakeAcq(JV, obj, deviceID, self.dfAcqParams))
                     self.get_thread.done.connect(self.printmsg)
                     self.get_thread.start()
         
@@ -211,7 +211,7 @@ class Acquisition():
     
 class acqThread(QThread):
 
-    JVcomplete = pyqtSignal(np.ndarray)
+    JVcomplete = pyqtSignal(np.ndarray, str)
     done = pyqtSignal(str)
     
     def __init__(self, dfAcqParams):
@@ -242,9 +242,10 @@ class acqThread(QThread):
             msg = "Scan #"+str(i+1)
             print(msg)
             logger.info(msg)
+            deviceID = "test"
             
             JV = self.devFakeAcq()
             self.done.emit('Done with Thread!')
-            self.JVcomplete.emit(JV)
+            self.JVcomplete.emit(JV, deviceID)
 
 
