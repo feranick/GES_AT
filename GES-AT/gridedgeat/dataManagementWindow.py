@@ -18,7 +18,7 @@ import sys
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QTableWidget,
     QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,)
+    QAbstractItemView,QTableWidgetItem,QFrame)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
@@ -35,10 +35,10 @@ class DataManagementWindow(QMainWindow):
         self.initUI(self)
     
     def initUI(self,Panel):
-        self.setGeometry(10, 200, 250, 390)
+        self.setGeometry(10, 200, 300, 390)
         self.setWindowTitle('Data-management Settings')
         self.gridLayoutWidget = QWidget(Panel)
-        self.gridLayoutWidget.setGeometry(QRect(10, 9, 230, 221))
+        self.gridLayoutWidget.setGeometry(QRect(10, 9, 270, 221))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(10, 0, 10, 0)
@@ -73,18 +73,36 @@ class DataManagementWindow(QMainWindow):
         self.dbPasswordLabel = QLabel(self.gridLayoutWidget)
         self.dbPasswordLabel.setObjectName("dbPasswordLabel")
         self.gridLayout.addWidget(self.dbPasswordLabel, 4, 0, 1, 1)
+        
+        self.gridLayout.addWidget(QHLine(), 5, 0, 1, 1)
+        self.gridLayout.addWidget(QHLine(), 5, 1, 1, 1)
+        self.dbHttpPortNumLabel = QLabel(self.gridLayoutWidget)
+        self.dbHttpPortNumLabel.setObjectName("dbHttpPortNumLabel")
+        self.gridLayout.addWidget(self.dbHttpPortNumLabel, 6, 0, 1, 1)
+        self.dbHttpPortNumText = QLineEdit(self.gridLayoutWidget)
+        self.dbHttpPortNumText.setObjectName("dbHttpPortNumText")
+        self.gridLayout.addWidget(self.dbHttpPortNumText, 6, 1, 1, 1)
+        self.dbHttpPathText = QLineEdit(self.gridLayoutWidget)
+        self.dbHttpPathText.setObjectName("dbHttpPathText")
+        self.gridLayout.addWidget(self.dbHttpPathText, 7, 1, 1, 1)
+        self.dbHttpPathLabel = QLabel(self.gridLayoutWidget)
+        self.dbHttpPathLabel.setObjectName("dbHttpPathLabel")
+        self.gridLayout.addWidget(self.dbHttpPathLabel, 7, 0, 1, 1)
+        self.gridLayout.addWidget(QHLine(), 8, 0, 1, 1)
+        self.gridLayout.addWidget(QHLine(), 8, 1, 1, 1)
+
         self.dbTestConnectButton = QPushButton(Panel)
-        self.dbTestConnectButton.setGeometry(QRect(10, 260, 230, 40))
+        self.dbTestConnectButton.setGeometry(QRect(10, 260, 270, 40))
         self.dbTestConnectButton.setObjectName("dbTestConnectButton")
         self.dbSetDefaultButton = QPushButton(Panel)
-        self.dbSetDefaultButton.setGeometry(QRect(10, 300, 230, 40))
+        self.dbSetDefaultButton.setGeometry(QRect(10, 300, 270, 40))
         self.dbSetDefaultButton.setObjectName("dbSetDefaultButton")
         self.dbRestoreDefaultButton = QPushButton(Panel)
-        self.dbRestoreDefaultButton.setGeometry(QRect(10, 340, 230, 40))
+        self.dbRestoreDefaultButton.setGeometry(QRect(10, 340, 270, 40))
         self.dbRestoreDefaultButton.setObjectName("dbRestoreDefaultButton")
         
         self.dbConnectResultLabel = QLabel(Panel)
-        self.dbConnectResultLabel.setGeometry(QRect(20, 230, 321, 20))
+        self.dbConnectResultLabel.setGeometry(QRect(20, 235, 321, 20))
         self.dbConnectResultLabel.setObjectName("dbConnectResultLabel")
 
         self.dbHostnameLabel.setText("DB hostname IP")
@@ -92,6 +110,9 @@ class DataManagementWindow(QMainWindow):
         self.dbNameLabel.setText("DB name")
         self.dbUsernameLabel.setText("DB Username")
         self.dbPasswordLabel.setText("DB Password")
+        self.dbHttpPortNumLabel.setText("HTTP port number")
+        self.dbHttpPathLabel.setText("HTTP path")
+
         self.dbTestConnectButton.setText("Test Connectivity")
         self.dbSetDefaultButton.setText("Save settings")
         self.dbRestoreDefaultButton.setText("Restore default settings")
@@ -109,13 +130,17 @@ class DataManagementWindow(QMainWindow):
         self.dbNameText.setText(self.parent().config.DbName)
         self.dbUsernameText.setText(self.parent().config.DbUsername)
         self.dbPasswordText.setText(self.parent().config.DbPassword)
+        self.dbHttpPortNumText.setText(self.parent().config.DbHttpPortNumber)
+        self.dbHttpPathText.setText(self.parent().config.DbHttpPath)
 
     def getDbConnectionInfo(self):
         return [self.dbHostnameText.text(),
                     self.dbPortNumText.text(),
                     self.dbNameText.text(),
                     self.dbUsernameText.text(),
-                    self.dbPasswordText.text()]
+                    self.dbPasswordText.text(),
+                    self.dbHttpPortNumText.text(),
+                    self.dbHttpPathText.text()]
 
     def dbCheckConnect(self):
         self.dbConnect = DataManagement(self.getDbConnectionInfo())
@@ -133,6 +158,8 @@ class DataManagementWindow(QMainWindow):
         self.parent().config.conf['DM']['DbName'] = str(self.dbNameText.text())
         self.parent().config.conf['DM']['DbUsername'] = str(self.dbUsernameText.text())
         self.parent().config.conf['DM']['DbPassword'] = str(self.dbPasswordText.text())
+        self.parent().config.conf['DM']['DbHttpPortNumber'] = str(self.dbHttpPortNumText.text())
+        self.parent().config.conf['DM']['DbHttpPath'] = str(self.dbHttpPathText.text())
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         print("New Data-Management settings saved as default")
@@ -145,6 +172,19 @@ class DataManagementWindow(QMainWindow):
         print("Restored default Data-Management settings")
         logger.info("Restored default Data-Management settings")
         self.initParams()
+
+class QHLine(QFrame):
+    def __init__(self):
+        super(QHLine, self).__init__()
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Sunken)
+
+
+class QVLine(QFrame):
+    def __init__(self):
+        super(QVLine, self).__init__()
+        self.setFrameShape(QFrame.VLine)
+        self.setFrameShadow(QFrame.Sunken)
 
 
 
