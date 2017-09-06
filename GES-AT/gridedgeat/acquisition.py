@@ -59,7 +59,7 @@ class Acquisition():
         obj.resultswind.clearPlots(True)
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
-        self.acq_thread.acqJVComplete.connect(lambda JV,deviceID: self.JVDeviceProcess(JV, deviceID, self.dfAcqParams, 1))
+        self.acq_thread.acqJVComplete.connect(lambda JV,deviceID,i,j: self.JVDeviceProcess(JV,deviceID,self.dfAcqParams, 1,i,j))
         self.acq_thread.done.connect(self.printMsg)
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
@@ -242,7 +242,7 @@ class Acquisition():
 
     
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, JV, deviceID, dfAcqParams, timeAcq):
+    def JVDeviceProcess(self, JV, deviceID, dfAcqParams, timeAcq, i, j):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
@@ -258,12 +258,13 @@ class Acquisition():
         self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
             self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
             self.obj.resultswind.JV)
+        self.obj.samplewind.colorCellAcq(i,j,"green")
 
 # Main Class for Acquisition
 # Everything happens here!
 class acqThread(QThread):
 
-    acqJVComplete = pyqtSignal(np.ndarray, str)
+    acqJVComplete = pyqtSignal(np.ndarray, str, int, int)
     maxPowerDev = pyqtSignal(str)
     done = pyqtSignal(str)
 
@@ -374,13 +375,13 @@ class acqThread(QThread):
                         JV = self.devAcq()
                     
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
-                        self.acqJVComplete.emit(JV, deviceID)
+                        self.acqJVComplete.emit(JV, deviceID, i, j)
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
                         self.done.emit('  Device '+deviceID+' acquisition: complete')
                         self.devMaxPower =  np.argmax(self.max_power) + 1
 
                     self.maxPowerDev.emit("Main: Device with max power: "+str(self.devMaxPower))
-                    self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
+                    #self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
         msg = "Acquisition Completed: "+ self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
         self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
