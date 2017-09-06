@@ -29,7 +29,7 @@ class DataManagement:
 
     def connectDB(self):
         from pymongo import MongoClient
-        client = MongoClient(self.dbHostname, int(self.dbPortNum),serverSelectionTimeoutM=1000)
+        client = MongoClient(self.dbHostname, int(self.dbPortNum),serverSelectionTimeoutMS=1000)
         if self.dbUsername != "" and self.dbPassword !="":
             client[self.dbName].authenticate(self.dbUsername, self.dbPassword)
         else:
