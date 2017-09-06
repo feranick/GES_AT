@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, random, math, json
+import sys, random, math, json, requests
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -290,8 +290,8 @@ class ResultsWindow(QMainWindow):
         
         if bool(self.parent().config.saveLocalCsv) is True:
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-        
-        if self.parent().config.submitToDb is True:
+                
+        if bool(self.parent().config.submitToDb) is True:
             self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
         
     # Plot data from devices
@@ -333,23 +333,20 @@ class ResultsWindow(QMainWindow):
         listTot.update(listPerfData)
         listTot.update(listJV)
         listTot.update(listAcqParams)
-        jsonTot = json.dumps(listTot)
-        #print(jsonTot)
-        return jsonTot
+        return listTot
     
     ### Submit json for device data to Data-Management
     def submit_DM(self,jsonData):
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
-            # This is for using POST HTTP
-            print("testing submission to DM via HTTP POST")
-            from urllib.request import urlopen
+            #This is for using POST HTTP
             url = "http://"+self.dbConnectInfo[0]+":3000/api/Measurements"
-            req = urlopen(url)
-            req.add_header('Content-Type', 'application/json')
-            response = urllib.urlopen(req, json.dumps(jsonData))
-            print(response)
-            msg = " Submission to DM via HTTP POST: successful"
+        
+            req = requests.post(url, json=jsonData)
+            if req.status_code == 200:
+                msg = " Submission to DM via HTTP POST: successful (ETag: "+str(req.headers['ETag'])+")"
+            else:
+                req.raise_for_status()
         except:
             try:
                 # This is for direct submission via pymongo
@@ -357,12 +354,13 @@ class ResultsWindow(QMainWindow):
                 client, _ = conn.connectDB()
                 db = client[self.dbConnectInfo[2]]
                 try:
-                    db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-                    msg = " Submission to DM via Mongo: successful (id:"+str(db_entry.inserted_id)+")"
+                    db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
+                    msg = " Submission to DM via Mongo: successful (id: "+str(db_entry.inserted_id)+")"
                 except:
                     msg = " Submission to DM via Mongo: failed."
             except:
                 msg = " Connection to DM server: failed."
+
         print(msg)
         logger.info(msg)
 
