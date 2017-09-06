@@ -280,7 +280,8 @@ class acqThread(QThread):
     def devAcq(self):
         # Switch to correct device and start acquisition of JV
         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-        JV = self.parent_obj.measure_JV(self.parent_obj.source_meter, self.dfAcqParams)
+        JV = np.zeros((3,2))
+        #JV = self.parent_obj.measure_JV(self.parent_obj.source_meter, self.dfAcqParams)
         return JV
 
     def run(self):
@@ -288,6 +289,7 @@ class acqThread(QThread):
         msg = "Activating stage..."
         self.parent_obj.printMsg(msg)
         QApplication.processEvents()
+        '''
         self.parent_obj.xystage = XYstage()
         if self.parent_obj.xystage.xystageInit == False:
             msg = "Stage not activated: no acquisition possible"
@@ -326,6 +328,7 @@ class acqThread(QThread):
             return
         msg = "Sourcemeter activated."
         self.parent_obj.printMsg(msg)
+        '''
 
         ### Setup interface and get parameters before acquisition
         self.parent_obj.obj.resultswind.clearPlots(True)
@@ -347,14 +350,14 @@ class acqThread(QThread):
                 # Check if the holder has a substrate in that slot
                 if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != "":
                     # Move stage to desired substrate
-                    if self.parent_obj.xystage.xystageInit is True:
-                        msg = "Moving stage to substrate: ("+str(i+1)+", "+str(j+1)+")"
-                        self.parent_obj.printMsg(msg)
-                        self.parent_obj.xystage.move_to_substrate_4x4(substrateNum)
-                        time.sleep(0.1)
-                    else:
-                        print("Skipping acquisition: stage not activated.")
-                        break
+                    #if self.parent_obj.xystage.xystageInit is True:
+                    msg = "Moving stage to substrate: ("+str(i+1)+", "+str(j+1)+")"
+                    self.parent_obj.printMsg(msg)
+                    #self.parent_obj.xystage.move_to_substrate_4x4(substrateNum)
+                    #time.sleep(0.1)
+                    #else:
+                    #    print("Skipping acquisition: stage not activated.")
+                    #    break
                     self.max_power = []
                     self.devMaxPower = 0
                     for dev_id in range(1,7):
@@ -366,8 +369,8 @@ class acqThread(QThread):
                         self.parent_obj.printMsg(msg)
 
                         # Switch to correct device and start acquisition of JV
-                        self.parent_obj.xystage.move_to_device_3x2(self.parent_obj.getSubstrateNumber(i, j), dev_id)
-                        self.parent_obj.switch_device(i, j, dev_id)
+                        #self.parent_obj.xystage.move_to_device_3x2(self.parent_obj.getSubstrateNumber(i, j), dev_id)
+                        #self.parent_obj.switch_device(i, j, dev_id)
                         JV = self.devAcq()
                     
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
@@ -384,7 +387,8 @@ class acqThread(QThread):
         self.parent_obj.obj.samplewind.enableSamplePanel(True)
         self.parent_obj.obj.enableButtonsAcq(True)
         self.parent_obj.printMsg(msg)
-
+        
+        '''
         # park the stage close to origin, deactivate.
         msg = "Moving the stage to substrate 6 - (2, 1)"
         self.parent_obj.printMsg(msg)
@@ -402,7 +406,7 @@ class acqThread(QThread):
         del self.parent_obj.switch_box
         msg = "Switchbox deactivated"
         self.parent_obj.printMsg(msg)
-        
+        '''
         # Re-enable panels and buttons
         self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
         self.parent_obj.obj.samplewind.resetCellAcq()
