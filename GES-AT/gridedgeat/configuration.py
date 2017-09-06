@@ -66,7 +66,7 @@ class Configuration():
             }
     def defineConfDM(self):
         self.conf['DM'] = {
-            'submitToDb' : False,
+            'submitToDb' : True,
             'DbHostname' : "18.82.1.200",
             'DbPortNumber' : "27017",
             'DbName' : "test",
