@@ -57,7 +57,7 @@ class Acquisition():
         obj.resultswind.clearPlots(True)
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
-        self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams, 1,i,j))
+        self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
         self.acq_thread.done.connect(self.printMsg)
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
@@ -233,7 +233,7 @@ class Acquisition():
     # Tracking
     # dfAcqParams : self.dfAcqParams
     def tracking(self, obj2, dfAcqParams):
-        num_points = float(dfAcqParams.get_value(0,'Num Track Points'))
+        num_points = int(dfAcqParams.get_value(0,'Num Track Points'))
         track_time = float(dfAcqParams.get_value(0,'Track Interval'))
 
         data = np.zeros((num_points, 4))
@@ -243,17 +243,18 @@ class Acquisition():
 
         for n in range(1, num_points):
             time.sleep(track_time)
-            voc, jsc, mpp = self.measure_voc_jsc_mpp(v_step = v_step, hold_time = hold_time)
+            voc, jsc, mpp = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
             data[n, :] = [time.time()-st, voc, jsc, mpp]
             #np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
+        return data
 
     
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, timeAcq, i, j):
+    def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i, j):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
-        perfData = np.hstack((timeAcq, perfData))
+        #perfData = np.hstack((timeAcq, perfData))
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.getDateTimeNow()[0], perfData))
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
@@ -299,8 +300,10 @@ class acqThread(QThread):
     
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
-        data = self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
-        return data
+        return self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
+    
+    def devAcqTracking(self):
+        return self.parent_obj.tracking(self.parent_obj.source_meter, self.dfAcqParams)
     
     def run(self):
         # Activate stage
@@ -391,7 +394,8 @@ class acqThread(QThread):
                         
                         # Acquire parameters
                         perfData = self.devAcqParams()
-                    
+                        perfData = np.hstack((0., perfData))  # Add fictious "zero" time for consistency in DataFrame for deveice.
+
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
                         self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
@@ -399,6 +403,18 @@ class acqThread(QThread):
                         self.devMaxPower =  np.argmax(self.max_power) + 1
 
                     self.maxPowerDev.emit("Main: Device with max power: "+str(self.devMaxPower))
+                    '''
+                    # Tracking still to be tested
+                    time.sleep(1)
+                    # Switch to device with max power and start tracking
+                    self.parent_obj.xystage.move_to_device_3x2(self.parent_obj.getSubstrateNumber(i, j), int(self.devMaxPower))
+                    self.parent_obj.switch_device(i, j, self.devMaxPower)
+                    perfData = self.devAcqTracking()
+                    JV = self.devAcqJV()
+                    self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
+                    self.done.emit(' Device '+deviceID+' tracking: complete')
+                    '''
+                    
                     self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
         msg = "Acquisition Completed: "+ self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
