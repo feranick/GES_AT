@@ -342,8 +342,9 @@ class ResultsWindow(QMainWindow):
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
             # This is for using POST HTTP
+            print("testing submission to DM via HTTP POST")
             from urllib.request import urlopen
-            url = "http://"+self.dbConnectInfo[0]+":3000/api/measurement"
+            url = "http://"+self.dbConnectInfo[0]+":3000/api/Measurements"
             req = urlopen(url)
             req.add_header('Content-Type', 'application/json')
             response = urllib.urlopen(req, json.dumps(jsonData))
