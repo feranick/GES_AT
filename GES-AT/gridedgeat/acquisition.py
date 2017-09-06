@@ -48,7 +48,7 @@ class Acquisition():
     def start(self, obj):
         self.obj = obj
         self.dfAcqParams = self.getAcqParameters(obj)
-        JV = np.zeros((0,2))
+        #JV = np.zeros((0,2))
         ### Setup interface and get parameters before acquisition
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
