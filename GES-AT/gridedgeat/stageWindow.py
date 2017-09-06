@@ -156,7 +156,7 @@ class StageWindow(QMainWindow):
     def setCurrentPosOrigin(self):
         self.stageLabel.setText("Setting current position as origin")
         QApplication.processEvents()
-        self.xystage.set_origin(True, (_,_))
+        self.xystage.set_origin(True, (0,0))
         QApplication.processEvents()
         self.showCurrentPos()
 
