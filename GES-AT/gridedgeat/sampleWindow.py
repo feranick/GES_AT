@@ -156,8 +156,15 @@ class SampleWindow(QMainWindow):
         self.holderTypeCBox.setEnabled(flag)
         self.operatorText.setEnabled(flag)
         self.sizeSubsCBox.setEnabled(flag)
+        self.commentsText.setEnabled(flag)
         self.loadButton.setEnabled(flag)
+        self.saveButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
+        if flag is False:
+            self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        else:
+            self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
+
 
     # Change color in sample cells depending on the acqusition status
     def colorCellAcq(self,row,column,color):

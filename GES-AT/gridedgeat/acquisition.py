@@ -80,7 +80,7 @@ class Acquisition():
                     JV = np.zeros((0,2))
                     #self.fakeAcq(i, j, obj, deviceID, self.dfAcqParams)
                     self.get_thread = acqThread(self.dfAcqParams)
-                    self.get_thread.JVcomplete.connect(lambda jv = JV: self.processFakeAcq(jv, obj, deviceID, self.dfAcqParams))
+                    self.get_thread.JVcomplete.connect(lambda JV: self.processFakeAcq(JV, obj, deviceID, self.dfAcqParams))
                     self.get_thread.done.connect(self.printmsg)
                     self.get_thread.start()
         

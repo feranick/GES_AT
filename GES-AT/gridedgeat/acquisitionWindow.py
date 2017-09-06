@@ -34,7 +34,7 @@ class AcquisitionWindow(QMainWindow):
     
     def initUI(self,MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setGeometry(10, 270, 350, 470)
+        MainWindow.setGeometry(10, 270, 350, 490)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
