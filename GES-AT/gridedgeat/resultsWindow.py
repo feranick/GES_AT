@@ -342,8 +342,7 @@ class ResultsWindow(QMainWindow):
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
             #This is for using POST HTTP
-            url = "http://"+self.dbConnectInfo[0]+":3000/api/Measurements"
-        
+            url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
             req = requests.post(url, json=jsonData)
             if req.status_code == 200:
                 msg = " Submission to DM via HTTP POST: successful (ETag: "+str(req.headers['ETag'])+")"

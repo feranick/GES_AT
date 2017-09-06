@@ -71,7 +71,9 @@ class Configuration():
             'DbPortNumber' : "27017",
             'DbName' : "test",
             'DbUsername' : "user",
-            'DbPassword' : "Tata"
+            'DbPassword' : "Tata",
+            'DbHttpPortNumber' : "3000",
+            'DbHttpPath' : "/api/Measurements",
             }
 
     def readConfig(self, configFile):
@@ -112,6 +114,9 @@ class Configuration():
         self.DbName = self.dmConfig['DbName']
         self.DbUsername = self.dmConfig['DbUsername']
         self.DbPassword = self.dmConfig['DbPassword']
+        self.DbHttpPortNumber = self.dmConfig['DbHttpPortNumber']
+        self.DbHttpPath = self.dmConfig['DbHttpPath']
+
 
     def saveConfig(self, configFile):
         try:
