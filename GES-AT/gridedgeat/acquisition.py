@@ -242,7 +242,7 @@ class Acquisition():
 
     
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, JV, deviceID, dfAcqParams, timeAcq):
+    def JVDeviceProcess(self, JV, deviceID, dfAcqParams, timeAcq, i, j):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
