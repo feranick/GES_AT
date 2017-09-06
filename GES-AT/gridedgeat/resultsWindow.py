@@ -238,10 +238,10 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-                
-        self.plotData(self.dfTotDeviceID.get_value(0,row),
-                self.dfTotPerfData.get_value(0,row),
-                self.dfTotJV.get_value(0,row)[self.dfTotJV.get_value(0,row).shape[0]-1])
+
+        self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
+                self.dfTotPerfData.get_value(0,row,takeable=True),
+                self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
 
     # Add row and initialize it within the table
     def setupResultTable(self):

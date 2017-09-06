@@ -375,6 +375,7 @@ class acqThread(QThread):
                         #self.parent_obj.switch_device(i, j, dev_id)
                         #JV = self.devAcq()
                         JV = self.generateRandomJV()
+                        time.sleep(1)
                     
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
                         self.acqJVComplete.emit(JV, deviceID, i, j)
