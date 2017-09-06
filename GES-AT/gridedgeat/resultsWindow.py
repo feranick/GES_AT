@@ -288,11 +288,12 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
         
-        if bool(self.parent().config.saveLocalCsv) is True:
+        if self.parent().config.saveLocalCsv == 'True':
             self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
                 
-        if bool(self.parent().config.submitToDb) is True:
-            self.submit_DM(self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV))
+        if self.parent().config.submitToDb == 'True':
+            self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
+
         
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -336,7 +337,8 @@ class ResultsWindow(QMainWindow):
         return listTot
     
     ### Submit json for device data to Data-Management
-    def submit_DM(self,jsonData):
+    def submit_DM(self,deviceID, dfAcqParams, dfPerfData, dfJV):
+        jsonData = self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV)
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
             #This is for using POST HTTP
@@ -359,8 +361,8 @@ class ResultsWindow(QMainWindow):
                 except:
                     msg = " Submission to DM via Mongo: failed."
             except:
-                msg = " Connection to DM server: failed."
-
+                msg = " Connection to DM server: failed. Saving local file"
+                self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
         print(msg)
         logger.info(msg)
 
@@ -403,7 +405,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float)))))
-        #self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float)))))
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
