@@ -35,7 +35,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.ones((0,8))
+        self.perfData = np.zeros((0,8))
         self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = self.parent().config.csvSavingFolder

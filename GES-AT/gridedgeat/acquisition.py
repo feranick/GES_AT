@@ -236,17 +236,20 @@ class Acquisition():
         num_points = int(dfAcqParams.get_value(0,'Num Track Points'))
         track_time = float(dfAcqParams.get_value(0,'Track Interval'))
 
-        data = np.zeros((num_points, 4))
+        data = np.zeros((0, 6))
         voc, jsc, mpp = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
         st = time.time()
         data[0, :] = [0., voc, jsc, mpp]
 
         for n in range(1, num_points):
             time.sleep(track_time)
-            voc, jsc, mpp = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
-            data[n, :] = [time.time()-st, voc, jsc, mpp]
+            #voc, jsc, mpp, ff, eff = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            #data[n, :] = [time.time()-st, voc, jsc, mpp, ff, eff]
+            data = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            perfData = np.vstack((data, perfData))
+
             #np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
-        return data
+        return perfData
 
     
     # Process JV Acquisition to result page
