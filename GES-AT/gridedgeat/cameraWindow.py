@@ -54,7 +54,6 @@ class CameraWindow(QMainWindow):
         updateBtn.setStatusTip('Get Camera Feed')
         tb.addAction(updateBtn)
         tb.addSeparator()
-        
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Check alignment [%]: ")
         tb.addWidget(contrastAlignLabel)
@@ -64,7 +63,6 @@ class CameraWindow(QMainWindow):
         tb.addWidget(self.checkAlignText)
         self.checkAlignText.show()
         tb.addSeparator()
-        
         self.setDefaultBtn = QAction(QIcon(QPixmap()),"Set Default Alignment",self)
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
@@ -73,15 +71,16 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         
         self.cam = CameraFeed()
-
         tb.actionTriggered[QAction].connect(self.toolbtnpressed)
     
+    # Define behavior of push buttons
     def toolbtnpressed(self,a):
         if a.text() == "Update Camera Feed":
             self.cameraFeed()
         if a.text() == "Set Default Alignment":
             self.setDefault()
 
+    # Get and preprocess image
     def cameraFeed(self):
         self.setDefaultBtn.setEnabled(True)
         try:
@@ -102,6 +101,7 @@ class CameraWindow(QMainWindow):
         except:
             self.statusBar().showMessage(' USB camera not connected', 5000)
 
+    # Set default values for alignment parameters
     def setDefault(self):
         try:
             self.setDefaultMessageBox(self.alignPerc)
@@ -109,7 +109,7 @@ class CameraWindow(QMainWindow):
         except:
             self.statusBar().showMessage(' Acquire image first', 5000)
 
-
+    # Dialog box and logic to set new alignment parameters.
     def setDefaultMessageBox(self, value):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Information )
@@ -137,13 +137,13 @@ class CameraWindow(QMainWindow):
             print( " Alignment settings not saved as default" )
             return False
 
+    # Warning box for misalignment
     def outAlignmentMessageBox(self):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Information )
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
         msgBox.exec_()
-
 
 '''
    GraphicsView
@@ -164,7 +164,7 @@ class GraphicsView(QGraphicsView):
 
 '''
    GraphicsScene
-   Definition of the View for Camera
+   Definition of the Scene for Camera
 '''
 class GraphicsScene(QGraphicsScene):
     """ Custom GraphicScene having all the main content."""

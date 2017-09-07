@@ -23,6 +23,7 @@ class SwitchboxWindow(QMainWindow):
         super(SwitchboxWindow, self).__init__(parent)
         self.initUI(self)
     
+    # define UI elements
     def initUI(self, SwitchboxWindow):
         SwitchboxWindow.resize(328, 60)
         self.stageLabel = QLabel(SwitchboxWindow)

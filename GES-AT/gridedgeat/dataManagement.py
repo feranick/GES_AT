@@ -27,6 +27,7 @@ class DataManagement:
         self.dbUsername = info[3]
         self.dbPassword = info[4]
 
+    # Connect to Data Management database via pyMongo
     def connectDB(self):
         from pymongo import MongoClient
         client = MongoClient(self.dbHostname, int(self.dbPortNum),serverSelectionTimeoutMS=1000)
@@ -43,6 +44,9 @@ class DataManagement:
             flag = False
         return client, flag
 
+    ####  This is no longer needed  #####
+    '''
+    # Print connection information
     def printAuthInfo(self):
         print(self.dbHostname)
         print(self.dbPortNum)
@@ -50,6 +54,7 @@ class DataManagement:
         print(self.dbUsername)
         print(self.dbPassword)
 
+    # Prepare JSON for the connection info
     def makeJSON(self):
         dataj = {
             'hostname' : self.dbHostname,
@@ -58,6 +63,7 @@ class DataManagement:
             }
         return json.dumps(dataj)
 
+    # Push JSON to Data management
     def pushToMongoDB(self):
         jsonData = self.makeJSON()
         client,_= self.connectDB()
@@ -68,4 +74,4 @@ class DataManagement:
         except:
             print(" Data entry failed.\n")
 
-
+    '''

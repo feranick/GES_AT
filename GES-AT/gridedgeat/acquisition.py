@@ -143,7 +143,6 @@ class Acquisition():
 
     def switch_device(self, i,j, dev_id):
         "Switch operation devices"
-        #self.xy_stage.move_to_device_3x2(sub_id, dev_id)
         self.switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
@@ -186,7 +185,6 @@ class Acquisition():
                 time.sleep(hold_time)
                 data[i, 2] += 1.
                 data[i, 1] = (obj2.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
-                #np.savetxt(filename, data[:, 0:2], delimiter=',', header='V,J')
 
         return data[:, 0:2]
 
@@ -255,8 +253,6 @@ class Acquisition():
             #data[n, :] = [time.time()-st, voc, jsc, mpp, ff, eff]
             data = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
             perfData = np.vstack((data, perfData))
-
-            #np.savetxt(filename, data, delimiter=',', header='time,Voc,Jsc,MPP')
         return perfData
 
     
@@ -265,7 +261,6 @@ class Acquisition():
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
-        #perfData = np.hstack((timeAcq, perfData))
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.getDateTimeNow()[0], perfData))
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)

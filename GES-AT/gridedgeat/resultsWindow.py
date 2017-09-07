@@ -43,11 +43,12 @@ class ResultsWindow(QMainWindow):
         self.initPlots(self.perfData)
         self.initJVPlot()
     
+    # Define UI elements
     def initUI(self):
         self.setGeometry(500, 100, 1150, 950)
         self.setWindowTitle('Results Panel')
         
-        # a figure instance to plot on
+        # A figure instance to plot on
         self.figureTJsc = plt.figure()
         self.figureTVoc = plt.figure()
         self.figureMPP = plt.figure()
@@ -130,6 +131,7 @@ class ResultsWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
+    # Set directory for saved data
     def set_dir_saved(self):
         self.csvFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.parent().config.conf['System']['csvSavingFolder'] = str(self.csvFolder)
@@ -139,6 +141,7 @@ class ResultsWindow(QMainWindow):
         print(msg)
         logger.info(msg)
     
+    # Define axis parametrs for plots
     def plotSettings(self, ax):
         ax.tick_params(axis='both', which='major', labelsize=5)
         ax.tick_params(axis='both', which='minor', labelsize=5)
@@ -294,7 +297,6 @@ class ResultsWindow(QMainWindow):
         if self.parent().config.submitToDb == 'True':
             self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
 
-        
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
@@ -365,7 +367,6 @@ class ResultsWindow(QMainWindow):
         print(msg)
         logger.info(msg)
 
-
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
@@ -397,7 +398,7 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
 
-    # Populate table.
+    # Populate result table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
         self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))

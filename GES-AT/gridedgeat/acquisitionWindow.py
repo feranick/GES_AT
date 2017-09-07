@@ -32,6 +32,7 @@ class AcquisitionWindow(QMainWindow):
         super(AcquisitionWindow, self).__init__(parent)
         self.initUI(self)
     
+    # Setup UI elements
     def initUI(self,MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setGeometry(10, 270, 350, 490)
@@ -141,6 +142,7 @@ class AcquisitionWindow(QMainWindow):
         
         self.initParameters()
 
+    # Save acquisition parameters in configuration ini
     def saveParameters(self):
         self.parent().config.conf['Acquisition']['acqMinVoltage'] = str(self.minVText.text())
         self.parent().config.conf['Acquisition']['acqMaxVoltage'] = str(self.maxVText.text())
@@ -157,6 +159,7 @@ class AcquisitionWindow(QMainWindow):
         logger.info("Acquisition parameters saved as default")
         self.timePerDevice()
     
+    # Set default acquisition parameters from configuration ini
     def defaultParameters(self):
         self.parent().config.createConfig()
         self.parent().config.readConfig(self.parent().config.configFile)
@@ -165,6 +168,7 @@ class AcquisitionWindow(QMainWindow):
         logger.info("Default acquisition parameters restored")
         self.timePerDevice()
 
+    # Populate acquisition panel with values from config
     def initParameters(self):
         self.minVText.setText(self.parent().config.acqMinVoltage)
         self.maxVText.setText(self.parent().config.acqMaxVoltage)
@@ -176,6 +180,7 @@ class AcquisitionWindow(QMainWindow):
         self.IntervalText.setText(self.parent().config.acqTrackInterval)
         self.timePerDevice()
 
+    # Field validator for VStart
     def validateStartVoltage(self):
         self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),float(self.maxVText.text()),1,self.startVText)
         if self.validateStartVoltage.validate(self.startVText.text(),1)[0] != 2:
@@ -183,6 +188,7 @@ class AcquisitionWindow(QMainWindow):
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
 
+    # Calculate the measurement time per device
     def timePerDevice(self):
         timePerDevice = (int(self.parent().config.acqNumAvScans) * (0.1+float(self.parent().config.acqDelBeforeMeas)) + float(self.parent().config.acqTrackInterval)) * int(self.parent().config.acqTrackNumPoints)
         self.totTimePerDeviceLabel.setText("Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))

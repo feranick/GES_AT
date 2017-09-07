@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.config.readConfig(self.config.configFile)
         self.initUI()
     
+    # Define UI elements
     def initUI(self):
         logger.info("Gridedge Auto-testing v."+__version__)
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
@@ -118,9 +119,11 @@ class MainWindow(QMainWindow):
         instrumentsMenu = self.menuBar.addMenu('&Instruments')
         instrumentsMenu.addAction(self.stageMenu)
         instrumentsMenu.addAction(self.powermeterMenu)
+        instrumentsMenu.addAction(self.cameraMenu)
+        
+        # Sourcemeter and switchbox are disabled until we have parameters to fill in
         #instrumentsMenu.addAction(self.sourcemeterMenu)
         #instrumentsMenu.addAction(self.switchboxMenu)
-        instrumentsMenu.addAction(self.cameraMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
         self.dataManagementMenu.setShortcut("Ctrl+d")
@@ -195,6 +198,7 @@ class MainWindow(QMainWindow):
         self.logo.setPixmap(QPixmap("gridedgeat/rsrc/logo.png"))
         self.logo.setObjectName("logo")
     
+    # Logic for loading parameters from a configuration file
     def loadConfig(self):
         filename = QFileDialog.getOpenFileName(self,
                         "Open INI config file", "","*.ini")
@@ -202,6 +206,7 @@ class MainWindow(QMainWindow):
         print("Confguration parameters loaded from:",filename[0])
         logger.info("Confguration parameters loaded from:"+filename[0])
     
+    # Logic for saving parameters to a configuration file
     def saveConfig(self):
         filename = QFileDialog.getSaveFileName(self,
                         "Save INI config file", "","*.ini")
@@ -209,9 +214,11 @@ class MainWindow(QMainWindow):
         print("Confguration parameters saved to:",filename[0])
         logger.info("Confguration parameters saved to:"+filename[0])
 
+    # When closing the MainWindow, all windows need to close as we..
     def fileQuit(self):
         QApplication.closeAllWindows()
     
+    # Enable/disable buttons
     def enableButtonsAcq(self,flag):
         if flag is False:
             self.startAcqButton.setText("Acquisition Running...")
@@ -244,12 +251,15 @@ class MainWindow(QMainWindow):
         windowMenu.addAction(viewAcquisitionMenu)
         windowMenu.addAction(viewResultsMenu)
 
+    # Display main window
     def displayMainWindow(self, obj):
         obj.show()
         obj.setWindowState(obj.windowState() & Qt.WindowMinimized | Qt.WindowActive)
         obj.raise_()
         obj.activateWindow()
 
+    # Logic to run when quitting the program
+    # Dialog box for confirmation
     def closeEvent(self, event):
         quit_msg = "Are you sure you want to exit the program?"
         reply = QMessageBox.question(self, 'Message',
@@ -284,6 +294,7 @@ class AboutWidget(QWidget):
         super(AboutWidget, self).__init__()
         self.initUI()
     
+    # Define UI elements
     def initUI(self):
         self.setGeometry(100, 200, 400, 300)
         self.setWindowTitle('About GridEdge AutoTesting')

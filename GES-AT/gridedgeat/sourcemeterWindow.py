@@ -23,6 +23,7 @@ class SourcemeterWindow(QMainWindow):
         super(SourcemeterWindow, self).__init__(parent)
         self.initUI(self)
     
+    # Setup UI elements
     def initUI(self, SourcemeterWindow):
         SourcemeterWindow.resize(328, 60)
         self.stageLabel = QLabel(SourcemeterWindow)

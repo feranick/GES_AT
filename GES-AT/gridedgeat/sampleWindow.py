@@ -33,6 +33,7 @@ class SampleWindow(QMainWindow):
         super(SampleWindow, self).__init__(parent)
         self.initUI(self)
     
+    # Define UI elements
     def initUI(self,MainWindow):
         self.setGeometry(10, 300, 440, 370)
         MainWindow.setWindowTitle("Substrates configuration")
@@ -145,6 +146,7 @@ class SampleWindow(QMainWindow):
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
 
+    # Logic to set substrate name in table
     @pyqtSlot()
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
@@ -164,7 +166,6 @@ class SampleWindow(QMainWindow):
             self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         else:
             self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
-
 
     # Change color in sample cells depending on the acqusition status
     def colorCellAcq(self,row,column,color):

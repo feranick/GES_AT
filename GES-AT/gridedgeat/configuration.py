@@ -19,6 +19,7 @@ class Configuration():
         self.configFile = "GridEdgeAT.ini"
         self.conf = configparser.ConfigParser()
     
+    # Create configuration file
     def createConfig(self):
         try:
             self.defineConfDevices()
@@ -30,7 +31,8 @@ class Configuration():
                 self.conf.write(configfile)
         except:
             print("Error in creating configuration file")
-    
+
+    # Hadrcoded default definitions for the confoguration file
     def defineConfDevices(self):
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
@@ -76,6 +78,7 @@ class Configuration():
             'DbHttpPath' : "/api/Measurements",
             }
 
+    # Read configuration file into usable variables
     def readConfig(self, configFile):
         self.conf.read(configFile)
         self.devConfig = self.conf['Devices']
@@ -117,7 +120,7 @@ class Configuration():
         self.DbHttpPortNumber = self.dmConfig['DbHttpPortNumber']
         self.DbHttpPath = self.dmConfig['DbHttpPath']
 
-
+    # Save current parameters in configuration file
     def saveConfig(self, configFile):
         try:
             with open(configFile, 'w') as configfile:
