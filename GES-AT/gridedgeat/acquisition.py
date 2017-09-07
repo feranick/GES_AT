@@ -64,10 +64,18 @@ class Acquisition():
 
     # Action for stop button
     def stop(self, obj):
-        msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
-        #obj.stopAcqFlag = True
-        self.acq_thread.stop()
-        self.printMsg(msg)
+        quit_msg = "Are you sure you want to stop the acquisition?"
+        reply = QMessageBox.question(self, 'Message',
+                     quit_msg, QMessageBox.No, QMessageBox.Yes)
+
+        if reply == QMessageBox.Yes:
+            #obj.stopAcqFlag = True
+            self.acq_thread.stop()
+            msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+            self.printMsg(msg)
+        else:
+            event.ignore()
+
     
     # Extract parameters from JV
     def analyseJV(self, powerIn, JV):
