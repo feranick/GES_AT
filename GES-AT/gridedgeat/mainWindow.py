@@ -253,7 +253,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         quit_msg = "Are you sure you want to exit the program?"
         reply = QMessageBox.question(self, 'Message',
-                     quit_msg, QMessageBox.Yes, QMessageBox.No)
+                     quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
             self.close()
