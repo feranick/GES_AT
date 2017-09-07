@@ -24,7 +24,6 @@ class SwitchBox(object):
         - command manual: c:/Users/PV_Test/Desktop/keithley-3700a-referencehandbuchswitch-901-01c-jul-2016.pdf
         - cards: https://smt.at/wp-content/uploads/smt-handbuch-keithley-3700a-scannerkarten-englisch.pdf
     '''
-
     def __init__(self, visa_string='GPIB0::16::INSTR'):
         self.manager = visa.ResourceManager().open_resource(visa_string) 
         self.open_all()
@@ -47,7 +46,6 @@ class SwitchBox(object):
     def ask(self, command):
         return self.manager.query(command)
 
-
     ## low level swithbox api wrapper
     def short_channel(self, channel):
         'Connect channel, check command manual for the channel numbers.'
@@ -60,7 +58,6 @@ class SwitchBox(object):
     def set_pole(self, poles):
         'Set the pole modes for the all slots. Should use pole mode ONE'
         self.write('channel.setpole("allslots", {})'.format(poles))
-
 
     ## high-level api
     def set_connection_map(self, connection_map = None):
@@ -94,9 +91,8 @@ class SwitchBox(object):
         'get the channels that are connected'
         return sb.ask('print(channel.getclose("allslots"))')
 
-    
-
 '''
+### This is only for testing - to be removed ###
 if __name__ == '__main__':
     # test
     sb = SwitchBox()
