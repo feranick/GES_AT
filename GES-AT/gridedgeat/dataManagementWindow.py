@@ -34,6 +34,7 @@ class DataManagementWindow(QMainWindow):
         super(DataManagementWindow, self).__init__(parent)
         self.initUI(self)
     
+    # Setup UI elements
     def initUI(self,Panel):
         self.setGeometry(10, 200, 300, 390)
         self.setWindowTitle('Data-management Settings')
@@ -124,6 +125,7 @@ class DataManagementWindow(QMainWindow):
         self.dbSetDefaultButton.clicked.connect(self.dbSetDefault)
         self.dbRestoreDefaultButton.clicked.connect(self.dbRestoreDefault)
 
+    # Populate UI elements from configuration file
     def initParams(self):
         self.dbHostnameText.setText(self.parent().config.DbHostname)
         self.dbPortNumText.setText(self.parent().config.DbPortNumber)
@@ -133,6 +135,7 @@ class DataManagementWindow(QMainWindow):
         self.dbHttpPortNumText.setText(self.parent().config.DbHttpPortNumber)
         self.dbHttpPathText.setText(self.parent().config.DbHttpPath)
 
+    # Get initialization paramters from UI elements
     def getDbConnectionInfo(self):
         return [self.dbHostnameText.text(),
                     self.dbPortNumText.text(),
@@ -142,6 +145,7 @@ class DataManagementWindow(QMainWindow):
                     self.dbHttpPortNumText.text(),
                     self.dbHttpPathText.text()]
 
+    # Logic for checking connection via pyMongo
     def dbCheckConnect(self):
         self.dbConnect = DataManagement(self.getDbConnectionInfo())
         try:
@@ -152,6 +156,7 @@ class DataManagementWindow(QMainWindow):
             self.dbConnectResultLabel.setText("Connection failed")
             print("Connection to Data-Management failed")
 
+    # Set connection parameters as default values.
     def dbSetDefault(self):
         self.parent().config.conf['DM']['DbHostname'] = str(self.dbHostnameText.text())
         self.parent().config.conf['DM']['DbPortNumber'] = str(self.dbPortNumText.text())
@@ -165,6 +170,7 @@ class DataManagementWindow(QMainWindow):
         print("New Data-Management settings saved as default")
         logger.info("New Data-Management settings saved as default")
 
+    # Restore connection parameters from default values.
     def dbRestoreDefault(self):
         self.parent().config.defineConfDM()
         self.parent().config.saveConfig(self.parent().config.configFile)
@@ -173,17 +179,11 @@ class DataManagementWindow(QMainWindow):
         logger.info("Restored default Data-Management settings")
         self.initParams()
 
+# Classes to make horizontal lines
 class QHLine(QFrame):
     def __init__(self):
         super(QHLine, self).__init__()
         self.setFrameShape(QFrame.HLine)
-        self.setFrameShadow(QFrame.Sunken)
-
-
-class QVLine(QFrame):
-    def __init__(self):
-        super(QVLine, self).__init__()
-        self.setFrameShape(QFrame.VLine)
         self.setFrameShadow(QFrame.Sunken)
 
 

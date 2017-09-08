@@ -15,8 +15,6 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
-## numpy has errors with visa?
 import visa
 
 class SourceMeter(object):
@@ -25,7 +23,6 @@ class SourceMeter(object):
         - Keithley 2400
         - command manual: http://research.physics.illinois.edu/bezryadin/labprotocol/Keithley2400Manual.pdf
     '''
-
     def __init__(self, visa_string='GPIB0::24::INSTR'):
         self.manager = visa.ResourceManager().open_resource(visa_string) 
 
@@ -45,7 +42,6 @@ class SourceMeter(object):
         self.off()
         self.manager.close()
 
-
     ## common visa api wrappers
     # write: send command with out expecting return
     # read: instrument response
@@ -56,7 +52,6 @@ class SourceMeter(object):
         return self.manager.read()
     def ask(self, command):
         return self.manager.query(command)
-
 
     ## keithley api
     def get_mode(self, key):
@@ -81,7 +76,6 @@ class SourceMeter(object):
 
         self.write('SENS:FUNC "{}"'.format(self.get_mode('measure')))
         self.write('SENS:{}:RANG:AUTO ON'.format(self.get_mode('measure')))
-
 
     def set_limit(self, voltage = None, current = None):
         if voltage != None:
@@ -132,8 +126,8 @@ class SourceMeter(object):
         "Turn Keithley off"
         self.write('OUTP OFF')
 
-
 '''
+### This is only for testing - to be removed ###
 if __name__ == '__main__':
     import time
     # test

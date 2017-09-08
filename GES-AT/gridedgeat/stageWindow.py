@@ -25,6 +25,7 @@ class StageWindow(QMainWindow):
         self.initUI(self)
         self.activeStage = False
     
+    # Setup UI elements
     def initUI(self, StageWindow):
         self.setGeometry(20, 200, 310, 300)
         StageWindow.setWindowTitle("XY stage control settings")
@@ -100,7 +101,8 @@ class StageWindow(QMainWindow):
         self.activateStageButton.clicked.connect(self.activateStage)
     
         self.enableButtons(False)
-        
+    
+    # Logic for activating the stage
     def activateStage(self):
         if self.activeStage == False:
             self.activateStageButton.setEnabled(False)

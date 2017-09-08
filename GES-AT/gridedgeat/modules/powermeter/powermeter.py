@@ -24,6 +24,7 @@ except ImportError:
     pass
 
 class PowerMeter():
+    # Define connection to powermeter
     def __init__(self, powermeterID):
         self.powermeterID = powermeterID
         try:
@@ -32,7 +33,8 @@ class PowerMeter():
         except:
             self.PM100Init = False
         time.sleep(1)
-
+    
+    # Get power reading from powermeter
     def get_power(self):
         inst = self.rm.open_resource(self.powermeterID, timeout=1)
         power_meter = ThorlabsPM100(inst=inst)

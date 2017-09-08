@@ -25,6 +25,7 @@ class PowermeterWindow(QMainWindow):
         self.initUI(self)
         self.activePowermeter = False
     
+    # Define UI elements
     def initUI(self, PowermeterWindow):
         PowermeterWindow.setWindowTitle("Powermeter Settings")
         self.setGeometry(10, 200, 320, 110)
@@ -50,6 +51,7 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
 
+    # Logic to stop powermeter acquisition
     def stopPMAcq(self):
         self.stopAcqFlag = True
         self.powermeterStopButton.setEnabled(False)
@@ -57,7 +59,7 @@ class PowermeterWindow(QMainWindow):
         self.powerMeterLabel.setText("Powermeter stopped")
         del self.pm
 
-
+    # Logic to start powermeter acquisition
     def startPMAcq(self):
         if self.activePowermeter == False:
             self.powermeterStartButton.setEnabled(True)
@@ -87,6 +89,7 @@ class PowermeterWindow(QMainWindow):
                     print("Connection failed")
                     break
 
+    # Stop acquisition upon closing the powermeter window
     def closeEvent(self, event):
        self.stopPMAcq()    
         
