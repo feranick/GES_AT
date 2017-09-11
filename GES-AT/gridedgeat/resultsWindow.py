@@ -274,8 +274,7 @@ class ResultsWindow(QMainWindow):
         
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
-        self.perfData = np.vstack((self.perfData, np.array([perfData])))
-        
+        self.perfData = perfData
         if self.JV.shape[0] == 0:
             #self.JV.resize((0,JV.shape[0],2))
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))

@@ -65,7 +65,8 @@ class Acquisition():
     # Action for stop button
     def stop(self, obj):
         quit_msg = "Are you sure you want to stop the acquisition?"
-        reply = QMessageBox.question(self, 'Message',
+        print(quit_msg)
+        reply = QMessageBox.question(obj, 'Message',
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
@@ -238,31 +239,27 @@ class Acquisition():
 
     # Tracking
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, obj2, dfAcqParams):
-        num_points = int(dfAcqParams.get_value(0,'Num Track Points'))
-        track_time = float(dfAcqParams.get_value(0,'Track Interval'))
-
-        data = np.zeros((0, 6))
-        voc, jsc, mpp = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
-        st = time.time()
-        data[0, :] = [0., voc, jsc, mpp]
-
-        for n in range(1, num_points):
-            time.sleep(track_time)
-            #voc, jsc, mpp, ff, eff = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
-            #data[n, :] = [time.time()-st, voc, jsc, mpp, ff, eff]
+    def tracking(self, obj2, deviceID, dfAcqParams):
+        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
+        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
+        perfData = np.zeros((0,8))
+        startTime = time.time()
+        for n in range(0, numPoints):
+            timeStep = time.time()-startTime
+            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
             data = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            data = np.hstack((timeStep, data))
+            data = np.hstack((self.getDateTimeNow()[0], data))
+            data = np.hstack((self.getDateTimeNow()[1], data))
             perfData = np.vstack((data, perfData))
+            time.sleep(trackTime)
         return perfData
 
-    
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i, j):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
-        perfData = np.hstack((self.getDateTimeNow()[1], perfData))
-        perfData = np.hstack((self.getDateTimeNow()[0], perfData))
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
         QApplication.processEvents()
         self.obj.resultswind.show()
@@ -306,10 +303,14 @@ class acqThread(QThread):
     
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
-        return self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
+        perfData = self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
+        perfData = np.hstack((0., perfData))  # Add fictious "zero" time for consistency in DataFrame for device.
+        perfData = np.hstack((self.parent_obj.getDateTimeNow()[1], perfData))
+        perfData = np.hstack((self.parent_obj.getDateTimeNow()[0], perfData))
+        return np.array([perfData])
     
-    def devAcqTracking(self):
-        return self.parent_obj.tracking(self.parent_obj.source_meter, self.dfAcqParams)
+    def devAcqTracking(self, deviceID):
+        return self.parent_obj.tracking(self.parent_obj.source_meter, deviceID, self.dfAcqParams)
     
     def run(self):
         # Activate stage
@@ -318,11 +319,11 @@ class acqThread(QThread):
         QApplication.processEvents()
         self.parent_obj.xystage = XYstage()
         if self.parent_obj.xystage.xystageInit == False:
-            msg = "Stage not activated: no acquisition possible"
+            msg = " Stage not activated: no acquisition possible"
             self.parent_obj.printMsg(msg)
             QApplication.processEvents()
             return
-        msg = "Stage activated."
+        msg = " Stage activated."
         self.parent_obj.printMsg(msg)
         
         # Activate switchbox
@@ -332,11 +333,11 @@ class acqThread(QThread):
         try:
             self.parent_obj.switch_box = SwitchBox(self.parent_obj.obj.config.switchboxID)
         except:
-            msg = "Switchbox not activated: no acquisition possible"
+            msg = " Switchbox not activated: no acquisition possible"
             self.parent_obj.printMsg(msg)
             QApplication.processEvents()
             return
-        msg = "Switchbox activated."
+        msg = " Switchbox activated."
         self.parent_obj.printMsg(msg)
 
         # Activate sourcemeter
@@ -348,11 +349,11 @@ class acqThread(QThread):
             self.parent_obj.source_meter.set_limit(voltage=20., current=1.)
             self.parent_obj.source_meter.on()
         except:
-            msg = "Sourcemeter not activated: no acquisition possible"
+            msg = " Sourcemeter not activated: no acquisition possible"
             self.parent_obj.parent_obj.printMsg(msg)
             QApplication.processEvents()
             return
-        msg = "Sourcemeter activated."
+        msg = " Sourcemeter activated."
         self.parent_obj.printMsg(msg)
 
         ### Setup interface and get parameters before acquisition
@@ -361,7 +362,8 @@ class acqThread(QThread):
         operator = self.parent_obj.obj.samplewind.operatorText.text()
         msg = "Operator: " + operator
         self.parent_obj.printMsg(msg)
-        msg = "Acquisition started: "+self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
+        msg = "Acquisition started: "+self.parent_obj.getDateTimeNow()[0]+"_" + \
+                self.parent_obj.getDateTimeNow()[1]
         self.parent_obj.printMsg(msg)
         
         # If all is OK, start acquiring
@@ -376,7 +378,9 @@ class acqThread(QThread):
                 if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != "":
                     # Move stage to desired substrate
                     if self.parent_obj.xystage.xystageInit is True:
-                        msg = "Moving stage to substrate: ("+str(i+1)+", "+str(j+1)+")"
+                        msg = "Moving stage to substrate #"+ \
+                                        str(self.parent_obj.getSubstrateNumber(i,j))+ \
+                                        ": ("+str(i+1)+", "+str(j+1)+")"
                         self.parent_obj.printMsg(msg)
                         self.parent_obj.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
@@ -386,7 +390,9 @@ class acqThread(QThread):
                     self.max_power = []
                     self.devMaxPower = 0
                     for dev_id in range(1,7):
-                        msg = " Moving to device: " + str(dev_id)+", substrate: ("+str(i+1)+", "+str(j+1)+")" 
+                        msg = " Moving to device: " + str(dev_id)+", substrate #"+ \
+                                str(self.parent_obj.getSubstrateNumber(i,j)) + \
+                                ": ("+str(i+1)+", "+str(j+1)+")" 
                         self.parent_obj.printMsg(msg)
                         deviceID = substrateID+str(dev_id)
                         # prepare parameters, plots, tables for acquisition
@@ -400,8 +406,7 @@ class acqThread(QThread):
                         
                         # Acquire parameters
                         perfData = self.devAcqParams()
-                        perfData = np.hstack((0., perfData))  # Add fictious "zero" time for consistency in DataFrame for deveice.
-
+                        
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
                         self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
@@ -409,17 +414,16 @@ class acqThread(QThread):
                         self.devMaxPower =  np.argmax(self.max_power) + 1
 
                     self.maxPowerDev.emit("Main: Device with max power: "+str(self.devMaxPower))
-                    '''
+                    
                     # Tracking still to be tested
                     time.sleep(1)
                     # Switch to device with max power and start tracking
                     self.parent_obj.xystage.move_to_device_3x2(self.parent_obj.getSubstrateNumber(i, j), int(self.devMaxPower))
                     self.parent_obj.switch_device(i, j, self.devMaxPower)
-                    perfData = self.devAcqTracking()
+                    perfData = self.devAcqTracking(substrateID+str(self.devMaxPower))
                     JV = self.devAcqJV()
                     self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
-                    self.done.emit(' Device '+deviceID+' tracking: complete')
-                    '''
+                    self.done.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
                     
                     self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
@@ -433,22 +437,31 @@ class acqThread(QThread):
         self.parent_obj.obj.enableButtonsAcq(True)
 
         # park the stage close to origin, deactivate.
-        msg = "Moving the stage to substrate 6 - (2, 1)"
-        self.parent_obj.printMsg(msg)
-        self.parent_obj.xystage.move_to_substrate_4x4(6)
-        msg = "Deactivating Stage..."
-        self.parent_obj.printMsg(msg)
-        self.parent_obj.xystage.end_stage_control()
-        del self.parent_obj.xystage
-        msg = "Stage deactivated"
-        self.parent_obj.printMsg(msg)
-        self.parent_obj.source_meter.off()
-        del self.parent_obj.source_meter
-        msg = "Sourcemeter deactivated"
-        self.parent_obj.printMsg(msg)
-        del self.parent_obj.switch_box
-        msg = "Switchbox deactivated"
-        self.parent_obj.printMsg(msg)
+        try:
+            msg = "Moving the stage to substrate 6 - (2, 1)"
+            self.parent_obj.printMsg(msg)
+            self.parent_obj.xystage.move_to_substrate_4x4(6)
+            msg = "Deactivating Stage..."
+            self.parent_obj.printMsg(msg)
+            self.parent_obj.xystage.end_stage_control()    
+            del self.parent_obj.xystage
+            msg = "Stage deactivated"
+            self.parent_obj.printMsg(msg)
+        except:
+            pass
+        try:
+            self.parent_obj.source_meter.off()
+            del self.parent_obj.source_meter
+            msg = "Sourcemeter deactivated"
+            self.parent_obj.printMsg(msg)
+        except:
+            pass
+        try:
+            del self.parent_obj.switch_box
+            msg = "Switchbox deactivated"
+            self.parent_obj.printMsg(msg)
+        except:
+            pass     
         
         # Re-enable panels and buttons
         self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
