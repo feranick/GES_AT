@@ -81,7 +81,8 @@ class Acquisition():
             event.ignore()
     '''
     # Extract parameters from JV
-    def analyseJV(self, powerIn, JV):
+    def analyseJV(self, JV):
+        powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -103,7 +104,7 @@ class Acquisition():
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
-        #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
+        #perfData = self.analyseJV(JV)
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
         QApplication.processEvents()
         self.obj.resultswind.show()
@@ -145,6 +146,7 @@ class acqThread(QThread):
         self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
+        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
 
     def __del__(self):
         self.wait()
@@ -434,7 +436,6 @@ class acqThread(QThread):
     def measure_voc_jsc_mpp(self, obj2, dfAcqParams):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-        powerIn = float(self.parent_obj.obj.config.conf['Instruments']['powerIn1Sun'])
 
         # measurements: voc, jsc
         voc, jsc = self.measure_voc_jsc(obj2)
@@ -458,7 +459,7 @@ class acqThread(QThread):
             Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
             Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
             FF = Vpmax*Jpmax*100/(voc*jsc)
-            effic = Vpmax*Jpmax/powerIn
+            effic = Vpmax*Jpmax/self.powerIn
         except:
             Vpmax = 0.
             Jpmax = 0.
@@ -491,7 +492,7 @@ class acqThread(QThread):
             Jpmax = obj2.read_values()[1]
             try:
                 FF = Vpmax*Jpmax*100/(voc*jsc)
-                effic = Vpmax*Jpmax/powerIn
+                effic = Vpmax*Jpmax/self.powerIn
             except:
                 FF = 0.
                 effic = 0.
