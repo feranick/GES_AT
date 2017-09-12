@@ -58,6 +58,7 @@ class Acquisition():
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
         self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
+        #self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,i,j: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
         self.acq_thread.done.connect(self.printMsg)
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
@@ -103,7 +104,7 @@ class Acquisition():
         logger.info(msg)
 
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i, j):
+    def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams):
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
@@ -118,12 +119,21 @@ class Acquisition():
             self.obj.resultswind.JV)
         self.obj.samplewind.colorCellAcq(i,j,"green")
 
+    # Plot temporary data from tracking
+    def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, i, j):
+        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
+        QApplication.processEvents()
+        self.obj.resultswind.show()
+        QApplication.processEvents()
+        time.sleep(1)
+
 
 # Main Class for Acquisition
 # Everything happens here!
 class acqThread(QThread):
 
     acqJVComplete = pyqtSignal(np.ndarray, np.ndarray, str, int, int)
+    tempTracking = pyqtSignal(np.ndarray, np.ndarray, str, int, int)
     maxPowerDev = pyqtSignal(str)
     done = pyqtSignal(str)
 
@@ -149,7 +159,7 @@ class acqThread(QThread):
     
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
-        perfData, _ = self.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
+        perfData, _, _ = self.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
         perfData = np.hstack((0., perfData))  # Add fictious "zero" time for consistency in DataFrame for device.
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.getDateTimeNow()[0], perfData))
@@ -453,7 +463,7 @@ class acqThread(QThread):
             FF = 0.
             effic = 0.
         data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-        return data, Vpmax
+        return data, Vpmax, JV
 
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
@@ -464,7 +474,7 @@ class acqThread(QThread):
         perfData = np.zeros((0,8))
         startTime = time.time()
         print("Tracking device: ",deviceID," (time-step: 0)")
-        data, Vpmax = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+        data, Vpmax, JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
         for n in range(1, numPoints):
@@ -488,7 +498,8 @@ class acqThread(QThread):
             #data = np.hstack((self.getDateTimeNow()[0], data))
             #data = np.hstack((self.getDateTimeNow()[1], data))
             perfData = np.vstack((data, perfData))
-        return perfData
+            self.tempTracking.emit(JV, perfData, deviceID, i, j)
+        return perfData, JV
     
     '''
     # Tracking (take JV at every tracking point)
@@ -501,7 +512,7 @@ class acqThread(QThread):
         for n in range(0, numPoints):
             timeStep = time.time()-startTime
             print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            data, _ , JV= self.measure_voc_jsc_mpp(obj2, dfAcqParams)
             data = np.hstack((timeStep, data))
             data = np.hstack((self.getDateTimeNow()[0], data))
             data = np.hstack((self.getDateTimeNow()[1], data))
