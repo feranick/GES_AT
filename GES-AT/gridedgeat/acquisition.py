@@ -57,8 +57,10 @@ class Acquisition():
         obj.resultswind.clearPlots(True)
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
-        self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
-        #self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID: self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams))
+        self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: \
+                self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
+        self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,setupTable,saveData: \
+                self.plotTempTracking(JV,perfData,deviceID,self.dfAcqParams,setupTable,saveData))
         self.acq_thread.done.connect(self.printMsg)
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
@@ -104,7 +106,7 @@ class Acquisition():
         self.obj.resultswind.clearPlots(False)
         self.obj.resultswind.setupResultTable()
         #perfData = self.analyseJV(float(self.obj.config.conf['Instruments']['powerIn1Sun']),JV)
-        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
+        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
         QApplication.processEvents()
         self.obj.resultswind.show()
         QApplication.processEvents()
@@ -116,20 +118,26 @@ class Acquisition():
         self.obj.samplewind.colorCellAcq(i,j,"green")
 
     # Plot temporary data from tracking
-    def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams):
-        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV)
+    def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
+        self.obj.resultswind.clearPlots(False)
+        if setupTable is True:
+            self.obj.resultswind.setupResultTable()
+        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
         QApplication.processEvents()
         self.obj.resultswind.show()
         QApplication.processEvents()
         time.sleep(1)
-
+        
+        self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
+            self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
+            self.obj.resultswind.JV)
 
 # Main Class for Acquisition
 # Everything happens here!
 class acqThread(QThread):
 
     acqJVComplete = pyqtSignal(np.ndarray, np.ndarray, str, int, int)
-    tempTracking = pyqtSignal(np.ndarray, np.ndarray, str)
+    tempTracking = pyqtSignal(np.ndarray, np.ndarray, str, bool, bool)
     maxPowerDev = pyqtSignal(str)
     done = pyqtSignal(str)
 
@@ -269,12 +277,13 @@ class acqThread(QThread):
                     # Switch to device with max power and start tracking
                     self.parent_obj.xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), int(self.devMaxPower))
                     self.switch_device(i, j, self.devMaxPower)
+
                     # Use this to get the simple JV used for detecting Vpmax
                     perfData, JV = self.tracking(self.parent_obj.source_meter, substrateID+str(self.devMaxPower), self.dfAcqParams)
                     # Alternatively use this for a complete JV sweep
                     #JV = self.devAcqJV()
-                    print(JV)
-                    self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
+
+                    #self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
                     self.done.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
                     
                     self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
@@ -475,10 +484,11 @@ class acqThread(QThread):
         data, Vpmax, JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
+        self.tempTracking.emit(JV, perfData, deviceID, True, False)
         for n in range(1, numPoints):
             time.sleep(trackTime)
             timeStep = time.time()-startTime
-            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
+            print("Tracking device: ",deviceID," (time-step:",n,"/",numPoints," - {0:0.1f}s)".format(timeStep))
             voc, jsc = self.measure_voc_jsc(obj2)
             
             obj2.set_output(voltage = Vpmax)
@@ -491,12 +501,10 @@ class acqThread(QThread):
                 FF = 0.
                 effic = 0.
             data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-            
             data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],timeStep], data))
-            #data = np.hstack((self.getDateTimeNow()[0], data))
-            #data = np.hstack((self.getDateTimeNow()[1], data))
             perfData = np.vstack((data, perfData))
-            self.tempTracking.emit(JV, perfData, deviceID)
+            self.tempTracking.emit(JV, perfData, deviceID, False, False)
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
     
     '''
@@ -510,13 +518,13 @@ class acqThread(QThread):
         for n in range(0, numPoints):
             timeStep = time.time()-startTime
             print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ , JV= self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            data, _ , JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
             data = np.hstack((timeStep, data))
             data = np.hstack((self.getDateTimeNow()[0], data))
             data = np.hstack((self.getDateTimeNow()[1], data))
             perfData = np.vstack((data, perfData))
             time.sleep(trackTime)
-        return perfData
+        return perfData, JV
     '''
 
     # Get date/time

@@ -270,7 +270,7 @@ class ResultsWindow(QMainWindow):
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
-    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
         
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
@@ -289,12 +289,13 @@ class ResultsWindow(QMainWindow):
         
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
-        
-        if self.parent().config.saveLocalCsv == 'True':
-            self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-                
-        if self.parent().config.submitToDb == 'True':
-            self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
+
+        # Enable/disable training
+        if flag is True:
+            if self.parent().config.saveLocalCsv == 'True':
+                self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
+            if self.parent().config.submitToDb == 'True':
+                self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -376,7 +377,10 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
+        if dfPerfData['MPP'].count() < 2:
+            csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
+        else:
+            csvFilename = str(dfDeviceID.get_value(0,'Device'))+"_tracking.csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
         msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
         print(msg)
