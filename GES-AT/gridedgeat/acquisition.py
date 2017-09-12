@@ -13,7 +13,6 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
 import numpy as np
 import pandas as pd
 import time, random, math
@@ -80,8 +79,7 @@ class Acquisition():
             self.printMsg(msg)
         else:
             event.ignore()
-
-    
+    '''
     # Extract parameters from JV
     def analyseJV(self, powerIn, JV):
         PV = np.zeros(JV.shape)
@@ -95,7 +93,7 @@ class Acquisition():
         effic = Vpmax*Jpmax/powerIn
         data = np.array([Voc, Jsc, Vpmax*Jpmax,FF,effic])
         return data
-
+    '''
     # Show message on log and terminal
     def printMsg(self, msg):
         print(msg)
@@ -272,7 +270,7 @@ class acqThread(QThread):
 
                     self.maxPowerDev.emit("Main: Device with max power: "+str(self.devMaxPower))
                     
-                    # Tracking still to be tested
+                    # Tracking
                     time.sleep(1)
                     # Switch to device with max power and start tracking
                     self.parent_obj.xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), int(self.devMaxPower))
@@ -285,8 +283,7 @@ class acqThread(QThread):
 
                     #self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
                     self.done.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
-                    
-                    self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
+                    #self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0] + \
                 " at "+self.getDateTimeNow()[1]
@@ -328,8 +325,6 @@ class acqThread(QThread):
         QApplication.processEvents()
         msg = "System Ready"
         self.parent_obj.printMsg(msg)
-
-
 
     # Convert coordinates as in the Sample Windown Table into the
     # correct substrate number as defined in xystage.py
