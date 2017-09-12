@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, random, math, json, requests
+import sys, random, math, json, requests, webbrowser
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -99,6 +99,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
+        self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         self.setCentralWidget(self.centralwidget)
 
         # Make Menu for plot related calls
@@ -245,6 +246,12 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
                 self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+    
+    # Action upon selecting a row in the table.
+    @pyqtSlot()
+    def onCellDoubleClick(self):
+        row = self.resTableWidget.selectedItems()[0].row()
+        self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True))
 
     # Add row and initialize it within the table
     def setupResultTable(self):
@@ -416,3 +423,8 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
+
+    # Redirect to DM page for substrate/device
+    def redirectToDM(deviceID):
+        print("Selected substrate:",deviceID[:-1]," - device:",deviceID[len(a)-1:])
+        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID)
