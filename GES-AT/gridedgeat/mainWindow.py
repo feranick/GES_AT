@@ -143,6 +143,11 @@ class MainWindow(QMainWindow):
         self.devBugsMenu.setShortcut("Ctrl+b")
         self.devBugsMenu.setStatusTip('Development and bugs')
         self.devBugsMenu.triggered.connect(self.weblinks.help)
+        self.dataManagMenu = QAction("&Data management", self)
+        self.dataManagMenu.setShortcut("Ctrl+d")
+        self.dataManagMenu.setStatusTip('Data Management')
+        self.dataManagMenu.triggered.connect(self.weblinks.dm)
+        self.aboutMenu = QAction("&About", self)
         self.aboutMenu = QAction("&About", self)
         self.aboutMenu.setShortcut("Ctrl+a")
         self.aboutMenu.setStatusTip('About')
@@ -151,6 +156,7 @@ class MainWindow(QMainWindow):
         aboutMenu = self.menuBar.addMenu('&Help')
         aboutMenu.addAction(self.helpMenu)
         aboutMenu.addAction(self.devBugsMenu)
+        aboutMenu.addAction(self.dataManagMenu)
         aboutMenu.addSeparator()
         aboutMenu.addAction(self.aboutMenu)
         
@@ -266,6 +272,9 @@ class MainWindow(QMainWindow):
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
+            if self.stagewind.activeStage == True:
+                self.stagewind.activateStage()
+                #time.sleep(5)
             self.close()
         else:
             event.ignore()
@@ -282,6 +291,8 @@ class WebLinksWidget():
         webbrowser.open("https://sites.google.com/site/gridedgesolar/")
     def dev(self):
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
+    def dm(self):
+        webbrowser.open("http://gridedgedm.mit.edu")
 
 '''
    About Widget
@@ -321,5 +332,3 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
-
-

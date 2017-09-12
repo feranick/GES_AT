@@ -94,7 +94,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PCE"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Time Step"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Tracking time [s]"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
 
@@ -346,7 +346,9 @@ class ResultsWindow(QMainWindow):
             url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
             req = requests.post(url, json=jsonData)
             if req.status_code == 200:
-                msg = " Submission to DM via HTTP POST: successful (ETag: "+str(req.headers['ETag'])+")"
+                msg = " Device " + deviceID + \
+                      ", submission to DM via HTTP POST successful\n  (ETag: " + \
+                      str(req.headers['ETag'])+")"
             else:
                 req.raise_for_status()
         except:
@@ -357,7 +359,9 @@ class ResultsWindow(QMainWindow):
                 db = client[self.dbConnectInfo[2]]
                 try:
                     db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
-                    msg = " Submission to DM via Mongo: successful (id: "+str(db_entry.inserted_id)+")"
+                    msg = " Device " + deviceID + \
+                          ": submission to DM via Mongo successful\n  (id: " + \
+                          str(db_entry.inserted_id)+")"
                 except:
                     msg = " Submission to DM via Mongo: failed."
             except:
@@ -408,5 +412,3 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
-
-

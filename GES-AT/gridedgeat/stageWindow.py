@@ -122,6 +122,8 @@ class StageWindow(QMainWindow):
         else:
             self.stageLabel.setText("Deactivating XY stage...")
             QApplication.processEvents()
+            print(" Moving to position [5,5]")
+            self.xystage.move_abs(5,5)
             if self.xystage.xystageInit is True:
                 self.xystage.end_stage_control()
                 del self.xystage
@@ -129,6 +131,7 @@ class StageWindow(QMainWindow):
             self.enableButtons(False)
             self.stageLabel.setText("XY stage deactivated")
             self.activeStage = False
+            print(" XY stage deactivated")
             
     # Enable/disable buttons and fields
     def enableButtons(self, flag):
@@ -211,7 +214,3 @@ class StageWindow(QMainWindow):
     def closeEvent(self, event):
         if self.activeStage == True:
             self.activateStage()
-
-
-
-

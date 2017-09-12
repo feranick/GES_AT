@@ -56,8 +56,10 @@ class PowermeterWindow(QMainWindow):
         self.stopAcqFlag = True
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
-        self.powerMeterLabel.setText("Powermeter stopped")
-        del self.pm
+        self.activePowermeter = False
+        if self.activePowermeter == True:
+            print("kill self.pm")
+            del self.pm
 
     # Logic to start powermeter acquisition
     def startPMAcq(self):
@@ -84,6 +86,8 @@ class PowermeterWindow(QMainWindow):
                     QApplication.processEvents()
                     print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
                     if self.stopAcqFlag is True:
+                        self.powerMeterLabel.setText("Powermeter stopped")
+                        print("Powermeter stopped")
                         break
                 except:
                     print("Connection failed")

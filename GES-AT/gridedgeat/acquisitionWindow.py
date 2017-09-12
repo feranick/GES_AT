@@ -205,7 +205,3 @@ class AcquisitionWindow(QMainWindow):
         self.IntervalText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
-
-
-
-

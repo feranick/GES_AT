@@ -46,7 +46,7 @@ class XYstage():
         # Calculate center positions of all substrates and devices
         print(" Homing stage")
         self.move_home()
-        self.move_abs(3,3)
+        self.move_abs(50,50)
         self.set_origin(True, [0,0])
         self.get_suborigins_4x4()
         self.get_devorigins_3x2()

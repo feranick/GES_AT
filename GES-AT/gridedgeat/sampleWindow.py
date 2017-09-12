@@ -231,5 +231,3 @@ class SampleWindow(QMainWindow):
         except:
             print("Error in saving substrate configuration")
             logger.info("Error in saving substrate configuration")
-
-

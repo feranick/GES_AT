@@ -43,35 +43,3 @@ class DataManagement:
             #print(" Server not available")
             flag = False
         return client, flag
-
-    ####  This is no longer needed  #####
-    '''
-    # Print connection information
-    def printAuthInfo(self):
-        print(self.dbHostname)
-        print(self.dbPortNum)
-        print(self.dbName)
-        print(self.dbUsername)
-        print(self.dbPassword)
-
-    # Prepare JSON for the connection info
-    def makeJSON(self):
-        dataj = {
-            'hostname' : self.dbHostname,
-            'IP' : self.data[1],
-            'self.dbName' : info[2],
-            }
-        return json.dumps(dataj)
-
-    # Push JSON to Data management
-    def pushToMongoDB(self):
-        jsonData = self.makeJSON()
-        client,_= self.connectDB()
-        db = client[self.dbName]
-        try:
-            db_entry = db.EnvTrack.insert_one(json.loads(jsonData))
-            print(" Data entry successful (id:",db_entry.inserted_id,")\n")
-        except:
-            print(" Data entry failed.\n")
-
-    '''

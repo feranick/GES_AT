@@ -72,7 +72,8 @@ class Acquisition():
         if reply == QMessageBox.Yes:
             #obj.stopAcqFlag = True
             self.acq_thread.stop()
-            msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+"_"+self.getDateTimeNow()[1]
+            msg = "Acquisition stopped: " + self.getDateTimeNow()[0]+ \
+                  " at "+self.getDateTimeNow()[1]
             self.printMsg(msg)
         else:
             event.ignore()
@@ -186,16 +187,11 @@ class Acquisition():
                 time.sleep(hold_time)
                 data[i, 2] += 1.
                 data[i, 1] = (obj2.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
-
         return data[:, 0:2]
-
-    ## measurements: voc, jsp, mpp
-    # obj: self.source_meter
-    def measure_voc_jsc_mpp(self, obj2, dfAcqParams):
-        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-        powerIn = float(self.obj.config.conf['Instruments']['powerIn1Sun'])
     
+    ## measurements: voc, jsc
+    # obj: self.source_meter
+    def measure_voc_jsc(self, obj2):
         # voc
         obj2.set_mode('CURR')
         obj2.on()
@@ -207,6 +203,17 @@ class Acquisition():
         obj2.on()
         obj2.set_output(voltage = 0.)
         jsc = obj2.read_values()[1]
+        return voc, jsc
+
+    ## measurements: voc, jsc, mpp
+    # obj: self.source_meter
+    def measure_voc_jsc_mpp(self, obj2, dfAcqParams):
+        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
+        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+        powerIn = float(self.obj.config.conf['Instruments']['powerIn1Sun'])
+
+        # measurements: voc, jsc
+        voc, jsc = self.measure_voc_jsc(obj2)
 
         # measurement parameters
         v_min = 0.
@@ -234,10 +241,45 @@ class Acquisition():
             FF = 0.
             effic = 0.
         data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-        return data
-        #return voc, jsc, Vpmax*Jpmax, FF, effic
+        return data, Vpmax
 
-    # Tracking
+    # Tracking (take JV once and track Vpmax)
+    # dfAcqParams : self.dfAcqParams
+    def tracking(self, obj2, deviceID, dfAcqParams):
+        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
+        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
+        perfData = np.zeros((0,8))
+        startTime = time.time()
+        print("Tracking device: ",deviceID," (time-step: 0)")
+        data, Vpmax = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
+        perfData = np.vstack((data, perfData))
+        for n in range(1, numPoints):
+            time.sleep(trackTime)
+            timeStep = time.time()-startTime
+            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
+            voc, jsc = self.measure_voc_jsc(obj2)
+            
+            obj2.set_output(voltage = Vpmax)
+            time.sleep(hold_time)
+            Jpmax = obj2.read_values()[1]
+            try:
+                FF = Vpmax*Jpmax*100/(voc*jsc)
+                effic = Vpmax*Jpmax/powerIn
+            except:
+                FF = 0.
+                effic = 0.
+            data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
+            
+            data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],timeStep], data))
+            #data = np.hstack((self.getDateTimeNow()[0], data))
+            #data = np.hstack((self.getDateTimeNow()[1], data))
+            perfData = np.vstack((data, perfData))
+        return perfData
+    
+    '''
+    # Tracking (take JV at every tracking point)
     # dfAcqParams : self.dfAcqParams
     def tracking(self, obj2, deviceID, dfAcqParams):
         numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
@@ -247,13 +289,14 @@ class Acquisition():
         for n in range(0, numPoints):
             timeStep = time.time()-startTime
             print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            data, _ = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
             data = np.hstack((timeStep, data))
             data = np.hstack((self.getDateTimeNow()[0], data))
             data = np.hstack((self.getDateTimeNow()[1], data))
             perfData = np.vstack((data, perfData))
             time.sleep(trackTime)
         return perfData
+    '''    
 
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i, j):
@@ -303,7 +346,7 @@ class acqThread(QThread):
     
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
-        perfData = self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
+        perfData, _ = self.parent_obj.measure_voc_jsc_mpp(self.parent_obj.source_meter, self.dfAcqParams)
         perfData = np.hstack((0., perfData))  # Add fictious "zero" time for consistency in DataFrame for device.
         perfData = np.hstack((self.parent_obj.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.parent_obj.getDateTimeNow()[0], perfData))
@@ -362,7 +405,7 @@ class acqThread(QThread):
         operator = self.parent_obj.obj.samplewind.operatorText.text()
         msg = "Operator: " + operator
         self.parent_obj.printMsg(msg)
-        msg = "Acquisition started: "+self.parent_obj.getDateTimeNow()[0]+"_" + \
+        msg = "Acquisition started: "+self.parent_obj.getDateTimeNow()[0]+" at " + \
                 self.parent_obj.getDateTimeNow()[1]
         self.parent_obj.printMsg(msg)
         
@@ -422,12 +465,13 @@ class acqThread(QThread):
                     self.parent_obj.switch_device(i, j, self.devMaxPower)
                     perfData = self.devAcqTracking(substrateID+str(self.devMaxPower))
                     JV = self.devAcqJV()
-                    self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
+                    self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
                     self.done.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
                     
                     self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
 
-        msg = "Acquisition Completed: "+ self.parent_obj.getDateTimeNow()[0]+"_"+self.parent_obj.getDateTimeNow()[1]
+        msg = "Acquisition Completed: "+ self.parent_obj.getDateTimeNow()[0] + \
+                " at "+self.parent_obj.getDateTimeNow()[1]
         self.parent_obj.printMsg(msg)
         self.endAcq()
 
@@ -438,25 +482,20 @@ class acqThread(QThread):
 
         # park the stage close to origin, deactivate.
         try:
-            msg = "Moving the stage to substrate 6 - (2, 1)"
+            msg = " Moving to position [5,5]"
             self.parent_obj.printMsg(msg)
-            self.parent_obj.xystage.move_to_substrate_4x4(6)
+            #self.parent_obj.xystage.move_to_substrate_4x4(6)
+            self.parent_obj.xystage.move_abs(5,5)
             msg = "Deactivating Stage..."
             self.parent_obj.printMsg(msg)
             self.parent_obj.xystage.end_stage_control()    
             del self.parent_obj.xystage
             msg = "Stage deactivated"
             self.parent_obj.printMsg(msg)
-        except:
-            pass
-        try:
             self.parent_obj.source_meter.off()
             del self.parent_obj.source_meter
             msg = "Sourcemeter deactivated"
             self.parent_obj.printMsg(msg)
-        except:
-            pass
-        try:
             del self.parent_obj.switch_box
             msg = "Switchbox deactivated"
             self.parent_obj.printMsg(msg)
@@ -471,8 +510,3 @@ class acqThread(QThread):
         QApplication.processEvents()
         msg = "System Ready"
         self.parent_obj.printMsg(msg)
-
-                
-
-
-

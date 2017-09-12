@@ -188,4 +188,3 @@ class GraphicsScene(QGraphicsScene):
         self.imlabel.setText(labeltext)
         self.image = image
         self.update()
-

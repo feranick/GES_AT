@@ -127,7 +127,3 @@ class Configuration():
                 self.conf.write(configfile)
         except:
             print("Error in saving parameters")
-
-
-
-
