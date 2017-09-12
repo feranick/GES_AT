@@ -146,7 +146,8 @@ class acqThread(QThread):
         self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
+        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']) * \
+            float(self.parent_obj.obj.samplewind.sizeSubsCBox.currentText()) * 0.00064516
 
     def __del__(self):
         self.wait()

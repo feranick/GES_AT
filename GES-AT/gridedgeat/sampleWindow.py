@@ -66,7 +66,7 @@ class SampleWindow(QMainWindow):
         self.sizeSubsCBox.setObjectName("sizeSubsCBox")
         self.windowGridLayout.addWidget(self.sizeSubsCBox, 2, 1, 1, 1)
        
-        self.sizeSubsCBox.addItem("1x1 in")
+        self.sizeSubsCBox.addItem("1")
         self.sizeSubsCBox.setEnabled(False)
         self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+"x"+self.parent().config.numSubsHolderRow)
         self.holderTypeCBox.setEnabled(False)
@@ -139,7 +139,7 @@ class SampleWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.sizeSubsLabel.setText("Size of Substrate ")
+        self.sizeSubsLabel.setText("Substrate size [sq in]  ")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.commentsLabel.setText("Comments")
