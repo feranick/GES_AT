@@ -60,15 +60,15 @@ class sourcemeterThread(QThread):
         self.terminate()
 
     def run(self):
-        #try:
-        sc = SourceMeter()
-        sc.set_limit(voltage=10, current=0.12)
-        sc.on()
-        self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+" Current:"+str(sc.read_values()[1]))
-        sc.off()
-        del sc
-        #except:
-        #    self.smResponse.emit("Cannot connect to sourcemeter")
+        try:
+            sc = SourceMeter()
+            sc.set_limit(voltage=10, current=0.12)
+            sc.on()
+            self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+" Current:"+str(sc.read_values()[1]))
+            sc.off()
+            del sc
+        except:
+            self.smResponse.emit("Cannot connect to sourcemeter")
             
         
 
