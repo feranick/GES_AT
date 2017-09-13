@@ -303,7 +303,7 @@ class acqThread(QThread):
 
         # park the stage close to origin, deactivate.
         try:
-            msg = " Moving to position [5,5]"
+            msg = " Moving to parking position"
             self.parent_obj.printMsg(msg)
             #self.parent_obj.xystage.move_to_substrate_4x4(6)
             self.parent_obj.xystage.move_abs(5,5)
@@ -325,7 +325,6 @@ class acqThread(QThread):
         
         # Re-enable panels and buttons
         self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
-        self.parent_obj.obj.samplewind.resetCellAcq()
         self.parent_obj.obj.samplewind.enableSamplePanel(True)
         self.parent_obj.obj.enableButtonsAcq(True)
         QApplication.processEvents()

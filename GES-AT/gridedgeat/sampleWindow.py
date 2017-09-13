@@ -93,6 +93,7 @@ class SampleWindow(QMainWindow):
         #self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
+        self.tableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         
         # This disable editing
         #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -146,12 +147,15 @@ class SampleWindow(QMainWindow):
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
 
-    # Logic to set substrate name in table
+    # Logic to set substrate name and color in table
     @pyqtSlot()
     def onCellClick(self):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
+    @pyqtSlot()
+    def onCellDoubleClick(self):
+        self.resetCellAcq()
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
