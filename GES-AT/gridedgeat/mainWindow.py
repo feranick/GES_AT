@@ -120,10 +120,10 @@ class MainWindow(QMainWindow):
         instrumentsMenu.addAction(self.stageMenu)
         instrumentsMenu.addAction(self.powermeterMenu)
         instrumentsMenu.addAction(self.cameraMenu)
-        
+        instrumentsMenu.addSeparator()
         # Sourcemeter and switchbox are disabled until we have parameters to fill in
         #instrumentsMenu.addAction(self.sourcemeterMenu)
-        #instrumentsMenu.addAction(self.switchboxMenu)
+        instrumentsMenu.addAction(self.switchboxMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
         self.dataManagementMenu.setShortcut("Ctrl+d")

@@ -4,9 +4,10 @@ switchbox.py
 Class for providing a hardware support for 
 for the switchbox
 
-Version: 20170817
+Version: 20170913
 
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
+Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
@@ -33,7 +34,10 @@ class SwitchBox(object):
         self.set_connection_map()
 
     def __del__(self):
-        self.manager.close()
+        try:
+            self.manager.close()
+        except:
+            pass
 
     ## common visa api wrappers
     # write: send command with out expecting return
@@ -89,7 +93,7 @@ class SwitchBox(object):
 
     def get_connect(self):
         'get the channels that are connected'
-        return sb.ask('print(channel.getclose("allslots"))')
+        return self.ask('print(channel.getclose("allslots"))')
 
 '''
 ### This is only for testing - to be removed ###
