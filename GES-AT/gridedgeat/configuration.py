@@ -55,7 +55,6 @@ class Configuration():
             'alignmentContrastDefault' : 1,
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
-            #'powerIn1Sun' : 1360,
             'irradiance1Sun' : 3682,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR"

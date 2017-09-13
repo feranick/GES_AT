@@ -425,6 +425,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
 
     # Redirect to DM page for substrate/device
-    def redirectToDM(deviceID):
-        print("Selected substrate:",deviceID[:-1]," - device:",deviceID[len(a)-1:])
-        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID)
+    def redirectToDM(self, deviceID):
+        print("Selected substrate:",deviceID[0][0][:-1],
+              " - device:",deviceID[0][0][len(deviceID[0][0])-1:])
+        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID[0][0])
