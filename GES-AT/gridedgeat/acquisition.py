@@ -61,6 +61,7 @@ class Acquisition():
         self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,setupTable,saveData: \
                 self.plotTempTracking(JV,perfData,deviceID,self.dfAcqParams,setupTable,saveData))
         self.acq_thread.done.connect(self.printMsg)
+        self.acq_thread.colorCell.connect(lambda i,j,color: self.obj.samplewind.colorCellAcq(i,j,color))
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
 
@@ -114,7 +115,7 @@ class Acquisition():
         self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
             self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
             self.obj.resultswind.JV)
-        self.obj.samplewind.colorCellAcq(i,j,"green")
+        #self.obj.samplewind.colorCellAcq(i,j,"green")
 
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
@@ -139,6 +140,7 @@ class acqThread(QThread):
     tempTracking = pyqtSignal(np.ndarray, np.ndarray, str, bool, bool)
     maxPowerDev = pyqtSignal(str)
     done = pyqtSignal(str)
+    colorCell = pyqtSignal(int,int,str)
 
     def __init__(self, parent_obj, numRow, numCol, dfAcqParams):
         QThread.__init__(self)
@@ -234,6 +236,7 @@ class acqThread(QThread):
                 
                 # Check if the holder has a substrate in that slot
                 if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != "":
+                    self.colorCell.emit(i,j,"red")
                     # Move stage to desired substrate
                     if self.parent_obj.xystage.xystageInit is True:
                         msg = "Moving stage to substrate #"+ \
@@ -286,7 +289,7 @@ class acqThread(QThread):
 
                     #self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
                     self.done.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
-                    #self.parent_obj.obj.samplewind.colorCellAcq(i,j,"green")
+                    self.colorCell.emit(i,j,"green")
 
         msg = "Acquisition Completed: "+ self.getDateTimeNow()[0] + \
                 " at "+self.getDateTimeNow()[1]

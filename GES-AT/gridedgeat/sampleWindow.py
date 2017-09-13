@@ -162,6 +162,7 @@ class SampleWindow(QMainWindow):
         self.loadButton.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
+        self.tableWidget.clearSelection()
         if flag is False:
             self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         else:
@@ -169,11 +170,11 @@ class SampleWindow(QMainWindow):
 
     # Change color in sample cells depending on the acqusition status
     def colorCellAcq(self,row,column,color):
-        if color is "red":
+        if color == "red":
             self.tableWidget.item(row, column).setBackground(QColor(255,0,0))
-        if color is "white":
+        if color == "white":
             self.tableWidget.item(row, column).setBackground(QColor(255,255,255))
-        if color is "green":
+        if color == "green":
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
 
     # Reset color in sample cells

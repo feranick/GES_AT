@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
         instrumentsMenu.addAction(self.switchboxMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
-        self.dataManagementMenu.setShortcut("Ctrl+d")
+        self.dataManagementMenu.setShortcut("Ctrl+m")
         self.dataManagementMenu.setStatusTip('Data Management Settings')
         self.dataManagementMenu.triggered.connect(self.dbconnectionwind.show)
         
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         self.devBugsMenu.setStatusTip('Development and bugs')
         self.devBugsMenu.triggered.connect(self.weblinks.help)
         self.dataManagMenu = QAction("&Data management", self)
-        self.dataManagMenu.setShortcut("Ctrl+d")
+        self.dataManagMenu.setShortcut("Ctrl+m")
         self.dataManagMenu.setStatusTip('Data Management')
         self.dataManagMenu.triggered.connect(self.weblinks.dm)
         self.aboutMenu = QAction("&About", self)
@@ -234,12 +234,12 @@ class MainWindow(QMainWindow):
     # Adds Menus to expose other Windows.
     def viewWindowMenus(self, menuObj, obj):
         viewMainWindowMenu = QAction("&Main Window", self)
-        viewMainWindowMenu.setShortcut("Ctrl+m")
+        viewMainWindowMenu.setShortcut("Ctrl+w")
         viewMainWindowMenu.setStatusTip('Display Main Window')
         viewMainWindowMenu.triggered.connect(lambda: self.displayMainWindow(obj))
-        viewSampleMenu = QAction("&Device Window", self)
+        viewSampleMenu = QAction("&Substrates Window", self)
         viewSampleMenu.setShortcut("Ctrl+d")
-        viewSampleMenu.setStatusTip('Display Device Window')
+        viewSampleMenu.setStatusTip('Display Substrates Window')
         viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(obj.samplewind))
         viewAcquisitionMenu = QAction("&Acquisition Window", self)
         viewAcquisitionMenu.setShortcut("Ctrl+a")

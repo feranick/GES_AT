@@ -18,7 +18,10 @@ import sys, random, math, json, requests, webbrowser
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem,QAction)
+from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
+                             QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
+                             QMenuBar,QStatusBar, QApplication,QTableWidget,
+                             QTableWidgetItem,QAction,QHeaderView)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
 from PyQt5.QtGui import (QColor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -97,6 +100,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Tracking time [s]"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
+        self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
         self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
@@ -144,16 +148,16 @@ class ResultsWindow(QMainWindow):
     
     # Define axis parametrs for plots
     def plotSettings(self, ax):
-        ax.tick_params(axis='both', which='major', labelsize=5)
-        ax.tick_params(axis='both', which='minor', labelsize=5)
+        ax.tick_params(axis='both', which='major', labelsize=8)
+        ax.tick_params(axis='both', which='minor', labelsize=8)
     
     # Initialize Time-based plots
     def initPlots(self, data):
         self.figureTJsc.clf()
         self.axTJsc = self.figureTJsc.add_subplot(111)
         self.plotSettings(self.axTJsc)
-        self.axTJsc.set_xlabel('Time [s]',fontsize=5)
-        self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.axTJsc.set_xlabel('Time [s]',fontsize=8)
+        self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=8)
         self.axTJsc.set_autoscale_on(True)
         self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
@@ -162,8 +166,8 @@ class ResultsWindow(QMainWindow):
         self.figureTVoc.clf()
         self.axTVoc = self.figureTVoc.add_subplot(111)
         self.plotSettings(self.axTVoc)
-        self.axTVoc.set_xlabel('Time [s]',fontsize=5)
-        self.axTVoc.set_ylabel('Voc [V]',fontsize=5)
+        self.axTVoc.set_xlabel('Time [s]',fontsize=8)
+        self.axTVoc.set_ylabel('Voc [V]',fontsize=8)
         self.axTVoc.set_autoscale_on(True)
         self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
@@ -172,8 +176,8 @@ class ResultsWindow(QMainWindow):
         self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
         self.plotSettings(self.axMPP)
-        self.axMPP.set_xlabel('Time [s]',fontsize=5)
-        self.axMPP.set_ylabel('Max power point [mW]',fontsize=5)
+        self.axMPP.set_xlabel('Time [s]',fontsize=8)
+        self.axMPP.set_ylabel('Max power point [mW]',fontsize=8)
         self.axMPP.set_autoscale_on(True)
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -186,9 +190,9 @@ class ResultsWindow(QMainWindow):
         self.axPVresp = self.axJVresp.twinx()
         self.plotSettings(self.axJVresp)
         self.plotSettings(self.axPVresp)
-        self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
-        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
-        self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=5)
+        self.axJVresp.set_xlabel('Voltage [V]',fontsize=8)
+        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=8)
+        self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=8)
         self.axJVresp.axvline(x=0, linewidth=0.5)
         self.axJVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
