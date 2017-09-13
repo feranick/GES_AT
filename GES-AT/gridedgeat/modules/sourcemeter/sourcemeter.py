@@ -4,9 +4,10 @@ sourcemeter.py
 Class for providing a hardware support for 
 for the sourcemeter
 
-Version: 20170817
+Version: 20170913
 
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
+Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
@@ -126,7 +127,7 @@ class SourceMeter(object):
         "Turn Keithley off"
         self.write('OUTP OFF')
 
-'''
+
 ### This is only for testing - to be removed ###
 if __name__ == '__main__':
     import time
@@ -135,14 +136,14 @@ if __name__ == '__main__':
     sc.set_limit(voltage=10, current=0.12)
     sc.on()
 
-    sc.sweep(np.arange(0, 5, 0.1))
+    #sc.sweep(np.arange(0, 5, 0.1))
 
-    while sc.busy:
-        time.sleep(0.5)
-        print(sc.read_buffer()[-1])
-
+    #while sc.busy:
+    #    time.sleep(0.5)
+    #print(sc.read_buffer()[-1])
+    print("Voltage:",sc.read_values()[0]," Current:",sc.read_values()[1])
     pass
-'''
+
 
 
 

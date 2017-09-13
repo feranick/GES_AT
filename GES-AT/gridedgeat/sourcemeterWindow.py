@@ -14,9 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,QMainWindow)
-#from .modules.sourcemeter.sourcemeter import *
+from PyQt5.QtCore import (QRect,QObject, QThread, pyqtSlot, pyqtSignal)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,QMainWindow,QPushButton)
+from .modules.sourcemeter.sourcemeter import *
 
 class SourcemeterWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -25,8 +25,50 @@ class SourcemeterWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, SourcemeterWindow):
-        SourcemeterWindow.resize(328, 60)
-        self.stageLabel = QLabel(SourcemeterWindow)
-        self.stageLabel.setGeometry(QRect(20, 20, 300, 16))
+        SourcemeterWindow.resize(300, 100)
+        self.sourcemeterLabel = QLabel(SourcemeterWindow)
+        self.sourcemeterLabel.setGeometry(QRect(20, 20, 300, 20))
         SourcemeterWindow.setWindowTitle("Sourcemeter controls")
-        self.stageLabel.setText("Functionality not yet implemented")
+        self.sourcemeterLabel.setText("Ready")
+        self.activateSourcemeterButton = QPushButton(SourcemeterWindow)
+        self.activateSourcemeterButton.setGeometry(QRect(10, 50, 280, 40))
+        self.activateSourcemeterButton.setText("Connect to Sourcemeter")
+        self.activateSourcemeterButton.clicked.connect(self.activateSourcemeter)
+
+    def activateSourcemeter(self):
+        self.activateSourcemeterButton.setEnabled(False)
+        self.smThread = sourcemeterThread(self)
+        self.smThread.smResponse.connect(self.printMsg)
+        self.smThread.start()
+
+    def printMsg(self, msg):
+        self.sourcemeterLabel.setText(msg)
+        print(msg)
+        self.activateSourcemeterButton.setEnabled(True)
+
+class sourcemeterThread(QThread):
+
+    smResponse = pyqtSignal(str)
+
+    def __init__(self, parent_obj):
+        QThread.__init__(self)
+
+    def __del__(self):
+        self.wait()
+
+    def stop(self):
+        self.terminate()
+
+    def run(self):
+        #try:
+        sc = SourceMeter()
+        sc.set_limit(voltage=10, current=0.12)
+        sc.on()
+        self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+" Current:"+str(sc.read_values()[1]))
+        sc.off()
+        del sc
+        #except:
+        #    self.smResponse.emit("Cannot connect to sourcemeter")
+            
+        
+
