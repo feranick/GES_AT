@@ -275,7 +275,10 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             if self.stagewind.activeStage == True:
                 self.stagewind.activateStage()
-                #time.sleep(5)
+            try:
+                self.acquisition.acq_thread.stop()
+            except:
+                pass
             self.close()
         else:
             event.ignore()

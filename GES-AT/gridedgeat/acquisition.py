@@ -47,6 +47,9 @@ class Acquisition():
     def start(self, obj):
         self.obj = obj
         self.dfAcqParams = self.getAcqParameters(obj)
+        if self.obj.samplewind.checkTableEmpty(self.numRow, self.numCol):
+            print("Please add substrates in the substrate table")
+            return
         obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
         obj.samplewind.resetCellAcq()

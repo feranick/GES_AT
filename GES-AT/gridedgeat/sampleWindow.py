@@ -199,6 +199,14 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
+    # Check if table is filled or empty
+    def checkTableEmpty(self, numRow, numCol):
+        for i in range(numRow):
+            for j in range(numCol):
+                if self.tableWidget.item(i,j).text() != "":
+                    return False
+        return True
+
     # Load device names and configuration
     def loadCsvSubstrates(self):
         import csv
