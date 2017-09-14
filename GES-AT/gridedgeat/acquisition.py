@@ -79,7 +79,7 @@ class Acquisition():
             self.acq_thread.stop()
             self.printMsg(msg)
         else:
-            event.ignore()
+            pass
     '''
     # Extract parameters from JV
     def analyseJV(self, JV):

@@ -196,6 +196,7 @@ class MainWindow(QMainWindow):
         self.stopAcqButton.setGeometry(QRect(170, 110, 160, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
+        self.stopAcqButton.setEnabled(False)
         self.stopAcqButton.clicked.connect(lambda: self.acquisition.stop(self))
         self.logo = QLabel(self)
         self.logo.setGeometry(QRect(20, 40, 311, 61))
@@ -230,6 +231,7 @@ class MainWindow(QMainWindow):
         else:
             self.startAcqButton.setText("Start Acquisition")
         self.startAcqButton.setEnabled(flag)
+        self.stopAcqButton.setEnabled(not flag)
 
     # Adds Menus to expose other Windows.
     def viewWindowMenus(self, menuObj, obj):
