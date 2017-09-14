@@ -152,8 +152,8 @@ class SampleWindow(QMainWindow):
     def onCellClick(self):
         modifiers = QApplication.keyboardModifiers()
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
-            if modifiers == Qt.ControlModifier and \
-                        self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text()) != "":
+            if modifiers == Qt.AltModifier and \
+                        currentQTableWidgetItem.text() != "":
                 self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
