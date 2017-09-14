@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QA
     QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
     QAbstractItemView,QTableWidgetItem,)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
-from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
+from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
 
@@ -150,9 +150,14 @@ class SampleWindow(QMainWindow):
     # Logic to set substrate name and color in table
     @pyqtSlot()
     def onCellClick(self):
+        modifiers = QApplication.keyboardModifiers()
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
+            if modifiers == Qt.ControlModifier and \
+                        self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text()) != "":
+                self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
+
     @pyqtSlot()
     def onCellDoubleClick(self):
         self.resetCellAcq()

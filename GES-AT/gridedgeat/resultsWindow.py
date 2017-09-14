@@ -255,7 +255,7 @@ class ResultsWindow(QMainWindow):
     @pyqtSlot()
     def onCellDoubleClick(self):
         row = self.resTableWidget.selectedItems()[0].row()
-        self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True))
+        self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0][:-1])
 
     # Add row and initialize it within the table
     def setupResultTable(self):
@@ -430,6 +430,5 @@ class ResultsWindow(QMainWindow):
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
-        print("Selected substrate:",deviceID[0][0][:-1],
-              " - device:",deviceID[0][0][len(deviceID[0][0])-1:])
-        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID[0][0])
+        print("Selected substrate:",deviceID)
+        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID)
