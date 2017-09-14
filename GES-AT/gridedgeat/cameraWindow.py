@@ -16,8 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
-    QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QGraphicsScene,
-    QLineEdit,QMessageBox)
+    QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
+    QGraphicsScene, QLineEdit,QMessageBox)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
@@ -63,7 +63,8 @@ class CameraWindow(QMainWindow):
         tb.addWidget(self.checkAlignText)
         self.checkAlignText.show()
         tb.addSeparator()
-        self.setDefaultBtn = QAction(QIcon(QPixmap()),"Set Default Alignment",self)
+        self.setDefaultBtn = QAction(QIcon(QPixmap()),
+                                     "Set Default Alignment",self)
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
@@ -90,10 +91,13 @@ class CameraWindow(QMainWindow):
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.statusBar().showMessage(self.cam.color_image_name() + \
                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
-            self.alignPerc, self.iMax = self.cam.check_alignment(self.image_data, float(self.parent().config.alignmentIntThreshold))
+            self.alignPerc, self.iMax = self.cam.check_alignment( \
+                    self.image_data,
+                    float(self.parent().config.alignmentIntThreshold))
 
             self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > float(self.parent().config.alignmentContrastDefault) and float(self.iMax) > float(self.parent().config.alignmentIntMax):
+            if float(self.alignPerc) > float(self.parent().config.alignmentContrastDefault) \
+                   and float(self.iMax) > float(self.parent().config.alignmentIntMax):
                 self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
                 self.outAlignmentMessageBox()
             else:

@@ -17,9 +17,10 @@ import sys, webbrowser, random, time
 import configparser
 from datetime import datetime
 
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QToolBar)
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
+    QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
+    QFileDialog,QStatusBar,QGraphicsScene,QLineEdit,QMessageBox,
+    QDialog,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
@@ -184,7 +185,12 @@ class MainWindow(QMainWindow):
         self.toolBar.addSeparator()
        
         #### Create status bar ####
-        self.statusBar().showMessage("Ready", 5000)
+        self.statusBar = QStatusBar()
+        self.setStatusBar(self.statusBar)
+        self.statusBarLabel = QLabel(self)
+        self.statusBar.addPermanentWidget(self.statusBarLabel, 1)
+        self.statusBarLabel.setText("System: ready")
+        #self.statusBar().showMessage("Ready", 5000)
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)

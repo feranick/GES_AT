@@ -15,7 +15,8 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 from PyQt5.QtCore import (QRect,QObject, QThread, pyqtSlot, pyqtSignal)
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,QMainWindow,QPushButton)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox,
+                             QWidget,QMainWindow,QPushButton)
 from .modules.switchbox.switchbox import *
 
 class SwitchboxWindow(QMainWindow):

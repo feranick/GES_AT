@@ -16,9 +16,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 import sys
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QTableWidget,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
+    QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
+    QFileDialog,QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,
+    QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
     QAbstractItemView,QTableWidgetItem,)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
@@ -68,7 +69,8 @@ class SampleWindow(QMainWindow):
        
         self.sizeSubsCBox.addItem("1")
         self.sizeSubsCBox.setEnabled(False)
-        self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+"x"+self.parent().config.numSubsHolderRow)
+        self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+\
+                                    "x"+self.parent().config.numSubsHolderRow)
         self.holderTypeCBox.setEnabled(False)
         
         self.commentsLabel = QLabel(self.centralwidget)

@@ -126,17 +126,17 @@ class AcquisitionWindow(QMainWindow):
         self.maxVLabel.setText("Max Voltage [V]")
         self.delayBeforeMeasLabel.setText("Delays before measurements [sec]")
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
-        self.trackingLabel.setText("<qt><b>Tracking Voc, JSC, MPP</b></qt>")
+        self.trackingLabel.setText("<qt><b>Tracking Voc, Jsc, MPP</b></qt>")
         self.totTimePerDeviceLabel.setText("Total time per device")
         self.intervalLabel.setText("Interval")
         self.numPointsLabel.setText("Number of points")
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setGeometry(QRect(270, 380, 80, 60))
+        self.saveButton.setGeometry(QRect(260, 380, 80, 60))
         self.saveButton.setText("Save")
         self.saveButton.clicked.connect(self.saveParameters)
         
         self.defaultButton = QPushButton(self.centralwidget)
-        self.defaultButton.setGeometry(QRect(190, 380, 80, 60))
+        self.defaultButton.setGeometry(QRect(180, 380, 80, 60))
         self.defaultButton.setText("Default")
         self.defaultButton.clicked.connect(self.defaultParameters)
         
@@ -182,16 +182,23 @@ class AcquisitionWindow(QMainWindow):
 
     # Field validator for VStart
     def validateStartVoltage(self):
-        self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),float(self.maxVText.text()),1,self.startVText)
+        self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),
+                                    float(self.maxVText.text()),1,self.startVText)
         if self.validateStartVoltage.validate(self.startVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be between\n Vmin="+self.minVText.text()+" and Vmax="+self.maxVText.text()+"\n\nPlease change \"Start Voltage\" in the Acquisition panel"
+            msg = "Start Voltage needs to be between\n Vmin="+self.minVText.text()+ \
+                  " and Vmax="+self.maxVText.text()+ \
+                  "\n\nPlease change \"Start Voltage\" in the Acquisition panel"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
 
     # Calculate the measurement time per device
     def timePerDevice(self):
-        timePerDevice = (int(self.parent().config.acqNumAvScans) * (0.1+float(self.parent().config.acqDelBeforeMeas)) + float(self.parent().config.acqTrackInterval)) * int(self.parent().config.acqTrackNumPoints)
-        self.totTimePerDeviceLabel.setText("Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
+        timePerDevice = (int(self.parent().config.acqNumAvScans) * \
+                         (0.1+float(self.parent().config.acqDelBeforeMeas)) + \
+                         float(self.parent().config.acqTrackInterval)) * \
+                         int(self.parent().config.acqTrackNumPoints)
+        self.totTimePerDeviceLabel.setText(\
+                "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableAcqPanel(self, flag):

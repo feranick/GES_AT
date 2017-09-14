@@ -15,7 +15,8 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 from PyQt5.QtCore import (QRect,QObject, QThread, pyqtSlot, pyqtSignal)
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,QMainWindow,QPushButton)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,
+                             QMainWindow,QPushButton)
 from .modules.sourcemeter.sourcemeter import *
 
 class SourcemeterWindow(QMainWindow):
@@ -64,7 +65,8 @@ class sourcemeterThread(QThread):
             sc = SourceMeter()
             sc.set_limit(voltage=10, current=0.12)
             sc.on()
-            self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+" Current:"+str(sc.read_values()[1]))
+            self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+\
+                                 " Current:"+str(sc.read_values()[1]))
             sc.off()
             del sc
         except:

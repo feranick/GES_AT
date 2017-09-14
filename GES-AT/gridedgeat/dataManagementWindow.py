@@ -15,10 +15,11 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import sys
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QTableWidget,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,QFrame)
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
+    QWidget, QAction,QAbstractItemView,QTableWidgetItem,QFrame,
+    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,
+    QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,QMessageBox,
+    QDialog,QComboBox,QMenuBar,QDialogButtonBox,)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 

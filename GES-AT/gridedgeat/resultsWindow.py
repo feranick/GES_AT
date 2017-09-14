@@ -249,7 +249,8 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+                self.dfTotJV.get_value(0,row,takeable=True)[\
+                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -260,9 +261,11 @@ class ResultsWindow(QMainWindow):
     # Add row and initialize it within the table
     def setupResultTable(self):
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
-        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
+        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,
+                                        QTableWidgetItem())
         for j in range(self.resTableWidget.columnCount()):
-            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
+            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,
+                                        QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount()-1
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
         self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem())
@@ -330,7 +333,8 @@ class ResultsWindow(QMainWindow):
                         'Jsc': perfData[:,4], 'MPP': perfData[:,5],
                         'FF': perfData[:,6], 'effic': perfData[:,7],
                         'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1]})
-        dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc', 'Jsc', 'MPP','FF','effic']]
+        dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
+                                     'Jsc', 'MPP','FF','effic']]
         return dfPerfData
     
     def makeDFJV(self,JV):
