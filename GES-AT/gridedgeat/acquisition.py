@@ -18,7 +18,7 @@ import pandas as pd
 import time, random, math
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication,QAbstractItemView)
-from PyQt5.QtCore import (QObject, QThread, pyqtSlot, pyqtSignal)
+from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
 from . import logger
 from .modules.xystage.xystage import *
@@ -46,11 +46,15 @@ class Acquisition():
                 
     def start(self, obj):
         self.obj = obj
+        
+        # Using ALT with Start Acquisition button:
+        # 1. overrides the config settings.
+        # 2. Data is saved locally
+        self.modifiers = QApplication.keyboardModifiers()
         self.dfAcqParams = self.getAcqParameters(obj)
         if self.obj.samplewind.checkTableEmpty(self.numRow, self.numCol):
             print("Please add substrates in the substrate table")
             return
-        obj.stopAcqFlag = False
         obj.acquisitionwind.enableAcqPanel(False)
         obj.samplewind.resetCellAcq()
         obj.samplewind.enableSamplePanel(False)
@@ -76,7 +80,6 @@ class Acquisition():
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
-            #obj.stopAcqFlag = True
             msg = "Acquisition stopped: " + self.acq_thread.getDateTimeNow()[0]+ \
                   " at "+self.acq_thread.getDateTimeNow()[1]
             self.acq_thread.stop()
@@ -118,7 +121,6 @@ class Acquisition():
         self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
             self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
             self.obj.resultswind.JV)
-        #self.obj.samplewind.colorCellAcq(i,j,"green")
 
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
