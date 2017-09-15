@@ -67,6 +67,6 @@ class switchboxThread(QThread):
             self.swbResponse.emit("Switchbox OK, channels: "+sb.get_connect())
             del sb
         except:
-            self.swbResponse.emit("Cannot connect to switchbox")
+            self.swbResponse.emit("    Cannot connect to switchbox")
             
         

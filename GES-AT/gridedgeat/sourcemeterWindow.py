@@ -26,61 +26,92 @@ class SourcemeterWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, SourcemeterWindow):
-        self.setGeometry(10, 200, 320, 120)
-        self.sourcemeterLabel = QLabel(SourcemeterWindow)
-        self.sourcemeterLabel.setGeometry(QRect(20, 40, 300, 20))
+        self.setGeometry(10, 200, 320, 150)
         SourcemeterWindow.setWindowTitle("Sourcemeter controls")
-        self.sourcemeterLabel.setText("Ready")
 
         self.sourcemeterVoltageLabel = QLabel(SourcemeterWindow)
         self.sourcemeterVoltageLabel.setGeometry(QRect(20, 10, 120, 20))
-        self.sourcemeterVoltageLabel.setText("Voltage")
+        self.sourcemeterVoltageLabel.setText("Voltage: ")
         self.sourcemeterVoltageText = QLineEdit(SourcemeterWindow)
-        self.sourcemeterVoltageText.setGeometry(QRect(140, 10, 50, 20))
+        self.sourcemeterVoltageText.setGeometry(QRect(80, 10, 50, 20))
         self.sourcemeterVoltageText.setText("1")
         
-        self.activateSourcemeterButton = QPushButton(SourcemeterWindow)
-        self.activateSourcemeterButton.setGeometry(QRect(10, 70, 300, 40))
-        self.activateSourcemeterButton.setText("Connect to Sourcemeter")
-        self.activateSourcemeterButton.clicked.connect(self.activateSourcemeter)
+        self.sourcemeterVoltageReadLabel = QLabel(SourcemeterWindow)
+        self.sourcemeterVoltageReadLabel.setGeometry(QRect(20, 40, 300, 20))
+        self.sourcemeterVoltageReadLabel.setText("")
+        
+        self.sourcemeterCurrentReadLabel = QLabel(SourcemeterWindow)
+        self.sourcemeterCurrentReadLabel.setGeometry(QRect(20,70, 300, 20))
+        self.sourcemeterCurrentReadLabel.setText("Ready")
+        
+        self.startSourcemeterButton = QPushButton(SourcemeterWindow)
+        self.startSourcemeterButton.setGeometry(QRect(10, 100, 150, 40))
+        self.startSourcemeterButton.setText("Start")
+        self.startSourcemeterButton.clicked.connect(self.startSourcemeter)
+    
+        self.stopSourcemeterButton = QPushButton(SourcemeterWindow)
+        self.stopSourcemeterButton.setGeometry(QRect(160, 100, 150, 40))
+        self.stopSourcemeterButton.setText("Stop")
+        self.stopSourcemeterButton.clicked.connect(self.startSourcemeter)
+        self.stopSourcemeterButton.setEnabled(False)
 
-    def activateSourcemeter(self):
-        self.activateSourcemeterButton.setEnabled(False)
+    # Start the thread for connecting and collecting basic V,I data
+    def startSourcemeter(self):
+        self.startSourcemeterButton.setEnabled(False)
         self.smThread = sourcemeterThread(self)
-        self.smThread.smResponse.connect(self.printMsg)
+        self.smThread.smResponse.connect(lambda Vread, Cread, flag: self.printMsg(Vread, Cread, flag))
         self.smThread.start()
+    
+    # Logic to stop powermeter acquisition
+    def stopSourcemeter(self):
+        self.stopSourcemeterButton.setEnabled(False)
+        self.startSourcemeterButton.setEnabled(True)
+        self.sourcemeterCurrentReadLabel.setText("")
+        try:
+            if self.smThread.isRunning():
+                self.smThread.stop()
+        except:
+            pass
 
-    def printMsg(self, msg):
-        self.sourcemeterLabel.setText(msg)
-        print(msg)
-        self.activateSourcemeterButton.setEnabled(True)
+    # Print output
+    def printMsg(self, Vmsg, Cmsg, flag):
+        self.sourcemeterVoltageReadLabel.setText(Vmsg)
+        self.sourcemeterCurrentReadLabel.setText(Cmsg)
+        print(str(Vmsg),"  ",str(Cmsg))
+        if flag is False:
+            self.startSourcemeterButton.setEnabled(True)
+            self.stopSourcemeterButton.setEnabled(False)
 
+    # Stop acquisition upon closing the powermeter window
+    def closeEvent(self, event):
+        self.stopSourcemeter()
+
+# Main class thread for sourcemeter
 class sourcemeterThread(QThread):
-
-    smResponse = pyqtSignal(str)
-
+    smResponse = pyqtSignal(str, str, bool)
+    
     def __init__(self, parent_obj):
         QThread.__init__(self)
         self.parent_obj = parent_obj
 
     def __del__(self):
-        self.wait()
+            self.wait()
 
     def stop(self):
         self.terminate()
 
     def run(self):
         try:
-            sc = SourceMeter()
-            sc.set_limit(voltage=10, current=0.12)
-            sc.on()
-            sc.set_output(voltage = float(self.parent_obj.sourcemeterVoltageText.text()))
-            self.smResponse.emit("Voltage [V]: "+str(sc.read_values()[0])+\
-                                 " Current [A]: "+str(sc.read_values()[1]))
-            sc.off()
-            del sc
+            self.sc = SourceMeter()
+            self.sc.set_limit(voltage=10, current=0.12)
+            self.sc.on()
+            while True:
+                sc.set_output(voltage = float(self.parent_obj.sourcemeterVoltageText.text()))
+                self.smResponse.emit("Voltage [V]: "+str(self.sc.read_values()[0]), \
+                    " Current [A]: "+str(sc.read_values()[1]), True)
+                time.sleep(0.2)
+            self.sc.off()
+            del self.sc
         except:
-            self.smResponse.emit("Cannot connect to sourcemeter")
-            
-        
+            self.smResponse.emit("","Cannot connect to sourcemeter", False)
 

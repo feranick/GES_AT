@@ -4,7 +4,7 @@ sourcemeter.py
 Class for providing a hardware support for 
 for the sourcemeter
 
-Version: 20170913
+Version: 20170914
 
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
@@ -40,8 +40,11 @@ class SourceMeter(object):
         self.write('FORM:ELEM VOLT,CURR')
 
     def __del__(self):
-        self.off()
-        self.manager.close()
+        try:
+            self.off()
+            self.manager.close()
+        except:
+            pass
 
     ## common visa api wrappers
     # write: send command with out expecting return

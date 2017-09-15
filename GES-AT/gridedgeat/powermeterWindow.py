@@ -46,15 +46,19 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.clicked.connect(self.stopPMAcq)
         self.powermeterStopButton.setText("Stop")
 
-        self.powermeterStopButton.setEnabled(True)
+        self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
 
     # Logic to stop powermeter acquisition
     def stopPMAcq(self):
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
-        self.pmThread.stop()
         self.powerMeterLabel.setText("")
+        try:
+            if self.pm.isRunning():
+                self.pmThread.stop()
+        except:
+            pass
 
     # Logic to start powermeter acquisition
     def startPMAcq(self):
@@ -67,7 +71,7 @@ class PowermeterWindow(QMainWindow):
 
     # Stop acquisition upon closing the powermeter window
     def closeEvent(self, event):
-       self.stopPMAcq()
+        self.stopPMAcq()
 
     def printMsg(self, msg, flag):
         self.powerMeterLabel.setText(msg)
