@@ -26,13 +26,21 @@ class SourcemeterWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, SourcemeterWindow):
-        SourcemeterWindow.resize(300, 100)
+        self.setGeometry(10, 200, 320, 120)
         self.sourcemeterLabel = QLabel(SourcemeterWindow)
-        self.sourcemeterLabel.setGeometry(QRect(20, 20, 300, 20))
+        self.sourcemeterLabel.setGeometry(QRect(20, 40, 300, 20))
         SourcemeterWindow.setWindowTitle("Sourcemeter controls")
         self.sourcemeterLabel.setText("Ready")
+
+        self.sourcemeterVoltageLabel = QLabel(SourcemeterWindow)
+        self.sourcemeterVoltageLabel.setGeometry(QRect(20, 10, 120, 20))
+        self.sourcemeterVoltageLabel.setText("Voltage")
+        self.sourcemeterVoltageText = QLineEdit(SourcemeterWindow)
+        self.sourcemeterVoltageText.setGeometry(QRect(140, 10, 50, 20))
+        self.sourcemeterVoltageText.setText("1")
+        
         self.activateSourcemeterButton = QPushButton(SourcemeterWindow)
-        self.activateSourcemeterButton.setGeometry(QRect(10, 50, 280, 40))
+        self.activateSourcemeterButton.setGeometry(QRect(10, 70, 300, 40))
         self.activateSourcemeterButton.setText("Connect to Sourcemeter")
         self.activateSourcemeterButton.clicked.connect(self.activateSourcemeter)
 
@@ -53,6 +61,7 @@ class sourcemeterThread(QThread):
 
     def __init__(self, parent_obj):
         QThread.__init__(self)
+        self.parent_obj = parent_obj
 
     def __del__(self):
         self.wait()
@@ -65,8 +74,9 @@ class sourcemeterThread(QThread):
             sc = SourceMeter()
             sc.set_limit(voltage=10, current=0.12)
             sc.on()
-            self.smResponse.emit("Voltage:"+str(sc.read_values()[0])+\
-                                 " Current:"+str(sc.read_values()[1]))
+            sc.set_output(voltage = float(self.parent_obj.sourcemeterVoltageText.text()))
+            self.smResponse.emit("Voltage [V]: "+str(sc.read_values()[0])+\
+                                 " Current [A]: "+str(sc.read_values()[1]))
             sc.off()
             del sc
         except:
