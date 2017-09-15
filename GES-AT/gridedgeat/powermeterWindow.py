@@ -54,11 +54,8 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
         self.powerMeterLabel.setText("")
-        try:
-            if self.pm.isRunning():
-                self.pmThread.stop()
-        except:
-            pass
+        if self.pmThread.isRunning():
+            self.pmThread.stop()
 
     # Logic to start powermeter acquisition
     def startPMAcq(self):
