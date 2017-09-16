@@ -151,7 +151,8 @@ class SampleWindow(QMainWindow):
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
-        
+    
+    # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
@@ -165,6 +166,7 @@ class SampleWindow(QMainWindow):
             self.menu.popup(QCursor.pos())
             selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
 
+    # Logic to set substrate status for acquisition
     def selectCell(self, row,col):
         if row >= 0 and col >= 0:
             print(row,col)
@@ -177,8 +179,6 @@ class SampleWindow(QMainWindow):
             else:
                 self.colorCellAcq(row,col,"white")
                 self.activeSubs[row,col] = True
-
-
     
     # Logic to set substrate name and color in table
     @pyqtSlot()

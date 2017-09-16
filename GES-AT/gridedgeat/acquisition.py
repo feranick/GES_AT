@@ -229,7 +229,8 @@ class acqThread(QThread):
                 substrateID = self.parent_obj.obj.samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
-                if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != "":
+                if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != ""  and \
+                        self.parent_obj.obj.samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
                     # Move stage to desired substrate
                     if self.parent_obj.xystage.xystageInit is True:
