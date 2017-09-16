@@ -36,7 +36,7 @@ class Configuration():
     def defineConfDevices(self):
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
-            'numSubsHolderCol' : 4
+            'numSubsHolderCol' : 4,
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
@@ -47,7 +47,7 @@ class Configuration():
             'acqNumAvScans' : 5,
             'acqDelBeforeMeas' : 1,
             'acqTrackNumPoints' : 5,
-            'acqTrackInterval' : 2
+            'acqTrackInterval' : 2,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
@@ -57,7 +57,7 @@ class Configuration():
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
             'irradiance1Sun' : 3682,
             'switchboxID' : "GPIB0::16::INSTR",
-            'sourcemeterID' : "GPIB0::24::INSTR"
+            'sourcemeterID' : "GPIB0::24::INSTR",
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -87,31 +87,31 @@ class Configuration():
         self.sysConfig = self.conf['System']
         self.dmConfig = self.conf['DM']
 
-        self.numSubsHolderRow = self.devConfig['numSubsHolderRow']
-        self.numSubsHolderCol = self.devConfig['numSubsHolderCol']
+        self.numSubsHolderRow = eval(self.devConfig['numSubsHolderRow'])
+        self.numSubsHolderCol = eval(self.devConfig['numSubsHolderCol'])
         
-        self.acqMinVoltage = self.acqConfig['acqMinVoltage']
-        self.acqMaxVoltage = self.acqConfig['acqMaxVoltage']
-        self.acqStartVoltage = self.acqConfig['acqStartVoltage']
-        self.acqStepVoltage = self.acqConfig['acqStepVoltage']
-        self.acqNumAvScans = self.acqConfig['acqNumAvScans']
-        self.acqDelBeforeMeas = self.acqConfig['acqDelBeforeMeas']
-        self.acqTrackNumPoints = self.acqConfig['acqTrackNumPoints']
-        self.acqTrackInterval = self.acqConfig['acqTrackInterval']
+        self.acqMinVoltage = eval(self.acqConfig['acqMinVoltage'])
+        self.acqMaxVoltage = eval(self.acqConfig['acqMaxVoltage'])
+        self.acqStartVoltage = eval(self.acqConfig['acqStartVoltage'])
+        self.acqStepVoltage = eval(self.acqConfig['acqStepVoltage'])
+        self.acqNumAvScans = eval(self.acqConfig['acqNumAvScans'])
+        self.acqDelBeforeMeas = eval(self.acqConfig['acqDelBeforeMeas'])
+        self.acqTrackNumPoints = eval(self.acqConfig['acqTrackNumPoints'])
+        self.acqTrackInterval = eval(self.acqConfig['acqTrackInterval'])
 
-        self.alignmentIntThreshold = self.instrConfig['alignmentIntThreshold']
-        self.alignmentContrastDefault = self.instrConfig['alignmentContrastDefault']
-        self.alignmentIntMax = self.instrConfig['alignmentIntMax']
+        self.alignmentIntThreshold = eval(self.instrConfig['alignmentIntThreshold'])
+        self.alignmentContrastDefault = eval(self.instrConfig['alignmentContrastDefault'])
+        self.alignmentIntMax = eval(self.instrConfig['alignmentIntMax'])
         self.powermeterID = self.instrConfig['powermeterID']
-        self.irradiance1Sun = self.instrConfig['irradiance1Sun']
+        self.irradiance1Sun = eval(self.instrConfig['irradiance1Sun'])
         self.switchboxID = self.instrConfig['switchboxID']
         self.sourcemeterID = self.instrConfig['sourcemeterID']
 
         self.loggingLevel = self.sysConfig['loggingLevel']
         self.loggingFilename = self.sysConfig['loggingFilename']
         self.csvSavingFolder = self.sysConfig['csvSavingFolder']
-        self.saveLocalCsv = self.sysConfig['saveLocalCsv']
-        self.submitToDb = self.dmConfig['submitToDb']
+        self.saveLocalCsv = eval(self.sysConfig['saveLocalCsv'])
+        self.submitToDb = eval(self.dmConfig['submitToDb'])
         self.DbHostname = self.dmConfig['DbHostname']
         self.DbPortNumber = self.dmConfig['DbPortNumber']
         self.DbName = self.dmConfig['DbName']

@@ -28,17 +28,17 @@ from .modules.switchbox.switchbox import *
 class Acquisition():
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
-        self.numRow = int(obj.config.numSubsHolderRow)
-        self.numCol = int(obj.config.numSubsHolderCol)
+        self.numRow = obj.config.numSubsHolderRow
+        self.numCol = obj.config.numSubsHolderCol
         pdframe = pd.DataFrame({'Operator': [obj.samplewind.operatorText.text()],
-                'Acq Min Voltage': [float(obj.acquisitionwind.minVText.text())],
-                'Acq Max Voltage': [float(obj.acquisitionwind.maxVText.text())],
-                'Acq Start Voltage': [float(obj.acquisitionwind.startVText.text())],
-                'Acq Step Voltage': [float(obj.acquisitionwind.stepVText.text())],
-                'Acq Num Aver Scans': [float(obj.acquisitionwind.numAverScansText.text())],
-                'Delay Before Meas': [float(obj.acquisitionwind.delayBeforeMeasText.text())],
+                'Acq Min Voltage': [obj.acquisitionwind.minVText.text()],
+                'Acq Max Voltage': [obj.acquisitionwind.maxVText.text()],
+                'Acq Start Voltage': [obj.acquisitionwind.startVText.text()],
+                'Acq Step Voltage': [obj.acquisitionwind.stepVText.text()],
+                'Acq Num Aver Scans': [int(obj.acquisitionwind.numAverScansText.text())],
+                'Delay Before Meas': [obj.acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Points': [int(obj.acquisitionwind.numPointsText.value())],
-                'Track Interval': [float(obj.acquisitionwind.IntervalText.text())],
+                'Track Interval': [obj.acquisitionwind.IntervalText.text()],
                 'Comments': [obj.samplewind.commentsText.text()]})
         return pdframe[['Acq Min Voltage','Acq Max Voltage','Acq Start Voltage',
                 'Acq Step Voltage','Acq Num Aver Scans','Delay Before Meas',
@@ -89,7 +89,7 @@ class Acquisition():
     '''
     # Extract parameters from JV
     def analyseJV(self, JV):
-        powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
+        powerIn = self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']*0.00064516
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -156,7 +156,7 @@ class acqThread(QThread):
         self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']) * \
+        self.powerIn = self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'] * \
             float(self.parent_obj.obj.samplewind.sizeSubsCBox.currentText()) * 0.00064516
 
     def __del__(self):

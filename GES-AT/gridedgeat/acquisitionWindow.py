@@ -170,14 +170,14 @@ class AcquisitionWindow(QMainWindow):
 
     # Populate acquisition panel with values from config
     def initParameters(self):
-        self.minVText.setText(self.parent().config.acqMinVoltage)
-        self.maxVText.setText(self.parent().config.acqMaxVoltage)
-        self.startVText.setText(self.parent().config.acqStartVoltage)
-        self.stepVText.setText(self.parent().config.acqStepVoltage)
-        self.numAverScansText.setText(self.parent().config.acqNumAvScans)
-        self.delayBeforeMeasText.setText(self.parent().config.acqDelBeforeMeas)
+        self.minVText.setText(str(self.parent().config.acqMinVoltage))
+        self.maxVText.setText(str(self.parent().config.acqMaxVoltage))
+        self.startVText.setText(str(self.parent().config.acqStartVoltage))
+        self.stepVText.setText(str(self.parent().config.acqStepVoltage))
+        self.numAverScansText.setText(str(self.parent().config.acqNumAvScans))
+        self.delayBeforeMeasText.setText(str(self.parent().config.acqDelBeforeMeas))
         self.numPointsText.setValue(int(self.parent().config.acqTrackNumPoints))
-        self.IntervalText.setText(self.parent().config.acqTrackInterval)
+        self.IntervalText.setText(str(self.parent().config.acqTrackInterval))
         self.timePerDevice()
 
     # Field validator for VStart

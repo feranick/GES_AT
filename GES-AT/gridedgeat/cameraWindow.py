@@ -93,11 +93,11 @@ class CameraWindow(QMainWindow):
                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
             self.alignPerc, self.iMax = self.cam.check_alignment( \
                     self.image_data,
-                    float(self.parent().config.alignmentIntThreshold))
+                    self.parent().config.alignmentIntThreshold)
 
             self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > float(self.parent().config.alignmentContrastDefault) \
-                   and float(self.iMax) > float(self.parent().config.alignmentIntMax):
+            if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
+                   and float(self.iMax) > self.parent().config.alignmentIntMax:
                 self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
                 self.outAlignmentMessageBox()
             else:

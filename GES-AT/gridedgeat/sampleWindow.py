@@ -69,8 +69,8 @@ class SampleWindow(QMainWindow):
        
         self.sizeSubsCBox.addItem("1")
         self.sizeSubsCBox.setEnabled(False)
-        self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+\
-                                    "x"+self.parent().config.numSubsHolderRow)
+        self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
+                                    "x"+str(self.parent().config.numSubsHolderRow))
         self.holderTypeCBox.setEnabled(False)
         
         self.commentsLabel = QLabel(self.centralwidget)
@@ -85,12 +85,12 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 190, 420, 145))
-        self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
-        self.tableWidget.setRowCount(int(self.parent().config.numSubsHolderCol))
+        self.tableWidget.setColumnCount(self.parent().config.numSubsHolderRow)
+        self.tableWidget.setRowCount(self.parent().config.numSubsHolderCol)
         
         # This allows for background coloring of a cell
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
         #self.tableWidget.item(0, 0).setText("test-sample")
 
@@ -190,14 +190,14 @@ class SampleWindow(QMainWindow):
 
     # Reset color in sample cells
     def resetCellAcq(self):
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
     # Clear names in cells
     def clearCells(self):
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
@@ -220,8 +220,8 @@ class SampleWindow(QMainWindow):
                 devConf=[]
                 for row in input:
                     devConf.append(row)
-            for i in range(int(self.parent().config.numSubsHolderRow)):
-                for j in range(int(self.parent().config.numSubsHolderCol)):
+            for i in range(self.parent().config.numSubsHolderRow):
+                for j in range(self.parent().config.numSubsHolderCol):
                     try:
                         self.tableWidget.item(i,j).setText(devConf[i][j])
                     except:
@@ -236,15 +236,15 @@ class SampleWindow(QMainWindow):
     def saveCsvSubstrates(self):
         import csv
         devConf=[['']*4 for i in range(4)]
-        for i in range(int(self.parent().config.numSubsHolderRow)):
-            for j in range(int(self.parent().config.numSubsHolderCol)):
+        for i in range(self.parent().config.numSubsHolderRow):
+            for j in range(self.parent().config.numSubsHolderCol):
                 devConf[i][j] = self.tableWidget.item(i,j).text()
         try:
             filename = QFileDialog.getSaveFileName(self,
                     "Save CSV substrates file", "","*.csv")
             with open(filename[0], 'w', newline='') as inputFile:
                 csvwrite = csv.writer(inputFile)
-                for i in range(int(self.parent().config.numSubsHolderRow)):
+                for i in range(self.parent().config.numSubsHolderRow):
                     csvwrite.writerow(devConf[i])
             print("Substrate configuration saved to:",filename[0])
             logger.info("Substrate configuration saved to:"+filename[0])

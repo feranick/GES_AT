@@ -307,10 +307,10 @@ class ResultsWindow(QMainWindow):
         # Enable/disable saving to file
         # Using ALT with Start Acquisition button overrides the config settings.
         if flag is True:
-            if self.parent().config.saveLocalCsv == 'True' or \
+            if self.parent().config.saveLocalCsv == True or \
                     self.parent().acquisition.modifiers == Qt.AltModifier:
                 self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
-            if self.parent().config.submitToDb == 'True':
+            if self.parent().config.submitToDb == True:
                 self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
 
     # Plot data from devices
