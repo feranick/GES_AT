@@ -154,12 +154,12 @@ class SampleWindow(QMainWindow):
         self.menu = QMenu(self)
         selectCellAction = QAction('Deselect substrate', self)
         relPos = self.tableWidget.mapFromGlobal(QCursor.pos())
-        selectCellAction.triggered.connect(lambda: self.selectCell(relPos.x(),relPos.y()))
-        self.menu.addAction(selectCellAction)
-        self.menu.popup(QCursor.pos())
-    
+        if relPos.x() >= 0 and relPos.y() >= 0:
+            self.menu.addAction(selectCellAction)
+            self.menu.popup(QCursor.pos())
+            selectCellAction.triggered.connect(lambda: self.selectCell(relPos.x(),relPos.y()))
+
     def selectCell(self, x,y):
-        print("Deselect Cell")
         # get the selected row and column
         #print(x,y)
         row = self.tableWidget.rowAt(y)
@@ -171,7 +171,7 @@ class SampleWindow(QMainWindow):
         # get the widget inside selected cell (if any)
         #widget = self.tableWidget.cellWidget(row, col)
         if row-1>=0 and col >= 0:
-            self.colorCellAcq(row-1,col,"yellow")
+            self.colorCellAcq(row-1,col,"red")
     
     # Logic to set substrate name and color in table
     @pyqtSlot()
@@ -212,7 +212,7 @@ class SampleWindow(QMainWindow):
         if color == "green":
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
         if color == "yellow":
-            self.tableWidget.item(row, column).setBackground(QColor(0,0,255))
+            self.tableWidget.item(row, column).setBackground(QColor(255,255,0))
 
     # Reset color in sample cells
     def resetCellAcq(self):
