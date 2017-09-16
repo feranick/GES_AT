@@ -155,9 +155,10 @@ class SampleWindow(QMainWindow):
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
-        for currentQTableWidgetItem in self.tableWidget.selectedItems():
-            row = self.tableWidget.currentRow()
-            col = self.tableWidget.currentColumn()
+        #for currentQTableWidgetItem in self.tableWidget.selectedItems():
+        row = self.tableWidget.currentRow()
+        col = self.tableWidget.currentColumn()
+        if self.tableWidget.item(row,col).text() != "":
             if self.activeSubs[row,col] == True:
                 selectCellAction = QAction('Disable substrate', self)
             else:
@@ -168,17 +169,12 @@ class SampleWindow(QMainWindow):
 
     # Logic to set substrate status for acquisition
     def selectCell(self, row,col):
-        if row >= 0 and col >= 0:
-            print(row,col)
-            for currentQTableWidgetItem in self.tableWidget.selectedItems():
-                print(self.tableWidget.currentColumn(), self.tableWidget.currentRow())
-            
-            if self.activeSubs[row,col] == True:
-                self.colorCellAcq(row,col,"red")
-                self.activeSubs[row,col] = False
-            else:
-                self.colorCellAcq(row,col,"white")
-                self.activeSubs[row,col] = True
+        if self.activeSubs[row,col] == True:
+            self.colorCellAcq(row,col,"red")
+            self.activeSubs[row,col] = False
+        else:
+            self.colorCellAcq(row,col,"white")
+            self.activeSubs[row,col] = True
     
     # Logic to set substrate name and color in table
     @pyqtSlot()

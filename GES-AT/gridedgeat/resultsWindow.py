@@ -21,9 +21,9 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
                              QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
-                             QTableWidgetItem,QAction,QHeaderView)
+                             QTableWidgetItem,QAction,QHeaderView,QMenu)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
-from PyQt5.QtGui import (QColor)
+from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
@@ -257,6 +257,26 @@ class ResultsWindow(QMainWindow):
     def onCellDoubleClick(self):
         row = self.resTableWidget.selectedItems()[0].row()
         self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0][:-1])
+
+    '''
+    # Enable right click on substrates for saving locally
+    def contextMenuEvent(self, event):
+        self.menu = QMenu(self)
+        for currentQTableWidgetItem in self.resTableWidget.selectedItems():
+            row = self.resTableWidget.currentRow()
+            selectCellAction = QAction('Save locally', self)
+            self.menu.addAction(selectCellAction)
+            self.menu.popup(QCursor.pos())
+            selectCellAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
+
+    # Logic to save locally devices selected from results table
+    def selectDeviceSaveLocally(self, row):
+        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
+                self.dfTotPerfData.get_value(0,row,takeable=True),
+                
+                self.dfTotJV.get_value(0,row,takeable=True)[\
+                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+    '''
 
     # Add row and initialize it within the table
     def setupResultTable(self):
