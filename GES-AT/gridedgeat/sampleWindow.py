@@ -15,6 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import sys
+import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
     QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
@@ -34,6 +35,7 @@ class SampleWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleWindow, self).__init__(parent)
         self.initUI(self)
+        self.activeSubs = np.ones((4,4), dtype=bool)
     
     # Define UI elements
     def initUI(self,MainWindow):
@@ -152,26 +154,31 @@ class SampleWindow(QMainWindow):
         
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
-        selectCellAction = QAction('Deselect substrate', self)
-        relPos = self.tableWidget.mapFromGlobal(QCursor.pos())
-        if relPos.x() >= 0 and relPos.y() >= 0:
+        for currentQTableWidgetItem in self.tableWidget.selectedItems():
+            row = self.tableWidget.currentRow()
+            col = self.tableWidget.currentColumn()
+            if self.activeSubs[row,col] == True:
+                selectCellAction = QAction('Disable substrate', self)
+            else:
+                selectCellAction = QAction('Enable substrate', self)
             self.menu.addAction(selectCellAction)
             self.menu.popup(QCursor.pos())
-            selectCellAction.triggered.connect(lambda: self.selectCell(relPos.x(),relPos.y()))
+            selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
 
-    def selectCell(self, x,y):
-        # get the selected row and column
-        #print(x,y)
-        row = self.tableWidget.rowAt(y)
-        col = self.tableWidget.columnAt(x)
-        # get the selected cell
-        #cell = self.tableWidget.item(row, col)
-        # get the text inside selected cell (if any)
-        #cellText = cell.text()
-        # get the widget inside selected cell (if any)
-        #widget = self.tableWidget.cellWidget(row, col)
-        if row-1>=0 and col >= 0:
-            self.colorCellAcq(row-1,col,"red")
+    def selectCell(self, row,col):
+        if row >= 0 and col >= 0:
+            print(row,col)
+            for currentQTableWidgetItem in self.tableWidget.selectedItems():
+                print(self.tableWidget.currentColumn(), self.tableWidget.currentRow())
+            
+            if self.activeSubs[row,col] == True:
+                self.colorCellAcq(row,col,"red")
+                self.activeSubs[row,col] = False
+            else:
+                self.colorCellAcq(row,col,"white")
+                self.activeSubs[row,col] = True
+
+
     
     # Logic to set substrate name and color in table
     @pyqtSlot()
@@ -226,6 +233,7 @@ class SampleWindow(QMainWindow):
             for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+        self.activeSubs = np.ones((4,4), dtype=bool)
 
     # Check if table is filled or empty
     def checkTableEmpty(self, numRow, numCol):
