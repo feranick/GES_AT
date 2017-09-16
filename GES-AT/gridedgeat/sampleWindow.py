@@ -20,8 +20,9 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
     QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
     QFileDialog,QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,
     QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,)
-from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
+    QAbstractItemView,QTableWidgetItem,QMenu)
+from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
+    QCursor,)
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
@@ -148,7 +149,30 @@ class SampleWindow(QMainWindow):
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
-
+        
+    def contextMenuEvent(self, event):
+        self.menu = QMenu(self)
+        selectCellAction = QAction('Deselect substrate', self)
+        relPos = self.tableWidget.mapFromGlobal(QCursor.pos())
+        selectCellAction.triggered.connect(lambda: self.selectCell(relPos.x(),relPos.y()))
+        self.menu.addAction(selectCellAction)
+        self.menu.popup(QCursor.pos())
+    
+    def selectCell(self, x,y):
+        print("Deselect Cell")
+        # get the selected row and column
+        #print(x,y)
+        row = self.tableWidget.rowAt(y)
+        col = self.tableWidget.columnAt(x)
+        # get the selected cell
+        #cell = self.tableWidget.item(row, col)
+        # get the text inside selected cell (if any)
+        #cellText = cell.text()
+        # get the widget inside selected cell (if any)
+        #widget = self.tableWidget.cellWidget(row, col)
+        if row-1>=0 and col >= 0:
+            self.colorCellAcq(row-1,col,"yellow")
+    
     # Logic to set substrate name and color in table
     @pyqtSlot()
     def onCellClick(self):
@@ -187,6 +211,8 @@ class SampleWindow(QMainWindow):
             self.tableWidget.item(row, column).setBackground(QColor(255,255,255))
         if color == "green":
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
+        if color == "yellow":
+            self.tableWidget.item(row, column).setBackground(QColor(0,0,255))
 
     # Reset color in sample cells
     def resetCellAcq(self):
