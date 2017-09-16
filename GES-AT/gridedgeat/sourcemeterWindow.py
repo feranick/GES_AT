@@ -97,7 +97,7 @@ class sourcemeterThread(QThread):
         self.maxV = 10
 
     def __del__(self):
-            self.wait()
+        self.wait()
 
     def stop(self):
         self.sc.set_output(voltage = 0)    
