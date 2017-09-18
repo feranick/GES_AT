@@ -85,8 +85,10 @@ class ResultsWindow(QMainWindow):
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
 
+        self.resTableW = 1100
+        self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
-        self.resTableWidget.setGeometry(QRect(20, 770, 1100, 145))
+        self.resTableWidget.setGeometry(QRect(20, 770, self.resTableW, self.resTableH))
         self.resTableWidget.setColumnCount(9)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
@@ -260,12 +262,17 @@ class ResultsWindow(QMainWindow):
     # Enable right click on substrates for saving locally
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
-        for currentQTableWidgetItem in self.resTableWidget.selectedItems():
-            row = self.resTableWidget.currentRow()
+        rPos = self.resTableWidget.mapFromGlobal(QCursor.pos())
+        if rPos.x()>0 and rPos.x()<self.resTableW and \
+                rPos.y()>0 and rPos.y()<self.resTableH and \
+                self.resTableWidget.rowCount() > 0 :
+        
             selectCellAction = QAction('Save locally', self)
             self.menu.addAction(selectCellAction)
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
+        for currentQTableWidgetItem in self.resTableWidget.selectedItems():
+            row = self.resTableWidget.currentRow()
             selectCellAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
 
     # Logic to save locally devices selected from results table
