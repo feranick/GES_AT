@@ -14,7 +14,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton, QWidget, QMainWindow, QApplication)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton, QWidget,
+                             QMainWindow, QApplication)
 from PyQt5.QtGui import (QIntValidator)
 from .modules.xystage.xystage import *
 from .acquisition import *
@@ -122,6 +123,8 @@ class StageWindow(QMainWindow):
         else:
             self.stageLabel.setText("Deactivating XY stage...")
             QApplication.processEvents()
+            print(" Moving to position [5,5]")
+            self.xystage.move_abs(5,5)
             if self.xystage.xystageInit is True:
                 self.xystage.end_stage_control()
                 del self.xystage
@@ -129,6 +132,7 @@ class StageWindow(QMainWindow):
             self.enableButtons(False)
             self.stageLabel.setText("XY stage deactivated")
             self.activeStage = False
+            print(" XY stage deactivated")
             
     # Enable/disable buttons and fields
     def enableButtons(self, flag):
@@ -191,14 +195,18 @@ class StageWindow(QMainWindow):
         validYCoord = QIntValidator(1,4,self.subYPosStageText)
         validDevNum = QIntValidator(1,6,self.devPosStageText)
 
-        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 and validXCoord.validate(self.subXPosStageText.text(),1)[0] == 2 and validYCoord.validate(self.subYPosStageText.text(),1)[0] == 2:
+        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 \
+           and validXCoord.validate(self.subXPosStageText.text(),1)[0] == 2 \
+           and validYCoord.validate(self.subYPosStageText.text(),1)[0] == 2:
             xCoord = int(self.subXPosStageText.text())-1
             yCoord = int(self.subYPosStageText.text())-1
             ac = Acquisition()
-            self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(xCoord,yCoord))
+            self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(xCoord,
+                                                                     yCoord))
             time.sleep(0.5)
             devNum = int(self.devPosStageText.text())
-            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,yCoord),int(self.devPosStageText.text()))
+            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,
+                                yCoord),int(self.devPosStageText.text()))
             self.showCurrentPos()
             print("Substrate number:",ac.getSubstrateNumber(xCoord,yCoord))
             del ac
@@ -211,7 +219,3 @@ class StageWindow(QMainWindow):
     def closeEvent(self, event):
         if self.activeStage == True:
             self.activateStage()
-
-
-
-

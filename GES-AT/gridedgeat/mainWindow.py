@@ -17,9 +17,10 @@ import sys, webbrowser, random, time
 import configparser
 from datetime import datetime
 
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QToolBar)
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
+    QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
+    QFileDialog,QStatusBar,QGraphicsScene,QLineEdit,QMessageBox,
+    QDialog,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
@@ -120,13 +121,12 @@ class MainWindow(QMainWindow):
         instrumentsMenu.addAction(self.stageMenu)
         instrumentsMenu.addAction(self.powermeterMenu)
         instrumentsMenu.addAction(self.cameraMenu)
-        
-        # Sourcemeter and switchbox are disabled until we have parameters to fill in
-        #instrumentsMenu.addAction(self.sourcemeterMenu)
-        #instrumentsMenu.addAction(self.switchboxMenu)
+        instrumentsMenu.addSeparator()
+        instrumentsMenu.addAction(self.sourcemeterMenu)
+        instrumentsMenu.addAction(self.switchboxMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
-        self.dataManagementMenu.setShortcut("Ctrl+d")
+        self.dataManagementMenu.setShortcut("Ctrl+m")
         self.dataManagementMenu.setStatusTip('Data Management Settings')
         self.dataManagementMenu.triggered.connect(self.dbconnectionwind.show)
         
@@ -143,6 +143,11 @@ class MainWindow(QMainWindow):
         self.devBugsMenu.setShortcut("Ctrl+b")
         self.devBugsMenu.setStatusTip('Development and bugs')
         self.devBugsMenu.triggered.connect(self.weblinks.help)
+        self.dataManagMenu = QAction("&Data management", self)
+        self.dataManagMenu.setShortcut("Ctrl+m")
+        self.dataManagMenu.setStatusTip('Data Management')
+        self.dataManagMenu.triggered.connect(self.weblinks.dm)
+        self.aboutMenu = QAction("&About", self)
         self.aboutMenu = QAction("&About", self)
         self.aboutMenu.setShortcut("Ctrl+a")
         self.aboutMenu.setStatusTip('About')
@@ -151,6 +156,7 @@ class MainWindow(QMainWindow):
         aboutMenu = self.menuBar.addMenu('&Help')
         aboutMenu.addAction(self.helpMenu)
         aboutMenu.addAction(self.devBugsMenu)
+        aboutMenu.addAction(self.dataManagMenu)
         aboutMenu.addSeparator()
         aboutMenu.addAction(self.aboutMenu)
         
@@ -179,7 +185,12 @@ class MainWindow(QMainWindow):
         self.toolBar.addSeparator()
        
         #### Create status bar ####
-        self.statusBar().showMessage("Ready", 5000)
+        self.statusBar = QStatusBar()
+        self.setStatusBar(self.statusBar)
+        self.statusBarLabel = QLabel(self)
+        self.statusBar.addPermanentWidget(self.statusBarLabel, 1)
+        self.statusBarLabel.setText("System: ready")
+        #self.statusBar().showMessage("Ready", 5000)
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)
@@ -191,6 +202,7 @@ class MainWindow(QMainWindow):
         self.stopAcqButton.setGeometry(QRect(170, 110, 160, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
         self.stopAcqButton.setText("Stop Acquisition")
+        self.stopAcqButton.setEnabled(False)
         self.stopAcqButton.clicked.connect(lambda: self.acquisition.stop(self))
         self.logo = QLabel(self)
         self.logo.setGeometry(QRect(20, 40, 311, 61))
@@ -225,16 +237,17 @@ class MainWindow(QMainWindow):
         else:
             self.startAcqButton.setText("Start Acquisition")
         self.startAcqButton.setEnabled(flag)
+        self.stopAcqButton.setEnabled(not flag)
 
     # Adds Menus to expose other Windows.
     def viewWindowMenus(self, menuObj, obj):
         viewMainWindowMenu = QAction("&Main Window", self)
-        viewMainWindowMenu.setShortcut("Ctrl+m")
+        viewMainWindowMenu.setShortcut("Ctrl+w")
         viewMainWindowMenu.setStatusTip('Display Main Window')
         viewMainWindowMenu.triggered.connect(lambda: self.displayMainWindow(obj))
-        viewSampleMenu = QAction("&Device Window", self)
+        viewSampleMenu = QAction("&Substrates Window", self)
         viewSampleMenu.setShortcut("Ctrl+d")
-        viewSampleMenu.setStatusTip('Display Device Window')
+        viewSampleMenu.setStatusTip('Display Substrates Window')
         viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(obj.samplewind))
         viewAcquisitionMenu = QAction("&Acquisition Window", self)
         viewAcquisitionMenu.setShortcut("Ctrl+a")
@@ -266,6 +279,12 @@ class MainWindow(QMainWindow):
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
+            if self.stagewind.activeStage == True:
+                self.stagewind.activateStage()
+            try:
+                self.acquisition.acq_thread.stop()
+            except:
+                pass
             self.close()
         else:
             event.ignore()
@@ -282,6 +301,8 @@ class WebLinksWidget():
         webbrowser.open("https://sites.google.com/site/gridedgesolar/")
     def dev(self):
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
+    def dm(self):
+        webbrowser.open("http://gridedgedm.mit.edu")
 
 '''
    About Widget
@@ -321,5 +342,3 @@ class AboutWidget(QWidget):
             label.setWordWrap(True)
             label.setOpenExternalLinks(True);
             self.verticalLayout.addWidget(label)
-
-

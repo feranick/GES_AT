@@ -5,7 +5,6 @@ Class for providing a graphical user interface for
 powermeter panel
 
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
-Copyright (C) 2017 Michel Nasilowski <micheln@mit.edu>
 Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
@@ -15,15 +14,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QWidget, QMainWindow, QPushButton, QApplication)
+from PyQt5.QtCore import (QRect,QThread, pyqtSlot, pyqtSignal)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QWidget, QMainWindow,
+                             QPushButton, QApplication)
 from .modules.powermeter.powermeter import *
 
 class PowermeterWindow(QMainWindow):
     def __init__(self, parent=None):
         super(PowermeterWindow, self).__init__(parent)
         self.initUI(self)
-        self.activePowermeter = False
     
     # Define UI elements
     def initUI(self, PowermeterWindow):
@@ -46,50 +45,58 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setGeometry(QRect(170, 70, 140, 30))
         self.powermeterStopButton.clicked.connect(self.stopPMAcq)
         self.powermeterStopButton.setText("Stop")
-        self.powermeterStopButton.setEnabled(False)
 
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
 
     # Logic to stop powermeter acquisition
     def stopPMAcq(self):
-        self.stopAcqFlag = True
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
-        self.powerMeterLabel.setText("Powermeter stopped")
-        del self.pm
+        self.powerMeterLabel.setText("")
+        if self.pmThread.isRunning():
+            self.pmThread.stop()
 
     # Logic to start powermeter acquisition
     def startPMAcq(self):
-        if self.activePowermeter == False:
-            self.powermeterStartButton.setEnabled(True)
-            self.powerMeterLabel.setText("Activating Powermeter...")
-            QApplication.processEvents()
-            self.pm = PowerMeter(self.parent().config.powermeterID)
-            
-        if self.pm.PM100Init is False:
-            self.powermeterStartButton.setEnabled(True)
-            self.powermeterStopButton.setEnabled(False)
-            self.powerMeterLabel.setText("Powermeter libraries or connection failed")
-        else:
-            self.activePowermeter = True
-            self.powerMeterLabel.setText("Powermeter activated")
-            self.powermeterStartButton.setEnabled(False)
-            self.powermeterStopButton.setEnabled(True)
-            self.stopAcqFlag = False
-            while True:
-                try:
-                    self.powerMeterLabel.setText("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
-                    time.sleep(float(self.powerMeterRefreshText.text()))
-                    QApplication.processEvents()
-                    print("Power levels [mW]: {0:0.4f}".format(1000*self.pm.get_power().read))
-                    if self.stopAcqFlag is True:
-                        break
-                except:
-                    print("Connection failed")
-                    break
+        self.powermeterStartButton.setEnabled(False)
+        self.powermeterStopButton.setEnabled(True)
+        self.powerMeterLabel.setText("Activating powermeter...")
+        self.pmThread = powermeterThread(self, self.parent().config.powermeterID)
+        self.pmThread.pmResponse.connect(lambda msg, flag: self.printMsg(msg, flag))
+        self.pmThread.start()
 
     # Stop acquisition upon closing the powermeter window
     def closeEvent(self, event):
-       self.stopPMAcq()    
+        self.stopPMAcq()
+
+    def printMsg(self, msg, flag):
+        self.powerMeterLabel.setText(msg)
+        print(msg)
+        if flag is False:
+            self.powermeterStartButton.setEnabled(True)
+            self.powermeterStopButton.setEnabled(False)
         
+# Acquisition takes place in a separate thread
+class powermeterThread(QThread):
+    pmResponse = pyqtSignal(str, bool)
+    def __init__(self, parent_obj, powermeterID):
+        QThread.__init__(self)
+        self.parent_obj = parent_obj
+        self.powermeterID = powermeterID
+
+    def __del__(self):
+        self.wait()
+
+    def stop(self):
+        self.terminate()
+
+    def run(self):
+        try:
+            self.pm = PowerMeter(self.powermeterID)
+            while True:
+                self.pmResponse.emit("Power levels [mW]: {0:0.4f}".\
+                                    format(1000*self.pm.get_power().read), True)
+                time.sleep(float(self.parent_obj.powerMeterRefreshText.text()))
+        except:
+            self.pmResponse.emit("Powermeter libraries or connection failed", False)

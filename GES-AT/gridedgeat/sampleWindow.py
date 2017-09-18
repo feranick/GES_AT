@@ -15,13 +15,16 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 
 import sys
+import numpy as np
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
-    QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QTableWidget,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,)
-from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor)
-from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
+    QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
+    QFileDialog,QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,
+    QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
+    QAbstractItemView,QTableWidgetItem,QMenu)
+from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
+    QCursor,)
+from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
 
@@ -32,6 +35,7 @@ class SampleWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleWindow, self).__init__(parent)
         self.initUI(self)
+        self.activeSubs = np.ones((4,4), dtype=bool)
     
     # Define UI elements
     def initUI(self,MainWindow):
@@ -66,9 +70,10 @@ class SampleWindow(QMainWindow):
         self.sizeSubsCBox.setObjectName("sizeSubsCBox")
         self.windowGridLayout.addWidget(self.sizeSubsCBox, 2, 1, 1, 1)
        
-        self.sizeSubsCBox.addItem("1x1 in")
+        self.sizeSubsCBox.addItem("1")
         self.sizeSubsCBox.setEnabled(False)
-        self.holderTypeCBox.addItem(self.parent().config.numSubsHolderRow+"x"+self.parent().config.numSubsHolderRow)
+        self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
+                                    "x"+str(self.parent().config.numSubsHolderRow))
         self.holderTypeCBox.setEnabled(False)
         
         self.commentsLabel = QLabel(self.centralwidget)
@@ -83,16 +88,17 @@ class SampleWindow(QMainWindow):
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 190, 420, 145))
-        self.tableWidget.setColumnCount(int(self.parent().config.numSubsHolderRow))
-        self.tableWidget.setRowCount(int(self.parent().config.numSubsHolderCol))
+        self.tableWidget.setColumnCount(self.parent().config.numSubsHolderRow)
+        self.tableWidget.setRowCount(self.parent().config.numSubsHolderCol)
         
         # This allows for background coloring of a cell
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
         #self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
+        self.tableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         
         # This disable editing
         #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -139,19 +145,51 @@ class SampleWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.sizeSubsLabel.setText("Size of Substrate ")
+        self.sizeSubsLabel.setText("Substrate size [sq in]  ")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
+    
+    # Enable right click on substrates for disabling/enabling during acquisition.
+    def contextMenuEvent(self, event):
+        self.menu = QMenu(self)
+        #for currentQTableWidgetItem in self.tableWidget.selectedItems():
+        row = self.tableWidget.currentRow()
+        col = self.tableWidget.currentColumn()
+        if self.tableWidget.item(row,col).text() != "":
+            if self.activeSubs[row,col] == True:
+                selectCellAction = QAction('Disable substrate', self)
+            else:
+                selectCellAction = QAction('Enable substrate', self)
+            self.menu.addAction(selectCellAction)
+            self.menu.popup(QCursor.pos())
+            selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
 
-    # Logic to set substrate name in table
+    # Logic to set substrate status for acquisition
+    def selectCell(self, row,col):
+        if self.activeSubs[row,col] == True:
+            self.colorCellAcq(row,col,"red")
+            self.activeSubs[row,col] = False
+        else:
+            self.colorCellAcq(row,col,"white")
+            self.activeSubs[row,col] = True
+    
+    # Logic to set substrate name and color in table
     @pyqtSlot()
     def onCellClick(self):
+        modifiers = QApplication.keyboardModifiers()
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
+            if modifiers == Qt.AltModifier and \
+                        currentQTableWidgetItem.text() != "":
+                self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
+
+    @pyqtSlot()
+    def onCellDoubleClick(self):
+        self.resetCellAcq()
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
@@ -162,6 +200,7 @@ class SampleWindow(QMainWindow):
         self.loadButton.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.tableWidget.setEnabled(flag)
+        self.tableWidget.clearSelection()
         if flag is False:
             self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         else:
@@ -169,25 +208,36 @@ class SampleWindow(QMainWindow):
 
     # Change color in sample cells depending on the acqusition status
     def colorCellAcq(self,row,column,color):
-        if color is "red":
+        if color == "red":
             self.tableWidget.item(row, column).setBackground(QColor(255,0,0))
-        if color is "white":
+        if color == "white":
             self.tableWidget.item(row, column).setBackground(QColor(255,255,255))
-        if color is "green":
+        if color == "green":
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
+        if color == "yellow":
+            self.tableWidget.item(row, column).setBackground(QColor(255,255,0))
 
     # Reset color in sample cells
     def resetCellAcq(self):
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
     # Clear names in cells
     def clearCells(self):
-        for i in range(int(self.parent().config.numSubsHolderCol)):
-            for j in range(int(self.parent().config.numSubsHolderRow)):
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+        self.activeSubs = np.ones((4,4), dtype=bool)
+
+    # Check if table is filled or empty
+    def checkTableEmpty(self, numRow, numCol):
+        for i in range(numRow):
+            for j in range(numCol):
+                if self.tableWidget.item(i,j).text() != "":
+                    return False
+        return True
 
     # Load device names and configuration
     def loadCsvSubstrates(self):
@@ -200,8 +250,8 @@ class SampleWindow(QMainWindow):
                 devConf=[]
                 for row in input:
                     devConf.append(row)
-            for i in range(int(self.parent().config.numSubsHolderRow)):
-                for j in range(int(self.parent().config.numSubsHolderCol)):
+            for i in range(self.parent().config.numSubsHolderRow):
+                for j in range(self.parent().config.numSubsHolderCol):
                     try:
                         self.tableWidget.item(i,j).setText(devConf[i][j])
                     except:
@@ -216,20 +266,18 @@ class SampleWindow(QMainWindow):
     def saveCsvSubstrates(self):
         import csv
         devConf=[['']*4 for i in range(4)]
-        for i in range(int(self.parent().config.numSubsHolderRow)):
-            for j in range(int(self.parent().config.numSubsHolderCol)):
+        for i in range(self.parent().config.numSubsHolderRow):
+            for j in range(self.parent().config.numSubsHolderCol):
                 devConf[i][j] = self.tableWidget.item(i,j).text()
         try:
             filename = QFileDialog.getSaveFileName(self,
                     "Save CSV substrates file", "","*.csv")
             with open(filename[0], 'w', newline='') as inputFile:
                 csvwrite = csv.writer(inputFile)
-                for i in range(int(self.parent().config.numSubsHolderRow)):
+                for i in range(self.parent().config.numSubsHolderRow):
                     csvwrite.writerow(devConf[i])
             print("Substrate configuration saved to:",filename[0])
             logger.info("Substrate configuration saved to:"+filename[0])
         except:
             print("Error in saving substrate configuration")
             logger.info("Error in saving substrate configuration")
-
-

@@ -14,13 +14,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, random, math, json, requests
+import sys, random, math, json, requests, webbrowser
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget, QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,QMenuBar,QStatusBar, QApplication,QTableWidget,QTableWidgetItem,QAction)
+from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
+                             QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
+                             QMenuBar,QStatusBar, QApplication,QTableWidget,
+                             QTableWidgetItem,QAction,QHeaderView,QMenu)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
-from PyQt5.QtGui import (QColor)
+from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
@@ -90,15 +93,17 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
-        self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Av Jsc [mA/cm^2]"))
-        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("MPP [mW/cm^2]"))
+        self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem(u"Av Jsc [mA/cm\u00B2]"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem(u"MPP [mW/cm\u00B2]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PCE"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Time Step"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Tracking time [s]"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
+        self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
+        self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         self.setCentralWidget(self.centralwidget)
 
         # Make Menu for plot related calls
@@ -143,16 +148,16 @@ class ResultsWindow(QMainWindow):
     
     # Define axis parametrs for plots
     def plotSettings(self, ax):
-        ax.tick_params(axis='both', which='major', labelsize=5)
-        ax.tick_params(axis='both', which='minor', labelsize=5)
+        ax.tick_params(axis='both', which='major', labelsize=8)
+        ax.tick_params(axis='both', which='minor', labelsize=8)
     
     # Initialize Time-based plots
     def initPlots(self, data):
         self.figureTJsc.clf()
         self.axTJsc = self.figureTJsc.add_subplot(111)
         self.plotSettings(self.axTJsc)
-        self.axTJsc.set_xlabel('Time [s]',fontsize=5)
-        self.axTJsc.set_ylabel('Jsc [mA/cm^2]',fontsize=5)
+        self.axTJsc.set_xlabel('Time [s]$',fontsize=8)
+        self.axTJsc.set_ylabel('Jsc [mA/cm$^2$]',fontsize=8)
         self.axTJsc.set_autoscale_on(True)
         self.axTJsc.autoscale_view(True,True,True)
         self.canvasTJsc.draw()
@@ -161,8 +166,8 @@ class ResultsWindow(QMainWindow):
         self.figureTVoc.clf()
         self.axTVoc = self.figureTVoc.add_subplot(111)
         self.plotSettings(self.axTVoc)
-        self.axTVoc.set_xlabel('Time [s]',fontsize=5)
-        self.axTVoc.set_ylabel('Voc [V]',fontsize=5)
+        self.axTVoc.set_xlabel('Time [s]',fontsize=8)
+        self.axTVoc.set_ylabel('Voc [V]',fontsize=8)
         self.axTVoc.set_autoscale_on(True)
         self.axTVoc.autoscale_view(True,True,True)
         self.canvasTVoc.draw()
@@ -171,8 +176,8 @@ class ResultsWindow(QMainWindow):
         self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
         self.plotSettings(self.axMPP)
-        self.axMPP.set_xlabel('Time [s]',fontsize=5)
-        self.axMPP.set_ylabel('Max power point [mW]',fontsize=5)
+        self.axMPP.set_xlabel('Time [s]',fontsize=8)
+        self.axMPP.set_ylabel('Max power point [mW]',fontsize=8)
         self.axMPP.set_autoscale_on(True)
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -185,9 +190,9 @@ class ResultsWindow(QMainWindow):
         self.axPVresp = self.axJVresp.twinx()
         self.plotSettings(self.axJVresp)
         self.plotSettings(self.axPVresp)
-        self.axJVresp.set_xlabel('Voltage [V]',fontsize=5)
-        self.axJVresp.set_ylabel('Current density [mA/cm^2]',fontsize=5)
-        self.axPVresp.set_ylabel('Power density [mW/cm^2]',fontsize=5)
+        self.axJVresp.set_xlabel('Voltage [V]',fontsize=8)
+        self.axJVresp.set_ylabel('Current density [mA/cm$^2$]',fontsize=8)
+        self.axPVresp.set_ylabel('Power density [mW/cm$^2$]',fontsize=8)
         self.axJVresp.axvline(x=0, linewidth=0.5)
         self.axJVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
@@ -244,14 +249,43 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+                self.dfTotJV.get_value(0,row,takeable=True)[\
+                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+    
+    # Action upon selecting a row in the table.
+    @pyqtSlot()
+    def onCellDoubleClick(self):
+        row = self.resTableWidget.selectedItems()[0].row()
+        self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0][:-1])
+
+    '''
+    # Enable right click on substrates for saving locally
+    def contextMenuEvent(self, event):
+        self.menu = QMenu(self)
+        for currentQTableWidgetItem in self.resTableWidget.selectedItems():
+            row = self.resTableWidget.currentRow()
+            selectCellAction = QAction('Save locally', self)
+            self.menu.addAction(selectCellAction)
+            self.menu.popup(QCursor.pos())
+            selectCellAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
+
+    # Logic to save locally devices selected from results table
+    def selectDeviceSaveLocally(self, row):
+        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
+                self.dfTotPerfData.get_value(0,row,takeable=True),
+                
+                self.dfTotJV.get_value(0,row,takeable=True)[\
+                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+    '''
 
     # Add row and initialize it within the table
     def setupResultTable(self):
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
-        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,QTableWidgetItem())
+        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,
+                                        QTableWidgetItem())
         for j in range(self.resTableWidget.columnCount()):
-            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,QTableWidgetItem())
+            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,
+                                        QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount()-1
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
         self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem())
@@ -270,12 +304,11 @@ class ResultsWindow(QMainWindow):
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
-    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV):
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
         
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
-        self.perfData = np.vstack((self.perfData, np.array([perfData])))
-        
+        self.perfData = perfData
         if self.JV.shape[0] == 0:
             #self.JV.resize((0,JV.shape[0],2))
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))
@@ -290,12 +323,15 @@ class ResultsWindow(QMainWindow):
         
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
-        
-        if self.parent().config.saveLocalCsv == 'True':
-            self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
-                
-        if self.parent().config.submitToDb == 'True':
-            self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
+
+        # Enable/disable saving to file
+        # Using ALT with Start Acquisition button overrides the config settings.
+        if flag is True:
+            if self.parent().config.saveLocalCsv == True or \
+                    self.parent().acquisition.modifiers == Qt.AltModifier:
+                self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
+            if self.parent().config.submitToDb == True:
+                self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -317,7 +353,8 @@ class ResultsWindow(QMainWindow):
                         'Jsc': perfData[:,4], 'MPP': perfData[:,5],
                         'FF': perfData[:,6], 'effic': perfData[:,7],
                         'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1]})
-        dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc', 'Jsc', 'MPP','FF','effic']]
+        dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
+                                     'Jsc', 'MPP','FF','effic']]
         return dfPerfData
     
     def makeDFJV(self,JV):
@@ -347,7 +384,9 @@ class ResultsWindow(QMainWindow):
             url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
             req = requests.post(url, json=jsonData)
             if req.status_code == 200:
-                msg = " Submission to DM via HTTP POST: successful (ETag: "+str(req.headers['ETag'])+")"
+                msg = " Device " + deviceID + \
+                      ", submission to DM via HTTP POST successful\n  (ETag: " + \
+                      str(req.headers['ETag'])+")"
             else:
                 req.raise_for_status()
         except:
@@ -358,7 +397,9 @@ class ResultsWindow(QMainWindow):
                 db = client[self.dbConnectInfo[2]]
                 try:
                     db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
-                    msg = " Submission to DM via Mongo: successful (id: "+str(db_entry.inserted_id)+")"
+                    msg = " Device " + deviceID + \
+                          ": submission to DM via Mongo successful\n  (id: " + \
+                          str(db_entry.inserted_id)+")"
                 except:
                     msg = " Submission to DM via Mongo: failed."
             except:
@@ -373,7 +414,10 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
+        if dfPerfData['MPP'].count() < 2:
+            csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
+        else:
+            csvFilename = str(dfDeviceID.get_value(0,'Device'))+"_tracking.csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
         msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
         print(msg)
@@ -410,4 +454,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
 
-
+    # Redirect to DM page for substrate/device
+    def redirectToDM(self, deviceID):
+        print("Selected substrate:",deviceID)
+        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID)

@@ -59,6 +59,9 @@ class APTMotor():
         else:
             if self.verbose: print("No serial, please setSerialNumber")
 
+        # Uncomment this to remove Thorlab Information panel
+        #self.aptdll.EnableEventDlg(False)
+        
     def getNumberOfHardwareUnits(self):
         '''
         Returns the number of HW units connected that are available to be interfaced
