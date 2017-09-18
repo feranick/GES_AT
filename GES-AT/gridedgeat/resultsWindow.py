@@ -13,7 +13,6 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
 import sys, random, math, json, requests, webbrowser
 import numpy as np
 import pandas as pd
@@ -258,7 +257,6 @@ class ResultsWindow(QMainWindow):
         row = self.resTableWidget.selectedItems()[0].row()
         self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0][:-1])
 
-    '''
     # Enable right click on substrates for saving locally
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
@@ -267,15 +265,15 @@ class ResultsWindow(QMainWindow):
             selectCellAction = QAction('Save locally', self)
             self.menu.addAction(selectCellAction)
             self.menu.popup(QCursor.pos())
+            QApplication.processEvents()
             selectCellAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
-        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
-            self.dfTotAcqParams.get_value(0,row,takeable=True),
+        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0],
+            self.dfTotAcqParams.iloc[[row]],
             self.dfTotPerfData.get_value(0,row,takeable=True),
-            self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
-    '''
+            self.dfTotJV.get_value(0,row,takeable=True))
 
     # Add row and initialize it within the table
     def setupResultTable(self):
@@ -286,15 +284,8 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,
                                         QTableWidgetItem())
         self.lastRowInd = self.resTableWidget.rowCount()-1
-        self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem())
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem())
+        for f in range(9):
+            self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
 
     # Create internal dataframe with all the data. This is needed for plotting data after acquisition
     def setupDataFrame(self):
@@ -313,10 +304,6 @@ class ResultsWindow(QMainWindow):
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
-        # Save to internal dataFrame
-        self.makeInternalDataFrames(self.lastRowInd,
-             self.deviceID,self.perfData, dfAcqParams, self.JV)
-        
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
@@ -324,17 +311,18 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.deviceID,self.perfData, JV)
         QApplication.processEvents()
         
-        dfPerfData = self.makeDFPerfData(self.perfData)
-        dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
-
-        # Enable/disable saving to file
-        # Using ALT with Start Acquisition button overrides the config settings.
         if flag is True:
+            # Save to internal dataFrame
+            self.makeInternalDataFrames(self.lastRowInd,
+                self.deviceID,self.perfData, dfAcqParams, self.JV)
+
+            # Enable/disable saving to file
+            # Using ALT with Start Acquisition button overrides the config settings.
             if self.parent().config.saveLocalCsv == True or \
                     self.parent().acquisition.modifiers == Qt.AltModifier:
-                self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
+                self.save_csv(deviceID, dfAcqParams, self.perfData, self.JV)
             if self.parent().config.submitToDb == True:
-                self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
+                self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -348,7 +336,7 @@ class ResultsWindow(QMainWindow):
     def makeInternalDataFrames(self, index,deviceID,perfData,dfAcqParams,JV):
         self.dfTotDeviceID[index] = [deviceID]
         self.dfTotPerfData[index] = [perfData]
-        self.dfTotAcqParams = pd.concat([dfAcqParams, self.dfTotAcqParams], axis = 0)
+        self.dfTotAcqParams = self.dfTotAcqParams.append(dfAcqParams)
         self.dfTotJV[index] = [JV]
     
     # Create DataFrames for saving csv and jsons
@@ -365,23 +353,23 @@ class ResultsWindow(QMainWindow):
         dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
         dfJV = dfJV[['V', 'J']]
         return dfJV
-
-    ### Prepare json for device data
-    def make_json(self,deviceID, dfAcqParams, dfPerfData, dfJV):
+    
+    ### Submit json for device data to Data-Management
+    def submit_DM(self,deviceID, dfAcqParams, perfData, JV):
+        
+        dfPerfData = self.makeDFPerfData(perfData)
+        dfJV = self.makeDFJV(JV[JV.shape[0]-1])
+        
+        # Prepare json-data
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
-        listTot = dict(dfDeviceID.to_dict(orient='list'))
+        jsonData = dict(dfDeviceID.to_dict(orient='list'))
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
         listPerfData = dict(dfPerfData.to_dict(orient='list'))
         listJV = dict(dfJV.to_dict(orient='list'))
-        
-        listTot.update(listPerfData)
-        listTot.update(listJV)
-        listTot.update(listAcqParams)
-        return listTot
-    
-    ### Submit json for device data to Data-Management
-    def submit_DM(self,deviceID, dfAcqParams, dfPerfData, dfJV):
-        jsonData = self.make_json(deviceID, dfAcqParams, dfPerfData, dfJV)
+        jsonData.update(listPerfData)
+        jsonData.update(listJV)
+        jsonData.update(listAcqParams)
+
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
             #This is for using POST HTTP
@@ -413,7 +401,10 @@ class ResultsWindow(QMainWindow):
         logger.info(msg)
 
     ### Save device acquisition as csv
-    def save_csv(self,deviceID, dfAcqParams, dfPerfData, dfJV):
+    def save_csv(self,deviceID, dfAcqParams, perfData, JV):
+        dfPerfData = self.makeDFPerfData(perfData)
+        dfJV = self.makeDFJV(JV[JV.shape[0]-1])
+    
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
