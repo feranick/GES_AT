@@ -272,10 +272,9 @@ class ResultsWindow(QMainWindow):
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
         self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
-                self.dfTotPerfData.get_value(0,row,takeable=True),
-                
-                self.dfTotJV.get_value(0,row,takeable=True)[\
-                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+            self.dfTotAcqParams.get_value(0,row,takeable=True),
+            self.dfTotPerfData.get_value(0,row,takeable=True),
+            self.dfTotJV.get_value(0,row,takeable=True)[self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
     '''
 
     # Add row and initialize it within the table
@@ -301,6 +300,7 @@ class ResultsWindow(QMainWindow):
     def setupDataFrame(self):
         self.dfTotDeviceID = pd.DataFrame()
         self.dfTotPerfData = pd.DataFrame()
+        self.dfTotAcqParams = pd.DataFrame()
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
@@ -310,13 +310,12 @@ class ResultsWindow(QMainWindow):
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
         if self.JV.shape[0] == 0:
-            #self.JV.resize((0,JV.shape[0],2))
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
         # Save to internal dataFrame
         self.makeInternalDataFrames(self.lastRowInd,
-             self.deviceID,self.perfData, self.JV)
+             self.deviceID,self.perfData, dfAcqParams, self.JV)
         
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
@@ -346,9 +345,10 @@ class ResultsWindow(QMainWindow):
         self.show()
     
     # Create internal dataframe with all the data. This is needed for plotting data after acquisition
-    def makeInternalDataFrames(self, index,deviceID,perfData,JV):
+    def makeInternalDataFrames(self, index,deviceID,perfData,dfAcqParams,JV):
         self.dfTotDeviceID[index] = [deviceID]
         self.dfTotPerfData[index] = [perfData]
+        self.dfTotAcqParams = pd.concat([dfAcqParams, self.dfTotAcqParams], axis = 0)
         self.dfTotJV[index] = [JV]
     
     # Create DataFrames for saving csv and jsons
@@ -438,10 +438,11 @@ class ResultsWindow(QMainWindow):
                 deviceID = dftot.get_value(0,'Device')
                 perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,9)]
                 JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
+                dfAcqParams = dftot.loc[0:1, 'Acq Min Voltage':'Comments']
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, np.array([JV]))
+                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array([JV]))
         except:
             print("Loading files failed")
 
