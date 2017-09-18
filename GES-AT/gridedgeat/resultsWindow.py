@@ -315,13 +315,17 @@ class ResultsWindow(QMainWindow):
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
+        # Save to internal dataFrame
+        self.makeInternalDataFrames(self.lastRowInd,
+            self.deviceID,self.perfData, self.JV)
+
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
         # Plot results
         self.plotData(self.deviceID,self.perfData, JV)
         QApplication.processEvents()
-        
+    
         dfPerfData = self.makeDFPerfData(self.perfData)
         dfJV = self.makeDFJV(self.JV[self.JV.shape[0]-1])
 
@@ -333,9 +337,6 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
             if self.parent().config.submitToDb == True:
                 self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
-        
-        self.makeInternalDataFrames(self.lastRowInd,
-            self.deviceID,self.perfData, self.JV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -438,17 +439,11 @@ class ResultsWindow(QMainWindow):
                 deviceID = dftot.get_value(0,'Device')
                 perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,9)]
                 JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
-                self.plotData(deviceID, perfData,JV)
+                self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
-        
-                print(self.dfTotDeviceID)
-                print(self.dfTotPerfData)
-                print(self.dfTotJV)
                 self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, np.array([JV]))
-                print(self.dfTotDeviceID)
-                print(self.dfTotPerfData)
-                print(self.dfTotJV)
+
         except:
             print("Loading files failed")
 
