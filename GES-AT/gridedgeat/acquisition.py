@@ -117,19 +117,14 @@ class Acquisition():
         #perfData = self.analyseJV(JV)
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
         QApplication.processEvents()
-        self.obj.resultswind.show()
-        QApplication.processEvents()
         time.sleep(1)
             
-
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
         self.obj.resultswind.clearPlots(False)
         if setupTable is True:
             self.obj.resultswind.setupResultTable()
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
-        QApplication.processEvents()
-        self.obj.resultswind.show()
         QApplication.processEvents()
         time.sleep(1)
 

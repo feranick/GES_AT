@@ -314,6 +314,10 @@ class ResultsWindow(QMainWindow):
             self.JV = np.resize(self.JV, (0,JV.shape[0],2))
         self.JV = np.vstack([self.JV,[JV]])
         
+        # Save to internal dataFrame
+        self.makeInternalDataFrames(self.lastRowInd,
+             self.deviceID,self.perfData, self.JV)
+        
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
@@ -332,9 +336,6 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
             if self.parent().config.submitToDb == True:
                 self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
-        
-        self.makeInternalDataFrames(self.lastRowInd,
-             self.deviceID,self.perfData, self.JV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
