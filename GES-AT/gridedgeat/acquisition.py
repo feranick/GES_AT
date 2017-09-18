@@ -89,7 +89,7 @@ class Acquisition():
     '''
     # Extract parameters from JV
     def analyseJV(self, JV):
-        powerIn = self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']*0.00064516
+        powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -156,7 +156,7 @@ class acqThread(QThread):
         self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'] * \
+        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']) * \
             float(self.parent_obj.obj.samplewind.sizeSubsCBox.currentText()) * 0.00064516
 
     def __del__(self):
