@@ -241,6 +241,7 @@ class ResultsWindow(QMainWindow):
     @pyqtSlot()
     def onCellClick(self):
         row = self.resTableWidget.selectedItems()[0].row()
+        print(self.dfTotDeviceID)
         for j in range(self.resTableWidget.columnCount()):
             for i in range(self.resTableWidget.rowCount()):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
@@ -332,6 +333,9 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)       
             if self.parent().config.submitToDb == True:
                 self.submit_DM(deviceID, dfAcqParams, dfPerfData, dfJV)
+        
+        self.makeInternalDataFrames(self.lastRowInd,
+            self.deviceID,self.perfData, self.JV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -431,14 +435,20 @@ class ResultsWindow(QMainWindow):
             for filename in filenames[0]:
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
-                self.deviceID = dftot.get_value(0,'Device')
-                self.perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,9)]
-                self.JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
-                self.plotData(self.deviceID, self.perfData,self.JV)
-        
+                deviceID = dftot.get_value(0,'Device')
+                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Voc']))][:,range(1,9)]
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)]
+                self.plotData(deviceID, perfData,JV)
                 self.setupResultTable()
-                self.fillTableData(self.deviceID, self.perfData)
-                self.makeInternalDataFrames(self.lastRowInd, self.deviceID, self.perfData, np.array([self.JV]))
+                self.fillTableData(deviceID, perfData)
+        
+                print(self.dfTotDeviceID)
+                print(self.dfTotPerfData)
+                print(self.dfTotJV)
+                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, np.array([JV]))
+                print(self.dfTotDeviceID)
+                print(self.dfTotPerfData)
+                print(self.dfTotJV)
         except:
             print("Loading files failed")
 

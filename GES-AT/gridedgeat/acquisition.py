@@ -120,10 +120,6 @@ class Acquisition():
         self.obj.resultswind.show()
         QApplication.processEvents()
         time.sleep(1)
-            
-        self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
-            self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
-            self.obj.resultswind.JV)
 
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
@@ -135,10 +131,7 @@ class Acquisition():
         self.obj.resultswind.show()
         QApplication.processEvents()
         time.sleep(1)
-        
-        self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
-            self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
-            self.obj.resultswind.JV)
+
 
 # Main Class for Acquisition
 # Everything happens here!
@@ -269,6 +262,7 @@ class acqThread(QThread):
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
                         self.devMaxPower =  np.argmax(self.max_power) + 1
+                        time.sleep(1)
 
                     self.maxPowerDev.emit(" Device with max power: "+str(self.devMaxPower))
                     
