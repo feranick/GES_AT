@@ -158,14 +158,17 @@ class SampleWindow(QMainWindow):
         #for currentQTableWidgetItem in self.tableWidget.selectedItems():
         row = self.tableWidget.currentRow()
         col = self.tableWidget.currentColumn()
-        if self.tableWidget.item(row,col).text() != "":
-            if self.activeSubs[row,col] == True:
-                selectCellAction = QAction('Disable substrate', self)
-            else:
-                selectCellAction = QAction('Enable substrate', self)
-            self.menu.addAction(selectCellAction)
-            self.menu.popup(QCursor.pos())
-            selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
+        try:
+            if self.tableWidget.item(row,col).text() != "":
+                if self.activeSubs[row,col] == True:
+                    selectCellAction = QAction('Disable substrate', self)
+                else:
+                    selectCellAction = QAction('Enable substrate', self)
+                self.menu.addAction(selectCellAction)
+                self.menu.popup(QCursor.pos())
+                selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
+        except:
+            pass
 
     # Logic to set substrate status for acquisition
     def selectCell(self, row,col):
