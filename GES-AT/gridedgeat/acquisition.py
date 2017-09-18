@@ -121,9 +121,6 @@ class Acquisition():
         QApplication.processEvents()
         time.sleep(1)
             
-        self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
-            self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
-            self.obj.resultswind.JV)
 
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
@@ -135,10 +132,6 @@ class Acquisition():
         self.obj.resultswind.show()
         QApplication.processEvents()
         time.sleep(1)
-        
-        self.obj.resultswind.makeInternalDataFrames(self.obj.resultswind.lastRowInd,
-            self.obj.resultswind.deviceID,self.obj.resultswind.perfData,
-            self.obj.resultswind.JV)
 
 # Main Class for Acquisition
 # Everything happens here!
