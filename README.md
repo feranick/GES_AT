@@ -53,3 +53,10 @@ From the terminal, run: ```python gridedge_AT_run.py```
     
 ### Windows
 Launch by double clicking the file ```gridedge_AT_windows.bat```
+
+## Features
+- Pressing ALT while starting the acquisition will temporarily enable saving acquisition data locally
+- After acquisition, right click on a device in the table in Results allows for saving locally the corresponding data.
+- A substrate in the substrate panel can be exluded from the acquisition through a right click. The corresponding cell when disables appears with a red background.
+- Double click on a device in the table in Results will open the default browser in the Data Management page with the corresponding substrate info.
+
