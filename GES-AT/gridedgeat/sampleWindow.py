@@ -5,7 +5,6 @@ Class for providing a graphical user interface for
 Sample Window
 
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
-Copyright (C) 2017 Auto-testing team - MIT GridEdge Solar
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -79,10 +78,12 @@ class SampleWindow(QMainWindow):
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
         self.commentsLabel.setGeometry(QRect(10, 150, 80, 20))
+        #self.windowGridLayout.addWidget(self.commentsLabel, 3, 0, 1, 1)
         self.commentsText = QLineEdit(self.centralwidget)
         self.commentsText.setText("")
         self.commentsText.setGeometry(QRect(90, 150, 330, 20))
         self.commentsText.setObjectName("commentsText")
+        #self.windowGridLayout.addWidget(self.commentsText, 3, 1, 1, 1)
        
         self.tableWidget = QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QRect(10, 190, 420, 145))
@@ -93,6 +94,7 @@ class SampleWindow(QMainWindow):
         for i in range(self.parent().config.numSubsHolderCol):
             for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
+        #self.tableWidget.item(0, 0).setText("test-sample")
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
@@ -152,6 +154,7 @@ class SampleWindow(QMainWindow):
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
+        #for currentQTableWidgetItem in self.tableWidget.selectedItems():
         row = self.tableWidget.currentRow()
         col = self.tableWidget.currentColumn()
         try:
