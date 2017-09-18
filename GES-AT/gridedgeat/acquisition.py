@@ -515,6 +515,7 @@ class acqThread(QThread):
         data, Vpmax, JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
+        self.tempTracking.emit(JV, perfData, deviceID, True, False)
         for n in range (1, numPoints):
             time.sleep(trackTime)
             timeStep = time.time()-startTime
@@ -526,6 +527,7 @@ class acqThread(QThread):
             perfData = np.vstack((data, perfData))
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
         JV = self.generateRandomJV()
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
     
     '''
