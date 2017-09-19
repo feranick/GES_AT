@@ -19,7 +19,6 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QApplication,QAbstractItemView)
 from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 from .acquisitionWindow import *
-from . import logger
 from .modules.xystage.xystage import *
 from .modules.sourcemeter.sourcemeter import *
 from .modules.switchbox.switchbox import *

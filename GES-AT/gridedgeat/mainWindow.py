@@ -19,12 +19,13 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
     QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
     QFileDialog,QStatusBar,QGraphicsScene,QLineEdit,QMessageBox,
-    QDialog,QToolBar)
+    QDialog,QToolBar,QMenuBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
 from PyQt5.QtCore import (pyqtSlot,QRectF)
 
 from . import __version__
 from . import __author__
+from . import logger
 from .configuration import *
 from .cameraWindow import *
 from .resultsWindow import *
