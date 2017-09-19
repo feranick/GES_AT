@@ -30,14 +30,6 @@ logger = logging.getLogger()
 
 from . import configuration
 from . import mainWindow
-from . import acquisition
-from . import acquisitionWindow
-from . import sampleWindow
-from . import resultsWindow
-from . import cameraWindow
-from . import dataManagement
-from . import dataManagementWindow
-from . import powermeterWindow
 
 
 
