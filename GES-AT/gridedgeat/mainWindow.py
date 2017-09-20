@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         self.resultswind = ResultsWindow(parent=self)
         self.camerawind = CameraWindow(parent=self)
         self.weblinks = WebLinksWidget()
-        self.acquisition = Acquisition()
+        self.acquisition = Acquisition(parent=self)
         self.acquisitionwind = AcquisitionWindow(parent=self)
         self.powermeterwind = PowermeterWindow(parent=self)
         self.stagewind = StageWindow(parent=self)

@@ -23,7 +23,10 @@ from .modules.xystage.xystage import *
 from .modules.sourcemeter.sourcemeter import *
 from .modules.switchbox.switchbox import *
 
-class Acquisition():
+class Acquisition(QObject):
+    def __init__(self, parent=None):
+        super(Acquisition, self).__init__(parent)
+        
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
     def getAcqParameters(self,obj):
         self.numRow = obj.config.numSubsHolderRow
