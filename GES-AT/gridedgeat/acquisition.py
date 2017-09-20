@@ -61,7 +61,7 @@ class Acquisition(QObject):
         QApplication.processEvents()
         self.parent().resultswind.clearPlots(True)
         
-        self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
+        self.acq_thread = acqThread(self.numRow, self.numCol, self.dfAcqParams, self)
         self.acq_thread.Msg.connect(self.printMsg)
         self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: \
                 self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
@@ -137,14 +137,14 @@ class acqThread(QThread):
     colorCell = pyqtSignal(int,int,str)
     Msg = pyqtSignal(str)
 
-    def __init__(self, parent_obj, numRow, numCol, dfAcqParams):
-        QThread.__init__(self)
+    def __init__(self, numRow, numCol, dfAcqParams, parent=None):
+        super(acqThread, self).__init__(parent)
+        #QThread.__init__(self)
         self.dfAcqParams = dfAcqParams
-        self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = float(self.parent_obj.parent().config.conf['Instruments']['irradiance1Sun']) * \
-            float(self.parent_obj.parent().samplewind.sizeSubsCBox.currentText()) * 0.00064516
+        self.powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun']) * \
+            float(self.parent().parent().samplewind.sizeSubsCBox.currentText()) * 0.00064516
         self.tempFlag = True
 
 
@@ -159,7 +159,7 @@ class acqThread(QThread):
     def devAcqJV(self):
         # Switch to correct device and start acquisition of JV
         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-        #return self.measure_JV(self.parent_obj.source_meter, self.dfAcqParams)
+        #return self.measure_JV(self.parent().source_meter, self.dfAcqParams)
         return self.measure_JV(self.tempFlag, self.dfAcqParams)
 
     
@@ -176,8 +176,8 @@ class acqThread(QThread):
     def run(self):
         # Activate stage
         self.Msg.emit("Activating stage...")
-        #self.parent_obj.xystage = XYstage()
-        #if self.parent_obj.xystage.xystageInit == False:
+        #self.parent().xystage = XYstage()
+        #if self.parent().xystage.xystageInit == False:
         #    self.Msg.emit(" Stage not activated: no acquisition possible")
         #    return
         self.Msg.emit(" Stage activated.")
@@ -185,7 +185,7 @@ class acqThread(QThread):
         # Activate switchbox
         self.Msg.emit("Activating switchbox...")        
         #try:
-        #    self.parent_obj.switch_box = SwitchBox(self.parent_obj.parent().config.switchboxID)
+        #    self.parent().switch_box = SwitchBox(self.parent().parent().config.switchboxID)
         #except:
         #    self.Msg.emit(" Switchbox not activated: no acquisition possible")
         #    return
@@ -195,18 +195,18 @@ class acqThread(QThread):
         self.Msg.emit("Activating sourcemeter...")
         QApplication.processEvents()
         #try:
-        #    self.parent_obj.source_meter = SourceMeter(self.parent_obj.parent().config.sourcemeterID)
-        #    self.parent_obj.source_meter.set_limit(voltage=20., current=1.)
-        #    self.parent_obj.source_meter.on()
+        #    self.parent().source_meter = SourceMeter(self.parent().parent().config.sourcemeterID)
+        #    self.parent().source_meter.set_limit(voltage=20., current=1.)
+        #    self.parent().source_meter.on()
         #except:
         #    self.Msg.emit(" Sourcemeter not activated: no acquisition possible")
         #    return
         self.Msg.emit(" Sourcemeter activated.")
 
         ### Setup interface and get parameters before acquisition
-        self.parent_obj.parent().resultswind.clearPlots(True)
-        self.parent_obj.parent().resultswind.setupDataFrame()
-        operator = self.parent_obj.parent().samplewind.operatorText.text()
+        self.parent().parent().resultswind.clearPlots(True)
+        self.parent().parent().resultswind.setupDataFrame()
+        operator = self.parent().parent().samplewind.operatorText.text()
         self.Msg.emit("Operator: " + operator)
         self.Msg.emit("Acquisition started: "+self.getDateTimeNow()[0]+" at " + \
                 self.getDateTimeNow()[1])
@@ -217,19 +217,19 @@ class acqThread(QThread):
             for i in range(self.numRow):
                 # convert to correct substrate number in holder
                 substrateNum = self.getSubstrateNumber(i,j)
-                substrateID = self.parent_obj.parent().samplewind.tableWidget.item(i,j).text()
+                substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
-                if self.parent_obj.parent().samplewind.tableWidget.item(i,j).text() != ""  and \
-                        self.parent_obj.parent().samplewind.activeSubs[i,j] == True:
+                if self.parent().parent().samplewind.tableWidget.item(i,j).text() != ""  and \
+                        self.parent().parent().samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
                     # Move stage to desired substrate
                     if self.tempFlag is True:
-                    #if self.parent_obj.xystage.xystageInit is True:
+                    #if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
                                         str(self.getSubstrateNumber(i,j))+ \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
-                        #self.parent_obj.xystage.move_to_substrate_4x4(substrateNum)
+                        #self.parent().xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
                     else:
                         print("Skipping acquisition: stage not activated.")
@@ -245,7 +245,7 @@ class acqThread(QThread):
                         self.Msg.emit("  Acquiring JV from device: " + deviceID)
 
                         # Switch to correct device and start acquisition of JV
-                        #self.parent_obj.xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
+                        #self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
                         #                                          dev_id)
                         #self.switch_device(i, j, dev_id)
                         JV = self.devAcqJV()
@@ -265,7 +265,7 @@ class acqThread(QThread):
                     # Tracking
                     time.sleep(1)
                     # Switch to device with max power and start tracking
-                    #self.parent_obj.xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
+                    #self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
                     #                                           int(self.devMaxPower))
                     #self.switch_device(i, j, self.devMaxPower)
 
@@ -285,30 +285,30 @@ class acqThread(QThread):
         self.endAcq()
 
     def endAcq(self):
-        self.parent_obj.parent().acquisitionwind.enableAcqPanel(True)
-        self.parent_obj.parent().samplewind.enableSamplePanel(True)
-        self.parent_obj.parent().enableButtonsAcq(True)
+        self.parent().parent().acquisitionwind.enableAcqPanel(True)
+        self.parent().parent().samplewind.enableSamplePanel(True)
+        self.parent().parent().enableButtonsAcq(True)
 
         # park the stage close to origin, deactivate.
         try:
             self.Msg.emit(" Moving stage to parking position")
-            #self.parent_obj.xystage.move_abs(5,5)
+            #self.parent().xystage.move_abs(5,5)
             self.Msg.emit("Deactivating Stage...")
-            #self.parent_obj.xystage.end_stage_control()
-            #del self.parent_obj.xystage
+            #self.parent().xystage.end_stage_control()
+            #del self.parent().xystage
             self.Msg.emit("Stage deactivated")
-            #self.parent_obj.source_meter.off()
-            #del self.parent_obj.source_meter
+            #self.parent().source_meter.off()
+            #del self.parent().source_meter
             self.Msg.emit("Sourcemeter deactivated")
-            #del self.parent_obj.switch_box
+            #del self.parent().switch_box
             self.Msg.emit("Switchbox deactivated")
         except:
             pass     
         
         # Re-enable panels and buttons
-        self.parent_obj.parent().acquisitionwind.enableAcqPanel(True)
-        self.parent_obj.parent().samplewind.enableSamplePanel(True)
-        self.parent_obj.parent().enableButtonsAcq(True)
+        self.parent().parent().acquisitionwind.enableAcqPanel(True)
+        self.parent().parent().samplewind.enableSamplePanel(True)
+        self.parent().parent().enableButtonsAcq(True)
         QApplication.processEvents()
         self.Msg.emit("System: ready")
 
@@ -355,7 +355,7 @@ class acqThread(QThread):
 
     def switch_device(self, i,j, dev_id):
         "Switch operation devices"
-        self.parent_obj.switch_box.connect(*self.get_pcb_id(i,j, dev_id))
+        self.parent().switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
     # obj: self.source_meter
