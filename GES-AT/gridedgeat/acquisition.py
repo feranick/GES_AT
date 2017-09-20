@@ -258,6 +258,7 @@ class acqThread(QThread):
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
                         self.devMaxPower =  np.argmax(self.max_power) + 1
+                        time.sleep(1)
 
                     self.maxPowerDev.emit(" Device with max power: "+str(self.devMaxPower))
                     
