@@ -402,7 +402,7 @@ class ResultsWindow(QMainWindow):
                     msg = " Submission to DM via Mongo: failed."
             except:
                 msg = " Connection to DM server: failed. Saving local file"
-                self.save_csv(deviceID, dfAcqParams, dfPerfData, dfJV)
+                self.save_csv(deviceID, dfAcqParams, perfData, JV)
         print(msg)
         logger.info(msg)
 
