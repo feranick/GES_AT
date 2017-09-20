@@ -51,7 +51,7 @@ class Acquisition(QObject):
         # 2. Data is saved locally
         self.modifiers = QApplication.keyboardModifiers()
         self.dfAcqParams = self.getAcqParameters()
-        if self.self.parent().samplewind.checkTableEmpty(self.numRow, self.numCol):
+        if self.parent().samplewind.checkTableEmpty(self.numRow, self.numCol):
             print("Please add substrates in the substrate table")
             return
         self.parent().acquisitionwind.enableAcqPanel(False)
@@ -67,7 +67,7 @@ class Acquisition(QObject):
                 self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
         self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,setupTable,saveData: \
                 self.plotTempTracking(JV,perfData,deviceID,self.dfAcqParams,setupTable,saveData))
-        self.acq_thread.colorCell.connect(lambda i,j,color: self.self.parent().samplewind.colorCellAcq(i,j,color))
+        self.acq_thread.colorCell.connect(lambda i,j,color: self.parent().samplewind.colorCellAcq(i,j,color))
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
 
