@@ -269,8 +269,7 @@ class acqThread(QThread):
                     #self.switch_device(i, j, self.devMaxPower)
 
                     # Use this to get the simple JV used for detecting Vpmax
-                    perfData, JV = self.tracking(self.tempFlag,
-                                                 substrateID+str(self.devMaxPower),
+                    perfData, JV = self.tracking(substrateID+str(self.devMaxPower),
                                                  self.dfAcqParams)
                     # Alternatively use this for a complete JV sweep
                     #JV = self.devAcqJV()
