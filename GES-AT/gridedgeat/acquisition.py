@@ -105,9 +105,9 @@ class Acquisition(QObject):
     def printMsg(self, msg):
         print(msg)
         logger.info(msg)
-        #self.obj.statusBar().showMessage(msg, 5000)
-        #self.obj.statusBar.showMessage(msg, 5000)
-        self.obj.statusBarLabel.setText(msg)
+        #self.parent().statusBar().showMessage(msg, 5000)
+        #self.parent().statusBar.showMessage(msg, 5000)
+        self.parent().statusBarLabel.setText(msg)
 
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
