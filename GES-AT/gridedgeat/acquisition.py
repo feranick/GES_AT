@@ -157,12 +157,11 @@ class acqThread(QThread):
     def devAcqJV(self):
         # Switch to correct device and start acquisition of JV
         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-        return self.measure_JV(self.parent().source_meter, self.dfAcqParams)
+        return self.measure_JV(self.dfAcqParams)
     
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
-        perfData, _, _ = self.measure_voc_jsc_mpp(self.parent().source_meter,
-                                                  self.dfAcqParams)
+        perfData, _, _ = self.measure_voc_jsc_mpp(self.dfAcqParams)
         # Add fictious "zero" time for consistency in DataFrame for device.
         perfData = np.hstack((0., perfData))
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
@@ -352,12 +351,11 @@ class acqThread(QThread):
         self.parent().switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
-    # obj: self.source_meter
     # dfAcqParams : self.dfAcqParams
-    def measure_JV(self, obj, dfAcqParams):
+    def measure_JV(self, dfAcqParams):
         #self.source_meter.set_mode('VOLT')
-        obj.set_mode('VOLT')
-        obj.on()
+        self.parent().source_meter.set_mode('VOLT')
+        self.parent().source_meter.on()
 
         # measurement parameters
         v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
@@ -387,36 +385,35 @@ class acqThread(QThread):
         # measure
         for n in range(scans):
             for i in i_list:
-                obj.set_output(voltage = v_list[i])
+                self.parent().source_meter.set_output(voltage = v_list[i])
                 time.sleep(hold_time)
                 data[i, 2] += 1.
-                data[i, 1] = (obj.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
+                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
+                    data[i,1]*(data[i,2]-1)) / data[i,2]
         return data[:, 0:2]
     
     ## measurements: voc, jsc
-    # obj: self.source_meter
-    def measure_voc_jsc(self, obj):
+    def measure_voc_jsc(self):
         # voc
-        obj.set_mode('CURR')
-        obj.on()
-        obj.set_output(current = 0.)
-        voc = obj.read_values()[0]
+        self.parent().source_meter.set_mode('CURR')
+        self.parent().source_meter.on()
+        self.parent().source_meter.set_output(current = 0.)
+        voc = self.parent().source_meter.read_values()[0]
 
         # jsc
-        obj.set_mode('VOLT')
-        obj.on()
-        obj.set_output(voltage = 0.)
-        jsc = obj.read_values()[1]
+        self.parent().source_meter.set_mode('VOLT')
+        self.parent().source_meter.on()
+        self.parent().source_meter.set_output(voltage = 0.)
+        jsc = self.parent().source_meter.read_values()[1]
         return voc, jsc
 
     ## measurements: voc, jsc, mpp
-    # obj: self.source_meter
-    def measure_voc_jsc_mpp(self, obj, dfAcqParams):
+    def measure_voc_jsc_mpp(self, dfAcqParams):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
 
         # measurements: voc, jsc
-        voc, jsc = self.measure_voc_jsc(obj)
+        voc, jsc = self.measure_voc_jsc()
 
         # measurement parameters
         v_min = 0.
@@ -425,9 +422,9 @@ class acqThread(QThread):
         # measure
         JV = np.zeros((0,2))
         for v in np.arange(0, voc, v_step):
-            obj.set_output(voltage = v)
+            self.parent().source_meter.set_output(voltage = v)
             time.sleep(hold_time)
-            j = obj.read_values()[1]
+            j = self.parent().source_meter.read_values()[1]
             JV = np.vstack([JV,[v,j]])
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
@@ -448,14 +445,14 @@ class acqThread(QThread):
 
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, obj, deviceID, dfAcqParams):
+    def tracking(self, deviceID, dfAcqParams):
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
         numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
         perfData = np.zeros((0,8))
         startTime = time.time()
         self.Msg.emit("Tracking device: "+deviceID+" (time-step: 0)")
-        data, Vpmax, JV = self.measure_voc_jsc_mpp(obj, dfAcqParams)
+        data, Vpmax, JV = self.measure_voc_jsc_mpp(dfAcqParams)
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
@@ -464,11 +461,11 @@ class acqThread(QThread):
             timeStep = time.time()-startTime
             self.Msg.emit("Tracking device: "+deviceID+" (time-step: "+str(n)+"/"+\
                           str(numPoints)+" - {0:0.1f}s)".format(timeStep))
-            voc, jsc = self.measure_voc_jsc(obj)
+            voc, jsc = self.measure_voc_jsc()
             
-            obj.set_output(voltage = Vpmax)
+            self.parent().source_meter.set_output(voltage = Vpmax)
             time.sleep(hold_time)
-            Jpmax = obj.read_values()[1]
+            Jpmax = self.parent().source_meter.read_values()[1]
             try:
                 FF = Vpmax*Jpmax*100/(voc*jsc)
                 effic = Vpmax*Jpmax/self.powerIn
@@ -486,7 +483,7 @@ class acqThread(QThread):
     '''
     # Tracking (take JV at every tracking point)
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, obj, deviceID, dfAcqParams):
+    def tracking(self, deviceID, dfAcqParams):
         numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
         perfData = np.zeros((0,8))
@@ -494,7 +491,7 @@ class acqThread(QThread):
         for n in range(0, numPoints):
             timeStep = time.time()-startTime
             print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ , JV = self.measure_voc_jsc_mpp(obj, dfAcqParams)
+            data, _ , JV = self.measure_voc_jsc_mpp(dfAcqParams)
             data = np.hstack((timeStep, data))
             data = np.hstack((self.getDateTimeNow()[0], data))
             data = np.hstack((self.getDateTimeNow()[1], data))
