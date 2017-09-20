@@ -249,8 +249,7 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True)[\
-                        self.dfTotJV.get_value(0,row,takeable=True).shape[0]-1])
+                self.dfTotJV.get_value(0,row,takeable=True))
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -306,9 +305,10 @@ class ResultsWindow(QMainWindow):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
-        if self.JV.shape[0] == 0:
-            self.JV = np.resize(self.JV, (0,JV.shape[0],2))
-        self.JV = np.vstack([self.JV,[JV]])
+        #if self.JV.shape[0] == 0:
+        #    self.JV = np.resize(self.JV, (0,JV.shape[0],2))
+        #self.JV = np.vstack([self.JV,[JV]])
+        self.JV = JV
         
         # Populate table.
         self.fillTableData(deviceID, self.perfData)
@@ -364,7 +364,7 @@ class ResultsWindow(QMainWindow):
     def submit_DM(self,deviceID, dfAcqParams, perfData, JV):
         
         dfPerfData = self.makeDFPerfData(perfData)
-        dfJV = self.makeDFJV(JV[JV.shape[0]-1])
+        dfJV = self.makeDFJV(JV)
         
         # Prepare json-data
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
@@ -409,7 +409,7 @@ class ResultsWindow(QMainWindow):
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
         dfPerfData = self.makeDFPerfData(perfData)
-        dfJV = self.makeDFJV(JV[JV.shape[0]-1])
+        dfJV = self.makeDFJV(JV)
     
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
