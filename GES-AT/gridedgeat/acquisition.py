@@ -123,7 +123,7 @@ class Acquisition(QObject):
         self.parent().resultswind.clearPlots(False)
         if setupTable is True:
             self.parent().resultswind.setupResultTable()
-        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
+        self.parent().resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
         QApplication.processEvents()
         time.sleep(1)
 
@@ -302,7 +302,7 @@ class acqThread(QThread):
         # Re-enable panels and buttons
         self.parent_obj.parent().acquisitionwind.enableAcqPanel(True)
         self.parent_obj.parent().samplewind.enableSamplePanel(True)
-        self.parent_objparent().enableButtonsAcq(True)
+        self.parent_obj.parent().enableButtonsAcq(True)
         QApplication.processEvents()
         self.Msg.emit("System: ready")
 
