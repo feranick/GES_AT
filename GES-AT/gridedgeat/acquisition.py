@@ -28,40 +28,38 @@ class Acquisition(QObject):
         super(Acquisition, self).__init__(parent)
         
     # Collect acquisition parameters into a DataFrame to be used for storing (as csv or json)
-    def getAcqParameters(self,obj):
-        self.numRow = obj.config.numSubsHolderRow
-        self.numCol = obj.config.numSubsHolderCol
-        pdframe = pd.DataFrame({'Operator': [obj.samplewind.operatorText.text()],
-                'Acq Min Voltage': [obj.acquisitionwind.minVText.text()],
-                'Acq Max Voltage': [obj.acquisitionwind.maxVText.text()],
-                'Acq Start Voltage': [obj.acquisitionwind.startVText.text()],
-                'Acq Step Voltage': [obj.acquisitionwind.stepVText.text()],
-                'Acq Num Aver Scans': [int(obj.acquisitionwind.numAverScansText.text())],
-                'Delay Before Meas': [obj.acquisitionwind.delayBeforeMeasText.text()],
-                'Num Track Points': [int(obj.acquisitionwind.numPointsText.value())],
-                'Track Interval': [obj.acquisitionwind.IntervalText.text()],
-                'Comments': [obj.samplewind.commentsText.text()]})
+    def getAcqParameters(self):
+        self.numRow = self.parent().config.numSubsHolderRow
+        self.numCol = self.parent().config.numSubsHolderCol
+        pdframe = pd.DataFrame({'Operator': [self.parent().samplewind.operatorText.text()],
+                'Acq Min Voltage': [self.parent().acquisitionwind.minVText.text()],
+                'Acq Max Voltage': [self.parent().acquisitionwind.maxVText.text()],
+                'Acq Start Voltage': [self.parent().acquisitionwind.startVText.text()],
+                'Acq Step Voltage': [self.parent().acquisitionwind.stepVText.text()],
+                'Acq Num Aver Scans': [int(self.parent().acquisitionwind.numAverScansText.text())],
+                'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
+                'Num Track Points': [int(self.parent().acquisitionwind.numPointsText.value())],
+                'Track Interval': [self.parent().acquisitionwind.IntervalText.text()],
+                'Comments': [self.parent().samplewind.commentsText.text()]})
         return pdframe[['Acq Min Voltage','Acq Max Voltage','Acq Start Voltage',
                 'Acq Step Voltage','Acq Num Aver Scans','Delay Before Meas',
                 'Num Track Points','Track Interval','Operator','Comments']]
                 
-    def start(self, obj):
-        self.obj = obj
-        
+    def start(self):
         # Using ALT with Start Acquisition button:
         # 1. overrides the config settings.
         # 2. Data is saved locally
         self.modifiers = QApplication.keyboardModifiers()
-        self.dfAcqParams = self.getAcqParameters(obj)
-        if self.obj.samplewind.checkTableEmpty(self.numRow, self.numCol):
+        self.dfAcqParams = self.getAcqParameters()
+        if self.self.parent().samplewind.checkTableEmpty(self.numRow, self.numCol):
             print("Please add substrates in the substrate table")
             return
-        obj.acquisitionwind.enableAcqPanel(False)
-        obj.samplewind.resetCellAcq()
-        obj.samplewind.enableSamplePanel(False)
-        obj.enableButtonsAcq(False)
+        self.parent().acquisitionwind.enableAcqPanel(False)
+        self.parent().samplewind.resetCellAcq()
+        self.parent().samplewind.enableSamplePanel(False)
+        self.parent().enableButtonsAcq(False)
         QApplication.processEvents()
-        obj.resultswind.clearPlots(True)
+        self.parent().resultswind.clearPlots(True)
         
         self.acq_thread = acqThread(self, self.numRow, self.numCol, self.dfAcqParams)
         self.acq_thread.Msg.connect(self.printMsg)
@@ -69,15 +67,15 @@ class Acquisition(QObject):
                 self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
         self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,setupTable,saveData: \
                 self.plotTempTracking(JV,perfData,deviceID,self.dfAcqParams,setupTable,saveData))
-        self.acq_thread.colorCell.connect(lambda i,j,color: self.obj.samplewind.colorCellAcq(i,j,color))
+        self.acq_thread.colorCell.connect(lambda i,j,color: self.self.parent().samplewind.colorCellAcq(i,j,color))
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
 
     # Action for stop button
-    def stop(self, obj):
+    def stop(self):
         quit_msg = "Are you sure you want to stop the acquisition?"
         print(quit_msg)
-        reply = QMessageBox.question(obj, 'Message',
+        reply = QMessageBox.question(self.parent(), 'Message',
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
@@ -90,7 +88,7 @@ class Acquisition(QObject):
     '''
     # Extract parameters from JV
     def analyseJV(self, JV):
-        powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun'])*0.00064516
+        powerIn = float(self.parent().config.conf['Instruments']['irradiance1Sun'])*0.00064516
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -113,18 +111,18 @@ class Acquisition(QObject):
 
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
-        self.obj.resultswind.clearPlots(False)
-        self.obj.resultswind.setupResultTable()
+        self.parent().resultswind.clearPlots(False)
+        self.parent().resultswind.setupResultTable()
         #perfData = self.analyseJV(JV)
-        self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
+        self.parent().resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
         QApplication.processEvents()
         time.sleep(1)
             
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
-        self.obj.resultswind.clearPlots(False)
+        self.parent().resultswind.clearPlots(False)
         if setupTable is True:
-            self.obj.resultswind.setupResultTable()
+            self.parent().resultswind.setupResultTable()
         self.obj.resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
         QApplication.processEvents()
         time.sleep(1)
@@ -145,8 +143,8 @@ class acqThread(QThread):
         self.parent_obj = parent_obj
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = float(self.parent_obj.obj.config.conf['Instruments']['irradiance1Sun']) * \
-            float(self.parent_obj.obj.samplewind.sizeSubsCBox.currentText()) * 0.00064516
+        self.powerIn = float(self.parent_obj.parent().config.conf['Instruments']['irradiance1Sun']) * \
+            float(self.parent_obj.parent().samplewind.sizeSubsCBox.currentText()) * 0.00064516
 
     def __del__(self):
         self.wait()
@@ -183,7 +181,7 @@ class acqThread(QThread):
         # Activate switchbox
         self.Msg.emit("Activating switchbox...")        
         try:
-            self.parent_obj.switch_box = SwitchBox(self.parent_obj.obj.config.switchboxID)
+            self.parent_obj.switch_box = SwitchBox(self.parent_obj.parent().config.switchboxID)
         except:
             self.Msg.emit(" Switchbox not activated: no acquisition possible")
             return
@@ -193,7 +191,7 @@ class acqThread(QThread):
         self.Msg.emit("Activating sourcemeter...")
         QApplication.processEvents()
         try:
-            self.parent_obj.source_meter = SourceMeter(self.parent_obj.obj.config.sourcemeterID)
+            self.parent_obj.source_meter = SourceMeter(self.parent_obj.parent().config.sourcemeterID)
             self.parent_obj.source_meter.set_limit(voltage=20., current=1.)
             self.parent_obj.source_meter.on()
         except:
@@ -202,9 +200,9 @@ class acqThread(QThread):
         self.Msg.emit(" Sourcemeter activated.")
 
         ### Setup interface and get parameters before acquisition
-        self.parent_obj.obj.resultswind.clearPlots(True)
-        self.parent_obj.obj.resultswind.setupDataFrame()
-        operator = self.parent_obj.obj.samplewind.operatorText.text()
+        self.parent_obj.parent().resultswind.clearPlots(True)
+        self.parent_obj.parent().resultswind.setupDataFrame()
+        operator = self.parent_obj.parent().samplewind.operatorText.text()
         self.Msg.emit("Operator: " + operator)
         self.Msg.emit("Acquisition started: "+self.getDateTimeNow()[0]+" at " + \
                 self.getDateTimeNow()[1])
@@ -215,11 +213,11 @@ class acqThread(QThread):
             for i in range(self.numRow):
                 # convert to correct substrate number in holder
                 substrateNum = self.getSubstrateNumber(i,j)
-                substrateID = self.parent_obj.obj.samplewind.tableWidget.item(i,j).text()
+                substrateID = self.parent_obj.parent().samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
-                if self.parent_obj.obj.samplewind.tableWidget.item(i,j).text() != ""  and \
-                        self.parent_obj.obj.samplewind.activeSubs[i,j] == True:
+                if self.parent_obj.parent().samplewind.tableWidget.item(i,j).text() != ""  and \
+                        self.parent_obj.parent().samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
                     # Move stage to desired substrate
                     if self.parent_obj.xystage.xystageInit is True:
@@ -281,9 +279,9 @@ class acqThread(QThread):
         self.endAcq()
 
     def endAcq(self):
-        self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
-        self.parent_obj.obj.samplewind.enableSamplePanel(True)
-        self.parent_obj.obj.enableButtonsAcq(True)
+        self.parent_obj.parent().acquisitionwind.enableAcqPanel(True)
+        self.parent_obj.parent().samplewind.enableSamplePanel(True)
+        self.parent_obj.parent().enableButtonsAcq(True)
 
         # park the stage close to origin, deactivate.
         try:
@@ -302,9 +300,9 @@ class acqThread(QThread):
             pass     
         
         # Re-enable panels and buttons
-        self.parent_obj.obj.acquisitionwind.enableAcqPanel(True)
-        self.parent_obj.obj.samplewind.enableSamplePanel(True)
-        self.parent_obj.obj.enableButtonsAcq(True)
+        self.parent_obj.parent().acquisitionwind.enableAcqPanel(True)
+        self.parent_obj.parent().samplewind.enableSamplePanel(True)
+        self.parent_objparent().enableButtonsAcq(True)
         QApplication.processEvents()
         self.Msg.emit("System: ready")
 
@@ -354,12 +352,12 @@ class acqThread(QThread):
         self.parent_obj.switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV
-    # obj2: self.source_meter
+    # obj: self.source_meter
     # dfAcqParams : self.dfAcqParams
-    def measure_JV(self, obj2, dfAcqParams):
+    def measure_JV(self, obj, dfAcqParams):
         #self.source_meter.set_mode('VOLT')
-        obj2.set_mode('VOLT')
-        obj2.on()
+        obj.set_mode('VOLT')
+        obj.on()
 
         # measurement parameters
         v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
@@ -389,36 +387,36 @@ class acqThread(QThread):
         # measure
         for n in range(scans):
             for i in i_list:
-                obj2.set_output(voltage = v_list[i])
+                obj.set_output(voltage = v_list[i])
                 time.sleep(hold_time)
                 data[i, 2] += 1.
-                data[i, 1] = (obj2.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
+                data[i, 1] = (obj.read_values()[1] + data[i,1]*(data[i,2]-1)) / data[i,2]
         return data[:, 0:2]
     
     ## measurements: voc, jsc
     # obj: self.source_meter
-    def measure_voc_jsc(self, obj2):
+    def measure_voc_jsc(self, obj):
         # voc
-        obj2.set_mode('CURR')
-        obj2.on()
-        obj2.set_output(current = 0.)
-        voc = obj2.read_values()[0]
+        obj.set_mode('CURR')
+        obj.on()
+        obj.set_output(current = 0.)
+        voc = obj.read_values()[0]
 
         # jsc
-        obj2.set_mode('VOLT')
-        obj2.on()
-        obj2.set_output(voltage = 0.)
-        jsc = obj2.read_values()[1]
+        obj.set_mode('VOLT')
+        obj.on()
+        obj.set_output(voltage = 0.)
+        jsc = obj.read_values()[1]
         return voc, jsc
 
     ## measurements: voc, jsc, mpp
     # obj: self.source_meter
-    def measure_voc_jsc_mpp(self, obj2, dfAcqParams):
+    def measure_voc_jsc_mpp(self, obj, dfAcqParams):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
 
         # measurements: voc, jsc
-        voc, jsc = self.measure_voc_jsc(obj2)
+        voc, jsc = self.measure_voc_jsc(obj)
 
         # measurement parameters
         v_min = 0.
@@ -427,9 +425,9 @@ class acqThread(QThread):
         # measure
         JV = np.zeros((0,2))
         for v in np.arange(0, voc, v_step):
-            obj2.set_output(voltage = v)
+            obj.set_output(voltage = v)
             time.sleep(hold_time)
-            j = obj2.read_values()[1]
+            j = obj.read_values()[1]
             JV = np.vstack([JV,[v,j]])
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
@@ -450,14 +448,14 @@ class acqThread(QThread):
 
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, obj2, deviceID, dfAcqParams):
+    def tracking(self, obj, deviceID, dfAcqParams):
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
         numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
         perfData = np.zeros((0,8))
         startTime = time.time()
         self.Msg.emit("Tracking device: "+deviceID+" (time-step: 0)")
-        data, Vpmax, JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+        data, Vpmax, JV = self.measure_voc_jsc_mpp(obj, dfAcqParams)
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
@@ -466,11 +464,11 @@ class acqThread(QThread):
             timeStep = time.time()-startTime
             self.Msg.emit("Tracking device: "+deviceID+" (time-step: "+str(n)+"/"+\
                           str(numPoints)+" - {0:0.1f}s)".format(timeStep))
-            voc, jsc = self.measure_voc_jsc(obj2)
+            voc, jsc = self.measure_voc_jsc(obj)
             
-            obj2.set_output(voltage = Vpmax)
+            obj.set_output(voltage = Vpmax)
             time.sleep(hold_time)
-            Jpmax = obj2.read_values()[1]
+            Jpmax = obj.read_values()[1]
             try:
                 FF = Vpmax*Jpmax*100/(voc*jsc)
                 effic = Vpmax*Jpmax/self.powerIn
@@ -488,7 +486,7 @@ class acqThread(QThread):
     '''
     # Tracking (take JV at every tracking point)
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, obj2, deviceID, dfAcqParams):
+    def tracking(self, obj, deviceID, dfAcqParams):
         numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
         perfData = np.zeros((0,8))
@@ -496,7 +494,7 @@ class acqThread(QThread):
         for n in range(0, numPoints):
             timeStep = time.time()-startTime
             print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ , JV = self.measure_voc_jsc_mpp(obj2, dfAcqParams)
+            data, _ , JV = self.measure_voc_jsc_mpp(obj, dfAcqParams)
             data = np.hstack((timeStep, data))
             data = np.hstack((self.getDateTimeNow()[0], data))
             data = np.hstack((self.getDateTimeNow()[1], data))
