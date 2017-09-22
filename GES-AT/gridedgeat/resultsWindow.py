@@ -46,7 +46,7 @@ class ResultsWindow(QMainWindow):
     
     # Define UI elements
     def initUI(self):
-        self.setGeometry(500, 100, 1150, 950)
+        self.setGeometry(380, 30, 1150, 950)
         self.setWindowTitle('Results Panel')
         
         # A figure instance to plot on
@@ -76,13 +76,21 @@ class ResultsWindow(QMainWindow):
         self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
         
         self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
+        self.toolbarTJsc.setMaximumHeight(30)
+        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
         self.gridLayout.addWidget(self.toolbarTJsc, 0, 0, 1, 1)
         self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
+        self.toolbarTVoc.setMaximumHeight(30)
+        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
         self.gridLayout.addWidget(self.toolbarTVoc, 0, 1, 1, 1)
         self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
+        self.toolbarJVresp.setMaximumHeight(30)
+        self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
         self.gridLayout.addWidget(self.toolbarJVresp, 2, 0, 1, 1)
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
+        self.toolbarMPP.setMaximumHeight(30)
+        self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
 
         self.resTableW = 1100
         self.resTableH = 145

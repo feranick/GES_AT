@@ -58,8 +58,7 @@ class Acquisition(QObject):
         self.parent().samplewind.resetCellAcq()
         self.parent().samplewind.enableSamplePanel(False)
         self.parent().enableButtonsAcq(False)
-        QApplication.processEvents()
-        self.parent().resultswind.clearPlots(True)
+        self.parent().resultswind.show()
         
         self.acq_thread = acqThread(self.numRow, self.numCol, self.dfAcqParams, self)
         self.acq_thread.Msg.connect(self.printMsg)
