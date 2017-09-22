@@ -254,10 +254,10 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-
+            
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True))
+                self.dfTotJV.get_value(0,row,takeable=True)[0])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -273,13 +273,16 @@ class ResultsWindow(QMainWindow):
                 rPos.y()>0 and rPos.y()<self.resTableH and \
                 self.resTableWidget.rowCount() > 0 :
         
-            selectCellAction = QAction('Save locally', self)
-            self.menu.addAction(selectCellAction)
+            selectCellSaveAction = QAction('Save locally', self)
+            selectCellRemoveAction = QAction('Remove...', self)
+            self.menu.addAction(selectCellSaveAction)
+            self.menu.addAction(selectCellRemoveAction)
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
         for currentQTableWidgetItem in self.resTableWidget.selectedItems():
             row = self.resTableWidget.currentRow()
-            selectCellAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
+            selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
+            selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
@@ -287,6 +290,19 @@ class ResultsWindow(QMainWindow):
             self.dfTotAcqParams.iloc[[row]],
             self.dfTotPerfData.get_value(0,row,takeable=True),
             self.dfTotJV.get_value(0,row,takeable=True))
+    
+    # Logic to remove data from devices selected from results table
+    def selectDeviceRemove(self, row):
+        self.dfTotDeviceID.drop(self.dfTotDeviceID.columns[row], axis=1)
+        self.dfTotPerfData.drop(self.dfTotPerfData.columns[row], axis=1)
+        self.dfTotJV.drop(self.dfTotJV.columns[row], axis=1)
+        for l in self.axJVresp.get_lines():
+            l.remove()
+        for l in self.axPVresp.get_lines():
+            l.remove()
+        self.canvasJVresp.draw()
+        self.resTableWidget.removeRow(row)
+        print(self.resTableWidget.rowCount())
 
     # Add row and initialize it within the table
     def setupResultTable(self):
