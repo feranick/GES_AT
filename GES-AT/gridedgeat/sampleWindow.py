@@ -39,6 +39,7 @@ class SampleWindow(QMainWindow):
     # Define UI elements
     def initUI(self,MainWindow):
         self.setGeometry(10, 300, 440, 370)
+        self.setFixedSize(self.size())
         MainWindow.setWindowTitle("Substrates configuration")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

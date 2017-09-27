@@ -26,9 +26,9 @@ class SourcemeterWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, SourcemeterWindow):
-        self.setGeometry(10, 200, 320, 150)
+        self.setGeometry(10, 290, 340, 150)
         SourcemeterWindow.setWindowTitle("Sourcemeter controls")
-
+        self.setFixedSize(self.size())
         self.sourcemeterVoltageLabel = QLabel(SourcemeterWindow)
         self.sourcemeterVoltageLabel.setGeometry(QRect(20, 10, 120, 20))
         self.sourcemeterVoltageLabel.setText("Voltage: ")

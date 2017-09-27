@@ -173,6 +173,7 @@ class acqThread(QThread):
         self.parent().xystage = XYstage()
         if self.parent().xystage.xystageInit == False:
             self.Msg.emit(" Stage not activated: no acquisition possible")
+            self.stop()
             return
         self.Msg.emit(" Stage activated.")
         
@@ -182,6 +183,7 @@ class acqThread(QThread):
             self.parent().switch_box = SwitchBox(self.parent().parent().config.switchboxID)
         except:
             self.Msg.emit(" Switchbox not activated: no acquisition possible")
+            self.stop()
             return
         self.Msg.emit(" Switchbox activated.")
 
@@ -194,6 +196,7 @@ class acqThread(QThread):
             self.parent().source_meter.on()
         except:
             self.Msg.emit(" Sourcemeter not activated: no acquisition possible")
+            self.stop()
             return
         self.Msg.emit(" Sourcemeter activated.")
 

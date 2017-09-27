@@ -25,13 +25,15 @@ class SwitchboxWindow(QMainWindow):
     
     # define UI elements
     def initUI(self, SwitchboxWindow):
-        SwitchboxWindow.resize(300, 100)
+        self.setGeometry(10, 610, 340, 100)
+        self.setFixedSize(self.size())
+        
         self.switchboxLabel = QLabel(SwitchboxWindow)
         self.switchboxLabel.setGeometry(QRect(20, 20, 300, 20))
         SwitchboxWindow.setWindowTitle("Switchbox controls")
         self.switchboxLabel.setText("Ready")
         self.activateSwitchboxButton = QPushButton(SwitchboxWindow)
-        self.activateSwitchboxButton.setGeometry(QRect(10, 50, 280, 40))
+        self.activateSwitchboxButton.setGeometry(QRect(10, 580, 320, 40))
         self.activateSwitchboxButton.setText("Connect to Switchbox")
         self.activateSwitchboxButton.clicked.connect(self.activateSwitchbox)
 
