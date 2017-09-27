@@ -38,6 +38,7 @@ class DataManagementWindow(QMainWindow):
     def initUI(self,Panel):
         self.setGeometry(10, 200, 300, 390)
         self.setWindowTitle('Data-management Settings')
+        self.setFixedSize(self.size())
         self.gridLayoutWidget = QWidget(Panel)
         self.gridLayoutWidget.setGeometry(QRect(10, 9, 270, 221))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")

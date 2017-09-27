@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         logger.info("Gridedge Auto-testing v."+__version__)
         self.setWindowTitle("GridEdge AutoTesting %s" % __version__)
         self.setGeometry(10,30,340,220)
+        self.setFixedSize(self.size())
         self.aboutwid = AboutWidget()
         self.samplewind = SampleWindow(parent=self)
         self.resultswind = ResultsWindow(parent=self)

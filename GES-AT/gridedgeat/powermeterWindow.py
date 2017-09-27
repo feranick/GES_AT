@@ -26,7 +26,8 @@ class PowermeterWindow(QMainWindow):
     # Define UI elements
     def initUI(self, PowermeterWindow):
         PowermeterWindow.setWindowTitle("Powermeter Settings")
-        self.setGeometry(10, 200, 320, 110)
+        self.setGeometry(10, 470, 340, 110)
+        self.setFixedSize(self.size())
         self.powerMeterRefreshLabel = QLabel(PowermeterWindow)
         self.powerMeterRefreshLabel.setGeometry(QRect(20, 10, 120, 20))
         self.powerMeterRefreshLabel.setText("Refresh every [s]:")
@@ -37,11 +38,11 @@ class PowermeterWindow(QMainWindow):
         self.powerMeterLabel = QLabel(PowermeterWindow)
         self.powerMeterLabel.setGeometry(QRect(20, 40, 300, 20))        
         self.powermeterStartButton = QPushButton(PowermeterWindow)
-        self.powermeterStartButton.setGeometry(QRect(10, 70, 140, 30))
+        self.powermeterStartButton.setGeometry(QRect(10, 70, 150, 30))
         self.powermeterStartButton.clicked.connect(self.startPMAcq)
         self.powermeterStartButton.setText("Start")
         self.powermeterStopButton = QPushButton(PowermeterWindow)
-        self.powermeterStopButton.setGeometry(QRect(170, 70, 140, 30))
+        self.powermeterStopButton.setGeometry(QRect(180, 70, 150, 30))
         self.powermeterStopButton.clicked.connect(self.stopPMAcq)
         self.powermeterStopButton.setText("Stop")
 
@@ -53,8 +54,11 @@ class PowermeterWindow(QMainWindow):
         self.powermeterStopButton.setEnabled(False)
         self.powermeterStartButton.setEnabled(True)
         self.powerMeterLabel.setText("")
-        if self.pmThread.isRunning():
-            self.pmThread.stop()
+        try:
+            if self.pmThread.isRunning():
+                self.pmThread.stop()
+        except:
+            pass
 
     # Logic to start powermeter acquisition
     def startPMAcq(self):

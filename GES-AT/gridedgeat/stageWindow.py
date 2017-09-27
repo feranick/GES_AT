@@ -27,9 +27,10 @@ class StageWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, StageWindow):
-        self.setGeometry(20, 200, 310, 300)
+        self.setGeometry(380, 30, 310, 300)
         StageWindow.setWindowTitle("XY stage control settings")
-
+        self.setFixedSize(self.size())
+        
         self.homingButton = QPushButton(StageWindow)
         self.homingButton.setGeometry(QRect(10, 30, 100, 30))
         self.homingButton.setText("Move Home")
