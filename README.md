@@ -1,21 +1,21 @@
-# GES_AT
-GridEdge Autotesting
+# GridEdge Autotesting
+Control software for acquisition of near-certification performance data for solar photovoltaic devices. It works in combination with the GridEdge Autotesting system developed at MIT. 
 
 ## Installation:
 The software can be run "offline", meaning without being connected to the hardware, for example to load data, etc. The dependencies needed for running the "online" version (i.e. to be able to control the acquisition hardware) are listed as such below. These are not needed for running the "offline" version. If you are planning to use this software for "offline" use on your computer, do not install the "online" dependencies. The software automatically recognizes the presence (or lack thereof) of the required dependencies for online/offline use.
 
 ### Dependencies
-GridEdge Autotesting is written in `Python <http://www.python.org/>`_ and relies on the following libraries:
+GridEdge Autotesting is written in [Python 3.x](<http://www.python.org/>) and relies on the following libraries:
 - [Python v.3.5/3.6](<http://www.python.org/>)
 - [Qt5](<http://qt.io>)
-- [PyQt version](<http://www.riverbankcomputing.co.uk/>) or [PySide](<https://wiki.qt.io/Category:LanguageBindings::PySide>)
+- [PyQt version 5](<http://www.riverbankcomputing.co.uk/>)
 - [Numpy >1.5](http://www.numpy.org/)
 - [Scipy >0.9](<http://www.scipy.org/>)
-- [Matplotlib >0.9] (<http://matplotlib.org/>) 
-- [OpenCV >3.2] (<http://opencv.org/>)
+- [Matplotlib >0.9](<http://matplotlib.org/>) 
+- [OpenCV >3.2](<http://opencv.org/>)
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
-- [PyVisa] (<https://pyvisa.readthedocs.io/en/stable/index.html>)
-- [ThorlabsPM100] (<https://pypi.python.org/pypi/ThorlabsPM100> & <https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed 
+- [PyVisa](<https://pyvisa.readthedocs.io/en/stable/index.html>)
+- [ThorlabsPM100-PyPi](<https://pypi.python.org/pypi/ThorlabsPM100>) - [ThorlbsPM100-official](<https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed 
 
 ### Installing dependencies on Mac OSX
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
@@ -43,7 +43,7 @@ The simplest way to get all the required python packages at once is to install t
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 
 ### "Online" dependencies for hardware control:
-    pip install pyvisa ThorlabsPM100
+    pip install pyvisa ThorlabsPM100 requests
     
 ## Run
 After downloading the zip-file extract its content to a directory. If you have already installed the dependencies, you are ready to go.
@@ -59,4 +59,8 @@ Launch by double clicking the file ```gridedge_AT_windows.bat```
 - After acquisition, right click on a device in the table in Results allows for saving locally the corresponding data.
 - A substrate in the substrate panel can be exluded from the acquisition through a right click. The corresponding cell when disables appears with a red background.
 - Double click on a device in the table in Results will open the default browser in the Data Management page with the corresponding substrate info.
+- Devices can be removed form the sample list by selecting "Remove..." from the right click menu on the result table.
+
+## History
+- Version 0.6 (20170928): First stable release. Fully functional interaface and control. In this release the acquisition workflow is in its initial implementation. The next major release will have a fairly extensive overhaul to account for a more detailed measurement of dark-bright measurements, and tracking.
 
