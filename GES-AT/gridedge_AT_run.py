@@ -16,11 +16,15 @@ import sys
 from PyQt5.QtWidgets import QApplication
 import gridedgeat
 
-try:
-    app = QApplication(sys.argv)
-    form = gridedgeat.mainWindow.MainWindow()
-    form.show()
-    app.exec_()
-finally:
-    print("App is closing!")
+def main():
+    try:
+        app = QApplication(sys.argv)
+        form = gridedgeat.mainWindow.MainWindow()
+        form.show()
+        app.exec_()
+    finally:
+        print("App is closing!")
+
+if __name__ == "__main__":
+    main()
 
