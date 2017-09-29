@@ -33,7 +33,7 @@ class SwitchboxWindow(QMainWindow):
         SwitchboxWindow.setWindowTitle("Switchbox controls")
         self.switchboxLabel.setText("Ready")
         self.activateSwitchboxButton = QPushButton(SwitchboxWindow)
-        self.activateSwitchboxButton.setGeometry(QRect(10, 580, 320, 40))
+        self.activateSwitchboxButton.setGeometry(QRect(10, 50, 320, 40))
         self.activateSwitchboxButton.setText("Connect to Switchbox")
         self.activateSwitchboxButton.clicked.connect(self.activateSwitchbox)
 

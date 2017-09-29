@@ -255,10 +255,10 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-            
+
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True)[0])
+                self.dfTotJV.get_value(0,row,takeable=True))
     
     # Action upon selecting a row in the table.
     @pyqtSlot()

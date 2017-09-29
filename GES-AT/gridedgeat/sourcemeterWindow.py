@@ -50,7 +50,7 @@ class SourcemeterWindow(QMainWindow):
         self.startSourcemeterButton.clicked.connect(self.startSourcemeter)
     
         self.stopSourcemeterButton = QPushButton(SourcemeterWindow)
-        self.stopSourcemeterButton.setGeometry(QRect(160, 100, 150, 40))
+        self.stopSourcemeterButton.setGeometry(QRect(180, 100, 150, 40))
         self.stopSourcemeterButton.setText("Stop")
         self.stopSourcemeterButton.clicked.connect(self.stopSourcemeter)
         self.stopSourcemeterButton.setEnabled(False)
