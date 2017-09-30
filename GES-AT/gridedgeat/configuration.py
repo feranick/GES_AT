@@ -12,10 +12,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 import configparser, logging
+from pathlib import Path
 
 class Configuration():
     def __init__(self):
-        self.configFile = "GridEdgeAT.ini"
+        self.home = str(Path.home())+"/"
+        self.configFile = self.home+"GridEdgeAT.ini"
         self.conf = configparser.ConfigParser()
     
     # Create configuration file
@@ -61,7 +63,7 @@ class Configuration():
     def defineConfSystem(self):
         self.conf['System'] = {
             'loggingLevel' : logging.INFO,
-            'loggingFilename' : "GridEdgeAT.log",
+            'loggingFilename' : self.home+"GridEdgeAT.log",
             'csvSavingFolder' : "./data",
             'saveLocalCsv' : False,
             }
