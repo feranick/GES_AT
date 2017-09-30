@@ -17,7 +17,16 @@ from pathlib import Path
 class Configuration():
     def __init__(self):
         self.home = str(Path.home())+"/"
-        self.configFile = self.home+"GridEdgeAT.ini"
+        self.configFile = str(self.home+"GridEdgeAT.ini")
+        self.generalFolder = str(self.home+"/GridEdgeAT/")
+        Path(self.generalFolder).mkdir(parents=True, exist_ok=True)
+        self.logFile = str(self.generalFolder+"GridEdgeAT.log")
+        self.dataFolder = str(self.generalFolder + '/data')
+        Path(self.dataFolder).mkdir(parents=True, exist_ok=True)
+        self.substrateFolder = str(self.generalFolder + '/substrates')
+        Path(self.substrateFolder).mkdir(parents=True, exist_ok=True)
+        self.imagesFolder = str(self.generalFolder + '/images/')
+        Path(self.imagesFolder).mkdir(parents=True, exist_ok=True)
         self.conf = configparser.ConfigParser()
     
     # Create configuration file
@@ -63,8 +72,8 @@ class Configuration():
     def defineConfSystem(self):
         self.conf['System'] = {
             'loggingLevel' : logging.INFO,
-            'loggingFilename' : self.home+"GridEdgeAT.log",
-            'csvSavingFolder' : "./data",
+            'loggingFilename' : self.logFile,
+            'csvSavingFolder' : self.dataFolder,
             'saveLocalCsv' : False,
             }
     def defineConfDM(self):
