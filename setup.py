@@ -6,6 +6,7 @@ setup(
     install_requires=['numpy', 'matplotlib', 'pillow', 'PyQt5', 'ThorlabsPM100', 'pyvisa', 'opencv-python', 'pandas', 'requests'],
     entry_points={'gui_scripts' : ['gridedgeat=GridEdgeAT.__main__:main']},
     package_data={ 'GridEdgeAT': ['gridedgeat/rsrc/*.png'],},
+    include_package_data=True,
     version='0.6.1',
     description='Automated measurements of Current/Voltage profiles for photovoltaic solar cells',
     long_description= """ Measurements of Current/Voltage profiles for photovoltaic solar cells """,
@@ -27,5 +28,4 @@ setup(
      'Topic :: Scientific/Engineering :: Chemistry',
      'Topic :: Scientific/Engineering :: Physics',
      ],
-     include_package_data=True,
 )
