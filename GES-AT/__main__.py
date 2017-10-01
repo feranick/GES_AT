@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import sys
 from PyQt5.QtWidgets import QApplication
-from gridedgeat import *
+from .gridedgeat import *
 
 def main():
     try:
