@@ -39,10 +39,12 @@ class Acquisition(QObject):
                 'Acq Rev Voltage': [int(self.parent().acquisitionwind.reverseVText.text())],
                 'Acq Forw Voltage': [self.parent().acquisitionwind.forwardVText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
+                'Direction': [int(self.parent().acquisitionwind.directionCBox.currentIndex())],
+                'Architecture': [int(self.parent().acquisitionwind.architectureCBox.currentIndex())],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
-                'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage',
-                'Num Track Devices','Operator','Comments']]
+                'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
+                'Direction','Num Track Devices','Operator','Comments']]
                 
     def start(self):
         # Using ALT with Start Acquisition button:
@@ -364,6 +366,53 @@ class acqThread(QThread):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
         scans = int(dfAcqParams.get_value(0,'Acq Num Aver Scans'))
         hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+
+        # enforce
+        if v_start < v_min and v_start > v_max and v_min > v_max:
+            raise ValueError('Voltage Errors')
+
+        # create list of voltage to measure
+        v_list = np.arange(v_min-2., v_max + 2., v_step)
+        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
+        start_i = np.argmin(abs(v_start - v_list))
+
+        N = len(v_list)
+        i_list = list(range(0, N))[::-1] + list(range(0, N))
+        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
+
+        # create data array
+        data = np.zeros((N, 3))
+        data[:, 0] = v_list
+
+        # measure
+        for n in range(scans):
+            for i in i_list:
+                self.parent().source_meter.set_output(voltage = v_list[i])
+                time.sleep(hold_time)
+                data[i, 2] += 1.
+                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
+                    data[i,1]*(data[i,2]-1)) / data[i,2]
+        return data[:, 0:2]
+    
+    ## measurements: JV - new flow
+    # dfAcqParams : self.dfAcqParams
+    
+    def measure_JV2(self, dfAcqParams):
+        #self.source_meter.set_mode('VOLT')
+        self.parent().source_meter.set_mode('VOLT')
+        self.parent().source_meter.on()
+
+        # measurement parameters
+        v_soak = float(dfAcqParams.get_value(0,'Acq Soak Voltage'))
+        soak_time = float(dfAcqParams.get_value(0,'Acq Soak Time'))
+        hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
+        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
+        v_r = int(dfAcqParams.get_value(0,'Acq Rev Voltage'))
+        v_f = float(dfAcqParams.get_value(0,'Acq Forw Voltage'))
+
+        direction = acq_params['acqDirection']
+        polarity = 1 if acq_params['acqPolarity'] == 'pn' else -1
+
 
         # enforce
         if v_start < v_min and v_start > v_max and v_min > v_max:

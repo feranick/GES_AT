@@ -67,12 +67,12 @@ class AcquisitionWindow(QMainWindow):
         self.stepVText = QLineEdit(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.stepVText, 3, 1, 1, 1)
         
-        self.polarityLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.polarityLabel, 4, 0, 1, 1)
-        self.polarityCBox = QComboBox(self)
-        self.gridLayout.addWidget(self.polarityCBox, 4, 1, 1, 1)
-        self.polarityCBox.addItem("Vr -> Vf")
-        self.polarityCBox.addItem("Vf -> Vr")
+        self.directionLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.directionLabel, 4, 0, 1, 1)
+        self.directionCBox = QComboBox(self)
+        self.gridLayout.addWidget(self.directionCBox, 4, 1, 1, 1)
+        self.directionCBox.addItem("Vr -> Vf")
+        self.directionCBox.addItem("Vf -> Vr")
         
         self.reverseVLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.reverseVLabel, 5, 0, 1, 1)
@@ -96,7 +96,7 @@ class AcquisitionWindow(QMainWindow):
         self.trackingLabel.setObjectName("trackingLabel")
         
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
-        self.gridLayoutWidget_2.setGeometry(QRect(10, 250, 330, 181))
+        self.gridLayoutWidget_2.setGeometry(QRect(10, 300, 330, 181))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_2.setHorizontalSpacing(10)
@@ -130,7 +130,7 @@ class AcquisitionWindow(QMainWindow):
         self.soakTLabel.setText("Soak time [t]")
         self.holdTLabel.setText("Hold time at soak [t]")
         self.stepVLabel.setText("Step Voltage [V]")
-        self.polarityLabel.setText("Polarity: ")
+        self.directionLabel.setText("Scan direction: ")
         self.reverseVLabel.setText("Reverse Voltage [V]")
         self.forwardVLabel.setText("Forward Voltage [V]")
         self.architectureLabel.setText("Device architecture: ")
@@ -163,7 +163,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
         logger.info("Acquisition parameters saved as default")
-        self.timePerDevice()
+        #self.timePerDevice()
     
     # Set default acquisition parameters from configuration ini
     def defaultParameters(self):
@@ -216,6 +216,6 @@ class AcquisitionWindow(QMainWindow):
         self.acqForwardVoltage.setEnabled(flag)
         self.acqTrackNumDevices.setEnabled(flag)
         self.architectureCBox.setEnabled(flag)
-        self.polarityCBox.setEnabled(flag)
+        self.directionCBox.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)

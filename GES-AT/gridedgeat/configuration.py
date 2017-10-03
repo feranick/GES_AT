@@ -55,8 +55,10 @@ class Configuration():
             'acqSoakTime' : 1,
             'acqHoldTime' : 1,
             'acqStepVoltage' : 0.02,
+            'acqDirection': 0,
             'acqReverseVoltage' : -1,
             'acqForwardVoltage' : 1,
+            'acqArchitecture' : 0,
             'acqTrackNumDevices' : 2,
             }
     def defineConfInstr(self):
@@ -104,8 +106,10 @@ class Configuration():
         self.acqSoakTime = eval(self.acqConfig['acqSoakTime'])
         self.acqHoldTime = eval(self.acqConfig['acqHoldTime'])
         self.acqStepVoltage = eval(self.acqConfig['acqStepVoltage'])
+        self.acqDirection = eval(self.acqConfig['acqDirection'])
         self.acqReverseVoltage = eval(self.acqConfig['acqReverseVoltage'])
         self.acqForwardVoltage = eval(self.acqConfig['acqForwardVoltage'])
+        self.acqArchitecture = eval(self.acqConfig['acqArchitecture'])
         self.acqTrackNumDevices = eval(self.acqConfig['acqTrackNumDevices'])
 
         self.alignmentIntThreshold = eval(self.instrConfig['alignmentIntThreshold'])
