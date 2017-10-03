@@ -51,14 +51,13 @@ class Configuration():
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
-            'acqMinVoltage' : 0,
-            'acqMaxVoltage' : 1,
-            'acqStartVoltage' : 0,
+            'acqSoakVoltage' : 1,
+            'acqSoakTime' : 1,
+            'acqHoldTime' : 1,
             'acqStepVoltage' : 0.02,
-            'acqNumAvScans' : 5,
-            'acqDelBeforeMeas' : 1,
-            'acqTrackNumPoints' : 5,
-            'acqTrackInterval' : 2,
+            'acqReverseVoltage' : -1,
+            'acqForwardVoltage' : 1,
+            'acqTrackNumDevices' : 2,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
@@ -101,14 +100,13 @@ class Configuration():
         self.numSubsHolderRow = eval(self.devConfig['numSubsHolderRow'])
         self.numSubsHolderCol = eval(self.devConfig['numSubsHolderCol'])
         
-        self.acqMinVoltage = eval(self.acqConfig['acqMinVoltage'])
-        self.acqMaxVoltage = eval(self.acqConfig['acqMaxVoltage'])
-        self.acqStartVoltage = eval(self.acqConfig['acqStartVoltage'])
+        self.acqMinVoltage = eval(self.acqConfig['acqSoakVoltage'])
+        self.acqMaxVoltage = eval(self.acqConfig['acqSoakTime'])
+        self.acqStartVoltage = eval(self.acqConfig['acqHoldTime'])
         self.acqStepVoltage = eval(self.acqConfig['acqStepVoltage'])
-        self.acqNumAvScans = eval(self.acqConfig['acqNumAvScans'])
-        self.acqDelBeforeMeas = eval(self.acqConfig['acqDelBeforeMeas'])
-        self.acqTrackNumPoints = eval(self.acqConfig['acqTrackNumPoints'])
-        self.acqTrackInterval = eval(self.acqConfig['acqTrackInterval'])
+        self.acqNumAvScans = eval(self.acqConfig['acqReverseVoltage'])
+        self.acqDelBeforeMeas = eval(self.acqConfig['acqForwardVoltage'])
+        self.acqTrackNumPoints = eval(self.acqConfig['acqTrackNumDevices'])
 
         self.alignmentIntThreshold = eval(self.instrConfig['alignmentIntThreshold'])
         self.alignmentContrastDefault = eval(self.instrConfig['alignmentContrastDefault'])
