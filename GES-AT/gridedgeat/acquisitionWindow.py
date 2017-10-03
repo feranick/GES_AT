@@ -12,12 +12,11 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-
 import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QSpinBox,
-    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QDialogButtonBox,QMenuBar)
+    QGraphicsScene,QLineEdit,QMessageBox,QDialog,QDialogButtonBox,QMenuBar,QComboBox)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QDoubleValidator)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QRect)
 
@@ -68,29 +67,27 @@ class AcquisitionWindow(QMainWindow):
         self.stepVText = QLineEdit(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.stepVText, 3, 1, 1, 1)
         
-        self.polarityLabel = QLabel(SourcemeterWindow)
-        self.polarityLabel.setGeometry(QRect(20, 10, 100, 20))
-        self.polarityLabel.setText("Polarity: ")
+        self.polarityLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.polarityLabel, 4, 0, 1, 1)
         self.polarityCBox = QComboBox(self)
-        self.polarityCBox.setGeometry(QRect(100, 5, 150, 30))
+        self.gridLayout.addWidget(self.polarityCBox, 4, 1, 1, 1)
         self.polarityCBox.addItem("Vr -> Vf")
         self.polarityCBox.addItem("Vf -> Vr")
         
         self.reverseVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.reverseVLabel, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.reverseVLabel, 5, 0, 1, 1)
         self.reverseVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.reverseVText, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.reverseVText, 5, 1, 1, 1)
         
         self.forwardVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.forwardVLabel, 0, 0, 1, 1)
-        self.forwardVLabel = QLineEdit(self)
-        self.gridLayout.addWidget(self.forwardVLabel, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.forwardVLabel, 6, 0, 1, 1)
+        self.forwardVText = QLineEdit(self)
+        self.gridLayout.addWidget(self.forwardVText, 7, 1, 1, 1)
         
-        self.architectureLabel = QLabel(SourcemeterWindow)
-        self.architectureLabel.setGeometry(QRect(20, 10, 100, 20))
-        self.architectureLabel.setText("Device architecture: ")
+        self.architectureLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
         self.architectureCBox = QComboBox(self)
-        self.architectureCBox.setGeometry(QRect(100, 5, 150, 30))
+        self.gridLayout.addWidget(self.architectureCBox, 7, 1, 1, 1)
         self.architectureCBox.addItem("NP")
         self.architectureCBox.addItem("PN")
         
@@ -126,12 +123,14 @@ class AcquisitionWindow(QMainWindow):
         
         MainWindow.setWindowTitle("Acquisition Window")
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
-        self.soakTText.setText("Soak voltage []")
-        self.soakTime.setText("Soak time [t]")
-        self.holdTText.setText("Hold time at soak [t]")
+        self.soakVLabel.setText("Soak voltage [V]")
+        self.soakTLabel.setText("Soak time [t]")
+        self.holdTLabel.setText("Hold time at soak [t]")
         self.stepVLabel.setText("Step Voltage [V]")
+        self.polarityLabel.setText("Polarity: ")
         self.reverseVLabel.setText("Reverse Voltage [V]")
         self.forwardVLabel.setText("Forward Voltage [V]")
+        self.architectureLabel.setText("Device architecture: ")
         self.trackingLabel.setText("<qt><b>Track Voc, Jsc, MPP: </b></qt>")
         self.numDevTrackLabel.setText("Number of devices to be tracked")
 
