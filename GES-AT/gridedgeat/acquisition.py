@@ -131,6 +131,7 @@ class acqThread(QThread):
         self.numCol = numCol
         self.powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun']) * \
             float(self.parent().parent().samplewind.sizeSubsCBox.currentText()) * 0.00064516
+        self.tracking_points = 2
 
     def __del__(self):
         self.wait()
@@ -246,33 +247,41 @@ class acqThread(QThread):
                         perfData = np.vstack((perfData_f, perfData))
                         
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
-                        self.acqJVComplete.emit(JV_r, JV_f, perfData, deviceID, i, j)
+                        self.acqJVComplete.emit(np.hstack((JV_r, JV_f)), perfData, deviceID, i, j)
                         
-
-                        max_i = np.argmax(jv[:, 0] * jv[:, 1])
-                        id_mpp_v.append([dev_id, jv[max_i, 0]*jv[max_i, 1], jv[max_i, 0]])
+                        JV = np.vstack((JV_r, JV_f))
                         
-                        self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
+                        max_i = np.argmax(JV[:, 0] * JV[:, 1])
+                        id_mpp_v.append([dev_id, JV[max_i, 0]*JV[max_i, 1], JV[max_i, 0]])
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
-                        self.devMaxPower =  np.argmax(self.max_power) + 1
-
-                    self.maxPowerDev.emit(" Device with max power: "+str(self.devMaxPower))
+                    
+                    id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
+                    self.maxPowerDev.emit(" Device with max power: "+str(id_mpp_v[0]))
                     
                     # Tracking
                     time.sleep(1)
                     # Switch to device with max power and start tracking
-                    self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
-                                                               int(self.devMaxPower))
-                    self.switch_device(i, j, self.devMaxPower)
+                    for dev_id, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
+                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
+                        self.switch_device(i, j, dev_id)
+                        time.sleep(float(dfAcqParams.get_value(0,'Acq Hold Time')))
+                        
+                        # Acquire dark JV
+                        # self.solar_sim.shutter('OFF')
+                        dark_JV_r, dark_JV_f = self.measure_JV(self.dfAcqParams)
+                        perfDataDark = analyseDarkJV(self, dark_JV_r)
+                        perfDataDark_f = analyseDarkJV(self, dark_JV_f)
+                        perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
+                        self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)), perfDataDark, deviceID, i, j)
+                        
+                        # tracking
+                        # self.solar_sim.shutter('ON')
+                        perfData, JV = self.tracking(substrateID+str(dev_id),
+                                                 self.dfAcqParams, v_mpp)
 
-                    # Use this to get the simple JV used for detecting Vpmax
-                    perfData, JV = self.tracking(substrateID+str(self.devMaxPower),
-                                                 self.dfAcqParams)
-                    # Alternatively use this for a complete JV sweep
-                    #JV = self.devAcqJV()
-
-                    #self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
-                    self.Msg.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
+                        #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
+                        self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
+                        
                     self.colorCell.emit(i,j,"green")
 
         self.Msg.emit("Acquisition Completed: "+ self.getDateTimeNow()[0] + \
@@ -355,7 +364,7 @@ class acqThread(QThread):
     ## measurements: JV - new flow
     # dfAcqParams : self.dfAcqParams
     
-    def measure_JV2(self, dfAcqParams):
+    def measure_JV(self, dfAcqParams):
         #self.source_meter.set_mode('VOLT')
         self.parent().source_meter.set_mode('VOLT')
         self.parent().source_meter.on()
@@ -386,22 +395,25 @@ class acqThread(QThread):
         else:
             v_list = list(np.arange(v_f, v_r, -v_step))
 
-        N = len(v_list)
-        # create data array
-        data = np.zeros((N, 2))
-        data[:, 0] = v_list
-
         self.parent().source_meter.set_output(voltage = polarity*v_soak)
         time.sleep(soak_time)
-
         # measure
-        for v in v_list + v_list[::-1]:
-            self.parent().source_meter.set_output(voltage = polarity*v)
-            time.sleep(hold_time)
-            data[i, 1] = polarity*self.source_meter.read_values()[0]
-            #data.append([v, polarity*self.source_meter.read_values()[0]])
-            #np.savetxt(filename, data, delimiter=',', header='V,J')
-        return data
+
+        def __sweep(v_list, hold_time):
+            data = np.zeros((len(v_list), 2))
+            data1[:, 0] = v_list
+            for v in v_list + v_list[::-1]:
+                self.parent().source_meter.set_output(voltage = polarity*v)
+                time.sleep(hold_time)
+                data[i, 1] = polarity*self.source_meter.read_values()[0]
+                #data.append([v, polarity*self.source_meter.read_values()[0]])
+                #np.savetxt(filename, data, delimiter=',', header='V,J')
+            return data
+        
+        JV_r = __sweep(v_list, hold_time)
+        JV_f = __sweep(v_list[::-1], hold_time)
+
+        return JV_r, JV_f
 
     
     ## measurements: voc, jsc
@@ -458,7 +470,7 @@ class acqThread(QThread):
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
-    def tracking2(self, deviceID, dfAcqParams, v_mpp):
+    def tracking(self, deviceID, dfAcqParams, v_mpp):
         #hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
         #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         trackTime = float(dfAcqParams.get_value(0,'Track Time'))
@@ -474,7 +486,7 @@ class acqThread(QThread):
             return -1 * v * self.power().source_meter.read_values()[0]
         
         perfData = np.zeros((0,8))
-        JV = np.zeros([1,2])
+        JV = np.zeros([1,4])
         data = np.array([0,0, v_mpp,0,0])
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
@@ -487,7 +499,7 @@ class acqThread(QThread):
         while time.time() - start_time <= track_time:
             mp = __measure_power(v)
             #data.append([time.time() - start_time, mp])
-            data = np.array([0, 0, v,0,0])
+            data = np.array([0, 0, v,0,0,True])
             data = np.hstack(([self.getDateTimeNow()[0],
                                    self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
@@ -498,7 +510,7 @@ class acqThread(QThread):
             grad_mp = (mpd-mp)/dv
             v += grad_mp * step_size
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
-        return perfData, JV
+        return perfData
 
     # Extract parameters from JV
     def analyseJV(self, JV):
@@ -518,8 +530,13 @@ class acqThread(QThread):
         else:
             FF = 0.
             effic = 0.
-        data = np.array([Voc, Jsc, Vpmax, Vpmax*Jpmax,FF,effic])
-        data = np.hstack((0., data))
+        data = np.array([0, Voc, Jsc, Vpmax, Vpmax*Jpmax,FF,effic,True])
+        data = np.hstack((self.getDateTimeNow()[1], data))
+        data = np.hstack((self.getDateTimeNow()[0], data))
+        return np.array([data])
+        
+    def analyseDarkJV(self, JV):
+        data = np.array([0, 0, 0, 0, 0, 0, 0, False])
         data = np.hstack((self.getDateTimeNow()[1], data))
         data = np.hstack((self.getDateTimeNow()[0], data))
         return np.array([data])
@@ -530,7 +547,9 @@ class acqThread(QThread):
                     str(datetime.now().strftime('%H-%M-%S'))
 
 
+
 ############################################################################################
+'''
 ## measurements: JV
     # dfAcqParams : self.dfAcqParams
     def measure_JV(self, dfAcqParams):
@@ -722,7 +741,7 @@ class acqThread(QThread):
                 " at "+self.getDateTimeNow()[1])
         self.endAcq()
 
-    '''
+
     # Tracking (take JV at every tracking point)
     # dfAcqParams : self.dfAcqParams
     def tracking(self, deviceID, dfAcqParams):
