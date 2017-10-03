@@ -86,22 +86,7 @@ class Acquisition(QObject):
             self.printMsg(msg)
         else:
             pass
-    '''
-    # Extract parameters from JV
-    def analyseJV(self, JV):
-        powerIn = float(self.parent().config.conf['Instruments']['irradiance1Sun'])*0.00064516
-        PV = np.zeros(JV.shape)
-        PV[:,0] = JV[:,0]
-        PV[:,1] = JV[:,0]*JV[:,1]
-        Voc = JV[JV.shape[0]-1,0]
-        Jsc = JV[0,1]
-        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
-        Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
-        FF = Vpmax*Jpmax*100/(Voc*Jsc)
-        effic = Vpmax*Jpmax/powerIn
-        data = np.array([Voc, Jsc, Vpmax*Jpmax,FF,effic])
-        return data
-    '''
+
     # Show message on log and terminal
     def printMsg(self, msg):
         print(msg)
@@ -154,12 +139,14 @@ class acqThread(QThread):
         self.terminate()
         self.endAcq()
     
+    '''
     # JV Acquisition
     def devAcqJV(self):
         # Switch to correct device and start acquisition of JV
         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
         return self.measure_JV(self.dfAcqParams)
-    
+        '''
+    '''
     # Parameters (Voc, Jsc, MPP, FF, eff)
     def devAcqParams(self):
         perfData, _, _ = self.measure_voc_jsc_mpp(self.dfAcqParams)
@@ -168,6 +155,7 @@ class acqThread(QThread):
         perfData = np.hstack((self.getDateTimeNow()[1], perfData))
         perfData = np.hstack((self.getDateTimeNow()[0], perfData))
         return np.array([perfData])
+    '''
     
     def run(self):
         # Activate stage
@@ -209,7 +197,7 @@ class acqThread(QThread):
         self.Msg.emit("Operator: " + operator)
         self.Msg.emit("Acquisition started: "+self.getDateTimeNow()[0]+" at " + \
                 self.getDateTimeNow()[1])
-        
+                
         # If all is OK, start acquiring
         # Start from moving to the correct substrate
         for j in range(self.numCol):
@@ -246,13 +234,24 @@ class acqThread(QThread):
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
                                                                    dev_id)
                         self.switch_device(i, j, dev_id)
-                        JV = self.devAcqJV()
                         
+                        # light JV
+                        # self.solar_sim.shutter('ON')
+                        time.sleep(float(dfAcqParams.get_value(0,'Acq Hold Time')))
+                        
+                        JV_r, JV_f = self.measure_JV(self.dfAcqParams)
                         # Acquire parameters
-                        perfData = self.devAcqParams()
+                        perfData = analyseJV(self, JV_r)
+                        perfData_f = analyseJV(self, JV_f)
+                        perfData = np.vstack((perfData_f, perfData))
                         
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
-                        self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
+                        self.acqJVComplete.emit(JV_r, JV_f, perfData, deviceID, i, j)
+                        
+
+                        max_i = np.argmax(jv[:, 0] * jv[:, 1])
+                        id_mpp_v.append([dev_id, jv[max_i, 0]*jv[max_i, 1], jv[max_i, 0]])
+                        
                         self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
                         self.devMaxPower =  np.argmax(self.max_power) + 1
@@ -475,28 +474,15 @@ class acqThread(QThread):
             return -1 * v * self.power().source_meter.read_values()[0]
         
         perfData = np.zeros((0,8))
-        v = v_mpp
-        start_time = time.time
-        while time.time() - start_time <= track_time:
-            mp = __measure_power(v)
-            data.append([time.time() - start_time, mp])
-
-            # calculate gradient
-            mpd = __measure_power(v + dv)
-            grad_mp = (mpd-mp)/dv
-            v += grad_mp * step_size
-            
-            # save
-            np.savetxt(filename, data, delimiter=',', header='time,MPP')
-        
-        perfData = np.zeros((0,8))
         JV = np.zeros([1,2])
         data = np.array([0,0, v_mpp,0,0])
-        startTime = time.time()
-        self.Msg.emit("Tracking device: "+deviceID+"...")
         data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
+        
+        v = v_mpp
+        startTime = time.time()
+        self.Msg.emit("Tracking device: "+deviceID+"...")
         
         while time.time() - start_time <= track_time:
             mp = __measure_power(v)
@@ -513,6 +499,30 @@ class acqThread(QThread):
             v += grad_mp * step_size
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
+
+    # Extract parameters from JV
+    def analyseJV(self, JV):
+        powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])*0.00064516
+        PV = np.zeros(JV.shape)
+        PV[:,0] = JV[:,0]
+        PV[:,1] = JV[:,0]*JV[:,1]
+        # measurements: voc, jsc
+        Voc, Jsc = self.measure_voc_jsc()
+        #Voc = JV[JV.shape[0]-1,0]
+        #Jsc = JV[0,1]
+        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
+        Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
+        if Voc != 0. and Jsc != 0.:
+            FF = Vpmax*Jpmax*100/(Voc*Jsc)
+            effic = Vpmax*Jpmax/self.powerIn
+        else:
+            FF = 0.
+            effic = 0.
+        data = np.array([Voc, Jsc, Vpmax, Vpmax*Jpmax,FF,effic])
+        data = np.hstack((0., data))
+        data = np.hstack((self.getDateTimeNow()[1], data))
+        data = np.hstack((self.getDateTimeNow()[0], data))
+        return np.array([data])
 
     # Get date/time
     def getDateTimeNow(self):
