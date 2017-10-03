@@ -410,36 +410,41 @@ class acqThread(QThread):
         v_r = int(dfAcqParams.get_value(0,'Acq Rev Voltage'))
         v_f = float(dfAcqParams.get_value(0,'Acq Forw Voltage'))
 
-        direction = acq_params['acqDirection']
-        polarity = 1 if acq_params['acqPolarity'] == 'pn' else -1
+        direction = int(dfAcqParams.get_value(0,'acqDirection'))
+        if int(dfAcqParams.get_value(0,'acqArchitecture')) == 0:
+            polarity = 1
+        else:
+            polarity = -1
+        #polarity = 1 if acq_params['acqPolarity'] == 'pn' else -1
 
 
         # enforce
-        if v_start < v_min and v_start > v_max and v_min > v_max:
+        if v_r < 0 and v_f > 0:
             raise ValueError('Voltage Errors')
 
         # create list of voltage to measure
-        v_list = np.arange(v_min-2., v_max + 2., v_step)
-        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
-        start_i = np.argmin(abs(v_start - v_list))
+        if direction == 0:
+            v_list = list(np.arange(v_r, v_f, v_step))
+        else:
+            v_list = list(np.arange(v_f, v_r, -v_step))
 
         N = len(v_list)
-        i_list = list(range(0, N))[::-1] + list(range(0, N))
-        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
-
         # create data array
-        data = np.zeros((N, 3))
+        data = np.zeros((N, 2))
         data[:, 0] = v_list
 
+        self.parent().source_meter.set_output(voltage = polarity*v_soak)
+        time.sleep(soak_time)
+
         # measure
-        for n in range(scans):
-            for i in i_list:
-                self.parent().source_meter.set_output(voltage = v_list[i])
-                time.sleep(hold_time)
-                data[i, 2] += 1.
-                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
-                    data[i,1]*(data[i,2]-1)) / data[i,2]
-        return data[:, 0:2]
+        for v in v_list + v_list[::-1]:
+            self.parent().source_meter.set_output(voltage = polarity*v)
+            time.sleep(hold_time)
+            data[i, 1] = polarity*self.source_meter.read_values()[0]
+            #data.append([v, polarity*self.source_meter.read_values()[0]])
+            #np.savetxt(filename, data, delimiter=',', header='V,J')
+        return data
+
     
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
@@ -528,6 +533,65 @@ class acqThread(QThread):
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
+        
+    ## New Flow
+    # Tracking (take JV once and track Vpmax)
+    # dfAcqParams : self.dfAcqParams
+    def tracking2(self, deviceID, dfAcqParams, v_mpp):
+        #hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+        #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
+        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
+        hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
+        if int(dfAcqParams.get_value(0,'acqArchitecture')) == 0:
+            polarity = 1
+        else:
+            polarity = -1
+        
+        def __measure_power(v):
+            self.parent().source_meter.set_output(voltage = polarity*v)
+            time.sleep(hold_time)
+            return -1 * v * self.power().source_meter.read_values()[0]
+        
+        perfData = np.zeros((0,8))
+        v = v_mpp
+        start_time = time.time
+        while time.time() - start_time <= track_time:
+            mp = __measure_power(v)
+            data.append([time.time() - start_time, mp])
+
+            # calculate gradient
+            mpd = __measure_power(v + dv)
+            grad_mp = (mpd-mp)/dv
+            v += grad_mp * step_size
+            
+            # save
+            np.savetxt(filename, data, delimiter=',', header='time,MPP')
+        
+        perfData = np.zeros((0,8))
+        JV = np.zeros([1,2])
+        data = np.array([0,0, v_mpp,0,0])
+        startTime = time.time()
+        self.Msg.emit("Tracking device: "+deviceID+"...")
+        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
+        perfData = np.vstack((data, perfData))
+        self.tempTracking.emit(JV, perfData, deviceID, True, False)
+        
+        while time.time() - start_time <= track_time:
+            mp = __measure_power(v)
+            #data.append([time.time() - start_time, mp])
+            data = np.array([0, 0, v,0,0])
+            data = np.hstack(([self.getDateTimeNow()[0],
+                                   self.getDateTimeNow()[1],time.time() - start_time], data))
+            perfData = np.vstack((data, perfData))
+            self.tempTracking.emit(JV, perfData, deviceID, False, False)
+
+            # calculate gradient
+            mpd = __measure_power(v + dv)
+            grad_mp = (mpd-mp)/dv
+            v += grad_mp * step_size
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
+        return perfData, JV
+            
     
     '''
     # Tracking (take JV at every tracking point)
