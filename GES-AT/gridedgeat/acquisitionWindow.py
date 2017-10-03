@@ -47,36 +47,52 @@ class AcquisitionWindow(QMainWindow):
         self.steadyStatLabel = QLabel(self.centralwidget)
         self.steadyStatLabel.setGeometry(QRect(10, 10, 111, 16))
         
-        self.minVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.minVLabel, 0, 0, 1, 1)
-        self.minVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.minVText, 0, 1, 1, 1)
+        self.soakVLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.soakVLabel, 0, 0, 1, 1)
+        self.soakVText = QLineEdit(self)
+        self.gridLayout.addWidget(self.soakVText, 0, 1, 1, 1)
 
-        self.maxVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.maxVLabel, 1, 0, 1, 1)
-        self.maxVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.maxVText, 1, 1, 1, 1)
+        self.soakTLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.soakTLabel, 1, 0, 1, 1)
+        self.soakTText = QLineEdit(self)
+        self.gridLayout.addWidget(self.soakTText, 1, 1, 1, 1)
         
-        self.startVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.startVLabel, 2, 0, 1, 1)
-        self.startVText = QLineEdit(self)
-        self.startVText.textEdited.connect(self.validateStartVoltage)
-        self.gridLayout.addWidget(self.startVText, 2, 1, 1, 1)
+        self.holdTLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.holdTLabel, 2, 0, 1, 1)
+        self.holdTText = QLineEdit(self)
+        #self.startVText.textEdited.connect(self.validateStartVoltage)
+        self.gridLayout.addWidget(self.holdTText, 2, 1, 1, 1)
 
         self.stepVLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.stepVLabel, 3, 0, 1, 1)
         self.stepVText = QLineEdit(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.stepVText, 3, 1, 1, 1)
-
-        self.numAverScansLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.numAverScansLabel, 5, 0, 1, 1)
-        self.numAverScansText = QLineEdit(self)
-        self.gridLayout.addWidget(self.numAverScansText, 5, 1, 1, 1)
-
-        self.delayBeforeMeasLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.delayBeforeMeasLabel, 6, 0, 1, 1)
-        self.delayBeforeMeasText = QLineEdit(self)
-        self.gridLayout.addWidget(self.delayBeforeMeasText, 6, 1, 1, 1)
+        
+        self.polarityLabel = QLabel(SourcemeterWindow)
+        self.polarityLabel.setGeometry(QRect(20, 10, 100, 20))
+        self.polarityLabel.setText("Polarity: ")
+        self.polarityCBox = QComboBox(self)
+        self.polarityCBox.setGeometry(QRect(100, 5, 150, 30))
+        self.polarityCBox.addItem("Vr -> Vf")
+        self.polarityCBox.addItem("Vf -> Vr")
+        
+        self.reverseVLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.reverseVLabel, 0, 0, 1, 1)
+        self.reverseVText = QLineEdit(self)
+        self.gridLayout.addWidget(self.reverseVText, 0, 1, 1, 1)
+        
+        self.forwardVLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.forwardVLabel, 0, 0, 1, 1)
+        self.forwardVLabel = QLineEdit(self)
+        self.gridLayout.addWidget(self.forwardVLabel, 0, 1, 1, 1)
+        
+        self.architectureLabel = QLabel(SourcemeterWindow)
+        self.architectureLabel.setGeometry(QRect(20, 10, 100, 20))
+        self.architectureLabel.setText("Device architecture: ")
+        self.architectureCBox = QComboBox(self)
+        self.architectureCBox.setGeometry(QRect(100, 5, 150, 30))
+        self.architectureCBox.addItem("NP")
+        self.architectureCBox.addItem("PN")
         
         self.trackingLabel = QLabel(self.centralwidget)
         self.trackingLabel.setGeometry(QRect(10, 280, 160, 16))
@@ -89,18 +105,10 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout_2.setHorizontalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
 
-        self.numPointsLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.numPointsLabel, 0, 0, 1, 1)
-        self.numPointsText = QSpinBox(self)
-        self.gridLayout_2.addWidget(self.numPointsText, 0, 1, 1, 1)
-        
-        self.intervalLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.intervalLabel, 1, 0, 1, 1)
-        self.IntervalText = QLineEdit(self)
-        self.gridLayout_2.addWidget(self.IntervalText, 1, 1, 1, 1)
-
-        self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 2, 0, 1, 1)
+        self.numDevTrackLabel = QLabel(self.gridLayoutWidget_2)
+        self.gridLayout_2.addWidget(self.numDevTrackLabel, 0, 0, 1, 1)
+        self.numDevTrackText = QSpinBox(self)
+        self.gridLayout_2.addWidget(self.numDevTrackText, 0, 1, 1, 1)
        
         MainWindow.setCentralWidget(self.centralwidget)
         
@@ -118,16 +126,15 @@ class AcquisitionWindow(QMainWindow):
         
         MainWindow.setWindowTitle("Acquisition Window")
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
-        self.minVLabel.setText("Min Voltage [V]")
-        self.maxVLabel.setText("Max Voltage [V]")
-        self.startVLabel.setText("Start Voltage [V]")
+        self.soakTText.setText("Soak voltage []")
+        self.soakTime.setText("Soak time [t]")
+        self.holdTText.setText("Hold time at soak [t]")
         self.stepVLabel.setText("Step Voltage [V]")
-        self.numAverScansLabel.setText("Number of averaged scans ")
-        self.delayBeforeMeasLabel.setText("Delays before measurements [sec]")
+        self.reverseVText.setText("Reverse Voltage [V]")
+        self.forwardVText.setText("Forward Voltage [V]")
         self.trackingLabel.setText("<qt><b>Track Voc, Jsc, MPP: </b></qt>")
-        self.numPointsLabel.setText("Number of points")
-        self.intervalLabel.setText("Interval")
-        self.totTimePerDeviceLabel.setText("Total time per device")
+        self.numPointsLabel.setText("Number of devices to be tracked")
+
         self.saveButton = QPushButton(self.centralwidget)
         self.saveButton.setGeometry(QRect(250, 380, 80, 60))
         self.saveButton.setText("Save")
@@ -142,14 +149,13 @@ class AcquisitionWindow(QMainWindow):
 
     # Save acquisition parameters in configuration ini
     def saveParameters(self):
-        self.parent().config.conf['Acquisition']['acqMinVoltage'] = str(self.minVText.text())
-        self.parent().config.conf['Acquisition']['acqMaxVoltage'] = str(self.maxVText.text())
-        self.parent().config.conf['Acquisition']['acqStartVoltage'] = str(self.startVText.text())
+        self.parent().config.conf['Acquisition']['acqSoakVoltage'] = str(self.soakVText.text())
+        self.parent().config.conf['Acquisition']['acqSoakTime'] = str(self.soakTText.text())
+        self.parent().config.conf['Acquisition']['acqHoldTime'] = str(self.holdTText.text())
         self.parent().config.conf['Acquisition']['acqStepVoltage'] = str(self.stepVText.text())
-        self.parent().config.conf['Acquisition']['acqNumAvScans'] = str(self.numAverScansText.text())
-        self.parent().config.conf['Acquisition']['acqDelBeforeMeas'] = str(self.delayBeforeMeasText.text())
-        self.parent().config.conf['Acquisition']['acqTrackNumPoints'] = str(self.numPointsText.value())
-        self.parent().config.conf['Acquisition']['acqTrackInterval'] = str(self.IntervalText.text())
+        self.parent().config.conf['Acquisition']['acqReverseVoltage'] = str(self.reverseVText.text())
+        self.parent().config.conf['Acquisition']['acqForwardVoltage'] = str(self.forwardVText.text())
+        self.parent().config.conf['Acquisition']['acqTrackNumDevices'] = str(self.numDevTrackText.value())
 
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
@@ -168,16 +174,16 @@ class AcquisitionWindow(QMainWindow):
 
     # Populate acquisition panel with values from config
     def initParameters(self):
-        self.minVText.setText(str(self.parent().config.acqMinVoltage))
-        self.maxVText.setText(str(self.parent().config.acqMaxVoltage))
-        self.startVText.setText(str(self.parent().config.acqStartVoltage))
+        self.soakVText.setText(str(self.parent().config.acqSoakVoltage))
+        self.soakTText.setText(str(self.parent().config.acqSoakTime))
+        self.holdTText.setText(str(self.parent().config.acqHoldTime))
         self.stepVText.setText(str(self.parent().config.acqStepVoltage))
-        self.numAverScansText.setText(str(self.parent().config.acqNumAvScans))
-        self.delayBeforeMeasText.setText(str(self.parent().config.acqDelBeforeMeas))
-        self.numPointsText.setValue(int(self.parent().config.acqTrackNumPoints))
-        self.IntervalText.setText(str(self.parent().config.acqTrackInterval))
-        self.timePerDevice()
+        self.reverseVText.setText(str(self.parent().config.acqReverseVoltage))
+        self.forwardVText.setText(str(self.parent().config.acqForwardVoltage))
+        self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
+        #self.timePerDevice()
 
+    '''
     # Field validator for VStart
     def validateStartVoltage(self):
         self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),
@@ -188,7 +194,6 @@ class AcquisitionWindow(QMainWindow):
                   "\n\nPlease change \"Start Voltage\" in the Acquisition panel"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
-
     # Calculate the measurement time per device
     def timePerDevice(self):
         timePerDevice = (int(self.parent().config.acqNumAvScans) * \
@@ -197,16 +202,18 @@ class AcquisitionWindow(QMainWindow):
                          int(self.parent().config.acqTrackNumPoints)
         self.totTimePerDeviceLabel.setText(\
                 "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
+    '''
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableAcqPanel(self, flag):
-        self.minVText.setEnabled(flag)
-        self.maxVText.setEnabled(flag)
-        self.startVText.setEnabled(flag)
+        self.soakVText.setEnabled(flag)
+        self.soakTText.setEnabled(flag)
+        self.acqHoldTime.setEnabled(flag)
         self.stepVText.setEnabled(flag)
-        self.numAverScansText.setEnabled(flag)
-        self.delayBeforeMeasText.setEnabled(flag)
-        self.numPointsText.setEnabled(flag)
-        self.IntervalText.setEnabled(flag)
+        self.acqReverseVoltage.setEnabled(flag)
+        self.acqForwardVoltage.setEnabled(flag)
+        self.acqTrackNumDevices.setEnabled(flag)
+        self.architectureCBox.setEnabled(flag)
+        self.polarityCBox.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
