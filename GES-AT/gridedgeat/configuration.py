@@ -60,6 +60,7 @@ class Configuration():
             'acqForwardVoltage' : 1,
             'acqArchitecture' : 0,
             'acqTrackNumDevices' : 2,
+            'acqTrackTime' : 20,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
@@ -111,6 +112,7 @@ class Configuration():
         self.acqForwardVoltage = eval(self.acqConfig['acqForwardVoltage'])
         self.acqArchitecture = eval(self.acqConfig['acqArchitecture'])
         self.acqTrackNumDevices = eval(self.acqConfig['acqTrackNumDevices'])
+        self.acqTrackTime = eval(self.acqConfig['acqTrackTime'])
 
         self.alignmentIntThreshold = eval(self.instrConfig['alignmentIntThreshold'])
         self.alignmentContrastDefault = eval(self.instrConfig['alignmentContrastDefault'])

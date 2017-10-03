@@ -107,8 +107,13 @@ class AcquisitionWindow(QMainWindow):
         self.numDevTrackText = QSpinBox(self)
         self.gridLayout_2.addWidget(self.numDevTrackText, 0, 1, 1, 1)
         
+        self.trackTLabel = QLabel(self.gridLayoutWidget_2)
+        self.gridLayout_2.addWidget(self.trackTLabel, 1, 0, 1, 1)
+        self.trackTText = QLineEdit(self)
+        self.gridLayout_2.addWidget(self.trackTText, 1, 1, 1, 1)
+        
         self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 2, 0, 1, 1)
        
         MainWindow.setCentralWidget(self.centralwidget)
         
@@ -127,15 +132,16 @@ class AcquisitionWindow(QMainWindow):
         MainWindow.setWindowTitle("Acquisition Window")
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
         self.soakVLabel.setText("Soak voltage [V]")
-        self.soakTLabel.setText("Soak time [t]")
-        self.holdTLabel.setText("Hold time at soak [t]")
+        self.soakTLabel.setText("Soak time [s]")
+        self.holdTLabel.setText("Hold time at soak [s]")
         self.stepVLabel.setText("Step Voltage [V]")
         self.directionLabel.setText("Scan direction: ")
         self.reverseVLabel.setText("Reverse Voltage [V]")
         self.forwardVLabel.setText("Forward Voltage [V]")
         self.architectureLabel.setText("Device architecture: ")
-        self.trackingLabel.setText("<qt><b>Track Voc, Jsc, MPP: </b></qt>")
+        self.trackingLabel.setText("<qt><b>Track MPP: </b></qt>")
         self.numDevTrackLabel.setText("Number of devices to be tracked")
+        self.trackTLabel.setText("Tracking time [s]")
 
         self.saveButton = QPushButton(self.centralwidget)
         self.saveButton.setGeometry(QRect(250, 380, 80, 60))
@@ -158,6 +164,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.conf['Acquisition']['acqReverseVoltage'] = str(self.reverseVText.text())
         self.parent().config.conf['Acquisition']['acqForwardVoltage'] = str(self.forwardVText.text())
         self.parent().config.conf['Acquisition']['acqTrackNumDevices'] = str(self.numDevTrackText.value())
+        self.parent().config.conf['Acquisition']['acqTrackTime'] = str(self.trackTText.value())
 
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
@@ -183,6 +190,7 @@ class AcquisitionWindow(QMainWindow):
         self.reverseVText.setText(str(self.parent().config.acqReverseVoltage))
         self.forwardVText.setText(str(self.parent().config.acqForwardVoltage))
         self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
+        self.trackTText.setText(str(self.parent().config.acqTrackTime))
         #self.timePerDevice()
 
     '''
@@ -217,5 +225,6 @@ class AcquisitionWindow(QMainWindow):
         self.acqTrackNumDevices.setEnabled(flag)
         self.architectureCBox.setEnabled(flag)
         self.directionCBox.setEnabled(flag)
+        self.trackTText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
