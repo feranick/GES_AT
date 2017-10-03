@@ -82,7 +82,7 @@ class AcquisitionWindow(QMainWindow):
         self.forwardVLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.forwardVLabel, 6, 0, 1, 1)
         self.forwardVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.forwardVText, 7, 1, 1, 1)
+        self.gridLayout.addWidget(self.forwardVText, 6, 1, 1, 1)
         
         self.architectureLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
@@ -96,7 +96,7 @@ class AcquisitionWindow(QMainWindow):
         self.trackingLabel.setObjectName("trackingLabel")
         
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
-        self.gridLayoutWidget_2.setGeometry(QRect(10, 310, 330, 181))
+        self.gridLayoutWidget_2.setGeometry(QRect(10, 250, 330, 181))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_2.setHorizontalSpacing(10)
@@ -106,6 +106,9 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout_2.addWidget(self.numDevTrackLabel, 0, 0, 1, 1)
         self.numDevTrackText = QSpinBox(self)
         self.gridLayout_2.addWidget(self.numDevTrackText, 0, 1, 1, 1)
+        
+        self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
+        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 1, 0, 1, 1)
        
         MainWindow.setCentralWidget(self.centralwidget)
         
