@@ -130,10 +130,10 @@ class AcquisitionWindow(QMainWindow):
         self.soakTime.setText("Soak time [t]")
         self.holdTText.setText("Hold time at soak [t]")
         self.stepVLabel.setText("Step Voltage [V]")
-        self.reverseVText.setText("Reverse Voltage [V]")
-        self.forwardVText.setText("Forward Voltage [V]")
+        self.reverseVLabel.setText("Reverse Voltage [V]")
+        self.forwardVLabel.setText("Forward Voltage [V]")
         self.trackingLabel.setText("<qt><b>Track Voc, Jsc, MPP: </b></qt>")
-        self.numPointsLabel.setText("Number of devices to be tracked")
+        self.numDevTrackLabel.setText("Number of devices to be tracked")
 
         self.saveButton = QPushButton(self.centralwidget)
         self.saveButton.setGeometry(QRect(250, 380, 80, 60))

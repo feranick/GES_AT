@@ -32,18 +32,17 @@ class Acquisition(QObject):
         self.numRow = self.parent().config.numSubsHolderRow
         self.numCol = self.parent().config.numSubsHolderCol
         pdframe = pd.DataFrame({'Operator': [self.parent().samplewind.operatorText.text()],
-                'Acq Min Voltage': [self.parent().acquisitionwind.minVText.text()],
-                'Acq Max Voltage': [self.parent().acquisitionwind.maxVText.text()],
-                'Acq Start Voltage': [self.parent().acquisitionwind.startVText.text()],
+                'Acq Soak Voltage': [self.parent().acquisitionwind.soakTText.text()],
+                'Acq Soak Time': [self.parent().acquisitionwind.soakTime.text()],
+                'Acq Hold Time': [self.parent().acquisitionwind.holdTText.text()],
                 'Acq Step Voltage': [self.parent().acquisitionwind.stepVText.text()],
-                'Acq Num Aver Scans': [int(self.parent().acquisitionwind.numAverScansText.text())],
-                'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
-                'Num Track Points': [int(self.parent().acquisitionwind.numPointsText.value())],
-                'Track Interval': [self.parent().acquisitionwind.IntervalText.text()],
+                'Acq Rev Voltage': [int(self.parent().acquisitionwind.reverseVText.text())],
+                'Acq Forw Voltage': [self.parent().acquisitionwind.forwardVText.text()],
+                'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
-        return pdframe[['Acq Min Voltage','Acq Max Voltage','Acq Start Voltage',
-                'Acq Step Voltage','Acq Num Aver Scans','Delay Before Meas',
-                'Num Track Points','Track Interval','Operator','Comments']]
+        return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
+                'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage',
+                'Num Track Devices','Operator','Comments']]
                 
     def start(self):
         # Using ALT with Start Acquisition button:
