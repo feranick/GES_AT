@@ -45,7 +45,7 @@ class Acquisition(QObject):
                 'Comments': [self.parent().samplewind.commentsText.text()]})
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
-                'Direction','Num Track Devices','Operator','Comments']]
+                'Direction','Num Track Devices','Track Time','Operator','Comments']]
                 
     def start(self):
         # Using ALT with Start Acquisition button:
@@ -353,48 +353,6 @@ class acqThread(QThread):
         "Switch operation devices"
         self.parent().switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
-    ## measurements: JV
-    # dfAcqParams : self.dfAcqParams
-    def measure_JV(self, dfAcqParams):
-        #self.source_meter.set_mode('VOLT')
-        self.parent().source_meter.set_mode('VOLT')
-        self.parent().source_meter.on()
-
-        # measurement parameters
-        v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
-        v_max = float(dfAcqParams.get_value(0,'Acq Max Voltage'))
-        v_start = float(dfAcqParams.get_value(0,'Acq Start Voltage'))
-        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
-        scans = int(dfAcqParams.get_value(0,'Acq Num Aver Scans'))
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-
-        # enforce
-        if v_start < v_min and v_start > v_max and v_min > v_max:
-            raise ValueError('Voltage Errors')
-
-        # create list of voltage to measure
-        v_list = np.arange(v_min-2., v_max + 2., v_step)
-        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
-        start_i = np.argmin(abs(v_start - v_list))
-
-        N = len(v_list)
-        i_list = list(range(0, N))[::-1] + list(range(0, N))
-        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
-
-        # create data array
-        data = np.zeros((N, 3))
-        data[:, 0] = v_list
-
-        # measure
-        for n in range(scans):
-            for i in i_list:
-                self.parent().source_meter.set_output(voltage = v_list[i])
-                time.sleep(hold_time)
-                data[i, 2] += 1.
-                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
-                    data[i,1]*(data[i,2]-1)) / data[i,2]
-        return data[:, 0:2]
-    
     ## measurements: JV - new flow
     # dfAcqParams : self.dfAcqParams
     
@@ -498,43 +456,6 @@ class acqThread(QThread):
         data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
         return data, Vpmax, JV
 
-    # Tracking (take JV once and track Vpmax)
-    # dfAcqParams : self.dfAcqParams
-    def tracking(self, deviceID, dfAcqParams):
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
-        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
-        perfData = np.zeros((0,8))
-        startTime = time.time()
-        self.Msg.emit("Tracking device: "+deviceID+" (time-step: 0)")
-        data, Vpmax, JV = self.measure_voc_jsc_mpp(dfAcqParams)
-        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
-        perfData = np.vstack((data, perfData))
-        self.tempTracking.emit(JV, perfData, deviceID, True, False)
-        for n in range(1, numPoints):
-            time.sleep(trackTime)
-            timeStep = time.time()-startTime
-            self.Msg.emit("Tracking device: "+deviceID+" (time-step: "+str(n)+"/"+\
-                          str(numPoints)+" - {0:0.1f}s)".format(timeStep))
-            voc, jsc = self.measure_voc_jsc()
-            
-            self.parent().source_meter.set_output(voltage = Vpmax)
-            time.sleep(hold_time)
-            Jpmax = self.parent().source_meter.read_values()[1]
-            try:
-                FF = Vpmax*Jpmax*100/(voc*jsc)
-                effic = Vpmax*Jpmax/self.powerIn
-            except:
-                FF = 0.
-                effic = 0.
-            data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-            data = np.hstack(([self.getDateTimeNow()[0],
-                                   self.getDateTimeNow()[1],timeStep], data))
-            perfData = np.vstack((data, perfData))
-            self.tempTracking.emit(JV, perfData, deviceID, False, False)
-        self.tempTracking.emit(JV, perfData, deviceID, False, True)
-        return perfData, JV
-        
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
@@ -592,27 +513,6 @@ class acqThread(QThread):
             v += grad_mp * step_size
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
-            
-    
-    '''
-    # Tracking (take JV at every tracking point)
-    # dfAcqParams : self.dfAcqParams
-    def tracking(self, deviceID, dfAcqParams):
-        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
-        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
-        perfData = np.zeros((0,8))
-        startTime = time.time()
-        for n in range(0, numPoints):
-            timeStep = time.time()-startTime
-            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ , JV = self.measure_voc_jsc_mpp(dfAcqParams)
-            data = np.hstack((timeStep, data))
-            data = np.hstack((self.getDateTimeNow()[0], data))
-            data = np.hstack((self.getDateTimeNow()[1], data))
-            perfData = np.vstack((data, perfData))
-            time.sleep(trackTime)
-        return perfData, JV
-    '''
 
     # Get date/time
     def getDateTimeNow(self):
@@ -621,7 +521,87 @@ class acqThread(QThread):
 
 
 ############################################################################################
-def run2(self):
+## measurements: JV
+    # dfAcqParams : self.dfAcqParams
+    def measure_JV(self, dfAcqParams):
+        #self.source_meter.set_mode('VOLT')
+        self.parent().source_meter.set_mode('VOLT')
+        self.parent().source_meter.on()
+
+        # measurement parameters
+        v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
+        v_max = float(dfAcqParams.get_value(0,'Acq Max Voltage'))
+        v_start = float(dfAcqParams.get_value(0,'Acq Start Voltage'))
+        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
+        scans = int(dfAcqParams.get_value(0,'Acq Num Aver Scans'))
+        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+
+        # enforce
+        if v_start < v_min and v_start > v_max and v_min > v_max:
+            raise ValueError('Voltage Errors')
+
+        # create list of voltage to measure
+        v_list = np.arange(v_min-2., v_max + 2., v_step)
+        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
+        start_i = np.argmin(abs(v_start - v_list))
+
+        N = len(v_list)
+        i_list = list(range(0, N))[::-1] + list(range(0, N))
+        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
+
+        # create data array
+        data = np.zeros((N, 3))
+        data[:, 0] = v_list
+
+        # measure
+        for n in range(scans):
+            for i in i_list:
+                self.parent().source_meter.set_output(voltage = v_list[i])
+                time.sleep(hold_time)
+                data[i, 2] += 1.
+                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
+                    data[i,1]*(data[i,2]-1)) / data[i,2]
+        return data[:, 0:2]
+
+    # Tracking (take JV once and track Vpmax)
+    # dfAcqParams : self.dfAcqParams
+    def tracking(self, deviceID, dfAcqParams):
+        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
+        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
+        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
+        perfData = np.zeros((0,8))
+        startTime = time.time()
+        self.Msg.emit("Tracking device: "+deviceID+" (time-step: 0)")
+        data, Vpmax, JV = self.measure_voc_jsc_mpp(dfAcqParams)
+        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
+        perfData = np.vstack((data, perfData))
+        self.tempTracking.emit(JV, perfData, deviceID, True, False)
+        for n in range(1, numPoints):
+            time.sleep(trackTime)
+            timeStep = time.time()-startTime
+            self.Msg.emit("Tracking device: "+deviceID+" (time-step: "+str(n)+"/"+\
+                          str(numPoints)+" - {0:0.1f}s)".format(timeStep))
+            voc, jsc = self.measure_voc_jsc()
+            
+            self.parent().source_meter.set_output(voltage = Vpmax)
+            time.sleep(hold_time)
+            Jpmax = self.parent().source_meter.read_values()[1]
+            try:
+                FF = Vpmax*Jpmax*100/(voc*jsc)
+                effic = Vpmax*Jpmax/self.powerIn
+            except:
+                FF = 0.
+                effic = 0.
+            data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
+            data = np.hstack(([self.getDateTimeNow()[0],
+                                   self.getDateTimeNow()[1],timeStep], data))
+            perfData = np.vstack((data, perfData))
+            self.tempTracking.emit(JV, perfData, deviceID, False, False)
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
+        return perfData, JV
+
+
+    def run(self):
         # Activate stage
         self.Msg.emit("Activating stage...")
         self.parent().xystage = XYstage()
@@ -731,3 +711,23 @@ def run2(self):
         self.Msg.emit("Acquisition Completed: "+ self.getDateTimeNow()[0] + \
                 " at "+self.getDateTimeNow()[1])
         self.endAcq()
+
+    '''
+    # Tracking (take JV at every tracking point)
+    # dfAcqParams : self.dfAcqParams
+    def tracking(self, deviceID, dfAcqParams):
+        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
+        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
+        perfData = np.zeros((0,8))
+        startTime = time.time()
+        for n in range(0, numPoints):
+            timeStep = time.time()-startTime
+            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
+            data, _ , JV = self.measure_voc_jsc_mpp(dfAcqParams)
+            data = np.hstack((timeStep, data))
+            data = np.hstack((self.getDateTimeNow()[0], data))
+            data = np.hstack((self.getDateTimeNow()[1], data))
+            perfData = np.vstack((data, perfData))
+            time.sleep(trackTime)
+        return perfData, JV
+    '''
