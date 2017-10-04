@@ -450,6 +450,7 @@ class acqThread(QThread):
         data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1]], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
+        #this is to prevent the tracking to start before the dark JV is completely processed.
         time.sleep(2)
         v = v_mpp
         self.Msg.emit("Tracking device: "+deviceID+"...")
