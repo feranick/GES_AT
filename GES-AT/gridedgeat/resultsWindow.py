@@ -19,7 +19,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
                              QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
-                             QTableWidgetItem,QAction,QHeaderView,QMenu)
+                             QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -55,11 +55,66 @@ class ResultsWindow(QMainWindow):
         self.figureTVoc = plt.figure()
         self.figureMPP = plt.figure()
         self.figureJVresp = plt.figure()
+        self.figurePVresp = plt.figure()
+        self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
+        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.10)
+
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
         self.figureMPP.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        
+        self.centralwidget = QWidget(self)
+        self.centralwidget.setObjectName("centralwidget")
+        
+        self.gridLayoutWidget = QWidget(self.centralwidget)
+        self.gridLayoutWidget.setGeometry(QRect(20, 30, 1100, 710))
 
+        self.HLayout = QHBoxLayout(self.gridLayoutWidget)
+        self.jvVLayout = QVBoxLayout()
+        
+        self.canvasJVresp = FigureCanvas(self.figureJVresp)
+        self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
+        self.toolbarJVresp.setMaximumHeight(30)
+        self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
+
+        self.canvasPVresp = FigureCanvas(self.figurePVresp)
+        self.toolbarPVresp = NavigationToolbar(self.canvasPVresp, self)
+        self.toolbarPVresp.setMaximumHeight(30)
+        self.toolbarPVresp.setStyleSheet("QToolBar { border: 0px }")
+
+        self.jvVLayout.addWidget(self.toolbarJVresp)
+        self.jvVLayout.addWidget(self.canvasJVresp)
+        self.jvVLayout.addWidget(self.toolbarPVresp)
+        self.jvVLayout.addWidget(self.canvasPVresp)
+        self.HLayout.addLayout(self.jvVLayout)
+
+        self.VLayout = QVBoxLayout()
+
+        self.canvasTJsc = FigureCanvas(self.figureTJsc)
+        self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
+        self.toolbarTJsc.setMaximumHeight(30)
+        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarTJsc)
+        self.VLayout.addWidget(self.canvasTJsc)
+        self.canvasTVoc = FigureCanvas(self.figureTVoc)
+        self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
+        self.toolbarTVoc.setMaximumHeight(30)
+        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarTVoc)
+        self.VLayout.addWidget(self.canvasTVoc)
+        self.canvasMPP = FigureCanvas(self.figureMPP)
+        self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
+        self.toolbarMPP.setMaximumHeight(30)
+        self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarMPP)
+        self.VLayout.addWidget(self.canvasMPP)
+        self.HLayout.addLayout(self.VLayout)
+
+
+        '''
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
@@ -92,6 +147,7 @@ class ResultsWindow(QMainWindow):
         self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
         self.toolbarMPP.setMaximumHeight(30)
         self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
+        '''
 
         self.resTableW = 1100
         self.resTableH = 145
@@ -195,17 +251,23 @@ class ResultsWindow(QMainWindow):
     
     # Initialize JV and PV plots
     def initJVPlot(self):
-        self.figureJVresp.clf()
         self.axJVresp = self.figureJVresp.add_subplot(111)
-        self.axPVresp = self.axJVresp.twinx()
         self.plotSettings(self.axJVresp)
-        self.plotSettings(self.axPVresp)
         self.axJVresp.set_xlabel('Voltage [V]',fontsize=8)
         self.axJVresp.set_ylabel('Current density [mA/cm$^2$]',fontsize=8)
-        self.axPVresp.set_ylabel('Power density [mW/cm$^2$]',fontsize=8)
         self.axJVresp.axvline(x=0, linewidth=0.5)
         self.axJVresp.axhline(y=0, linewidth=0.5)
+        
+        self.axPVresp = self.figurePVresp.add_subplot(111)
+        self.plotSettings(self.axPVresp)
+        self.axPVresp.set_xlabel('Voltage [V]',fontsize=8)
+        self.axPVresp.set_ylabel('Power density [mW/cm$^2$]',fontsize=8)
+        self.axPVresp.axvline(x=0, linewidth=0.5)
+        self.axPVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
+        self.canvasPVresp.draw()
+        self.figureJVresp.tight_layout()
+        self.figurePVresp.tight_layout()
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
@@ -229,15 +291,14 @@ class ResultsWindow(QMainWindow):
         self.canvasMPP.draw()
     
     # Plot JV response
-    def plotJVresp(self, JV):
-        self.initJVPlot()
+    def plotJVresp(self, JV,init):
+        if init is True:
+            self.initJVPlot()
         self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
-        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5)
         self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
-                color='orange')
-        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5,
-                color='orange')
+            color='orange')
         self.canvasJVresp.draw()
+        self.canvasPVresp.draw()
     
     # Clear all plots and fields
     def clearPlots(self, includeTable):
