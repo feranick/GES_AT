@@ -228,8 +228,8 @@ class acqThread(QThread):
                         print("Skipping acquisition: stage not activated.")
                         break
                     '''
-                    self.max_power = []
-                    self.devMaxPower = 0
+                    id_mpp_v = []
+                    #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
                                 str(self.getSubstrateNumber(i,j)) + \
@@ -410,14 +410,13 @@ class acqThread(QThread):
 
         self.parent().source_meter.set_output(voltage = polarity*v_soak)
         time.sleep(soak_time)
-        print(len(v_list))
+
         # measure
         def __sweep(v_list, hold_time):
             data = np.zeros((len(v_list), 2))
             data[:, 0] = v_list
             for i in range(len(v_list)):
                 v = v_list[i]
-                print(v)
                 self.parent().source_meter.set_output(voltage = polarity*v)
                 time.sleep(hold_time)
                 data[i, 1] = polarity*self.parent().source_meter.read_values()[1]
