@@ -100,7 +100,6 @@ class Acquisition(QObject):
 
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
-        print(perfData)
         self.parent().resultswind.clearPlots(False)
         self.parent().resultswind.setupResultTable()
         #perfData = self.analyseJV(JV)
@@ -296,6 +295,7 @@ class acqThread(QThread):
 
                         #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
+                        self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         
                     self.colorCell.emit(i,j,"green")
 

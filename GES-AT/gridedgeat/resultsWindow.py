@@ -334,8 +334,6 @@ class ResultsWindow(QMainWindow):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
-        print(perfData)
-        print(perfData.shape)
         self.JV = JV
         
         # Populate table.
@@ -479,6 +477,7 @@ class ResultsWindow(QMainWindow):
     # Populate result table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
+        #self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem(obj[0,2]+"-"+obj[1,2])) #Voc
         self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #Voc
         self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Jsc
         self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
