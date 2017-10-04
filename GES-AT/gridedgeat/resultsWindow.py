@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.zeros((0,8))
+        self.perfData = np.zeros((0,9))
         self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = self.parent().config.csvSavingFolder
@@ -97,18 +97,19 @@ class ResultsWindow(QMainWindow):
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, self.resTableW, self.resTableH))
-        self.resTableWidget.setColumnCount(9)
+        self.resTableWidget.setColumnCount(10)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem(u"Av Jsc [mA/cm\u00B2]"))
-        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem(u"MPP [mW/cm\u00B2]"))
-        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PCE"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Tracking time [s]"))
-        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
-        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem(u"VPP [V]"))
+        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem(u"MPP [mW/cm\u00B2]"))
+        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av FF"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE"))
+        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Tracking time [s]"))
+        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Date"))
+        self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Time"))
         self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
@@ -339,7 +340,9 @@ class ResultsWindow(QMainWindow):
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
         # Plot results
-        self.plotData(self.deviceID,self.perfData, JV)
+        self.plotData(self.deviceID,self.perfData, JV[:,0:2])
+        self.plotData(self.deviceID,self.perfData, JV[:,3:4])
+        
         QApplication.processEvents()
         
         if flag is True:
@@ -373,16 +376,20 @@ class ResultsWindow(QMainWindow):
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
         dfPerfData = pd.DataFrame({'Time step': perfData[:,2], 'Voc': perfData[:,3],
-                        'Jsc': perfData[:,4], 'MPP': perfData[:,5],
-                        'FF': perfData[:,6], 'effic': perfData[:,7],
-                        'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1]})
+                        'Jsc': perfData[:,4], 'VPP' : perfData[:,5], 'MPP': perfData[:,6],
+                        'FF': perfData[:,7], 'PCE': perfData[:,8], 'Light' : perfData[:,9],
+                        'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1],
+                        
+                                  })
         dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
-                                     'Jsc', 'MPP','FF','effic']]
+                                     'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
         return dfPerfData
     
     def makeDFJV(self,JV):
-        dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
-        dfJV = dfJV[['V', 'J']]
+        dfJV = pd.DataFrame({'V_r':JV[:,0], 'J_r':JV[:,1],
+                            'V_f':JV[:,2], 'J_f':JV[:,3],
+                            })
+        dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
         return dfJV
     
     ### Submit json for device data to Data-Management
@@ -471,14 +478,18 @@ class ResultsWindow(QMainWindow):
     # Populate result table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Voc
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #MPP
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
+        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #track_time
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,0]))
+        self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,1]))
+    
+    #dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
+    #                                 'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
