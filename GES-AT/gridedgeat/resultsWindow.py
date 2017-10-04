@@ -451,7 +451,7 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        if dfPerfData['MPP'].count() < 2:
+        if dfPerfData['MPP'].count() < 3:
             csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
         else:
             csvFilename = str(dfDeviceID.get_value(0,'Device'))+"_tracking.csv"

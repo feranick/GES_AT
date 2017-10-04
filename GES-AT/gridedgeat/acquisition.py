@@ -228,7 +228,7 @@ class acqThread(QThread):
                         print("Skipping acquisition: stage not activated.")
                         break
                     '''
-                    id_mpp_v = np.zeros((0,2))
+                    id_mpp_v = np.zeros((0,3))
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
@@ -261,18 +261,19 @@ class acqThread(QThread):
                         JV = np.vstack((JV_r, JV_f))
                         
                         max_i = np.argmax(JV[:, 0] * JV[:, 1])
-                        
-                        id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1]],id_mpp_v))
+                        id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
 
-                    print(id_mpp_v)
                     id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
-                    self.maxPowerDev.emit(" Device with max power: "+str(id_mpp_v[0]))
-                    
+                    id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
+                    self.maxPowerDev.emit(" Device with max power: "+str(id_mpp_v[0,0]))
+
                     # Tracking
                     time.sleep(1)
+                    tracking_points = int(self.dfAcqParams.get_value(0,'Num Track Devices'))
                     # Switch to device with max power and start tracking
-                    for dev_id, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
+                    for dev_id_f, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
+                        dev_id = int(dev_id_f)
                         '''
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
                         '''
@@ -486,9 +487,9 @@ class acqThread(QThread):
     def tracking(self, deviceID, dfAcqParams, v_mpp):
         #hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
         #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
-        trackTime = float(dfAcqParams.get_value(0,'Track Time'))
+        track_time = float(dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
-        if int(dfAcqParams.get_value(0,'acqArchitecture')) == 0:
+        if int(dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
             polarity = -1
@@ -506,7 +507,7 @@ class acqThread(QThread):
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
         
         v = v_mpp
-        startTime = time.time()
+        start_time = time.time()
         self.Msg.emit("Tracking device: "+deviceID+"...")
         
         while time.time() - start_time <= track_time:
@@ -558,218 +559,3 @@ class acqThread(QThread):
     def getDateTimeNow(self):
         return str(datetime.now().strftime('%Y-%m-%d')),\
                     str(datetime.now().strftime('%H-%M-%S'))
-
-
-
-############################################################################################
-'''
-## measurements: JV
-    # dfAcqParams : self.dfAcqParams
-    def measure_JV(self, dfAcqParams):
-        #self.source_meter.set_mode('VOLT')
-        self.parent().source_meter.set_mode('VOLT')
-        self.parent().source_meter.on()
-
-        # measurement parameters
-        v_min = float(dfAcqParams.get_value(0,'Acq Min Voltage'))
-        v_max = float(dfAcqParams.get_value(0,'Acq Max Voltage'))
-        v_start = float(dfAcqParams.get_value(0,'Acq Start Voltage'))
-        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
-        scans = int(dfAcqParams.get_value(0,'Acq Num Aver Scans'))
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-
-        # enforce
-        if v_start < v_min and v_start > v_max and v_min > v_max:
-            raise ValueError('Voltage Errors')
-
-        # create list of voltage to measure
-        v_list = np.arange(v_min-2., v_max + 2., v_step)
-        v_list = v_list[np.logical_and(v_min-1e-9 <= v_list, v_list <= v_max+1e-9)]
-        start_i = np.argmin(abs(v_start - v_list))
-
-        N = len(v_list)
-        i_list = list(range(0, N))[::-1] + list(range(0, N))
-        i_list = i_list[N-start_i-1:] + i_list[:N-start_i-1]
-
-        # create data array
-        data = np.zeros((N, 3))
-        data[:, 0] = v_list
-
-        # measure
-        for n in range(scans):
-            for i in i_list:
-                self.parent().source_meter.set_output(voltage = v_list[i])
-                time.sleep(hold_time)
-                data[i, 2] += 1.
-                data[i, 1] = (self.parent().source_meter.read_values()[1] + \
-                    data[i,1]*(data[i,2]-1)) / data[i,2]
-        return data[:, 0:2]
-
-    # Tracking (take JV once and track Vpmax)
-    # dfAcqParams : self.dfAcqParams
-    def tracking(self, deviceID, dfAcqParams):
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
-        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
-        perfData = np.zeros((0,8))
-        startTime = time.time()
-        self.Msg.emit("Tracking device: "+deviceID+" (time-step: 0)")
-        data, Vpmax, JV = self.measure_voc_jsc_mpp(dfAcqParams)
-        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
-        perfData = np.vstack((data, perfData))
-        self.tempTracking.emit(JV, perfData, deviceID, True, False)
-        for n in range(1, numPoints):
-            time.sleep(trackTime)
-            timeStep = time.time()-startTime
-            self.Msg.emit("Tracking device: "+deviceID+" (time-step: "+str(n)+"/"+\
-                          str(numPoints)+" - {0:0.1f}s)".format(timeStep))
-            voc, jsc = self.measure_voc_jsc()
-            
-            self.parent().source_meter.set_output(voltage = Vpmax)
-            time.sleep(hold_time)
-            Jpmax = self.parent().source_meter.read_values()[1]
-            try:
-                FF = Vpmax*Jpmax*100/(voc*jsc)
-                effic = Vpmax*Jpmax/self.powerIn
-            except:
-                FF = 0.
-                effic = 0.
-            data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-            data = np.hstack(([self.getDateTimeNow()[0],
-                                   self.getDateTimeNow()[1],timeStep], data))
-            perfData = np.vstack((data, perfData))
-            self.tempTracking.emit(JV, perfData, deviceID, False, False)
-        self.tempTracking.emit(JV, perfData, deviceID, False, True)
-        return perfData, JV
-
-
-    def run(self):
-        # Activate stage
-        self.Msg.emit("Activating stage...")
-        self.parent().xystage = XYstage()
-        if self.parent().xystage.xystageInit == False:
-            self.Msg.emit(" Stage not activated: no acquisition possible")
-            self.stop()
-            return
-        self.Msg.emit(" Stage activated.")
-        
-        # Activate switchbox
-        self.Msg.emit("Activating switchbox...")
-        try:
-            self.parent().switch_box = SwitchBox(self.parent().parent().config.switchboxID)
-        except:
-            self.Msg.emit(" Switchbox not activated: no acquisition possible")
-            self.stop()
-            return
-        self.Msg.emit(" Switchbox activated.")
-
-        # Activate sourcemeter
-        self.Msg.emit("Activating sourcemeter...")
-        QApplication.processEvents()
-        try:
-            self.parent().source_meter = SourceMeter(self.parent().parent().config.sourcemeterID)
-            self.parent().source_meter.set_limit(voltage=20., current=1.)
-            self.parent().source_meter.on()
-        except:
-            self.Msg.emit(" Sourcemeter not activated: no acquisition possible")
-            self.stop()
-            return
-        self.Msg.emit(" Sourcemeter activated.")
-
-        ### Setup interface and get parameters before acquisition
-        self.parent().parent().resultswind.clearPlots(True)
-        self.parent().parent().resultswind.setupDataFrame()
-        operator = self.parent().parent().samplewind.operatorText.text()
-        self.Msg.emit("Operator: " + operator)
-        self.Msg.emit("Acquisition started: "+self.getDateTimeNow()[0]+" at " + \
-                self.getDateTimeNow()[1])
-
-        # If all is OK, start acquiring
-        # Start from moving to the correct substrate
-        for j in range(self.numCol):
-            for i in range(self.numRow):
-                # convert to correct substrate number in holder
-                substrateNum = self.getSubstrateNumber(i,j)
-                substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()
-                
-                # Check if the holder has a substrate in that slot
-                if self.parent().parent().samplewind.tableWidget.item(i,j).text() != ""  and \
-                        self.parent().parent().samplewind.activeSubs[i,j] == True:
-                    self.colorCell.emit(i,j,"yellow")
-                    # Move stage to desired substrate
-                    if self.parent().xystage.xystageInit is True:
-                        self.Msg.emit("Moving stage to substrate #"+ \
-                                        str(self.getSubstrateNumber(i,j))+ \
-                                        ": ("+str(i+1)+", "+str(j+1)+")")
-                        self.parent().xystage.move_to_substrate_4x4(substrateNum)
-                        time.sleep(0.1)
-                    else:
-                        print("Skipping acquisition: stage not activated.")
-                        break
-                    self.max_power = []
-                    self.devMaxPower = 0
-                    for dev_id in range(1,7):
-                        self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
-                                str(self.getSubstrateNumber(i,j)) + \
-                                ": ("+str(i+1)+", "+str(j+1)+")")
-                        deviceID = substrateID+str(dev_id)
-                        # prepare parameters, plots, tables for acquisition
-                        self.Msg.emit("  Acquiring JV from device: " + deviceID)
-
-                        # Switch to correct device and start acquisition of JV
-                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
-                                                                   dev_id)
-                        self.switch_device(i, j, dev_id)
-                        JV = self.devAcqJV()
-                        
-                        # Acquire parameters
-                        perfData = self.devAcqParams()
-                        
-                        #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
-                        self.acqJVComplete.emit(JV, perfData, deviceID, i, j)
-                        self.max_power.append(np.max(JV[:, 0] * JV[:, 1]))
-                        self.Msg.emit('  Device '+deviceID+' acquisition: complete')
-                        self.devMaxPower =  np.argmax(self.max_power) + 1
-
-                    self.maxPowerDev.emit(" Device with max power: "+str(self.devMaxPower))
-                    
-                    # Tracking
-                    time.sleep(1)
-                    # Switch to device with max power and start tracking
-                    self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
-                                                               int(self.devMaxPower))
-                    self.switch_device(i, j, self.devMaxPower)
-
-                    # Use this to get the simple JV used for detecting Vpmax
-                    perfData, JV = self.tracking(substrateID+str(self.devMaxPower),
-                                                 self.dfAcqParams)
-                    # Alternatively use this for a complete JV sweep
-                    #JV = self.devAcqJV()
-
-                    #self.acqJVComplete.emit(JV, perfData, substrateID+str(self.devMaxPower), i, j)
-                    self.Msg.emit(' Device '+substrateID+str(self.devMaxPower)+' tracking: complete')
-                    self.colorCell.emit(i,j,"green")
-
-        self.Msg.emit("Acquisition Completed: "+ self.getDateTimeNow()[0] + \
-                " at "+self.getDateTimeNow()[1])
-        self.endAcq()
-
-
-    # Tracking (take JV at every tracking point)
-    # dfAcqParams : self.dfAcqParams
-    def tracking(self, deviceID, dfAcqParams):
-        numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
-        trackTime = float(dfAcqParams.get_value(0,'Track Interval'))
-        perfData = np.zeros((0,8))
-        startTime = time.time()
-        for n in range(0, numPoints):
-            timeStep = time.time()-startTime
-            print("Tracking device: ",deviceID," (time-step: {0:0.1f}s)".format(timeStep))
-            data, _ , JV = self.measure_voc_jsc_mpp(dfAcqParams)
-            data = np.hstack((timeStep, data))
-            data = np.hstack((self.getDateTimeNow()[0], data))
-            data = np.hstack((self.getDateTimeNow()[1], data))
-            perfData = np.vstack((data, perfData))
-            time.sleep(trackTime)
-        return perfData, JV
-    '''
