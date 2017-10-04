@@ -458,28 +458,20 @@ class ResultsWindow(QMainWindow):
     def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
-        #try:
-        for filename in filenames[0]:
-            print("Open saved device data from: ", filename)
-            dftot = pd.read_csv(filename, na_filter=False)
-            deviceID = dftot.get_value(0,'Device')
-            perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
-            JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)]
-            dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
-            print(np.count_nonzero(dftot['V_r']))
-            '''
-            print(dftot)
-            print("deviceID:",deviceID)
-            print(perfData)
-            print(JV)
-            print(dfAcqParams)
-            '''
-            self.plotData(deviceID, perfData, JV)
-            self.setupResultTable()
-            self.fillTableData(deviceID, perfData)
-            self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array([JV]))
-        #except:
-        #    print("Loading files failed")
+        try:
+            for filename in filenames[0]:
+                print("Open saved device data from: ", filename)
+                dftot = pd.read_csv(filename, na_filter=False)
+                deviceID = dftot.get_value(0,'Device')
+                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
+                dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
+                self.plotData(deviceID, perfData, JV)
+                self.setupResultTable()
+                self.fillTableData(deviceID, perfData)
+                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array([JV]))
+        except:
+            print("Loading files failed")
 
     # Populate result table.
     def fillTableData(self, deviceID, obj):
