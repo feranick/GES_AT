@@ -52,7 +52,7 @@ class Configuration():
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
             'acqSoakVoltage' : 1,
-            'acqSoakTime' : 1,
+            'acqSoakTime' : 2,
             'acqHoldTime' : 1,
             'acqStepVoltage' : 0.02,
             'acqDirection': 0,
@@ -109,8 +109,8 @@ class Configuration():
         self.acqHoldTime = eval(self.acqConfig['acqHoldTime'])
         self.acqStepVoltage = eval(self.acqConfig['acqStepVoltage'])
         self.acqDirection = eval(self.acqConfig['acqDirection'])
-        self.acqReverseVoltage = eval(self.acqConfig['acqReverseVoltage'])
         self.acqForwardVoltage = eval(self.acqConfig['acqForwardVoltage'])
+        self.acqReverseVoltage = eval(self.acqConfig['acqReverseVoltage'])
         self.acqDelayBeforeMeas = eval(self.acqConfig['acqDelayBeforeMeas'])
         self.acqArchitecture = eval(self.acqConfig['acqArchitecture'])
         self.acqTrackNumDevices = eval(self.acqConfig['acqTrackNumDevices'])
