@@ -446,14 +446,14 @@ class acqThread(QThread):
         
         perfData = np.zeros((0,10))
         JV = np.zeros([1,4], dtype=float)
-        data = np.array([0,0, 0, v_mpp, __measure_power(v_mpp), 0,0,0])
+        data = np.array([0,0, 0, v_mpp, __measure_power(v_mpp), 0,0,1])
         data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1]], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
-        
+        time.sleep(2)
         v = v_mpp
-        start_time = time.time()
         self.Msg.emit("Tracking device: "+deviceID+"...")
+        start_time = time.time()
 
         while time.time() - start_time <= track_time:
             mp = __measure_power(v)
