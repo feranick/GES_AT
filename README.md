@@ -22,7 +22,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
 
     sudo port install python3.6 +readline
     sudo port install py36-numpy, py36-scipy, py36-matplotlib, py36-pillow, py36-pandas
-    sudo port install opencv
+    sudo port install opencv +python36
     sudo port install qt5 py3.6-pyqt5
     (optional) sudo port install qt5-qtcreator
         
