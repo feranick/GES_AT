@@ -59,6 +59,7 @@ class Configuration():
             'acqReverseVoltage' : -1,
             'acqForwardVoltage' : 1,
             'acqArchitecture' : 0,
+            'acqDelayBeforeMeas' : 1,
             'acqTrackNumDevices' : 2,
             'acqTrackTime' : 20,
             }
@@ -110,6 +111,7 @@ class Configuration():
         self.acqDirection = eval(self.acqConfig['acqDirection'])
         self.acqReverseVoltage = eval(self.acqConfig['acqReverseVoltage'])
         self.acqForwardVoltage = eval(self.acqConfig['acqForwardVoltage'])
+        self.acqDelayBeforeMeas = eval(self.acqConfig['acqDelayBeforeMeas'])
         self.acqArchitecture = eval(self.acqConfig['acqArchitecture'])
         self.acqTrackNumDevices = eval(self.acqConfig['acqTrackNumDevices'])
         self.acqTrackTime = eval(self.acqConfig['acqTrackTime'])

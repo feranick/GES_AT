@@ -40,12 +40,15 @@ class Acquisition(QObject):
                 'Acq Rev Voltage': [int(self.parent().acquisitionwind.reverseVText.text())],
                 'Acq Forw Voltage': [self.parent().acquisitionwind.forwardVText.text()],
                 'Architecture': [int(self.parent().acquisitionwind.architectureCBox.currentIndex())],
+                'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Track Time': [self.parent().acquisitionwind.forwardVText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
+
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
-                'Direction','Num Track Devices','Track Time','Operator','Comments']]
+                'Direction','Num Track Devices','Delay Before Meas','Track Time',
+                'Operator','Comments']]
                 
     def start(self):
         # Using ALT with Start Acquisition button:
@@ -238,8 +241,7 @@ class acqThread(QThread):
                         
                         # light JV
                         # self.solar_sim.shutter('ON')
-                        # THE FOLLOWING SHOULD USE THE OLD (acqDelBeforeMeas)
-                        time.sleep(float(dfAcqParams.get_value(0,'Acq Hold Time')))
+                        time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         JV_r, JV_f = self.measure_JV(self.dfAcqParams)
                         # Acquire parameters
@@ -265,8 +267,7 @@ class acqThread(QThread):
                     for dev_id, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
-                        # THE FOLLOWING SHOULD USE THE OLD (acqDelBeforeMeas)
-                        time.sleep(float(dfAcqParams.get_value(0,'Acq Hold Time')))
+                        time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         # Acquire dark JV
                         # self.solar_sim.shutter('OFF')
