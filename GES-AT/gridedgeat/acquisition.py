@@ -32,8 +32,8 @@ class Acquisition(QObject):
         self.numRow = self.parent().config.numSubsHolderRow
         self.numCol = self.parent().config.numSubsHolderCol
         pdframe = pd.DataFrame({'Operator': [self.parent().samplewind.operatorText.text()],
-                'Acq Soak Voltage': [self.parent().acquisitionwind.soakTText.text()],
-                'Acq Soak Time': [self.parent().acquisitionwind.soakTime.text()],
+                'Acq Soak Voltage': [self.parent().acquisitionwind.soakVText.text()],
+                'Acq Soak Time': [self.parent().acquisitionwind.soakTText.text()],
                 'Acq Hold Time': [self.parent().acquisitionwind.holdTText.text()],
                 'Acq Step Voltage': [self.parent().acquisitionwind.stepVText.text()],
                 'Direction': [int(self.parent().acquisitionwind.directionCBox.currentIndex())],
@@ -241,7 +241,7 @@ class acqThread(QThread):
                         
                         # light JV
                         # self.solar_sim.shutter('ON')
-                        time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
+                        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         JV_r, JV_f = self.measure_JV(self.dfAcqParams)
                         # Acquire parameters
@@ -267,7 +267,7 @@ class acqThread(QThread):
                     for dev_id, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
-                        time.sleep(float(dfAcqParams.get_value(0,'Delay Before Meas')))
+                        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         # Acquire dark JV
                         # self.solar_sim.shutter('OFF')
