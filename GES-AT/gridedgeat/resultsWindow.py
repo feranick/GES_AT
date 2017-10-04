@@ -216,6 +216,8 @@ class ResultsWindow(QMainWindow):
     
     # Initialize JV and PV plots
     def initJVPlot(self):
+        self.figureJVresp.clf()
+        self.figurePVresp.clf()
         self.axJVresp = self.figureJVresp.add_subplot(111)
         self.plotSettings(self.axJVresp)
         self.axJVresp.set_xlabel('Voltage [V]',fontsize=8)
@@ -514,7 +516,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #track_time
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,2])) #track_time
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
     
