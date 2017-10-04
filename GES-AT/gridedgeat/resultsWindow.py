@@ -57,7 +57,7 @@ class ResultsWindow(QMainWindow):
         self.figureJVresp = plt.figure()
         self.figurePVresp = plt.figure()
         self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
-        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.10)
+        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
 
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
@@ -291,9 +291,8 @@ class ResultsWindow(QMainWindow):
         self.canvasMPP.draw()
     
     # Plot JV response
-    def plotJVresp(self, JV,init):
-        if init is True:
-            self.initJVPlot()
+    def plotJVresp(self, JV):
+        self.initJVPlot()
         self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
         self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
             color='orange')
