@@ -100,6 +100,7 @@ class Acquisition(QObject):
 
     # Process JV Acquisition to result page
     def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
+        print(perfData)
         self.parent().resultswind.clearPlots(False)
         self.parent().resultswind.setupResultTable()
         #perfData = self.analyseJV(JV)
@@ -255,7 +256,6 @@ class acqThread(QThread):
                         perfData_f = self.analyseJV(JV_f)
                         perfData = np.vstack((perfData_f, perfData))
                         
-                        #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
                         self.acqJVComplete.emit(np.hstack((JV_r, JV_f)), perfData, deviceID, i, j)
                         
                         JV = np.vstack((JV_r, JV_f))
@@ -286,6 +286,7 @@ class acqThread(QThread):
                         perfDataDark = self.analyseDarkJV(dark_JV_r)
                         perfDataDark_f = self.analyseDarkJV(dark_JV_f)
                         perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
+
                         self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)), perfDataDark, deviceID, i, j)
                         
                         # tracking
@@ -489,6 +490,9 @@ class acqThread(QThread):
         #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         track_time = float(dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
+
+        dv = 0.0001
+        step_size = 0.1
         if int(dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
@@ -497,28 +501,30 @@ class acqThread(QThread):
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
             time.sleep(hold_time)
-            return -1 * v * self.power().source_meter.read_values()[0]
+            return -1 * v * self.parent().source_meter.read_values()[0]
         
-        perfData = np.zeros((0,8))
+        perfData = np.zeros((0,10))
         JV = np.zeros([1,4])
-        data = np.array([0,0, v_mpp,0,0])
-        data = np.hstack(([self.getDateTimeNow()[1],self.getDateTimeNow()[0],0], data))
+        data = np.array([0,0, v_mpp, __measure_power(v_mpp), 0,0,True])
+        data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],0], data))
         perfData = np.vstack((data, perfData))
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
         
         v = v_mpp
         start_time = time.time()
         self.Msg.emit("Tracking device: "+deviceID+"...")
-        
+
         while time.time() - start_time <= track_time:
             mp = __measure_power(v)
-            #data.append([time.time() - start_time, mp])
-            data = np.array([0, 0, v,0,0,True])
+            data = np.array([ 0, 0, v, mp , 0, 0, True])
             data = np.hstack(([self.getDateTimeNow()[0],
                                    self.getDateTimeNow()[1],time.time() - start_time], data))
-            perfData = np.vstack((data, perfData))
-            self.tempTracking.emit(JV, perfData, deviceID, False, False)
+            print(data)
+            print(data.shape)
 
+            perfData = np.vstack((data, perfData))
+            print(perfData.shape)
+            self.tempTracking.emit(JV, perfData, deviceID, False, False)
             # calculate gradient
             mpd = __measure_power(v + dv)
             grad_mp = (mpd-mp)/dv

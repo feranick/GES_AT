@@ -334,9 +334,8 @@ class ResultsWindow(QMainWindow):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
-        #if self.JV.shape[0] == 0:
-        #    self.JV = np.resize(self.JV, (0,JV.shape[0],2))
-        #self.JV = np.vstack([self.JV,[JV]])
+        print(perfData)
+        print(perfData.shape)
         self.JV = JV
         
         # Populate table.
@@ -344,8 +343,6 @@ class ResultsWindow(QMainWindow):
         QApplication.processEvents()
         # Plot results
         self.plotData(self.deviceID,self.perfData, JV)
-        #self.plotData(self.deviceID,self.perfData, JV[:,0:2])
-        #self.plotData(self.deviceID,self.perfData, JV[:,2:4])
         
         QApplication.processEvents()
         
@@ -482,12 +479,12 @@ class ResultsWindow(QMainWindow):
     # Populate result table.
     def fillTableData(self, deviceID, obj):
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Voc
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #Jsc
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #MPP
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #Voc
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #MPP
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #FF
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #PCE
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #track_time
         self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,1]))
