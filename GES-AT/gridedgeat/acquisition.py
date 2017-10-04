@@ -228,7 +228,7 @@ class acqThread(QThread):
                         print("Skipping acquisition: stage not activated.")
                         break
                     '''
-                    id_mpp_v = []
+                    id_mpp_v = np.zeros((0,2))
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
@@ -261,9 +261,11 @@ class acqThread(QThread):
                         JV = np.vstack((JV_r, JV_f))
                         
                         max_i = np.argmax(JV[:, 0] * JV[:, 1])
-                        id_mpp_v.append([dev_id, JV[max_i, 0]*JV[max_i, 1], JV[max_i, 0]])
+                        
+                        id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
-                    
+
+                    print(id_mpp_v)
                     id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
                     self.maxPowerDev.emit(" Device with max power: "+str(id_mpp_v[0]))
                     
