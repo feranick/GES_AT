@@ -446,6 +446,7 @@ class acqThread(QThread):
         jsc = self.parent().source_meter.read_values()[1]
         return voc, jsc
 
+    '''
     ## measurements: voc, jsc, mpp
     def measure_voc_jsc_mpp(self, dfAcqParams):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
@@ -481,6 +482,7 @@ class acqThread(QThread):
             effic = 0.
         data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
         return data, Vpmax, JV
+    '''
 
     ## New Flow
     # Tracking (take JV once and track Vpmax)
