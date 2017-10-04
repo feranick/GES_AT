@@ -162,6 +162,7 @@ class acqThread(QThread):
     '''
     
     def run(self):
+        '''
         # Activate stage
         self.Msg.emit("Activating stage...")
         self.parent().xystage = XYstage()
@@ -170,6 +171,7 @@ class acqThread(QThread):
             self.stop()
             return
         self.Msg.emit(" Stage activated.")
+        '''
         
         # Activate switchbox
         self.Msg.emit("Activating switchbox...")        
@@ -214,6 +216,7 @@ class acqThread(QThread):
                 if self.parent().parent().samplewind.tableWidget.item(i,j).text() != ""  and \
                         self.parent().parent().samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
+                    '''
                     # Move stage to desired substrate
                     if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
@@ -224,6 +227,7 @@ class acqThread(QThread):
                     else:
                         print("Skipping acquisition: stage not activated.")
                         break
+                    '''
                     self.max_power = []
                     self.devMaxPower = 0
                     for dev_id in range(1,7):
@@ -233,10 +237,11 @@ class acqThread(QThread):
                         deviceID = substrateID+str(dev_id)
                         # prepare parameters, plots, tables for acquisition
                         self.Msg.emit("  Acquiring JV from device: " + deviceID)
-
+                        '''
                         # Switch to correct device and start acquisition of JV
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
                                                                    dev_id)
+                        '''
                         self.switch_device(i, j, dev_id)
                         
                         # light JV
@@ -244,9 +249,10 @@ class acqThread(QThread):
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         JV_r, JV_f = self.measure_JV(self.dfAcqParams)
+
                         # Acquire parameters
-                        perfData = analyseJV(self, JV_r)
-                        perfData_f = analyseJV(self, JV_f)
+                        perfData = self.analyseJV(JV_r)
+                        perfData_f = self.analyseJV(JV_f)
                         perfData = np.vstack((perfData_f, perfData))
                         
                         #Right now the voc, jsc and mpp are extracted from the JV in JVDeviceProcess
@@ -265,15 +271,17 @@ class acqThread(QThread):
                     time.sleep(1)
                     # Switch to device with max power and start tracking
                     for dev_id, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
+                        '''
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
+                        '''
                         self.switch_device(i, j, dev_id)
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         # Acquire dark JV
                         # self.solar_sim.shutter('OFF')
                         dark_JV_r, dark_JV_f = self.measure_JV(self.dfAcqParams)
-                        perfDataDark = analyseDarkJV(self, dark_JV_r)
-                        perfDataDark_f = analyseDarkJV(self, dark_JV_f)
+                        perfDataDark = self.analyseDarkJV(dark_JV_r)
+                        perfDataDark_f = self.analyseDarkJV(dark_JV_f)
                         perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
                         self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)), perfDataDark, deviceID, i, j)
                         
@@ -298,12 +306,14 @@ class acqThread(QThread):
 
         # park the stage close to origin, deactivate.
         try:
+            '''
             self.Msg.emit(" Moving stage to parking position")
             self.parent().xystage.move_abs(5,5)
             self.Msg.emit("Deactivating Stage...")
             self.parent().xystage.end_stage_control()    
             del self.parent().xystage
             self.Msg.emit("Stage deactivated")
+            '''
             self.parent().source_meter.off()
             del self.parent().source_meter
             self.Msg.emit("Sourcemeter deactivated")
@@ -380,37 +390,37 @@ class acqThread(QThread):
         v_r = int(dfAcqParams.get_value(0,'Acq Rev Voltage'))
         v_f = float(dfAcqParams.get_value(0,'Acq Forw Voltage'))
 
-        direction = int(dfAcqParams.get_value(0,'acqDirection'))
-        if int(dfAcqParams.get_value(0,'acqArchitecture')) == 0:
+        direction = int(dfAcqParams.get_value(0,'Direction'))
+        
+        if int(dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
             polarity = -1
         #polarity = 1 if acq_params['acqPolarity'] == 'pn' else -1
 
-
         # enforce
-        if v_r < 0 and v_f > 0:
-            raise ValueError('Voltage Errors')
+        #if v_r < 0 and v_f > 0:
+        #    raise ValueError('Voltage Errors')
 
         # create list of voltage to measure
         if direction == 0:
-            v_list = list(np.arange(v_r, v_f, v_step))
+            v_list = list(np.arange(v_r-1e-9, v_f+1e-9, v_step))
         else:
-            v_list = list(np.arange(v_f, v_r, -v_step))
+            v_list = list(np.arange(v_f+1e-9, v_r-1e-9, -v_step))
 
         self.parent().source_meter.set_output(voltage = polarity*v_soak)
         time.sleep(soak_time)
+        print(len(v_list))
         # measure
-
         def __sweep(v_list, hold_time):
             data = np.zeros((len(v_list), 2))
-            data1[:, 0] = v_list
-            for v in v_list + v_list[::-1]:
+            data[:, 0] = v_list
+            for i in range(len(v_list)):
+                v = v_list[i]
+                print(v)
                 self.parent().source_meter.set_output(voltage = polarity*v)
                 time.sleep(hold_time)
-                data[i, 1] = polarity*self.source_meter.read_values()[0]
-                #data.append([v, polarity*self.source_meter.read_values()[0]])
-                #np.savetxt(filename, data, delimiter=',', header='V,J')
+                data[i, 1] = polarity*self.parent().source_meter.read_values()[1]
             return data
         
         JV_r = __sweep(v_list, hold_time)

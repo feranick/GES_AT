@@ -33,7 +33,7 @@ class AcquisitionWindow(QMainWindow):
     # Setup UI elements
     def initUI(self,MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setGeometry(10, 290, 340, 500)
+        MainWindow.setGeometry(10, 290, 340, 520)
         self.setFixedSize(self.size())
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -59,7 +59,6 @@ class AcquisitionWindow(QMainWindow):
         self.holdTLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.holdTLabel, 2, 0, 1, 1)
         self.holdTText = QLineEdit(self)
-        #self.startVText.textEdited.connect(self.validateStartVoltage)
         self.gridLayout.addWidget(self.holdTText, 2, 1, 1, 1)
 
         self.stepVLabel = QLabel(self.gridLayoutWidget)
@@ -83,6 +82,9 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout.addWidget(self.reverseVLabel, 6, 0, 1, 1)
         self.reverseVText = QLineEdit(self)
         self.gridLayout.addWidget(self.reverseVText, 6, 1, 1, 1)
+
+        #self.reverseVText.textEdited.connect(self.validateReverseVoltage)
+        #self.forwardVText.textEdited.connect(self.validateForwardVoltage)
         
         self.architectureLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
@@ -205,17 +207,25 @@ class AcquisitionWindow(QMainWindow):
         self.trackTText.setText(str(self.parent().config.acqTrackTime))
         #self.timePerDevice()
 
-    '''
-    # Field validator for VStart
-    def validateStartVoltage(self):
-        self.validateStartVoltage = QDoubleValidator(float(self.minVText.text()),
-                                    float(self.maxVText.text()),1,self.startVText)
-        if self.validateStartVoltage.validate(self.startVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be between\n Vmin="+self.minVText.text()+ \
-                  " and Vmax="+self.maxVText.text()+ \
-                  "\n\nPlease change \"Start Voltage\" in the Acquisition panel"
+    # Field validator for Reverse and Forward Voltages
+    def validateReverseVoltage(self):
+        validateVoltage = QDoubleValidator(-50,
+                                    float(self.forwardVText.text()),1,self.reverseVText)
+        if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
+            msg = "Start Voltage needs to be less than\n V_f="+self.forwardVText.text()+\
+                  "\n\nPlease change \"Reverse voltage\" in the Acquisition panel"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
+            
+    def validateForwardVoltage(self):
+        validateVoltage = QDoubleValidator(float(self.forwardVText.text()),
+                                   50,1,self.forwardVText)
+        if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
+            msg = "Start Voltage needs to be more than\n V_r="+self.reverseVText.text()+\
+                  "\n\nPlease change \"Forward voltage\" in the Acquisition panel"
+            reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
+            self.show()  
+    '''
     # Calculate the measurement time per device
     def timePerDevice(self):
         timePerDevice = (int(self.parent().config.acqNumAvScans) * \
@@ -238,5 +248,6 @@ class AcquisitionWindow(QMainWindow):
         self.directionCBox.setEnabled(flag)
         self.delayBeforeMeasText.setEnabled(flag)
         self.trackTText.setEnabled(flag)
+        self.numDevTrackText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
