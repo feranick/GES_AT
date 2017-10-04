@@ -113,42 +113,6 @@ class ResultsWindow(QMainWindow):
         self.VLayout.addWidget(self.canvasMPP)
         self.HLayout.addLayout(self.VLayout)
 
-
-        '''
-        self.centralwidget = QWidget(self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayoutWidget = QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QRect(20, 30, 1100, 710))
-        self.gridLayout = QGridLayout(self.gridLayoutWidget)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        
-        self.canvasTJsc = FigureCanvas(self.figureTJsc)
-        self.gridLayout.addWidget(self.canvasTJsc, 1, 0, 1, 1)
-        self.canvasTVoc = FigureCanvas(self.figureTVoc)
-        self.gridLayout.addWidget(self.canvasTVoc, 1, 1, 1, 1)
-        self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        self.gridLayout.addWidget(self.canvasJVresp, 3, 0, 1, 1)
-        self.canvasMPP = FigureCanvas(self.figureMPP)
-        self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
-        
-        self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
-        self.toolbarTJsc.setMaximumHeight(30)
-        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarTJsc, 0, 0, 1, 1)
-        self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
-        self.toolbarTVoc.setMaximumHeight(30)
-        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarTVoc, 0, 1, 1, 1)
-        self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
-        self.toolbarJVresp.setMaximumHeight(30)
-        self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarJVresp, 2, 0, 1, 1)
-        self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
-        self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
-        self.toolbarMPP.setMaximumHeight(30)
-        self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
-        '''
-
         self.resTableW = 1100
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
@@ -159,8 +123,8 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem(u"Av Jsc [mA/cm\u00B2]"))
-        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem(u"VPP [V]"))
-        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem(u"MPP [mW/cm\u00B2]"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Av VPP [V]"))
+        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av MPP [mW/cm\u00B2]"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av FF"))
         self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Tracking time [s]"))

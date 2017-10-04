@@ -143,24 +143,6 @@ class acqThread(QThread):
         self.terminate()
         self.endAcq()
     
-    '''
-    # JV Acquisition
-    def devAcqJV(self):
-        # Switch to correct device and start acquisition of JV
-        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-        return self.measure_JV(self.dfAcqParams)
-        '''
-    '''
-    # Parameters (Voc, Jsc, MPP, FF, eff)
-    def devAcqParams(self):
-        perfData, _, _ = self.measure_voc_jsc_mpp(self.dfAcqParams)
-        # Add fictious "zero" time for consistency in DataFrame for device.
-        perfData = np.hstack((0., perfData))
-        perfData = np.hstack((self.getDateTimeNow()[1], perfData))
-        perfData = np.hstack((self.getDateTimeNow()[0], perfData))
-        return np.array([perfData])
-    '''
-    
     def run(self):
         '''
         # Activate stage
@@ -265,7 +247,7 @@ class acqThread(QThread):
 
                     id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
                     id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
-                    self.maxPowerDev.emit(" Device with max power: "+str(id_mpp_v[0,0]))
+                    self.maxPowerDev.emit(" Device with max power: "+str(int(id_mpp_v[0,0])))
 
                     # Tracking
                     time.sleep(1)
@@ -293,7 +275,6 @@ class acqThread(QThread):
                         perfData, JV = self.tracking(substrateID+str(dev_id),
                                                  self.dfAcqParams, v_mpp)
 
-                        #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
                         self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         
@@ -430,7 +411,6 @@ class acqThread(QThread):
         JV_f = __sweep(v_list[::-1], hold_time)
         return JV_r, JV_f
 
-    
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
         # voc
@@ -445,45 +425,6 @@ class acqThread(QThread):
         self.parent().source_meter.set_output(voltage = 0.)
         jsc = self.parent().source_meter.read_values()[1]
         return voc, jsc
-
-    '''
-    ## measurements: voc, jsc, mpp
-    def measure_voc_jsc_mpp(self, dfAcqParams):
-        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
-        hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-
-        # measurements: voc, jsc
-        voc, jsc = self.measure_voc_jsc()
-
-        # measurement parameters
-        v_min = 0.
-        v_max = voc
-
-        # measure
-        JV = np.zeros((0,2))
-        for v in np.arange(0, voc, v_step):
-            self.parent().source_meter.set_output(voltage = v)
-            time.sleep(hold_time)
-            j = self.parent().source_meter.read_values()[1]
-            JV = np.vstack([JV,[v,j]])
-        PV = np.zeros(JV.shape)
-        PV[:,0] = JV[:,0]
-        PV[:,1] = JV[:,0]*JV[:,1]
-
-        try:
-            Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
-            Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
-            FF = Vpmax*Jpmax*100/(voc*jsc)
-            effic = Vpmax*Jpmax/self.powerIn
-        except:
-            Vpmax = 0.
-            Jpmax = 0.
-            FF = 0.
-            effic = 0.
-        data = np.array([voc, jsc, Vpmax*Jpmax,FF,effic])
-        return data, Vpmax, JV
-    '''
-
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
