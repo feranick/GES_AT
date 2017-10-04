@@ -42,7 +42,7 @@ class Acquisition(QObject):
                 'Architecture': [int(self.parent().acquisitionwind.architectureCBox.currentIndex())],
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
-                'Track Time': [self.parent().acquisitionwind.forwardVText.text()],
+                'Track Time': [self.parent().acquisitionwind.trackTText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
@@ -490,6 +490,7 @@ class acqThread(QThread):
         #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         track_time = float(dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
+        print(track_time)
 
         dv = 0.0001
         step_size = 0.1
@@ -519,18 +520,16 @@ class acqThread(QThread):
             data = np.array([ 0, 0, v, mp , 0, 0, True])
             data = np.hstack(([self.getDateTimeNow()[0],
                                    self.getDateTimeNow()[1],time.time() - start_time], data))
-            print(data)
-            print(data.shape)
-
             perfData = np.vstack((data, perfData))
-            print(perfData.shape)
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
             # calculate gradient
             mpd = __measure_power(v + dv)
             grad_mp = (mpd-mp)/dv
             v += grad_mp * step_size
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
-        return perfData
+        print(perfData.shape)
+        print(JV.shape)
+        return perfData, JV
 
     # Extract parameters from JV
     def analyseJV(self, JV):

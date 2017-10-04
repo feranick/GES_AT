@@ -330,7 +330,6 @@ class ResultsWindow(QMainWindow):
     
     # Process data from devices
     def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
-        
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
