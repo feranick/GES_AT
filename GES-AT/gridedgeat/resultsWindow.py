@@ -232,7 +232,10 @@ class ResultsWindow(QMainWindow):
     def plotJVresp(self, JV):
         self.initJVPlot()
         self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
+        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5)
         self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
+                color='orange')
+        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5,
                 color='orange')
         self.canvasJVresp.draw()
     
@@ -340,8 +343,9 @@ class ResultsWindow(QMainWindow):
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
         # Plot results
-        self.plotData(self.deviceID,self.perfData, JV[:,0:2])
-        self.plotData(self.deviceID,self.perfData, JV[:,3:4])
+        self.plotData(self.deviceID,self.perfData, JV)
+        #self.plotData(self.deviceID,self.perfData, JV[:,0:2])
+        #self.plotData(self.deviceID,self.perfData, JV[:,2:4])
         
         QApplication.processEvents()
         

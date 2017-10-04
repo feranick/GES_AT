@@ -424,7 +424,6 @@ class acqThread(QThread):
         
         JV_r = __sweep(v_list, hold_time)
         JV_f = __sweep(v_list[::-1], hold_time)
-
         return JV_r, JV_f
 
     
