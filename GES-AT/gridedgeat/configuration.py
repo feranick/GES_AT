@@ -54,14 +54,14 @@ class Configuration():
             'acqSoakVoltage' : 1,
             'acqSoakTime' : 2,
             'acqHoldTime' : 1,
-            'acqStepVoltage' : 0.02,
+            'acqStepVoltage' : 0.5,
             'acqDirection': 0,
             'acqForwardVoltage' : 1,
             'acqReverseVoltage' : -1,
             'acqArchitecture' : 0,
             'acqDelayBeforeMeas' : 1,
             'acqTrackNumDevices' : 2,
-            'acqTrackTime' : 20,
+            'acqTrackTime' : 5,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
