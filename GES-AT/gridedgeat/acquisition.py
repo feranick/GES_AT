@@ -507,7 +507,7 @@ class acqThread(QThread):
             return -1 * v * self.parent().source_meter.read_values()[0]
         
         perfData = np.zeros((0,10))
-        JV = np.zeros([1,4])
+        JV = np.zeros([1,4], dtype=float)
         data = np.array([0,0, v_mpp, __measure_power(v_mpp), 0,0,True])
         data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],0], data))
         perfData = np.vstack((data, perfData))
@@ -529,8 +529,6 @@ class acqThread(QThread):
             grad_mp = (mpd-mp)/dv
             v += grad_mp * step_size
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
-        print(perfData.shape)
-        print(JV.shape)
         return perfData, JV
 
     # Extract parameters from JV
