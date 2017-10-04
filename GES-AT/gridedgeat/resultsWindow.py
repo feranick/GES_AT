@@ -516,7 +516,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,2])) #track_time
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
     
