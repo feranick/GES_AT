@@ -117,7 +117,7 @@ class ResultsWindow(QMainWindow):
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, self.resTableW, self.resTableH))
-        self.resTableWidget.setColumnCount(10)
+        self.resTableWidget.setColumnCount(11)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
@@ -127,9 +127,10 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av MPP [mW/cm\u00B2]"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av FF"))
         self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE"))
-        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Tracking time [s]"))
-        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Date"))
-        self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Time"))
+        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Illumination"))
+        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Tracking time [s]"))
+        self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Date"))
+        self.resTableWidget.setHorizontalHeaderItem(10,QTableWidgetItem("Acq Time"))
         self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
@@ -499,17 +500,23 @@ class ResultsWindow(QMainWindow):
 
     # Populate result table.
     def fillTableData(self, deviceID, obj):
+        if str(obj[0,9]) == "1.0":
+            light = "ON"
+        else:
+            light = "OFF"
+        
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
         #self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem(obj[0,2]+"-"+obj[1,2])) #Voc
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #Voc
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Jsc
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #MPP
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #FF
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #PCE
-        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #track_time
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,0]))
-        self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,1]))
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Voc
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #VPP
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #MPP
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
+        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float))))) #track_time
+        self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
+        self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
     
     #dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
     #                                 'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]

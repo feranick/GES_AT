@@ -267,16 +267,16 @@ class acqThread(QThread):
                         perfDataDark = self.analyseDarkJV(dark_JV_r)
                         perfDataDark_f = self.analyseDarkJV(dark_JV_f)
                         perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
-
-                        self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)), perfDataDark, deviceID, i, j)
+                        self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)),
+                                                perfDataDark, substrateID+str(dev_id), i, j)
                         
                         # tracking
                         # self.solar_sim.shutter('ON')
                         perfData, JV = self.tracking(substrateID+str(dev_id),
-                                                 self.dfAcqParams, v_mpp)
+                                                self.dfAcqParams, v_mpp)
 
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
-                        self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
+                        #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         
                     self.colorCell.emit(i,j,"green")
 
@@ -425,16 +425,13 @@ class acqThread(QThread):
         self.parent().source_meter.set_output(voltage = 0.)
         jsc = self.parent().source_meter.read_values()[1]
         return voc, jsc
+    
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
     def tracking(self, deviceID, dfAcqParams, v_mpp):
-        #hold_time = float(dfAcqParams.get_value(0,'Delay Before Meas'))
-        #numPoints = int(dfAcqParams.get_value(0,'Num Track Points'))
         track_time = float(dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
-        print(track_time)
-
         dv = 0.0001
         step_size = 0.1
         if int(dfAcqParams.get_value(0,'Architecture')) == 0:
@@ -460,7 +457,7 @@ class acqThread(QThread):
 
         while time.time() - start_time <= track_time:
             mp = __measure_power(v)
-            data = np.array([ 0, 0, v, mp , 0, 0, True])
+            data = np.array([ 0, 0, v, mp , 0, 0, 1])
             data = np.hstack(([self.getDateTimeNow()[0],
                                    self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
@@ -480,8 +477,6 @@ class acqThread(QThread):
         PV[:,1] = JV[:,0]*JV[:,1]
         # measurements: voc, jsc
         Voc, Jsc = self.measure_voc_jsc()
-        #Voc = JV[JV.shape[0]-1,0]
-        #Jsc = JV[0,1]
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
         if Voc != 0. and Jsc != 0.:
@@ -490,13 +485,13 @@ class acqThread(QThread):
         else:
             FF = 0.
             effic = 0.
-        data = np.array([0, Voc, Jsc, Vpmax, Vpmax*Jpmax,FF,effic,True])
+        data = np.array([0, Voc, Jsc, Vpmax, Vpmax*Jpmax,FF,effic,1])
         data = np.hstack((self.getDateTimeNow()[1], data))
         data = np.hstack((self.getDateTimeNow()[0], data))
         return np.array([data])
         
     def analyseDarkJV(self, JV):
-        data = np.array([0, 0, 0, 0, 0, 0, 0, False])
+        data = np.array([0, 0, 0, 0, 0, 0, 0, 0])
         data = np.hstack((self.getDateTimeNow()[1], data))
         data = np.hstack((self.getDateTimeNow()[0], data))
         return np.array([data])
