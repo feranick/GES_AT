@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='GridEdgeAT',
     packages=find_packages(),
-    install_requires=['numpy', 'matplotlib', 'pillow', 'PyQt5', 'ThorlabsPM100', 'pyvisa', 'opencv-python', 'pandas', 'requests'],
+    install_requires=['numpy', 'matplotlib', 'pillow', 'PyQt5', 'ThorlabsPM100', 'pyvisa', 'opencv-python', 'pandas', 'requests', 'pymongo'],
     entry_points={'gui_scripts' : ['gridedgeat=GridEdgeAT.__main__:main']},
     package_data={ 'GridEdgeAT': ['gridedgeat/rsrc/*.png','gridedgeat/modules/switchbox/*.scr','gridedgeat/modules/xystage/APT.*'],},
     include_package_data=True,
