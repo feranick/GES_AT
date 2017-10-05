@@ -84,8 +84,8 @@ class AcquisitionWindow(QMainWindow):
         self.directionCBox.addItem("Vr \u2192 Vf")
         self.directionCBox.addItem("Vf \u2192 Vr")
 
-        self.reverseVText.textEdited.connect(self.validateReverseVoltage)
-        self.forwardVText.textEdited.connect(self.validateForwardVoltage)
+        self.reverseVText.editingFinished.connect(self.validateReverseVoltage)
+        self.forwardVText.editingFinished.connect(self.validateForwardVoltage)
         
         self.architectureLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
