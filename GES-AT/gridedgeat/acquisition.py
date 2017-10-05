@@ -144,7 +144,6 @@ class acqThread(QThread):
         self.endAcq()
     
     def run(self):
-        '''
         # Activate stage
         self.Msg.emit("Activating stage...")
         self.parent().xystage = XYstage()
@@ -153,7 +152,6 @@ class acqThread(QThread):
             self.stop()
             return
         self.Msg.emit(" Stage activated.")
-        '''
         
         # Activate switchbox
         self.Msg.emit("Activating switchbox...")        
@@ -198,7 +196,6 @@ class acqThread(QThread):
                 if self.parent().parent().samplewind.tableWidget.item(i,j).text() != ""  and \
                         self.parent().parent().samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
-                    '''
                     # Move stage to desired substrate
                     if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
@@ -209,7 +206,7 @@ class acqThread(QThread):
                     else:
                         print("Skipping acquisition: stage not activated.")
                         break
-                    '''
+                    
                     id_mpp_v = np.zeros((0,3))
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
@@ -219,17 +216,14 @@ class acqThread(QThread):
                         deviceID = substrateID+str(dev_id)
                         # prepare parameters, plots, tables for acquisition
                         self.Msg.emit("  Acquiring JV from device: " + deviceID)
-                        '''
+                        
                         # Switch to correct device and start acquisition of JV
-                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j),
-                                                                   dev_id)
-                        '''
+                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
                         
                         # light JV
                         # self.solar_sim.shutter('ON')
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-                        
                         JV_r, JV_f = self.measure_JV(self.dfAcqParams)
 
                         # Acquire parameters
@@ -239,8 +233,8 @@ class acqThread(QThread):
                         
                         self.acqJVComplete.emit(np.hstack((JV_r, JV_f)), perfData, deviceID, i, j)
                         
+                        # Prepare stack for list of best devices
                         JV = np.vstack((JV_r, JV_f))
-                        
                         max_i = np.argmax(JV[:, 0] * JV[:, 1])
                         id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
@@ -255,9 +249,9 @@ class acqThread(QThread):
                     # Switch to device with max power and start tracking
                     for dev_id_f, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
                         dev_id = int(dev_id_f)
-                        '''
+                        
+                        # Move and activate correct device
                         self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
-                        '''
                         self.switch_device(i, j, dev_id)
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
@@ -291,14 +285,12 @@ class acqThread(QThread):
 
         # park the stage close to origin, deactivate.
         try:
-            '''
             self.Msg.emit(" Moving stage to parking position")
             self.parent().xystage.move_abs(5,5)
             self.Msg.emit("Deactivating Stage...")
             self.parent().xystage.end_stage_control()    
             del self.parent().xystage
             self.Msg.emit("Stage deactivated")
-            '''
             self.parent().source_meter.off()
             del self.parent().source_meter
             self.Msg.emit("Sourcemeter deactivated")
