@@ -233,8 +233,8 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
-        self.figureJVresp.tight_layout()
-        self.figurePVresp.tight_layout()
+        #self.figureJVresp.tight_layout()
+        #self.figurePVresp.tight_layout()
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
@@ -289,7 +289,7 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
                 self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True))
+                self.dfTotJV.get_value(0,row,takeable=True)[0])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
@@ -318,10 +318,10 @@ class ResultsWindow(QMainWindow):
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
-        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0],
+        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
             self.dfTotAcqParams.iloc[[row]],
             self.dfTotPerfData.get_value(0,row,takeable=True),
-            self.dfTotJV.get_value(0,row,takeable=True))
+            self.dfTotJV.get_value(0,row,takeable=True)[0])
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, row):
@@ -472,10 +472,13 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        if dfPerfData['MPP'].count() < 3:
-            csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
-        else:
-            csvFilename = str(dfDeviceID.get_value(0,'Device'))+"_tracking.csv"
+        dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
+        csvFilename = deviceID+"_"
+        if dfPerfData.get_value(0,'Light') == "0.0":
+            csvFilename+="dark_"
+        if dfPerfData.get_value(0,'Time step') != "0.0":
+            csvFilename += "tracking_"
+        csvFilename += dateTimeTag + ".csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
         msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
         print(msg)
@@ -516,9 +519,14 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
         self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
+        
+        if float(obj[0,2]) == 0.:
+            self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("None")) #track_time
+        else:
+            self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
+
     
     #dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
     #                                 'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
