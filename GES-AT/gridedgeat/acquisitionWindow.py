@@ -163,6 +163,12 @@ class AcquisitionWindow(QMainWindow):
         self.defaultButton.clicked.connect(self.defaultParameters)
         
         self.initParameters()
+    
+        self.soakTText.editingFinished.connect(self.timePerDevice)
+        self.forwardVText.editingFinished.connect(self.timePerDevice)
+        self.reverseVText.editingFinished.connect(self.timePerDevice)
+        self.stepVText.editingFinished.connect(self.timePerDevice)
+        self.delayBeforeMeasText.editingFinished.connect(self.timePerDevice)
 
     # Save acquisition parameters in configuration ini
     def saveParameters(self):
@@ -227,17 +233,14 @@ class AcquisitionWindow(QMainWindow):
 
     # Calculate the measurement time per device
     def timePerDevice(self):
-        timePerDevice = len(np.arange(float(self.parent().config.acqReverseVoltage)-1e-9,
-                                      float(self.parent().config.acqForwardVoltage)+1e-9,
-                                      float(self.parent().config.acqStepVoltage)))* \
-                                      float(self.parent().config.acqHoldTime) + \
-                                      float(self.parent().config.acqSoakTime)
-        '''
-        timePerDevice = (int(self.parent().config.acqNumAvScans) * \
-                         (0.1+float(self.parent().config.acqDelBeforeMeas)) + \
-                         float(self.parent().config.acqTrackInterval)) * \
-                         int(self.parent().config.acqTrackNumPoints)
-        '''
+        try:
+            timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
+                                      float(self.forwardVText.text())+1e-9,
+                                      float(self.stepVText.text())))* \
+                                      float(self.holdTText.text()) + \
+                                      float(self.soakTText.text())
+        except:
+            timePerDevice = 0
         self.totTimePerDeviceLabel.setText(\
                 "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
     
