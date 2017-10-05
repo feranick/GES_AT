@@ -83,8 +83,8 @@ class AcquisitionWindow(QMainWindow):
         self.reverseVText = QLineEdit(self)
         self.gridLayout.addWidget(self.reverseVText, 6, 1, 1, 1)
 
-        #self.reverseVText.textEdited.connect(self.validateReverseVoltage)
-        #self.forwardVText.textEdited.connect(self.validateForwardVoltage)
+        self.reverseVText.textEdited.connect(self.validateReverseVoltage)
+        self.forwardVText.textEdited.connect(self.validateForwardVoltage)
         
         self.architectureLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
@@ -209,20 +209,18 @@ class AcquisitionWindow(QMainWindow):
 
     # Field validator for Reverse and Forward Voltages
     def validateReverseVoltage(self):
-        validateVoltage = QDoubleValidator(-50,
-                                    float(self.forwardVText.text()),1,self.reverseVText)
+        validateVoltage = QDoubleValidator(-50, float(self.forwardVText.text()),1,self.reverseVText)
         if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be less than\n V_f="+self.forwardVText.text()+\
-                  "\n\nPlease change \"Reverse voltage\" in the Acquisition panel"
+            msg = "Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
+                  ")\n\nPlease change \"Reverse voltage\" in the Acquisition window"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
             
     def validateForwardVoltage(self):
-        validateVoltage = QDoubleValidator(float(self.forwardVText.text()),
-                                   50,1,self.forwardVText)
+        validateVoltage = QDoubleValidator(float(self.reverseVText.text()),50,1,self.forwardVText)
         if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be more than\n V_r="+self.reverseVText.text()+\
-                  "\n\nPlease change \"Forward voltage\" in the Acquisition panel"
+            msg = "Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
+                  ")\n\nPlease change \"Forward voltage\" in the Acquisition window"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()  
     '''
