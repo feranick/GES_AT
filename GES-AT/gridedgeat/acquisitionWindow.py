@@ -13,6 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 import sys
+import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QSpinBox,
@@ -140,11 +141,11 @@ class AcquisitionWindow(QMainWindow):
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
         self.soakVLabel.setText("Soak voltage [V]")
         self.soakTLabel.setText("Soak time [s]")
-        self.holdTLabel.setText("Hold time at soak [s]")
-        self.stepVLabel.setText("Step voltage [V]")
-        self.directionLabel.setText("Scan direction: ")
+        self.holdTLabel.setText("Hold time [s]")
         self.forwardVLabel.setText("Forward voltage [V]")
         self.reverseVLabel.setText("Reverse voltage [V]")
+        self.stepVLabel.setText("Step voltage [V]")
+        self.directionLabel.setText("Scan direction: ")
         self.architectureLabel.setText("Device architecture: ")
         self.delayBeforeMeasLabel.setText("Delays before measurements [s]")
         self.trackingLabel.setText("<qt><b>Track MPP: </b></qt>")
@@ -181,7 +182,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
         logger.info("Acquisition parameters saved as default")
-        #self.timePerDevice()
+        self.timePerDevice()
     
     # Set default acquisition parameters from configuration ini
     def defaultParameters(self):
@@ -205,7 +206,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.setText(str(self.parent().config.acqDelayBeforeMeas))
         self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
         self.trackTText.setText(str(self.parent().config.acqTrackTime))
-        #self.timePerDevice()
+        self.timePerDevice()
 
     # Field validator for Reverse and Forward Voltages
     def validateReverseVoltage(self):
@@ -223,16 +224,23 @@ class AcquisitionWindow(QMainWindow):
                   ")\n\nPlease change \"Forward voltage\" in the Acquisition window"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()  
-    '''
+
     # Calculate the measurement time per device
     def timePerDevice(self):
+        timePerDevice = len(np.arange(float(self.parent().config.acqReverseVoltage)-1e-9,
+                                      float(self.parent().config.acqForwardVoltage)+1e-9,
+                                      float(self.parent().config.acqStepVoltage)))* \
+                                      float(self.parent().config.acqHoldTime) + \
+                                      float(self.parent().config.acqSoakTime)
+        '''
         timePerDevice = (int(self.parent().config.acqNumAvScans) * \
                          (0.1+float(self.parent().config.acqDelBeforeMeas)) + \
                          float(self.parent().config.acqTrackInterval)) * \
                          int(self.parent().config.acqTrackNumPoints)
+        '''
         self.totTimePerDeviceLabel.setText(\
                 "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
-    '''
+    
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableAcqPanel(self, flag):
