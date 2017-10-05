@@ -51,14 +51,17 @@ class Configuration():
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
-            'acqMinVoltage' : 0,
-            'acqMaxVoltage' : 1,
-            'acqStartVoltage' : 0,
-            'acqStepVoltage' : 0.02,
-            'acqNumAvScans' : 5,
-            'acqDelBeforeMeas' : 1,
-            'acqTrackNumPoints' : 5,
-            'acqTrackInterval' : 2,
+            'acqSoakVoltage' : 1,
+            'acqSoakTime' : 2,
+            'acqHoldTime' : 1,
+            'acqStepVoltage' : 0.5,
+            'acqDirection': 0,
+            'acqForwardVoltage' : 1,
+            'acqReverseVoltage' : -1,
+            'acqArchitecture' : 0,
+            'acqDelayBeforeMeas' : 1,
+            'acqTrackNumDevices' : 2,
+            'acqTrackTime' : 5,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
@@ -101,14 +104,17 @@ class Configuration():
         self.numSubsHolderRow = eval(self.devConfig['numSubsHolderRow'])
         self.numSubsHolderCol = eval(self.devConfig['numSubsHolderCol'])
         
-        self.acqMinVoltage = eval(self.acqConfig['acqMinVoltage'])
-        self.acqMaxVoltage = eval(self.acqConfig['acqMaxVoltage'])
-        self.acqStartVoltage = eval(self.acqConfig['acqStartVoltage'])
+        self.acqSoakVoltage = eval(self.acqConfig['acqSoakVoltage'])
+        self.acqSoakTime = eval(self.acqConfig['acqSoakTime'])
+        self.acqHoldTime = eval(self.acqConfig['acqHoldTime'])
         self.acqStepVoltage = eval(self.acqConfig['acqStepVoltage'])
-        self.acqNumAvScans = eval(self.acqConfig['acqNumAvScans'])
-        self.acqDelBeforeMeas = eval(self.acqConfig['acqDelBeforeMeas'])
-        self.acqTrackNumPoints = eval(self.acqConfig['acqTrackNumPoints'])
-        self.acqTrackInterval = eval(self.acqConfig['acqTrackInterval'])
+        self.acqDirection = eval(self.acqConfig['acqDirection'])
+        self.acqForwardVoltage = eval(self.acqConfig['acqForwardVoltage'])
+        self.acqReverseVoltage = eval(self.acqConfig['acqReverseVoltage'])
+        self.acqDelayBeforeMeas = eval(self.acqConfig['acqDelayBeforeMeas'])
+        self.acqArchitecture = eval(self.acqConfig['acqArchitecture'])
+        self.acqTrackNumDevices = eval(self.acqConfig['acqTrackNumDevices'])
+        self.acqTrackTime = eval(self.acqConfig['acqTrackTime'])
 
         self.alignmentIntThreshold = eval(self.instrConfig['alignmentIntThreshold'])
         self.alignmentContrastDefault = eval(self.instrConfig['alignmentContrastDefault'])

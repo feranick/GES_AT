@@ -19,7 +19,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
                              QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
-                             QTableWidgetItem,QAction,QHeaderView,QMenu)
+                             QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -36,7 +36,7 @@ class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
         self.deviceID = np.zeros((0,1))
-        self.perfData = np.zeros((0,8))
+        self.perfData = np.zeros((0,9))
         self.JV = np.array([])
         self.setupDataFrame()
         self.csvFolder = self.parent().config.csvSavingFolder
@@ -55,60 +55,82 @@ class ResultsWindow(QMainWindow):
         self.figureTVoc = plt.figure()
         self.figureMPP = plt.figure()
         self.figureJVresp = plt.figure()
+        self.figurePVresp = plt.figure()
+        self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
+        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figureJVresp.subplots_adjust(left=0.15, right=0.85, top=0.95, bottom=0.21)
         self.figureMPP.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-
+        
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
+        
         self.gridLayoutWidget = QWidget(self.centralwidget)
         self.gridLayoutWidget.setGeometry(QRect(20, 30, 1100, 710))
-        self.gridLayout = QGridLayout(self.gridLayoutWidget)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.HLayout = QHBoxLayout(self.gridLayoutWidget)
+        self.jvVLayout = QVBoxLayout()
         
-        self.canvasTJsc = FigureCanvas(self.figureTJsc)
-        self.gridLayout.addWidget(self.canvasTJsc, 1, 0, 1, 1)
-        self.canvasTVoc = FigureCanvas(self.figureTVoc)
-        self.gridLayout.addWidget(self.canvasTVoc, 1, 1, 1, 1)
         self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        self.gridLayout.addWidget(self.canvasJVresp, 3, 0, 1, 1)
-        self.canvasMPP = FigureCanvas(self.figureMPP)
-        self.gridLayout.addWidget(self.canvasMPP, 3, 1, 1, 1)
-        
-        self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
-        self.toolbarTJsc.setMaximumHeight(30)
-        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarTJsc, 0, 0, 1, 1)
-        self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
-        self.toolbarTVoc.setMaximumHeight(30)
-        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarTVoc, 0, 1, 1, 1)
         self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
         self.toolbarJVresp.setMaximumHeight(30)
         self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
-        self.gridLayout.addWidget(self.toolbarJVresp, 2, 0, 1, 1)
+
+        self.canvasPVresp = FigureCanvas(self.figurePVresp)
+        self.toolbarPVresp = NavigationToolbar(self.canvasPVresp, self)
+        self.toolbarPVresp.setMaximumHeight(30)
+        self.toolbarPVresp.setStyleSheet("QToolBar { border: 0px }")
+
+        self.jvVLayout.addWidget(self.toolbarJVresp)
+        self.jvVLayout.addWidget(self.canvasJVresp)
+        self.jvVLayout.addWidget(self.toolbarPVresp)
+        self.jvVLayout.addWidget(self.canvasPVresp)
+        self.HLayout.addLayout(self.jvVLayout)
+
+        self.VLayout = QVBoxLayout()
+
+        self.canvasTJsc = FigureCanvas(self.figureTJsc)
+        self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
+        self.toolbarTJsc.setMaximumHeight(30)
+        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarTJsc)
+        self.VLayout.addWidget(self.canvasTJsc)
+        self.canvasTVoc = FigureCanvas(self.figureTVoc)
+        self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
+        self.toolbarTVoc.setMaximumHeight(30)
+        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarTVoc)
+        self.VLayout.addWidget(self.canvasTVoc)
+        self.canvasMPP = FigureCanvas(self.figureMPP)
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
-        self.gridLayout.addWidget(self.toolbarMPP, 2, 1, 1, 1)
         self.toolbarMPP.setMaximumHeight(30)
         self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
+
+        self.VLayout.addWidget(self.toolbarMPP)
+        self.VLayout.addWidget(self.canvasMPP)
+        self.HLayout.addLayout(self.VLayout)
 
         self.resTableW = 1100
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(20, 770, self.resTableW, self.resTableH))
-        self.resTableWidget.setColumnCount(9)
+        self.resTableWidget.setColumnCount(11)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Av Voc [V]"))
         self.resTableWidget.setHorizontalHeaderItem(2,QTableWidgetItem(u"Av Jsc [mA/cm\u00B2]"))
-        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem(u"MPP [mW/cm\u00B2]"))
-        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av PCE"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Tracking time [s]"))
-        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Acq Date"))
-        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Acq Time"))
+        self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Av VPP [V]"))
+        self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av MPP [mW/cm\u00B2]"))
+        self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av FF"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE"))
+        self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Illumination"))
+        self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Tracking time [s]"))
+        self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Date"))
+        self.resTableWidget.setHorizontalHeaderItem(10,QTableWidgetItem("Acq Time"))
         self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
@@ -195,16 +217,24 @@ class ResultsWindow(QMainWindow):
     # Initialize JV and PV plots
     def initJVPlot(self):
         self.figureJVresp.clf()
+        self.figurePVresp.clf()
         self.axJVresp = self.figureJVresp.add_subplot(111)
-        self.axPVresp = self.axJVresp.twinx()
         self.plotSettings(self.axJVresp)
-        self.plotSettings(self.axPVresp)
         self.axJVresp.set_xlabel('Voltage [V]',fontsize=8)
         self.axJVresp.set_ylabel('Current density [mA/cm$^2$]',fontsize=8)
-        self.axPVresp.set_ylabel('Power density [mW/cm$^2$]',fontsize=8)
         self.axJVresp.axvline(x=0, linewidth=0.5)
         self.axJVresp.axhline(y=0, linewidth=0.5)
+        
+        self.axPVresp = self.figurePVresp.add_subplot(111)
+        self.plotSettings(self.axPVresp)
+        self.axPVresp.set_xlabel('Voltage [V]',fontsize=8)
+        self.axPVresp.set_ylabel('Power density [mW/cm$^2$]',fontsize=8)
+        self.axPVresp.axvline(x=0, linewidth=0.5)
+        self.axPVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
+        self.canvasPVresp.draw()
+        self.figureJVresp.tight_layout()
+        self.figurePVresp.tight_layout()
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
@@ -232,8 +262,9 @@ class ResultsWindow(QMainWindow):
         self.initJVPlot()
         self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
         self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
-                color='orange')
+            color='orange')
         self.canvasJVresp.draw()
+        self.canvasPVresp.draw()
     
     # Clear all plots and fields
     def clearPlots(self, includeTable):
@@ -326,13 +357,9 @@ class ResultsWindow(QMainWindow):
     
     # Process data from devices
     def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
-        
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
-        #if self.JV.shape[0] == 0:
-        #    self.JV = np.resize(self.JV, (0,JV.shape[0],2))
-        #self.JV = np.vstack([self.JV,[JV]])
         self.JV = JV
         
         # Populate table.
@@ -340,6 +367,7 @@ class ResultsWindow(QMainWindow):
         QApplication.processEvents()
         # Plot results
         self.plotData(self.deviceID,self.perfData, JV)
+        
         QApplication.processEvents()
         
         if flag is True:
@@ -373,16 +401,20 @@ class ResultsWindow(QMainWindow):
     # Create DataFrames for saving csv and jsons
     def makeDFPerfData(self,perfData):
         dfPerfData = pd.DataFrame({'Time step': perfData[:,2], 'Voc': perfData[:,3],
-                        'Jsc': perfData[:,4], 'MPP': perfData[:,5],
-                        'FF': perfData[:,6], 'effic': perfData[:,7],
-                        'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1]})
+                        'Jsc': perfData[:,4], 'VPP' : perfData[:,5], 'MPP': perfData[:,6],
+                        'FF': perfData[:,7], 'PCE': perfData[:,8], 'Light' : perfData[:,9],
+                        'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1],
+                        
+                                  })
         dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
-                                     'Jsc', 'MPP','FF','effic']]
+                                     'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
         return dfPerfData
     
     def makeDFJV(self,JV):
-        dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
-        dfJV = dfJV[['V', 'J']]
+        dfJV = pd.DataFrame({'V_r':JV[:,0], 'J_r':JV[:,1],
+                            'V_f':JV[:,2], 'J_f':JV[:,3],
+                            })
+        dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
         return dfJV
     
     ### Submit json for device data to Data-Management
@@ -440,7 +472,7 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        if dfPerfData['MPP'].count() < 2:
+        if dfPerfData['MPP'].count() < 3:
             csvFilename = str(dfDeviceID.get_value(0,'Device'))+".csv"
         else:
             csvFilename = str(dfDeviceID.get_value(0,'Device'))+"_tracking.csv"
@@ -458,9 +490,9 @@ class ResultsWindow(QMainWindow):
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
                 deviceID = dftot.get_value(0,'Device')
-                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,9)]
-                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(9,11)].astype(float)
-                dfAcqParams = dftot.loc[0:1, 'Acq Min Voltage':'Comments']
+                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
+                dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
@@ -470,15 +502,26 @@ class ResultsWindow(QMainWindow):
 
     # Populate result table.
     def fillTableData(self, deviceID, obj):
+        if str(obj[0,9]) == "1.0":
+            light = "ON"
+        else:
+            light = "OFF"
+        
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,2].astype(float)))))
-        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(obj[0,0]))
-        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem(obj[0,1]))
+        #self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem(obj[0,2]+"-"+obj[1,2])) #Voc
+        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Voc
+        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
+        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #VPP
+        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #MPP
+        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
+        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
+        self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
+        self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
+        self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
+        self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
+    
+    #dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
+    #                                 'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
