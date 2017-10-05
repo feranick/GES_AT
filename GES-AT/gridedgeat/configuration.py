@@ -18,14 +18,14 @@ class Configuration():
     def __init__(self):
         self.home = str(Path.home())+"/"
         self.configFile = str(self.home+"GridEdgeAT.ini")
-        self.generalFolder = str(self.home+"/GridEdgeAT/")
+        self.generalFolder = str(self.home+"GridEdgeAT/")
         Path(self.generalFolder).mkdir(parents=True, exist_ok=True)
         self.logFile = str(self.generalFolder+"GridEdgeAT.log")
-        self.dataFolder = str(self.generalFolder + '/data')
+        self.dataFolder = str(self.generalFolder + 'data')
         Path(self.dataFolder).mkdir(parents=True, exist_ok=True)
-        self.substrateFolder = str(self.generalFolder + '/substrates')
+        self.substrateFolder = str(self.generalFolder + 'substrates')
         Path(self.substrateFolder).mkdir(parents=True, exist_ok=True)
-        self.imagesFolder = str(self.generalFolder + '/images/')
+        self.imagesFolder = str(self.generalFolder + 'images/')
         Path(self.imagesFolder).mkdir(parents=True, exist_ok=True)
         self.conf = configparser.ConfigParser()
         self.conf.optionxform = str

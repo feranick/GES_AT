@@ -13,6 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 import sys
+import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QWidget, QAction,
     QVBoxLayout,QGridLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,QSpinBox,
@@ -60,31 +61,31 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout.addWidget(self.holdTLabel, 2, 0, 1, 1)
         self.holdTText = QLineEdit(self)
         self.gridLayout.addWidget(self.holdTText, 2, 1, 1, 1)
-
-        self.stepVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.stepVLabel, 3, 0, 1, 1)
-        self.stepVText = QLineEdit(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.stepVText, 3, 1, 1, 1)
-        
-        self.directionLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.directionLabel, 4, 0, 1, 1)
-        self.directionCBox = QComboBox(self)
-        self.gridLayout.addWidget(self.directionCBox, 4, 1, 1, 1)
-        self.directionCBox.addItem("Vr \u2192 Vf")
-        self.directionCBox.addItem("Vf \u2192 Vr")
         
         self.forwardVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.forwardVLabel, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.forwardVLabel, 3, 0, 1, 1)
         self.forwardVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.forwardVText, 5, 1, 1, 1)
+        self.gridLayout.addWidget(self.forwardVText, 3, 1, 1, 1)
         
         self.reverseVLabel = QLabel(self.gridLayoutWidget)
-        self.gridLayout.addWidget(self.reverseVLabel, 6, 0, 1, 1)
+        self.gridLayout.addWidget(self.reverseVLabel, 4, 0, 1, 1)
         self.reverseVText = QLineEdit(self)
-        self.gridLayout.addWidget(self.reverseVText, 6, 1, 1, 1)
+        self.gridLayout.addWidget(self.reverseVText, 4, 1, 1, 1)
 
-        #self.reverseVText.textEdited.connect(self.validateReverseVoltage)
-        #self.forwardVText.textEdited.connect(self.validateForwardVoltage)
+        self.stepVLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.stepVLabel, 5, 0, 1, 1)
+        self.stepVText = QLineEdit(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.stepVText, 5, 1, 1, 1)
+        
+        self.directionLabel = QLabel(self.gridLayoutWidget)
+        self.gridLayout.addWidget(self.directionLabel, 6, 0, 1, 1)
+        self.directionCBox = QComboBox(self)
+        self.gridLayout.addWidget(self.directionCBox, 6, 1, 1, 1)
+        self.directionCBox.addItem("Vr \u2192 Vf")
+        self.directionCBox.addItem("Vf \u2192 Vr")
+
+        self.reverseVText.textEdited.connect(self.validateReverseVoltage)
+        self.forwardVText.textEdited.connect(self.validateForwardVoltage)
         
         self.architectureLabel = QLabel(self.gridLayoutWidget)
         self.gridLayout.addWidget(self.architectureLabel, 7, 0, 1, 1)
@@ -140,11 +141,11 @@ class AcquisitionWindow(QMainWindow):
         self.steadyStatLabel.setText("<qt><b>Steady State</b></qt>")
         self.soakVLabel.setText("Soak voltage [V]")
         self.soakTLabel.setText("Soak time [s]")
-        self.holdTLabel.setText("Hold time at soak [s]")
-        self.stepVLabel.setText("Step voltage [V]")
-        self.directionLabel.setText("Scan direction: ")
+        self.holdTLabel.setText("Hold time [s]")
         self.forwardVLabel.setText("Forward voltage [V]")
         self.reverseVLabel.setText("Reverse voltage [V]")
+        self.stepVLabel.setText("Step voltage [V]")
+        self.directionLabel.setText("Scan direction: ")
         self.architectureLabel.setText("Device architecture: ")
         self.delayBeforeMeasLabel.setText("Delays before measurements [s]")
         self.trackingLabel.setText("<qt><b>Track MPP: </b></qt>")
@@ -162,6 +163,12 @@ class AcquisitionWindow(QMainWindow):
         self.defaultButton.clicked.connect(self.defaultParameters)
         
         self.initParameters()
+    
+        self.soakTText.editingFinished.connect(self.timePerDevice)
+        self.forwardVText.editingFinished.connect(self.timePerDevice)
+        self.reverseVText.editingFinished.connect(self.timePerDevice)
+        self.stepVText.editingFinished.connect(self.timePerDevice)
+        self.delayBeforeMeasText.editingFinished.connect(self.timePerDevice)
 
     # Save acquisition parameters in configuration ini
     def saveParameters(self):
@@ -181,7 +188,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
         logger.info("Acquisition parameters saved as default")
-        #self.timePerDevice()
+        self.timePerDevice()
     
     # Set default acquisition parameters from configuration ini
     def defaultParameters(self):
@@ -205,36 +212,38 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.setText(str(self.parent().config.acqDelayBeforeMeas))
         self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
         self.trackTText.setText(str(self.parent().config.acqTrackTime))
-        #self.timePerDevice()
+        self.timePerDevice()
 
     # Field validator for Reverse and Forward Voltages
     def validateReverseVoltage(self):
-        validateVoltage = QDoubleValidator(-50,
-                                    float(self.forwardVText.text()),1,self.reverseVText)
+        validateVoltage = QDoubleValidator(-50, float(self.forwardVText.text()),1,self.reverseVText)
         if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be less than\n V_f="+self.forwardVText.text()+\
-                  "\n\nPlease change \"Reverse voltage\" in the Acquisition panel"
+            msg = "Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
+                  ")\n\nPlease change \"Reverse voltage\" in the Acquisition window"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()
             
     def validateForwardVoltage(self):
-        validateVoltage = QDoubleValidator(float(self.forwardVText.text()),
-                                   50,1,self.forwardVText)
+        validateVoltage = QDoubleValidator(float(self.reverseVText.text()),50,1,self.forwardVText)
         if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
-            msg = "Start Voltage needs to be more than\n V_r="+self.reverseVText.text()+\
-                  "\n\nPlease change \"Forward voltage\" in the Acquisition panel"
+            msg = "Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
+                  ")\n\nPlease change \"Forward voltage\" in the Acquisition window"
             reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
             self.show()  
-    '''
+
     # Calculate the measurement time per device
     def timePerDevice(self):
-        timePerDevice = (int(self.parent().config.acqNumAvScans) * \
-                         (0.1+float(self.parent().config.acqDelBeforeMeas)) + \
-                         float(self.parent().config.acqTrackInterval)) * \
-                         int(self.parent().config.acqTrackNumPoints)
+        try:
+            timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
+                                      float(self.forwardVText.text())+1e-9,
+                                      float(self.stepVText.text())))* \
+                                      float(self.holdTText.text()) + \
+                                      float(self.soakTText.text())
+        except:
+            timePerDevice = 0
         self.totTimePerDeviceLabel.setText(\
                 "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
-    '''
+    
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableAcqPanel(self, flag):
