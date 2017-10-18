@@ -49,7 +49,7 @@ class Configuration():
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
             'numSubsHolderCol' : 4,
-            'deviceArea' : 1,
+            'deviceArea' : 6.4516,
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {

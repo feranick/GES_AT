@@ -53,9 +53,8 @@ class SampleWindow(QMainWindow):
         self.holderTypeCBox = QComboBox(self.gridLayoutWidget)
         self.holderTypeCBox.setObjectName("holderTypeCBox")
         self.windowGridLayout.addWidget(self.holderTypeCBox, 1, 1, 1, 1)
-        self.sizeSubsLabel = QLabel(self.gridLayoutWidget)
-        self.sizeSubsLabel.setObjectName("sizeSubsLabel")
-        self.windowGridLayout.addWidget(self.sizeSubsLabel, 2, 0, 1, 1)
+        self.deviceAreaLabel = QLabel(self.gridLayoutWidget)
+        self.windowGridLayout.addWidget(self.deviceAreaLabel, 2, 0, 1, 1)
         self.holderTypeLabel = QLabel(self.gridLayoutWidget)
         self.holderTypeLabel.setObjectName("holderTypeLabel")
         self.windowGridLayout.addWidget(self.holderTypeLabel, 1, 0, 1, 1)
@@ -66,12 +65,12 @@ class SampleWindow(QMainWindow):
         self.operatorText.setText("")
         self.operatorText.setObjectName("operatorText")
         self.windowGridLayout.addWidget(self.operatorText, 0, 1, 1, 1)
-        self.sizeSubsCBox = QComboBox(self.gridLayoutWidget)
-        self.sizeSubsCBox.setObjectName("sizeSubsCBox")
-        self.windowGridLayout.addWidget(self.sizeSubsCBox, 2, 1, 1, 1)
-       
-        self.sizeSubsCBox.addItem("1")
-        self.sizeSubsCBox.setEnabled(False)
+        self.deviceAreaText = QLineEdit(self.gridLayoutWidget)
+        self.windowGridLayout.addWidget(self.deviceAreaText, 2, 1, 1, 1)
+        self.deviceAreaText.setText(str(self.parent().config.deviceArea))
+        self.deviceAreaText.editingFinished.connect(self.setDeviceArea)
+        self.deviceAreaText.setEnabled(False)
+
         self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
                                     "x"+str(self.parent().config.numSubsHolderRow))
         self.holderTypeCBox.setEnabled(False)
@@ -145,7 +144,7 @@ class SampleWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.sizeSubsLabel.setText("Substrate size [sq in]  ")
+        self.deviceAreaLabel.setText("Device area [cm\u00B2]")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
         self.commentsLabel.setText("Comments")
@@ -197,6 +196,7 @@ class SampleWindow(QMainWindow):
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
         self.holderTypeCBox.setEnabled(flag)
+        #self.deviceAreaText.setEnabled(flag)
         self.operatorText.setEnabled(flag)
         self.sizeSubsCBox.setEnabled(flag)
         self.commentsText.setEnabled(flag)
@@ -284,3 +284,9 @@ class SampleWindow(QMainWindow):
         except:
             print("Error in saving substrate configuration")
             logger.info("Error in saving substrate configuration")
+
+    # Logic to save deviceArea on config when done editing the corresponding field
+    def setDeviceArea(self):
+        self.parent().config.conf['Devices']['deviceArea'] = str(self.deviceAreaText.text())
+        self.parent().config.saveConfig(self.parent().config.configFile)
+        self.parent().config.readConfig(self.parent().config.configFile)
