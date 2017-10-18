@@ -70,7 +70,8 @@ class Configuration():
             'alignmentContrastDefault' : 1,
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
-            'irradiance1Sun' : 3682,
+            'irradiance1Sun' : 4.5044,
+            'irradianceSensorArea' : 3.24,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR",
             }
@@ -133,6 +134,7 @@ class Configuration():
         self.alignmentIntMax = eval(self.instrConfig['alignmentIntMax'])
         self.powermeterID = self.instrConfig['powermeterID']
         self.irradiance1Sun = eval(self.instrConfig['irradiance1Sun'])
+        self.irradianceSensorArea = eval(self.instrConfig['irradianceSensorArea'])
         self.switchboxID = self.instrConfig['switchboxID']
         self.sourcemeterID = self.instrConfig['sourcemeterID']
 

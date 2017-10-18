@@ -464,7 +464,7 @@ class acqThread(QThread):
 
     # Extract parameters from JV
     def analyseJV(self, JV):
-        powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])*0.00064516
+        powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
@@ -473,7 +473,7 @@ class acqThread(QThread):
         Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
         Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
         if Voc != 0. and Jsc != 0.:
-            FF = Vpmax*Jpmax*100/(Voc*Jsc)
+            FF = Vpmax*Jpmax/(Voc*Jsc)
             effic = Vpmax*Jpmax/self.powerIn
         else:
             FF = 0.
