@@ -43,7 +43,7 @@ class Acquisition(QObject):
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Track Time': [self.parent().acquisitionwind.trackTText.text()],
-                'Device Area': [self.parent().deviceAreaText.text()],
+                'Device Area': [self.parent().samplewind.deviceAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
@@ -405,7 +405,7 @@ class acqThread(QThread):
 
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
-        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
+        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
         # voc
         self.parent().source_meter.set_mode('CURR')
         self.parent().source_meter.on()

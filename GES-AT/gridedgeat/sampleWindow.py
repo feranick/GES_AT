@@ -198,7 +198,6 @@ class SampleWindow(QMainWindow):
         self.holderTypeCBox.setEnabled(flag)
         #self.deviceAreaText.setEnabled(flag)
         self.operatorText.setEnabled(flag)
-        self.sizeSubsCBox.setEnabled(flag)
         self.commentsText.setEnabled(flag)
         self.loadButton.setEnabled(flag)
         self.saveButton.setEnabled(flag)
