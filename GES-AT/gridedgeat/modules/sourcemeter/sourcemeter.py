@@ -121,7 +121,7 @@ class SourceMeter(object):
 
     def read_values(self, area):
         data = list(map(float, self.ask(':READ?').split(',')))
-        data = [i/float(area) for i in data]
+        data[1] = data[1]/float(area)
         return data
 
     def on(self):
@@ -136,7 +136,8 @@ class SourceMeter(object):
 if __name__ == '__main__':
     import time
     # test
-    sc = SourceMeter()
+    visa_string = 'GPIB0::24::INSTR'
+    sc = SourceMeter(visa_string)
     sc.set_limit(voltage=10, current=0.12)
     sc.on()
 
