@@ -4,7 +4,7 @@ sourcemeter.py
 Class for providing a hardware support for 
 for the sourcemeter
 
-Version: 20170923
+Version: 20171018
 
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
