@@ -119,8 +119,10 @@ class SourceMeter(object):
                 print('Warning: Compliance Reached!!')
                 self.write('SOUR:CURR {:f}'.format(self.current_limit))
 
-    def read_values(self):
-        return list(map(float, self.ask(':READ?').split(',')))
+    def read_values(self, area):
+        data = list(map(float, self.ask(':READ?').split(',')))
+        data = [i/float(area) for i in data]
+        return data
 
     def on(self):
         "Turn Keithley on"
@@ -143,7 +145,7 @@ if __name__ == '__main__':
     #while sc.busy:
     #    time.sleep(0.5)
     #print(sc.read_buffer()[-1])
-    print("Voltage:",sc.read_values()[0]," Current:",sc.read_values()[1])
+    print("Voltage:",sc.read_values(1)[0]," Current:",sc.read_values(1)[1])
     pass
 
 
