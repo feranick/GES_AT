@@ -260,9 +260,10 @@ class ResultsWindow(QMainWindow):
     # Plot JV response
     def plotJVresp(self, JV):
         self.initJVPlot()
-        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5)
-        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5,
-            color='orange')
+        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5, label='Forward')
+        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5, label='Backward')
+        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5, label='Forward')
+        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Backward')
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
     
@@ -333,8 +334,8 @@ class ResultsWindow(QMainWindow):
         for l in self.axPVresp.get_lines():
             l.remove()
         self.canvasJVresp.draw()
+        self.canvasPVresp.draw()
         self.resTableWidget.removeRow(row)
-        print(self.resTableWidget.rowCount())
 
     # Add row and initialize it within the table
     def setupResultTable(self):
