@@ -43,12 +43,13 @@ class Acquisition(QObject):
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Track Time': [self.parent().acquisitionwind.trackTText.text()],
+                'Device Area': [self.parent().deviceAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
-                'Operator','Comments']]
+                'Device Area', 'Operator','Comments']]
                 
     def start(self):
         # Using ALT with Start Acquisition button:
@@ -132,8 +133,7 @@ class acqThread(QThread):
         self.dfAcqParams = dfAcqParams
         self.numRow = numRow
         self.numCol = numCol
-        self.powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun']) * \
-            float(self.parent().parent().samplewind.sizeSubsCBox.currentText()) * 0.00064516
+        self.powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])
         self.tracking_points = 2
 
     def __del__(self):
@@ -366,9 +366,9 @@ class acqThread(QThread):
         v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
         v_r = int(dfAcqParams.get_value(0,'Acq Rev Voltage'))
         v_f = float(dfAcqParams.get_value(0,'Acq Forw Voltage'))
-
         direction = int(dfAcqParams.get_value(0,'Direction'))
-        
+        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
+
         if int(dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
@@ -396,7 +396,7 @@ class acqThread(QThread):
                 v = v_list[i]
                 self.parent().source_meter.set_output(voltage = polarity*v)
                 time.sleep(hold_time)
-                data[i, 1] = polarity*self.parent().source_meter.read_values()[1]
+                data[i, 1] = polarity*self.parent().source_meter.read_values(deviceArea)[1]
             return data
         
         JV_r = __sweep(v_list, hold_time)
@@ -405,17 +405,18 @@ class acqThread(QThread):
 
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
+        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
         # voc
         self.parent().source_meter.set_mode('CURR')
         self.parent().source_meter.on()
         self.parent().source_meter.set_output(current = 0.)
-        voc = self.parent().source_meter.read_values()[0]
+        voc = self.parent().source_meter.read_values(deviceArea)[0]
 
         # jsc
         self.parent().source_meter.set_mode('VOLT')
         self.parent().source_meter.on()
         self.parent().source_meter.set_output(voltage = 0.)
-        jsc = self.parent().source_meter.read_values()[1]
+        jsc = self.parent().source_meter.read_values(deviceArea)[1]
         return voc, jsc
     
     ## New Flow
@@ -424,6 +425,7 @@ class acqThread(QThread):
     def tracking(self, deviceID, dfAcqParams, v_mpp):
         track_time = float(dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
+        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
         dv = 0.0001
         step_size = 0.1
         if int(dfAcqParams.get_value(0,'Architecture')) == 0:
@@ -434,7 +436,7 @@ class acqThread(QThread):
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
             time.sleep(hold_time)
-            return -1 * v * self.parent().source_meter.read_values()[0]
+            return -1 * v * self.parent().source_meter.read_values(deviceArea)[0]
         
         perfData = np.zeros((0,10))
         JV = np.zeros([1,4], dtype=float)
@@ -464,14 +466,15 @@ class acqThread(QThread):
 
     # Extract parameters from JV
     def analyseJV(self, JV):
-        powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])
         PV = np.zeros(JV.shape)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
         # measurements: voc, jsc
         Voc, Jsc = self.measure_voc_jsc()
-        Vpmax = PV[np.where(PV == np.amax(PV)),0][0][0]
-        Jpmax = JV[np.where(PV == np.amax(PV)),1][0][0]
+        
+        Vpmax = PV[np.where(PV == np.amax(PV[:,1]))[0][0],0]
+        Jpmax = JV[np.where(PV == np.amax(PV[:,1]))[0][0],1]
+        
         if Voc != 0. and Jsc != 0.:
             FF = Vpmax*Jpmax/(Voc*Jsc)
             effic = Vpmax*Jpmax/self.powerIn
