@@ -1,5 +1,5 @@
 # GridEdge Autotesting
-Control software for acquisition of near-certification performance data for solar photovoltaic devices. It works in combination with the GridEdge Autotesting system developed at MIT. 
+Fully automated control software for acquisition of near-certification performance data for solar photovoltaic devices. It works in combination with the GridEdge Autotesting system developed at MIT. 
 
 ## Installation:
 The software can be run "offline", meaning without being connected to the hardware, for example to load data, etc. The dependencies needed for running the "online" version (i.e. to be able to control the acquisition hardware) are listed as such below. These are not needed for running the "offline" version. If you are planning to use this software for "offline" use on your computer, do not install the "online" dependencies. The software automatically recognizes the presence (or lack thereof) of the required dependencies for online/offline use.
@@ -15,7 +15,7 @@ GridEdge Autotesting is written in [Python 3.x](<http://www.python.org/>) and re
 - [OpenCV >3.2](<http://opencv.org/>)
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 - [PyVisa](<https://pyvisa.readthedocs.io/en/stable/index.html>)
-- [ThorlabsPM100-PyPi](<https://pypi.python.org/pypi/ThorlabsPM100>) - [ThorlbsPM100-official](<https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed 
+- [ThorlabsPM100-PyPi](<https://pypi.python.org/pypi/ThorlabsPM100>) - [ThorlbsPM100-official](<https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed
 
 ### Installing dependencies on Mac OSX
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
@@ -35,7 +35,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
     (optional) sudo apt-get install opencv-data
     
 ### Installing dependencies on Microsoft Windows
-The simplest way to get all the required python packages at once is to install the Python 3 distribution [Anaconda](<https://www.continuum.io/downloads/>) or from [python.org](<http://www.python.org/>). You will use pip for installing most of the dependencies.
+The simplest way to get all the required python packages at once is to install the Python 3 distribution from [python.org](<http://www.python.org/>) (recommended) or from [Anaconda](<https://www.continuum.io/downloads/>). You will use ```pip``` for installing most of the dependencies.
 
     pip install numpy scipy matplotlib pillow pandas
     pip install QtPy5 opencv-python
@@ -45,6 +45,24 @@ Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 ### "Online" dependencies for hardware control:
     pip install pyvisa ThorlabsPM100 requests
     
+### Creating a wheel package for redistribution
+In order to satisfy all dependency and at the same time have a seamless experience, assuming ```python 3```, ```pip``` and ```wheel``` are installed, one can create a wheel package that can be used for seamless installation. To create the wheel package:
+
+    cd /UI
+    python3 setup.py bdist_wheel
+    
+A wheel package is created inside a new folder ```dist```. On UNIX-systems the package can be installed simply as user by:
+
+    pip install --user <package.whl>
+    
+or system-wide:
+
+    sudo pip install <package.whl>
+    
+On MS Windows:
+
+    pip install <package.whl>
+
 ## Run
 After downloading the zip-file extract its content to a directory. If you have already installed the dependencies, you are ready to go.
 
