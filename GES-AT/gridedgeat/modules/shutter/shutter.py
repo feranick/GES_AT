@@ -11,8 +11,17 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
+Manual for cable wiring:
+http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf
+    Black  -> GND
+    Brown  -> CTS
+    Red    -> VCC (5V continuous)
+    Orange -> TXD
+    Yellow -> RXD
+    Green  -> RTS
+    
+Shutter should be connected to RTS and GND
 '''
-
 import ftd2xx
 
 class Shutter():
