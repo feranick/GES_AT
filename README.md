@@ -16,6 +16,7 @@ GridEdge Autotesting is written in [Python 3.x](<http://www.python.org/>) and re
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 - [PyVisa](<https://pyvisa.readthedocs.io/en/stable/index.html>)
 - [ThorlabsPM100-PyPi](<https://pypi.python.org/pypi/ThorlabsPM100>) - [ThorlbsPM100-official](<https://www.thorlabs.com/software_pages/viewsoftwarepage.cfm?code=PM100x>) The drivers for Windows as well as the Python library are needed
+- [FTDI drivers](<http://www.ftdichip.com/Drivers/D2XX.htm>) - This is to control the shutter via TTL using a [TTL-232R-5V](<http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf>) USB cable.
 
 ### Installing dependencies on Mac OSX
 All required packages can be obtained through [MacPorts](<http://www.macports.org/>). After installing macports, individual libraries are installed with the following:
@@ -43,7 +44,7 @@ The simplest way to get all the required python packages at once is to install t
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 
 ### "Online" dependencies for hardware control:
-    pip install pyvisa ThorlabsPM100 requests
+    pip install pyvisa ThorlabsPM100 requests ftd2xx
     
 ### Creating a wheel package for redistribution
 In order to satisfy all dependency and at the same time have a seamless experience, assuming ```python 3```, ```pip``` and ```wheel``` are installed, one can create a wheel package that can be used for seamless installation. To create the wheel package:
