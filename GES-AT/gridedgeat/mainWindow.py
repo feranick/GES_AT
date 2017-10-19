@@ -36,6 +36,7 @@ from .powermeterWindow import *
 from .stageWindow import *
 from .sourcemeterWindow import *
 from .switchboxWindow import *
+from .shutterWindow import *
 from .dataManagement import *
 from .dataManagementWindow import *
 
@@ -67,6 +68,7 @@ class MainWindow(QMainWindow):
         self.stagewind = StageWindow(parent=self)
         self.sourcemeterwind = SourcemeterWindow(parent=self)
         self.switchboxwind = SwitchboxWindow(parent=self)
+        self.shutterwind = ShutterWindow(parent=self)
         self.dbconnectionwind = DataManagementWindow(parent=self)
         
         # Create menu and toolbar
@@ -105,6 +107,10 @@ class MainWindow(QMainWindow):
         self.powermeterMenu.setShortcut("Ctrl+p")
         self.powermeterMenu.setStatusTip('Powermeter controls')
         self.powermeterMenu.triggered.connect(self.powermeterwind.show)
+        self.shutterMenu = QAction("&Shutter", self)
+        self.shutterMenu.setShortcut("Ctrl+e")
+        self.shutterMenu.setStatusTip('Shutter controls')
+        self.shutterMenu.triggered.connect(self.shutterwind.show)
         self.sourcemeterMenu = QAction("&Sourcemeter", self)
         self.sourcemeterMenu.setShortcut("Ctrl+k")
         self.sourcemeterMenu.setStatusTip('Sourcemeter controls')
@@ -125,6 +131,8 @@ class MainWindow(QMainWindow):
         instrumentsMenu.addSeparator()
         instrumentsMenu.addAction(self.sourcemeterMenu)
         instrumentsMenu.addAction(self.switchboxMenu)
+        instrumentsMenu.addSeparator()
+        instrumentsMenu.addAction(self.shutterMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
         self.dataManagementMenu.setShortcut("Ctrl+m")
