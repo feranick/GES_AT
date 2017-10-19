@@ -22,6 +22,7 @@ from .acquisitionWindow import *
 from .modules.xystage.xystage import *
 from .modules.sourcemeter.sourcemeter import *
 from .modules.switchbox.switchbox import *
+from .modules.shutter.shutter import *
 
 class Acquisition(QObject):
     def __init__(self, parent=None):
@@ -175,6 +176,17 @@ class acqThread(QThread):
             self.stop()
             return
         self.Msg.emit(" Sourcemeter activated.")
+        
+        # Activate shutter
+        self.Msg.emit("Activating shutter...")
+        try:
+            self.parent().shutter = Shutter()
+        except:
+            self.Msg.emit(" Shutter not activated: no acquisition possible")
+            self.stop()
+            return
+        self.parent().shutter.closed()
+        self.Msg.emit(" Shutter activated and closed.")
 
         ### Setup interface and get parameters before acquisition
         self.parent().parent().resultswind.clearPlots(True)
@@ -222,7 +234,8 @@ class acqThread(QThread):
                         self.switch_device(i, j, dev_id)
                         
                         # light JV
-                        # self.solar_sim.shutter('ON')
+                        # open the shutter
+                        self.parent().shutter.open()
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         JV_r, JV_f = self.measure_JV()
 
@@ -256,7 +269,9 @@ class acqThread(QThread):
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
                         # Acquire dark JV
-                        # self.solar_sim.shutter('OFF')
+                        # close the shutter
+                        self.parent().shutter.closed()
+                        
                         dark_JV_r, dark_JV_f = self.measure_JV()
                         perfDataDark = self.analyseDarkJV(dark_JV_r)
                         perfDataDark_f = self.analyseDarkJV(dark_JV_f)
@@ -295,6 +310,8 @@ class acqThread(QThread):
             self.Msg.emit("Sourcemeter deactivated")
             del self.parent().switch_box
             self.Msg.emit("Switchbox deactivated")
+            del self.parent().shutter
+            self.Msg.emit("Shutter deactivated")
         except:
             pass     
         
