@@ -27,7 +27,7 @@ class StageWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, StageWindow):
-        self.setGeometry(380, 30, 310, 300)
+        self.setGeometry(380, 30, 310, 350)
         StageWindow.setWindowTitle("XY stage control settings")
         self.setFixedSize(self.size())
         
@@ -100,7 +100,13 @@ class StageWindow(QMainWindow):
         self.activateStageButton.setGeometry(QRect(10, 250, 290, 40))
         self.activateStageButton.setText("Activate Stage")
         self.activateStageButton.clicked.connect(self.activateStage)
-    
+        
+        self.moveToReferenceCellButton = QPushButton(StageWindow)
+        self.moveToReferenceCellButton.setGeometry(QRect(10, 300, 290, 40))
+        self.moveToReferenceCellButton.setText("Move to Reference Cell")
+        self.moveToReferenceCellButton.clicked.connect(self.moveToReferenceCell)
+        self.moveToReferenceCellButton.setEnabled(False)
+        
         self.enableButtons(False)
     
     # Logic for activating the stage
@@ -150,12 +156,22 @@ class StageWindow(QMainWindow):
         self.subYPosStageText.setEnabled(flag)
         self.devPosStageText.setEnabled(flag)
         self.subToButton.setEnabled(flag)
+        #self.moveToReferenceCellButton.setEnabled(flag)
 
     # Move stage to home position
     def moveHome(self):
         self.stageLabel.setText("Moving stage to home position...")
         QApplication.processEvents()
         self.xystage.move_home()
+        self.showCurrentPos()
+    
+     # Move stage to home position
+    def moveToReferenceCell(self):
+        self.stageLabel.setText("Moving stage to Reference Cell...")
+        self.parent().config.xPosRefCell
+        QApplication.processEvents()
+        self.xystage.move_abs(float(self.parent().config.xPosRefCell),
+                              float(self.parent().config.yPosRefCell))
         self.showCurrentPos()
         
     # Set current position as origin

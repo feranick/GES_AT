@@ -75,6 +75,8 @@ class Configuration():
             'irradianceSensorArea' : 3.24,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR",
+            'xPosRefCell' : 1,
+            'yPosRefCell' : 1,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -139,6 +141,8 @@ class Configuration():
         self.irradianceSensorArea = eval(self.instrConfig['irradianceSensorArea'])
         self.switchboxID = self.instrConfig['switchboxID']
         self.sourcemeterID = self.instrConfig['sourcemeterID']
+        self.xPosRefCell = eval(self.instrConfig['xPosRefCell'])
+        self.yPosRefCell = eval(self.instrConfig['yPosRefCell'])
 
         self.appVersion = self.sysConfig['appVersion']
         self.loggingLevel = self.sysConfig['loggingLevel']
