@@ -165,7 +165,7 @@ class StageWindow(QMainWindow):
         self.xystage.move_home()
         self.showCurrentPos()
     
-     # Move stage to home position
+    # Move stage to position of reference solar cell
     def moveToReferenceCell(self):
         self.stageLabel.setText("Moving stage to Reference Cell...")
         self.parent().config.xPosRefCell
