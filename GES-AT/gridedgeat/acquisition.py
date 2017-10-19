@@ -69,9 +69,9 @@ class Acquisition(QObject):
         self.acq_thread = acqThread(self.numRow, self.numCol, self.dfAcqParams, self)
         self.acq_thread.Msg.connect(self.printMsg)
         self.acq_thread.acqJVComplete.connect(lambda JV,perfData,deviceID,i,j: \
-                self.JVDeviceProcess(JV,perfData,deviceID,self.dfAcqParams,i,j))
+                self.JVDeviceProcess(JV,perfData,deviceID,i,j))
         self.acq_thread.tempTracking.connect(lambda JV,perfData,deviceID,setupTable,saveData: \
-                self.plotTempTracking(JV,perfData,deviceID,self.dfAcqParams,setupTable,saveData))
+                self.plotTempTracking(JV,perfData,deviceID,setupTable,saveData))
         self.acq_thread.colorCell.connect(lambda i,j,color: self.parent().samplewind.colorCellAcq(i,j,color))
         self.acq_thread.maxPowerDev.connect(self.printMsg)
         self.acq_thread.start()
@@ -100,20 +100,20 @@ class Acquisition(QObject):
         self.parent().statusBarLabel.setText(msg)
 
     # Process JV Acquisition to result page
-    def JVDeviceProcess(self, JV, perfData, deviceID, dfAcqParams, i,j):
+    def JVDeviceProcess(self, JV, perfData, deviceID, i,j):
         self.parent().resultswind.clearPlots(False)
         self.parent().resultswind.setupResultTable()
         #perfData = self.analyseJV(JV)
-        self.parent().resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, True)
+        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, True)
         QApplication.processEvents()
         time.sleep(1)
             
     # Plot temporary data from tracking
-    def plotTempTracking(self, JV, perfData, deviceID, dfAcqParams, setupTable, saveData):
+    def plotTempTracking(self, JV, perfData, deviceID, setupTable, saveData):
         self.parent().resultswind.clearPlots(False)
         if setupTable is True:
             self.parent().resultswind.setupResultTable()
-        self.parent().resultswind.processDeviceData(deviceID, dfAcqParams, perfData, JV, saveData)
+        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, saveData)
         QApplication.processEvents()
         time.sleep(1)
 
@@ -224,7 +224,7 @@ class acqThread(QThread):
                         # light JV
                         # self.solar_sim.shutter('ON')
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
-                        JV_r, JV_f = self.measure_JV(self.dfAcqParams)
+                        JV_r, JV_f = self.measure_JV()
 
                         # Acquire parameters
                         perfData = self.analyseJV(JV_r)
@@ -257,7 +257,7 @@ class acqThread(QThread):
                         
                         # Acquire dark JV
                         # self.solar_sim.shutter('OFF')
-                        dark_JV_r, dark_JV_f = self.measure_JV(self.dfAcqParams)
+                        dark_JV_r, dark_JV_f = self.measure_JV()
                         perfDataDark = self.analyseDarkJV(dark_JV_r)
                         perfDataDark_f = self.analyseDarkJV(dark_JV_f)
                         perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
@@ -266,8 +266,7 @@ class acqThread(QThread):
                         
                         # tracking
                         # self.solar_sim.shutter('ON')
-                        perfData, JV = self.tracking(substrateID+str(dev_id),
-                                                self.dfAcqParams, v_mpp)
+                        perfData, JV = self.tracking(substrateID+str(dev_id), v_mpp)
 
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
                         #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
@@ -352,24 +351,22 @@ class acqThread(QThread):
         self.parent().switch_box.connect(*self.get_pcb_id(i,j, dev_id))
     
     ## measurements: JV - new flow
-    # dfAcqParams : self.dfAcqParams
-    
-    def measure_JV(self, dfAcqParams):
+    def measure_JV(self):
         #self.source_meter.set_mode('VOLT')
         self.parent().source_meter.set_mode('VOLT')
         self.parent().source_meter.on()
 
         # measurement parameters
-        v_soak = float(dfAcqParams.get_value(0,'Acq Soak Voltage'))
-        soak_time = float(dfAcqParams.get_value(0,'Acq Soak Time'))
-        hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
-        v_step = float(dfAcqParams.get_value(0,'Acq Step Voltage'))
-        v_r = int(dfAcqParams.get_value(0,'Acq Rev Voltage'))
-        v_f = float(dfAcqParams.get_value(0,'Acq Forw Voltage'))
-        direction = int(dfAcqParams.get_value(0,'Direction'))
-        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
+        v_soak = float(self.dfAcqParams.get_value(0,'Acq Soak Voltage'))
+        soak_time = float(self.dfAcqParams.get_value(0,'Acq Soak Time'))
+        hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))
+        v_step = float(self.dfAcqParams.get_value(0,'Acq Step Voltage'))
+        v_r = int(self.dfAcqParams.get_value(0,'Acq Rev Voltage'))
+        v_f = float(self.dfAcqParams.get_value(0,'Acq Forw Voltage'))
+        direction = int(self.dfAcqParams.get_value(0,'Direction'))
+        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
 
-        if int(dfAcqParams.get_value(0,'Architecture')) == 0:
+        if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
             polarity = -1
@@ -422,13 +419,13 @@ class acqThread(QThread):
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     # dfAcqParams : self.dfAcqParams
-    def tracking(self, deviceID, dfAcqParams, v_mpp):
-        track_time = float(dfAcqParams.get_value(0,'Track Time'))
-        hold_time = float(dfAcqParams.get_value(0,'Acq Hold Time'))
-        deviceArea = float(dfAcqParams.get_value(0,'Device Area'))
+    def tracking(self, deviceID, v_mpp):
+        track_time = float(self.dfAcqParams.get_value(0,'Track Time'))
+        hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))
+        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
         dv = 0.0001
         step_size = 0.1
-        if int(dfAcqParams.get_value(0,'Architecture')) == 0:
+        if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
         else:
             polarity = -1
