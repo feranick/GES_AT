@@ -96,8 +96,6 @@ class Acquisition(QObject):
     def printMsg(self, msg):
         print(msg)
         logger.info(msg)
-        #self.parent().statusBar().showMessage(msg, 5000)
-        #self.parent().statusBar.showMessage(msg, 5000)
         self.parent().statusBarLabel.setText(msg)
 
     # Process JV Acquisition to result page
@@ -130,7 +128,6 @@ class acqThread(QThread):
 
     def __init__(self, numRow, numCol, dfAcqParams, parent=None):
         super(acqThread, self).__init__(parent)
-        #QThread.__init__(self)
         self.dfAcqParams = dfAcqParams
         self.numRow = numRow
         self.numCol = numCol
@@ -435,7 +432,6 @@ class acqThread(QThread):
     
     ## New Flow
     # Tracking (take JV once and track Vpmax)
-    # dfAcqParams : self.dfAcqParams
     def tracking(self, deviceID, v_mpp):
         track_time = float(self.dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))

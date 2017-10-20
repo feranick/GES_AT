@@ -131,8 +131,7 @@ class SourceMeter(object):
         "Turn Keithley off"
         self.write('OUTP OFF')
 
-
-### This is only for testing - to be removed ###
+### This is only for testing###
 if __name__ == '__main__':
     import time
     # test
@@ -140,12 +139,6 @@ if __name__ == '__main__':
     sc = SourceMeter(visa_string)
     sc.set_limit(voltage=10, current=0.12)
     sc.on()
-
-    #sc.sweep(np.arange(0, 5, 0.1))
-
-    #while sc.busy:
-    #    time.sleep(0.5)
-    #print(sc.read_buffer()[-1])
     print("Voltage:",sc.read_values(1)[0]," Current:",sc.read_values(1)[1])
     pass
 

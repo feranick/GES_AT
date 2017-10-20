@@ -44,6 +44,7 @@ class ShutterWindow(QMainWindow):
         self.closeShutterButton.clicked.connect(lambda: self.activateShutter(False))
         self.closeShutterButton.setEnabled(False)
 
+    # Activate shutter
     def activateShutter(self, open):
         try:
             shutter = Shutter()
@@ -62,6 +63,7 @@ class ShutterWindow(QMainWindow):
             msg = "Cannot connect to shutter"
         self.printMsg(msg)
 
+    # Print status
     def printMsg(self, msg):
         self.shutterLabel.setText(msg)
         print(msg)

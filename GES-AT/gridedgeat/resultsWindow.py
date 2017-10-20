@@ -351,7 +351,8 @@ class ResultsWindow(QMainWindow):
         for f in range(9):
             self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
 
-    # Create internal dataframe with all the data. This is needed for plotting data after acquisition
+    # Create internal dataframe with all the data.
+    # This is needed for plotting data after acquisition
     def setupDataFrame(self):
         self.dfTotDeviceID = pd.DataFrame()
         self.dfTotPerfData = pd.DataFrame()
@@ -394,7 +395,8 @@ class ResultsWindow(QMainWindow):
         self.plotTJsc(perfData)
         self.show()
     
-    # Create internal dataframe with all the data. This is needed for plotting data after acquisition
+    # Create internal dataframe with all the data.
+    # This is needed for plotting data after acquisition
     def makeInternalDataFrames(self, index,deviceID,perfData,dfAcqParams,JV):
         self.dfTotDeviceID[index] = [deviceID]
         self.dfTotPerfData[index] = [perfData]
@@ -529,10 +531,6 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("None")) #track_time
         else:
             self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
-
-    
-    #dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
-    #                                 'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
