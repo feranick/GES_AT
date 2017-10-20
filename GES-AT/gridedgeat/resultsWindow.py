@@ -260,10 +260,12 @@ class ResultsWindow(QMainWindow):
     # Plot JV response
     def plotJVresp(self, JV):
         self.initJVPlot()
-        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5, label='Forward')
-        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5, label='Backward')
-        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5, label='Forward')
-        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Backward')
+        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5, label='Forw')
+        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5, label='Back')
+        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5, label='Forw')
+        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Back')
+        self.axJVresp.legend(loc='lower left')
+        self.axPVresp.legend(loc='upper left')
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
     
