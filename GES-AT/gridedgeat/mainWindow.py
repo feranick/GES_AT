@@ -84,9 +84,19 @@ class MainWindow(QMainWindow):
         self.loadConfigMenu.triggered.connect(self.loadConfig)
         
         self.saveConfigMenu = QAction("&Save Configuration", self)
-        self.saveConfigMenu.setShortcut("Ctrl+s")
+        self.saveConfigMenu.setShortcut("Ctrl+w")
         self.saveConfigMenu.setStatusTip('Quit')
         self.saveConfigMenu.triggered.connect(self.saveConfig)
+        
+        self.loadMenu = QAction("&Load Data", self)
+        self.loadMenu.setShortcut("Ctrl+o")
+        self.loadMenu.setStatusTip('Load csv data from saved file')
+        self.loadMenu.triggered.connect(self.resultswind.read_csv)
+        
+        self.directoryMenu = QAction("&Set directory for saved files", self)
+        self.directoryMenu.setShortcut("Ctrl+s")
+        self.directoryMenu.setStatusTip('Set directory for saved files')
+        self.directoryMenu.triggered.connect(self.resultswind.set_dir_saved)
         
         self.quitMenu = QAction("&Quit", self)
         self.quitMenu.setShortcut("Ctrl+q")
@@ -98,6 +108,9 @@ class MainWindow(QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.loadConfigMenu)
         fileMenu.addAction(self.saveConfigMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.loadMenu)
+        fileMenu.addAction(self.directoryMenu)
         
         self.stageMenu = QAction("&Stage", self)
         self.stageMenu.setShortcut("Ctrl+x")
@@ -151,7 +164,7 @@ class MainWindow(QMainWindow):
         self.devBugsMenu = QAction("&Development and Bugs", self)
         self.devBugsMenu.setShortcut("Ctrl+b")
         self.devBugsMenu.setStatusTip('Development and bugs')
-        self.devBugsMenu.triggered.connect(self.weblinks.help)
+        self.devBugsMenu.triggered.connect(self.weblinks.dev)
         self.dataManagMenu = QAction("&Data management", self)
         self.dataManagMenu.setShortcut("Ctrl+m")
         self.dataManagMenu.setStatusTip('Data Management')
@@ -343,8 +356,8 @@ class AboutWidget(QWidget):
         self.labelTitle = QLabel("<qt><b><big><a href = http://gridedgesolar.com>Autotesting %s</a></b></big></qt>" % __version__, self)
         self.labelBy = QLabel("by: %s" % __author__, self)
         self.labelContact = QLabel("<qt>Contact: <a href = mailto:mitgridedge@gmail.com> mitgridedge@gmail.com</a></qt>", self)
-        self.labelDetails = QLabel("GridEdgeSolar is a Solar PV project at MIT", self)
-        self.labelLicense = QLabel("This software is licensed under the GNU GPL v.2.0 or later", self)
+        self.labelDetails = QLabel("<a href = http://gridedgesolar.com>GridEdgeSolar </a>is a Solar PV project at <a href = http://mit.edu> MIT</a>", self)
+        self.labelLicense = QLabel("This software is licensed under the <a href = https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html> GNU GPL v.2.0 or later</a>", self)
         
         for label in [self.logo, self.labelTitle, self.labelBy,
                 self.labelContact, self.labelDetails, self.labelLicense]:

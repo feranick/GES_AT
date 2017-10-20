@@ -145,7 +145,7 @@ class ResultsWindow(QMainWindow):
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load csv data from saved file')
         self.loadMenu.triggered.connect(self.read_csv)
-        self.directoryMenu = QAction("&Set saving directory", self)
+        self.directoryMenu = QAction("&Set directory for saved files", self)
         self.directoryMenu.setShortcut("Ctrl+s")
         self.directoryMenu.setStatusTip('Set directory for saved files')
         self.directoryMenu.triggered.connect(self.set_dir_saved)
