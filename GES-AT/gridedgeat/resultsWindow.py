@@ -393,6 +393,8 @@ class ResultsWindow(QMainWindow):
         self.plotTVoc(perfData)
         self.plotMPP(perfData)
         self.plotTJsc(perfData)
+        self.figureJVresp.tight_layout()
+        self.figurePVresp.tight_layout()
         self.show()
     
     # Create internal dataframe with all the data.
