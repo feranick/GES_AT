@@ -43,6 +43,7 @@ class ResultsWindow(QMainWindow):
         self.initUI()
         self.initPlots(self.perfData)
         self.initJVPlot()
+        self.show()
     
     # Define UI elements
     def initUI(self):
