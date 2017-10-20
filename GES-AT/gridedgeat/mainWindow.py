@@ -126,13 +126,13 @@ class MainWindow(QMainWindow):
 
         instrumentsMenu = self.menuBar.addMenu('&Instruments')
         instrumentsMenu.addAction(self.stageMenu)
+        instrumentsMenu.addAction(self.shutterMenu)
+        instrumentsMenu.addSeparator()
         instrumentsMenu.addAction(self.powermeterMenu)
         instrumentsMenu.addAction(self.cameraMenu)
         instrumentsMenu.addSeparator()
         instrumentsMenu.addAction(self.sourcemeterMenu)
         instrumentsMenu.addAction(self.switchboxMenu)
-        instrumentsMenu.addSeparator()
-        instrumentsMenu.addAction(self.shutterMenu)
         
         self.dataManagementMenu = QAction("&Data Management", self)
         self.dataManagementMenu.setShortcut("Ctrl+m")
