@@ -56,8 +56,8 @@ class ResultsWindow(QMainWindow):
         self.figureMPP = plt.figure()
         self.figureJVresp = plt.figure()
         self.figurePVresp = plt.figure()
-        self.figureJVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureJVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
+        self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
 
         self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
         self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
@@ -233,8 +233,6 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
-        #self.figureJVresp.tight_layout()
-        #self.figurePVresp.tight_layout()
 
     # Plot Transient Jsc
     def plotTJsc(self, data):
@@ -266,6 +264,8 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Back')
         self.axJVresp.legend(loc='lower left')
         self.axPVresp.legend(loc='upper left')
+        self.figureJVresp.tight_layout()
+        self.figurePVresp.tight_layout()
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
     
@@ -393,8 +393,6 @@ class ResultsWindow(QMainWindow):
         self.plotTVoc(perfData)
         self.plotMPP(perfData)
         self.plotTJsc(perfData)
-        self.figureJVresp.tight_layout()
-        self.figurePVresp.tight_layout()
         self.show()
     
     # Create internal dataframe with all the data.
