@@ -44,7 +44,7 @@ class Acquisition(QObject):
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Track Time': [self.parent().acquisitionwind.trackTText.text()],
-                'Device Area': [self.parent().samplewind.deviceAreaText.text()],
+                'Device Area': [self.parent().samplewind.substrateAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
@@ -378,7 +378,7 @@ class acqThread(QThread):
         v_r = int(self.dfAcqParams.get_value(0,'Acq Rev Voltage'))
         v_f = float(self.dfAcqParams.get_value(0,'Acq Forw Voltage'))
         direction = int(self.dfAcqParams.get_value(0,'Direction'))
-        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
 
         if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
             polarity = 1
@@ -407,7 +407,7 @@ class acqThread(QThread):
                 v = v_list[i]
                 self.parent().source_meter.set_output(voltage = polarity*v)
                 time.sleep(hold_time)
-                data[i, 1] = polarity*self.parent().source_meter.read_values(deviceArea)[1]
+                data[i, 1] = polarity*self.parent().source_meter.read_values(substrateArea)[1]
             return data
         
         JV_r = __sweep(v_list, hold_time)
@@ -416,18 +416,18 @@ class acqThread(QThread):
 
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
-        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
         # voc
         self.parent().source_meter.set_mode('CURR')
         self.parent().source_meter.on()
         self.parent().source_meter.set_output(current = 0.)
-        voc = self.parent().source_meter.read_values(deviceArea)[0]
+        voc = self.parent().source_meter.read_values(substrateArea)[0]
 
         # jsc
         self.parent().source_meter.set_mode('VOLT')
         self.parent().source_meter.on()
         self.parent().source_meter.set_output(voltage = 0.)
-        jsc = self.parent().source_meter.read_values(deviceArea)[1]
+        jsc = self.parent().source_meter.read_values(substrateArea)[1]
         return voc, jsc
     
     ## New Flow
@@ -435,7 +435,7 @@ class acqThread(QThread):
     def tracking(self, deviceID, v_mpp):
         track_time = float(self.dfAcqParams.get_value(0,'Track Time'))
         hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))
-        deviceArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
         dv = 0.0001
         step_size = 0.1
         if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
@@ -446,7 +446,7 @@ class acqThread(QThread):
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
             time.sleep(hold_time)
-            return -1 * v * self.parent().source_meter.read_values(deviceArea)[0]
+            return -1 * v * self.parent().source_meter.read_values(substrateArea)[0]
         
         perfData = np.zeros((0,10))
         JV = np.zeros([1,4], dtype=float)
