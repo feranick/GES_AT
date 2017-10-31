@@ -70,12 +70,13 @@ class CameraWindow(QMainWindow):
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
         
-        self.cam = CameraFeed()
+        #self.cam = CameraFeed()
         tb.actionTriggered[QAction].connect(self.toolbtnpressed)
     
     # Define behavior of push buttons
     def toolbtnpressed(self,a):
         if a.text() == "Update Camera Feed":
+            self.cam = CameraFeed()
             self.cameraFeed()
         if a.text() == "Set Default Alignment":
             self.setDefault()
@@ -147,6 +148,10 @@ class CameraWindow(QMainWindow):
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
         msgBox.exec_()
+    
+    # Close camera feed upon closing window.
+    def closeEvent(self, event):
+        del self.cam
 
 '''
    GraphicsView
