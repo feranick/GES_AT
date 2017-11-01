@@ -4,7 +4,7 @@ xystage.py
 Class for providing a hardware support for 
 for the XYstage
 
-Version: 20170817
+Version: 20171101
 
 Copyright (C) 2017 Joel Jean <jjean@mit.edu>
 
@@ -44,8 +44,10 @@ class XYstage():
         self.pitchDevY = 4 + 2 #Pad height + spacing between adjacent pads
         # Calculate center positions of all substrates and devices
         print(" Homing stage")
-        self.move_home()
-        self.move_abs(50,50)
+        self.move_home(False)
+        # self.move_abs(0,0)
+        # self.set_ref_cell_origin(True, [0,0])
+        self.move_abs(25,120)
         self.set_origin(True, [0,0])
         self.get_suborigins_4x4()
         self.get_devorigins_3x2()
@@ -69,8 +71,9 @@ class XYstage():
         self.stage2.mbRel(yDelta)
 
     # Move stages to native (hardware) home positions
-    def move_home(self):
-        # move_abs(5,5) # Start by moving close to home position to avoid timeout
+    def move_home(self, moveCloseFirst):
+        if moveCloseFirst: # If home position is known already, get closer first
+           self.move_abs(5,5) # Start by moving close to home position to avoid timeout
         self.stage1.go_home()
         self.stage2.go_home()
 

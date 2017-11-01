@@ -152,13 +152,13 @@ class StageWindow(QMainWindow):
         self.subPosStageText.setEnabled(flag)
         self.devPosStageText.setEnabled(flag)
         self.subToButton.setEnabled(flag)
-        #self.moveToReferenceCellButton.setEnabled(flag)
+        self.moveToReferenceCellButton.setEnabled(flag)
 
     # Move stage to home position
     def moveHome(self):
         self.stageLabel.setText("Moving stage to home position...")
         QApplication.processEvents()
-        self.xystage.move_home()
+        self.xystage.move_home(True)
         self.showCurrentPos()
     
     # Move stage to position of reference solar cell
@@ -203,25 +203,23 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
-        validSubNum = QIntValidator(1,4,self.subPosStageText)
+        validSubNum = QIntValidator(1,16,self.subPosStageText)
         validDevNum = QIntValidator(1,6,self.devPosStageText)
         if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 \
-           and validXCoord.validate(self.subPosStageText.text(),1)[0] == 2:
-            xCoord = int(self.subXPosStageText.text())-1
-            yCoord = int(self.subYPosStageText.text())-1
+           and validSubNum.validate(self.subPosStageText.text(),1)[0] == 2:
             self.xystage.move_to_substrate_4x4(int(self.subPosStageText.text()))
             time.sleep(0.5)
             devNum = int(self.devPosStageText.text())
-            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,
-                                yCoord),int(self.devPosStageText.text()))
+            self.xystage.move_to_device_3x2(int(self.subPosStageText.text()),
+                                            int(self.devPosStageText.text()))
             self.showCurrentPos()
             print("Substrate number:",self.subPosStageText.text())
         else:
-            msg = "Substrates/device indeces out of range"
+            msg = "Substrates/device indices out of range"
             self.stageLabel.setText(msg)
             print(msg)
-
-    # Move stage to location set in the LineEdits.
+    '''
+    # Move stage to substrate location set by coordinates in the LineEdits.
     def moveToSubstrateCoord(self):
         validXCoord = QIntValidator(1,4,self.subXPosStageText)
         validYCoord = QIntValidator(1,4,self.subYPosStageText)
@@ -246,7 +244,7 @@ class StageWindow(QMainWindow):
             msg = "Substrates/device indeces out of range"
             self.stageLabel.setText(msg)
             print(msg)
-
+    '''
     # Close connection upon closing window.
     def closeEvent(self, event):
         if self.activeStage == True:

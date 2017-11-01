@@ -75,8 +75,8 @@ class Configuration():
             'irradianceSensorArea' : 3.24,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR",
-            'xPosRefCell' : 1,
-            'yPosRefCell' : 1,
+            'xPosRefCell' : 240,
+            'yPosRefCell' : 170,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
