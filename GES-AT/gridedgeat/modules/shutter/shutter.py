@@ -42,12 +42,11 @@ class Shutter():
 
     # Open the shutter (0V)
     def open(self):
-        self.shutter.setRts()
+        self.shutter.clrRts()
 
     # Close the shutter (5V)
     def closed(self):
-        self.shutter.clrRts()
-
+        self.shutter.setRts()
 
 
 ### This is only for testing - to be removed ###
