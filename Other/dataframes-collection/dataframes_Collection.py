@@ -15,10 +15,13 @@ np3 = np.vstack((np_new2,np2))
 
 dftot = pd.DataFrame({'dev1':[np2], 'dev2':[np2]})
 
-dftot.get_value(0,'dev1')
+#dftot.get_value(0,'dev1')
 
 print(dftot)
+print("DEPRECATED: get_value")
 print(dftot.get_value(0,'dev1'))
+print("at")
+print(dftot.at[0,'dev1'])
 
 #dftot['dev3'] = [np2]
 #print(dftot)
