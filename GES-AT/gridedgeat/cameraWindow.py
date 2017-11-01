@@ -16,9 +16,10 @@ import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene, QLineEdit,QMessageBox)
-from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter)
-from PyQt5.QtCore import (pyqtSlot,QRectF)
+    QGraphicsScene, QLineEdit,QMessageBox,QWidget)
+from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
+                         QBrush,QColor)
+from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect)
 
 from .modules.camera.camera import *
 from . import logger
@@ -45,6 +46,9 @@ class CameraWindow(QMainWindow):
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
         self.setCentralWidget(self.imageLabel)
+        
+        self.begin = QPoint()
+        self.end = QPoint()
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
@@ -84,26 +88,27 @@ class CameraWindow(QMainWindow):
     # Get and preprocess image
     def cameraFeed(self):
         self.setDefaultBtn.setEnabled(True)
-        try:
-            self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
-            self.cam.grab_image()
-            self.image, self.image_data = self.cam.get_image()
-            self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
-            self.statusBar().showMessage('Camera-feed' + \
-                str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
-            self.alignPerc, self.iMax = self.cam.check_alignment( \
+        #try:
+        self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
+        self.img = self.cam.grab_image()
+        self.image, self.image_data = self.cam.get_image()
+        self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
+        
+        self.statusBar().showMessage('Camera-feed' + \
+            str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
+        self.alignPerc, self.iMax = self.cam.check_alignment( \
                 self.image_data,
                 self.parent().config.alignmentIntThreshold)
 
-            self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
-                    and float(self.iMax) > self.parent().config.alignmentIntMax:
-                self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-                self.outAlignmentMessageBox()
-            else:
-                self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
-        except:
-            self.statusBar().showMessage(' USB camera not connected', 5000)
+        self.checkAlignText.setText(str(self.alignPerc))
+        if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
+                and float(self.iMax) > self.parent().config.alignmentIntMax:
+            self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+            self.outAlignmentMessageBox()
+        else:
+            self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
+        #except:
+        #    self.statusBar().showMessage(' USB camera not connected', 5000)
 
     # Set default values for alignment parameters
     def setDefault(self):
@@ -151,7 +156,33 @@ class CameraWindow(QMainWindow):
     
     # Close camera feed upon closing window.
     def closeEvent(self, event):
-        del self.cam
+        try:
+            del self.cam
+        except:
+            pass
+
+    def paintEvent(self, event):
+        qp = QPainter(self)
+        br = QBrush(QColor(100, 10, 10, 40))
+        qp.setBrush(br)
+        qp.drawRect(QRect(self.begin, self.end))
+
+    def mousePressEvent(self, event):
+        self.begin = event.pos()
+        self.end = event.pos()
+        self.initial = event.pos()
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        self.end = event.pos()
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        self.begin = event.pos()
+        self.end = event.pos()
+        self.final = event.pos()
+        self.update()
+        print(self.initial.x(), self.initial.y(), self.final.x(), self.final.y())
 
 '''
    GraphicsView
@@ -196,3 +227,4 @@ class GraphicsScene(QGraphicsScene):
         self.imlabel.setText(labeltext)
         self.image = image
         self.update()
+

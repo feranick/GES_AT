@@ -40,6 +40,8 @@ class CameraFeed():
         
     # Process image
     def get_image(self):
+        #cv2.rectangle(self.img,(384,0),(510,128),(0,255,0),3)
+        #self.img = self.img[400:500, 200:400]
         self.img_raw = Image.fromarray(self.img).convert('L')
         self.imgg = ImageQt(self.img_raw)
         self.img_data = np.asarray(self.img)
