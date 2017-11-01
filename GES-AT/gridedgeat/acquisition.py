@@ -242,7 +242,7 @@ class acqThread(QThread):
                         # light JV
                         # open the shutter
                         self.parent().shutter.open()
-                        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
+                        time.sleep(float(self.dfAcqParams.at[0,'Delay Before Meas']))
                         JV_r, JV_f = self.measure_JV()
 
                         # Acquire parameters
@@ -264,7 +264,7 @@ class acqThread(QThread):
 
                     # Tracking
                     time.sleep(1)
-                    tracking_points = int(self.dfAcqParams.get_value(0,'Num Track Devices'))
+                    tracking_points = int(self.dfAcqParams.at[0,'Num Track Devices'])
                     # Switch to device with max power and start tracking
                     for dev_id_f, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
                         dev_id = int(dev_id_f)
@@ -272,7 +272,7 @@ class acqThread(QThread):
                         # Move and activate correct device
                         self.parent().xystage.move_to_device_3x2(self.parent().getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
-                        time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
+                        time.sleep(float(self.dfAcqParams.at[0,'Delay Before Meas']))
                         
                         # Acquire dark JV
                         # close the shutter
@@ -371,16 +371,16 @@ class acqThread(QThread):
         self.parent().source_meter.on()
 
         # measurement parameters
-        v_soak = float(self.dfAcqParams.get_value(0,'Acq Soak Voltage'))
-        soak_time = float(self.dfAcqParams.get_value(0,'Acq Soak Time'))
-        hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))
-        v_step = float(self.dfAcqParams.get_value(0,'Acq Step Voltage'))
-        v_r = int(self.dfAcqParams.get_value(0,'Acq Rev Voltage'))
-        v_f = float(self.dfAcqParams.get_value(0,'Acq Forw Voltage'))
-        direction = int(self.dfAcqParams.get_value(0,'Direction'))
-        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        v_soak = float(self.dfAcqParams.at[0,'Acq Soak Voltage'])
+        soak_time = float(self.dfAcqParams.at[0,'Acq Soak Time'])
+        hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
+        v_step = float(self.dfAcqParams.at[0,'Acq Step Voltage'])
+        v_r = int(self.dfAcqParams.at[0,'Acq Rev Voltage'])
+        v_f = float(self.dfAcqParams.at[0,'Acq Forw Voltage'])
+        direction = int(self.dfAcqParams.at[0,'Direction'])
+        substrateArea = float(self.dfAcqParams.at[0,'Device Area'])
 
-        if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
+        if int(self.dfAcqParams.at[0,'Architecture']) == 0:
             polarity = 1
         else:
             polarity = -1
@@ -416,7 +416,7 @@ class acqThread(QThread):
 
     ## measurements: voc, jsc
     def measure_voc_jsc(self):
-        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        substrateArea = float(self.dfAcqParams.at[0,'Device Area'])
         # voc
         self.parent().source_meter.set_mode('CURR')
         self.parent().source_meter.on()
@@ -433,12 +433,12 @@ class acqThread(QThread):
     ## New Flow
     # Tracking (take JV once and track Vpmax)
     def tracking(self, deviceID, v_mpp):
-        track_time = float(self.dfAcqParams.get_value(0,'Track Time'))
-        hold_time = float(self.dfAcqParams.get_value(0,'Acq Hold Time'))
-        substrateArea = float(self.dfAcqParams.get_value(0,'Device Area'))
+        track_time = float(self.dfAcqParams.at[0,'Track Time'])
+        hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
+        substrateArea = float(self.dfAcqParams.at[0,'Device Area'])
         dv = 0.0001
         step_size = 0.1
-        if int(self.dfAcqParams.get_value(0,'Architecture')) == 0:
+        if int(self.dfAcqParams.at[0,'Architecture']) == 0:
             polarity = 1
         else:
             polarity = -1

@@ -291,15 +291,15 @@ class ResultsWindow(QMainWindow):
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
 
-        self.plotData(self.dfTotDeviceID.get_value(0,row,takeable=True),
-                self.dfTotPerfData.get_value(0,row,takeable=True),
-                self.dfTotJV.get_value(0,row,takeable=True))
+        self.plotData(self.dfTotDeviceID.iat[0,row],
+                self.dfTotPerfData.iat[0,row],
+                self.dfTotJV.iat[0,row])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
     def onCellDoubleClick(self):
         row = self.resTableWidget.selectedItems()[0].row()
-        self.redirectToDM(self.dfTotDeviceID.get_value(0,row,takeable=True)[0][0][:-1])
+        self.redirectToDM(self.dfTotDeviceID.iat[0,row][0][0][:-1])
 
     # Enable right click on substrates for saving locally
     def contextMenuEvent(self, event):
@@ -322,10 +322,10 @@ class ResultsWindow(QMainWindow):
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
-        self.save_csv(self.dfTotDeviceID.get_value(0,row,takeable=True),
+        self.save_csv(self.dfTotDeviceID.iat[0,row],
             self.dfTotAcqParams.iloc[[row]],
-            self.dfTotPerfData.get_value(0,row,takeable=True),
-            self.dfTotJV.get_value(0,row,takeable=True)[0])
+            self.dfTotPerfData.iat[0,row],
+            self.dfTotJV.iat[0,row][0])
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, row):
@@ -480,9 +480,9 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
         dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
         csvFilename = deviceID+"_"
-        if dfPerfData.get_value(0,'Light') == "0.0":
+        if dfPerfData.at[0,'Light'] == "0.0":
             csvFilename+="dark_"
-        if dfPerfData.get_value(0,'Time step') != "0.0":
+        if dfPerfData.at[0,'Time step'] != "0.0":
             csvFilename += "tracking_"
         csvFilename += dateTimeTag + ".csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
@@ -498,7 +498,7 @@ class ResultsWindow(QMainWindow):
             for filename in filenames[0]:
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
-                deviceID = dftot.get_value(0,'Device')
+                deviceID = dftot.at[0,'Device']
                 perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
                 JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
                 dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
