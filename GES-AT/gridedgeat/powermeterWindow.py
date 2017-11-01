@@ -53,6 +53,8 @@ class PowermeterWindow(QMainWindow):
         self.powerMeterLabel.setGeometry(QRect(20, 100, 300, 20))
         self.powerMeterLabel2 = QLabel(PowermeterWindow)
         self.powerMeterLabel2.setGeometry(QRect(20, 130, 300, 20))
+        self.powerMeterLabel.setText("<qt><b>Before activating, place powermeter in complete dark </b></qt>")
+
         
         self.powermeterStartButton = QPushButton(PowermeterWindow)
         self.powermeterStartButton.setGeometry(QRect(10, 160, 150, 30))
@@ -161,10 +163,11 @@ class powermeterThread(QThread):
     def run(self):
         try:
             self.pm = PowerMeter(self.powermeterID)
-            self.avPower = 1000*self.pm.get_power().read
+            self.pm.zero()
+            self.avPower = 1000*self.pm.get_power()
             numAver = 1
             while True:
-                curPower = 1000*self.pm.get_power().read
+                curPower = 1000*self.pm.get_power()
                 self.avPower = (self.avPower*numAver + curPower)/(numAver+1)
                 self.pmResponse.emit(curPower,self.avPower,True)
                 numAver += 1

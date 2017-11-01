@@ -78,14 +78,11 @@ class StageWindow(QMainWindow):
         self.goToButton.setText("Go XY")
         self.goToButton.clicked.connect(self.moveStageAbs)
 
-        self.subXPosStageText = QLineEdit(StageWindow)
-        self.subXPosStageText.setGeometry(QRect(190, 180, 30, 25))
-        self.subXPosStageText.setText("2")
-        self.subYPosStageText = QLineEdit(StageWindow)
-        self.subYPosStageText.setGeometry(QRect(225, 180, 30, 25))
-        self.subYPosStageText.setText("1")
+        self.subPosStageText = QLineEdit(StageWindow)
+        self.subPosStageText.setGeometry(QRect(190, 180, 50, 25))
+        self.subPosStageText.setText("2")
         self.devPosStageText = QLineEdit(StageWindow)
-        self.devPosStageText.setGeometry(QRect(270, 180, 30, 25))
+        self.devPosStageText.setGeometry(QRect(250, 180, 50, 25))
         self.devPosStageText.setText("1")
 
         self.subToButton = QPushButton(StageWindow)
@@ -152,8 +149,7 @@ class StageWindow(QMainWindow):
         self.xPosStageText.setEnabled(flag)
         self.yPosStageText.setEnabled(flag)
         self.goToButton.setEnabled(flag)
-        self.subXPosStageText.setEnabled(flag)
-        self.subYPosStageText.setEnabled(flag)
+        self.subPosStageText.setEnabled(flag)
         self.devPosStageText.setEnabled(flag)
         self.subToButton.setEnabled(flag)
         #self.moveToReferenceCellButton.setEnabled(flag)
@@ -207,6 +203,26 @@ class StageWindow(QMainWindow):
 
     # Move stage to location set in the LineEdits.
     def moveToSubstrate(self):
+        validSubNum = QIntValidator(1,4,self.subPosStageText)
+        validDevNum = QIntValidator(1,6,self.devPosStageText)
+        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 \
+           and validXCoord.validate(self.subPosStageText.text(),1)[0] == 2:
+            xCoord = int(self.subXPosStageText.text())-1
+            yCoord = int(self.subYPosStageText.text())-1
+            self.xystage.move_to_substrate_4x4(int(self.subPosStageText.text()))
+            time.sleep(0.5)
+            devNum = int(self.devPosStageText.text())
+            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,
+                                yCoord),int(self.devPosStageText.text()))
+            self.showCurrentPos()
+            print("Substrate number:",self.subPosStageText.text())
+        else:
+            msg = "Substrates/device indeces out of range"
+            self.stageLabel.setText(msg)
+            print(msg)
+
+    # Move stage to location set in the LineEdits.
+    def moveToSubstrateCoord(self):
         validXCoord = QIntValidator(1,4,self.subXPosStageText)
         validYCoord = QIntValidator(1,4,self.subYPosStageText)
         validDevNum = QIntValidator(1,6,self.devPosStageText)
