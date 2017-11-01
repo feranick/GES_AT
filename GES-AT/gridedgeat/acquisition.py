@@ -116,6 +116,15 @@ class Acquisition(QObject):
         QApplication.processEvents()
         time.sleep(1)
 
+    # Convert coordinates as in the Sample Windown Table into the
+    # correct substrate number as defined in xystage.py
+    def getSubstrateNumber(self, i,j):
+        if i > 3 or j > 3:
+            print("indexes outside boundaries, resetting to substrate 1")
+            return 1
+        else:
+            return int((4-i)*4-(3-j))
+
 # Main Class for Acquisition
 # Everything happens here!
 class acqThread(QThread):
@@ -198,7 +207,7 @@ class acqThread(QThread):
         for j in range(self.numCol):
             for i in range(self.numRow):
                 # convert to correct substrate number in holder
-                substrateNum = self.getSubstrateNumber(i,j)
+                substrateNum = self.parent().getSubstrateNumber(i,j)
                 substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
@@ -208,7 +217,7 @@ class acqThread(QThread):
                     # Move stage to desired substrate
                     if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
-                                        str(self.getSubstrateNumber(i,j))+ \
+                                        str(self.parent().getSubstrateNumber(i,j))+ \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
                         self.parent().xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
@@ -220,14 +229,14 @@ class acqThread(QThread):
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
-                                str(self.getSubstrateNumber(i,j)) + \
+                                str(self.parent().getSubstrateNumber(i,j)) + \
                                 ": ("+str(i+1)+", "+str(j+1)+")") 
                         deviceID = substrateID+str(dev_id)
                         # prepare parameters, plots, tables for acquisition
                         self.Msg.emit("  Acquiring JV from device: " + deviceID)
                         
                         # Switch to correct device and start acquisition of JV
-                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
+                        self.parent().xystage.move_to_device_3x2(self.parent().getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
                         
                         # light JV
@@ -261,7 +270,7 @@ class acqThread(QThread):
                         dev_id = int(dev_id_f)
                         
                         # Move and activate correct device
-                        self.parent().xystage.move_to_device_3x2(self.getSubstrateNumber(i, j), dev_id)
+                        self.parent().xystage.move_to_device_3x2(self.parent().getSubstrateNumber(i, j), dev_id)
                         self.switch_device(i, j, dev_id)
                         time.sleep(float(self.dfAcqParams.get_value(0,'Delay Before Meas')))
                         
@@ -318,15 +327,6 @@ class acqThread(QThread):
         self.parent().parent().enableButtonsAcq(True)
         QApplication.processEvents()
         self.Msg.emit("System: ready")
-
-    # Convert coordinates as in the Sample Windown Table into the
-    # correct substrate number as defined in xystage.py
-    def getSubstrateNumber(self, i,j):
-        if i > 3 or j > 3:
-            print("indexes outside boundaries, resetting to substrate 1")
-            return 1
-        else:
-            return int((4-i)*4-(3-j))
     
     # New version to adapt to changes in Joel's stage code
     # Conversion between device naming is no longer needed.
