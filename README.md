@@ -54,14 +54,17 @@ In order to satisfy all dependency and at the same time have a seamless experien
     
 A wheel package is created inside a new folder ```dist```. On UNIX-systems the package can be installed simply as user by:
 
-    pip install --user <package.whl>
+    pip3 uninstall gridedgeat
+    pip3 install --user <package.whl>
     
 or system-wide:
 
-    sudo pip install <package.whl>
+    sudo pip3 uninstall gridedgeat
+    sudo pip3 install <package.whl>
     
 On MS Windows:
 
+    pip uninstall gridedgeat
     pip install <package.whl>
 
 ## Run
