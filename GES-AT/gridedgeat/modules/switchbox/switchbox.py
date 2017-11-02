@@ -87,8 +87,27 @@ class SwitchBox(object):
         device_id = 'S{}D{}'.format(substrate, device)
         self.short_channel(1000 + self.connection_map[device_id])
 
-        # set backplane
-        self.write('channel.close("1913")')
+        # set backplane to MUX1 or MUX2 depending on substrate number
+        if int(substrate)<9:
+            self.write('channel.close("1913")')
+        else:
+            self.write('channel.close("1923")')
+
+
+        # pins 5 (yellow), 6 (dark green)
+
+        # wires
+        # 1: brown
+        # 3: orange
+        # 4: pink
+        # 7: torqoise
+        # 5: yellow
+        # 6: dark green
+        # 8: blue
+        # 9: sky blue
+        # 10: purple
+        # 12: white
+        # 13: black
 
     def get_connect(self):
         'get the channels that are connected'
@@ -103,3 +122,30 @@ if __name__ == '__main__':
     print(sb.get_connect())
     pass
 '''
+
+if __name__ == '__main__':
+    # test
+    sb = SwitchBox()
+    #sb.connect(16, 6)
+    #sb.connect(16, 4)
+    sb.connect(9, 1)
+    #sb.connect(16, 1)
+    #sb.connect(13, 6)
+    #sb.connect(13, 4)
+    #sb.connect(13, 3)
+    #sb.connect(13, 1)
+    #sb.connect(1, 6)
+    #sb.connect(1, 4)
+    #sb.connect(1, 3)
+    #sb.connect(1, 1)
+    #sb.connect(4, 6)
+    #sb.connect(4, 4)
+    #sb.connect(4, 3)
+    #sb.connect(4, 1)
+    
+    
+    
+    print(sb.get_connect())
+    import time
+    time.sleep(1120)
+    pass

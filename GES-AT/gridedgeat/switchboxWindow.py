@@ -62,12 +62,12 @@ class switchboxThread(QThread):
         self.terminate()
 
     def run(self):
-        try:
-            sb = SwitchBox()
-            sb.connect(1, 2)
-            self.swbResponse.emit("Switchbox OK, channels: "+sb.get_connect())
-            del sb
-        except:
-            self.swbResponse.emit("    Cannot connect to switchbox")
+        #try:
+        sb = SwitchBox()
+        sb.connect(1, 2)
+        self.swbResponse.emit("Switchbox OK, channels: "+sb.get_connect())
+        del sb
+        #except:
+        #    self.swbResponse.emit("    Cannot connect to switchbox")
             
         
