@@ -39,13 +39,17 @@ class CameraFeed():
         return self.img
         
     # Process image
-    def get_image(self):
-        #cv2.rectangle(self.img,(384,0),(510,128),(0,255,0),3)
-        #self.img = self.img[400:500, 200:400]
-        self.img_raw = Image.fromarray(self.img).convert('L')
+    def get_image(self, crop, x1, x2, y1, y2):
+        if crop == True:
+            cv2.rectangle(self.img,(x1,y1),(x2,y2),(0,255,0),3)
+            self.img1 = self.img[y1:y2, x1:x2]
+        else:
+            self.img1 = self.img
+        self.img_raw = Image.fromarray(self.img1).convert('L')
         self.imgg = ImageQt(self.img_raw)
-        self.img_data = np.asarray(self.img)
-        return self.imgg, self.img_data
+        self.img_data = np.asarray(self.img1)
+        self.imgg_orig = ImageQt(Image.fromarray(self.img).convert('L'))
+        return self.imgg, self.img_data, self.imgg_orig
 
     # Save image
     def save_image(self, filename):
