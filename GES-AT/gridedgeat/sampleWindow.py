@@ -185,6 +185,7 @@ class SampleWindow(QMainWindow):
             if modifiers == Qt.AltModifier and \
                         currentQTableWidgetItem.text() != "":
                 self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
+            
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
 
@@ -200,7 +201,6 @@ class SampleWindow(QMainWindow):
         displayError = False
         ItemList = QListWidget
         ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
-        #print("Lenght itemList:", len(ItemList))
         subList = []
         if len(ItemList) > 1:
             for Item in ItemList:
