@@ -230,8 +230,7 @@ class acqThread(QThread):
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
-                                str(self.parent().getSubstrateNumber(i,j)) + \
-                                ": ("+str(i+1)+", "+str(j+1)+")") 
+                                str(self.parent().getSubstrateNumber(i,j))) 
                         deviceID = substrateID+str(dev_id)
                         # prepare parameters, plots, tables for acquisition
                         self.Msg.emit("  Acquiring JV from device: " + deviceID)
@@ -306,6 +305,9 @@ class acqThread(QThread):
 
         # park the stage close to origin, deactivate.
         try:
+            self.parent().switch_box.open_all()
+            del self.parent().switch_box
+            self.Msg.emit("Switchbox deactivated")
             self.Msg.emit(" Moving stage to parking position")
             self.parent().xystage.move_abs(5,5)
             self.Msg.emit("Deactivating Stage...")
@@ -315,8 +317,6 @@ class acqThread(QThread):
             self.parent().source_meter.off()
             del self.parent().source_meter
             self.Msg.emit("Sourcemeter deactivated")
-            del self.parent().switch_box
-            self.Msg.emit("Switchbox deactivated")
             del self.parent().shutter
             self.Msg.emit("Shutter deactivated")
         except:

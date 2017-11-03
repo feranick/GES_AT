@@ -293,7 +293,7 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row][0])
+                self.dfTotJV.iat[0,row])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
