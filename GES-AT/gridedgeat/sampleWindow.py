@@ -197,14 +197,22 @@ class SampleWindow(QMainWindow):
         self.resetCellAcq()
     
     def checkMatch(self, row, column):
+        displayError = False
         ItemList = QListWidget
         ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
         #print("Lenght itemList:", len(ItemList))
+        subList = []
         if len(ItemList) > 1:
-            print("Multiple substrates with the same name already exist:")
             for Item in ItemList:
-                print(" Substrate #", Acquisition().getSubstrateNumber(Item.row(),Item.column()))
-            print("Please change")
+                subList.append(Acquisition().getSubstrateNumber(Item.row(),Item.column()))
+            displayError = True
+                
+        if displayError == True:
+            msgBox = QMessageBox()
+            msgBox.setIcon( QMessageBox.Information )
+            msgBox.setText( "Multiple substrates with the same name already exist. Please change" )
+            msgBox.setInformativeText(str(subList))
+            msgBox.exec_()
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
