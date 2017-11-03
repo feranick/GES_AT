@@ -186,8 +186,9 @@ class SampleWindow(QMainWindow):
                         currentQTableWidgetItem.text() != "":
                 self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
             
-            print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
-                ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
+            print(" Selected substrate #",
+                  str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
+                  self.tableWidget.column(currentQTableWidgetItem))))
 
     # Logic to set and validate substrate name in table
     @pyqtSlot()
