@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
     QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
     QFileDialog,QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,
     QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,QMenu)
+    QAbstractItemView,QTableWidgetItem,QMenu,QListWidget)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
     QCursor,)
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
@@ -176,7 +176,7 @@ class SampleWindow(QMainWindow):
             self.colorCellAcq(row,col,"white")
             self.activeSubs[row,col] = True
     
-    # Logic to set substrate name and color in table
+    # Logic to set color in table
     @pyqtSlot()
     def onCellClick(self):
         modifiers = QApplication.keyboardModifiers()
@@ -187,8 +187,12 @@ class SampleWindow(QMainWindow):
             print(" Selected cell: (",str(self.tableWidget.row(currentQTableWidgetItem)+1),
                 ", ",str(self.tableWidget.column(currentQTableWidgetItem)+1),")")
 
+    # Logic to set and validate substrate name in table
     @pyqtSlot()
     def onCellDoubleClick(self):
+        ItemList = QListWidget()
+        ItemList = self.tableWidget.findItems("1", Qt.MatchExactly)
+        #print(len(ItemList))
         self.resetCellAcq()
 
     # Enable and disable fields (flag is either True or False) during acquisition.
