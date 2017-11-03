@@ -88,7 +88,7 @@ class SwitchBox(object):
         self.short_channel(1000 + self.connection_map[device_id])
 
         # set backplane to MUX1 or MUX2 depending on substrate number
-        if int(substrate)<9:
+        if substrate<9:
             self.write('channel.close("1913")')
         else:
             self.write('channel.close("1923")')
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     sb = SwitchBox()
     #sb.connect(16, 6)
     #sb.connect(16, 4)
-    sb.connect(9, 1)
+    sb.connect(4, 1)
     #sb.connect(16, 1)
     #sb.connect(13, 6)
     #sb.connect(13, 4)
