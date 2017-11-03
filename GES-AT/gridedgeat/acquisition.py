@@ -123,7 +123,8 @@ class Acquisition(QObject):
             print("indexes outside boundaries, resetting to substrate 1")
             return 1
         else:
-            return int(i+4*j+1)
+            #return int(i+4*j+1)
+            return int(j+4*(3-i)+1)
 
 # Main Class for Acquisition
 # Everything happens here!

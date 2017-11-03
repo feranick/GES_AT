@@ -26,6 +26,7 @@ from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
+from .acquisition import *
 
 '''
    Sample Window
@@ -190,10 +191,20 @@ class SampleWindow(QMainWindow):
     # Logic to set and validate substrate name in table
     @pyqtSlot()
     def onCellDoubleClick(self):
-        ItemList = QListWidget()
-        ItemList = self.tableWidget.findItems("1", Qt.MatchExactly)
-        #print(len(ItemList))
+        row = self.tableWidget.currentRow()
+        column = self.tableWidget.currentColumn()
+        self.tableWidget.cellChanged.connect(lambda: self.checkMatch(row,column))
         self.resetCellAcq()
+    
+    def checkMatch(self, row, column):
+        ItemList = QListWidget
+        ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
+        #print("Lenght itemList:", len(ItemList))
+        if len(ItemList) > 1:
+            print("Multiple substrates with the same name already exist:")
+            for Item in ItemList:
+                print(" Substrate #", Acquisition().getSubstrateNumber(Item.row(),Item.column()))
+            print("Please change")
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
