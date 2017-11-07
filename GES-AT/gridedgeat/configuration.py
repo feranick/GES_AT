@@ -13,6 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import configparser, logging, os
 from pathlib import Path
+from datetime import datetime
 from . import __version__
 
 class Configuration():
@@ -103,61 +104,64 @@ class Configuration():
         self.conf.read(configFile)
         self.sysConfig = self.conf['System']
         self.appVersion = self.sysConfig['appVersion']
-        if str(self.appVersion).rsplit('.',1)[0] != __version__.rsplit('.',1)[0] :
+        try:
+            self.devConfig = self.conf['Devices']
+            self.acqConfig = self.conf['Acquisition']
+            self.instrConfig = self.conf['Instruments']
+            self.sysConfig = self.conf['System']
+            self.dmConfig = self.conf['DM']
+
+            self.numSubsHolderRow = self.conf.getint('Devices','numSubsHolderRow')
+            self.numSubsHolderCol = self.conf.getint('Devices','numSubsHolderCol')
+            self.substrateArea = self.conf.getfloat('Devices','substrateArea')
+        
+            self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
+            self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
+            self.acqHoldTime = self.conf.getfloat('Acquisition','acqHoldTime')
+            self.acqStepVoltage = self.conf.getfloat('Acquisition','acqStepVoltage')
+            self.acqDirection = self.conf.getint('Acquisition','acqDirection')
+            self.acqForwardVoltage = self.conf.getfloat('Acquisition','acqForwardVoltage')
+            self.acqReverseVoltage = self.conf.getfloat('Acquisition','acqReverseVoltage')
+            self.acqDelayBeforeMeas = self.conf.getfloat('Acquisition','acqDelayBeforeMeas')
+            self.acqArchitecture = self.conf.getint('Acquisition','acqArchitecture')
+            self.acqTrackNumDevices = self.conf.getint('Acquisition','acqTrackNumDevices')
+            self.acqTrackTime = self.conf.getint('Acquisition','acqTrackTime')
+
+            self.alignmentIntThreshold = self.conf.getfloat('Instruments','alignmentIntThreshold')
+            self.alignmentContrastDefault = self.conf.getfloat('Instruments','alignmentContrastDefault')
+            self.alignmentIntMax = self.conf.getfloat('Instruments','alignmentIntMax')
+            self.powermeterID = self.instrConfig['powermeterID']
+            self.irradiance1Sun = self.conf.getfloat('Instruments','irradiance1Sun')
+            self.irradianceSensorArea = self.conf.getfloat('Instruments','irradianceSensorArea')
+            self.switchboxID = self.instrConfig['switchboxID']
+            self.sourcemeterID = self.instrConfig['sourcemeterID']
+            self.xPosRefCell = self.conf.getint('Instruments','xPosRefCell')
+            self.yPosRefCell = self.conf.getint('Instruments','yPosRefCell')
+
+            self.appVersion = self.sysConfig['appVersion']
+            self.loggingLevel = self.sysConfig['loggingLevel']
+            self.loggingFilename = self.sysConfig['loggingFilename']
+            self.csvSavingFolder = self.sysConfig['csvSavingFolder']
+            self.saveLocalCsv = self.conf.getboolean('System','saveLocalCsv')
+        
+            self.submitToDb = self.conf.getboolean('DM','submitToDb')
+            self.DbHostname = self.dmConfig['DbHostname']
+            self.DbPortNumber = self.dmConfig['DbPortNumber']
+            self.DbName = self.dmConfig['DbName']
+            self.DbUsername = self.dmConfig['DbUsername']
+            self.DbPassword = self.dmConfig['DbPassword']
+            self.DbHttpPortNumber = self.dmConfig['DbHttpPortNumber']
+            self.DbHttpPath = self.dmConfig['DbHttpPath']
+
+        except:
             print("Configuration file is for an earlier version of the software")
-            oldConfigFile = str(os.path.splitext(configFile)[0]+"_"+str(self.appVersion)+".ini")
+            oldConfigFile = str(os.path.splitext(configFile)[0] + "_" +\
+                    str(datetime.now().strftime('%Y%m%d-%H%M%S'))+".ini")
             print("Old config file backup: ",oldConfigFile)
             os.rename(configFile, oldConfigFile )
             print("Creating a new config file.")
             self.createConfig()
-            
-        self.devConfig = self.conf['Devices']
-        self.acqConfig = self.conf['Acquisition']
-        self.instrConfig = self.conf['Instruments']
-        self.sysConfig = self.conf['System']
-        self.dmConfig = self.conf['DM']
-
-        self.numSubsHolderRow = self.conf.getint('Devices','numSubsHolderRow')
-        self.numSubsHolderCol = self.conf.getint('Devices','numSubsHolderCol')
-        self.substrateArea = self.conf.getfloat('Devices','substrateArea')
-        
-        self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
-        self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
-        self.acqHoldTime = self.conf.getfloat('Acquisition','acqHoldTime')
-        self.acqStepVoltage = self.conf.getfloat('Acquisition','acqStepVoltage')
-        self.acqDirection = self.conf.getint('Acquisition','acqDirection')
-        self.acqForwardVoltage = self.conf.getfloat('Acquisition','acqForwardVoltage')
-        self.acqReverseVoltage = self.conf.getfloat('Acquisition','acqReverseVoltage')
-        self.acqDelayBeforeMeas = self.conf.getfloat('Acquisition','acqDelayBeforeMeas')
-        self.acqArchitecture = self.conf.getint('Acquisition','acqArchitecture')
-        self.acqTrackNumDevices = self.conf.getint('Acquisition','acqTrackNumDevices')
-        self.acqTrackTime = self.conf.getint('Acquisition','acqTrackTime')
-
-        self.alignmentIntThreshold = self.conf.getfloat('Instruments','alignmentIntThreshold')
-        self.alignmentContrastDefault = self.conf.getfloat('Instruments','alignmentContrastDefault')
-        self.alignmentIntMax = self.conf.getfloat('Instruments','alignmentIntMax')
-        self.powermeterID = self.instrConfig['powermeterID']
-        self.irradiance1Sun = self.conf.getfloat('Instruments','irradiance1Sun')
-        self.irradianceSensorArea = self.conf.getfloat('Instruments','irradianceSensorArea')
-        self.switchboxID = self.instrConfig['switchboxID']
-        self.sourcemeterID = self.instrConfig['sourcemeterID']
-        self.xPosRefCell = self.conf.getint('Instruments','xPosRefCell')
-        self.yPosRefCell = self.conf.getint('Instruments','yPosRefCell')
-
-        self.appVersion = self.sysConfig['appVersion']
-        self.loggingLevel = self.sysConfig['loggingLevel']
-        self.loggingFilename = self.sysConfig['loggingFilename']
-        self.csvSavingFolder = self.sysConfig['csvSavingFolder']
-        self.saveLocalCsv = self.conf.getboolean('System','saveLocalCsv')
-        
-        self.submitToDb = self.conf.getboolean('DM','submitToDb')
-        self.DbHostname = self.dmConfig['DbHostname']
-        self.DbPortNumber = self.dmConfig['DbPortNumber']
-        self.DbName = self.dmConfig['DbName']
-        self.DbUsername = self.dmConfig['DbUsername']
-        self.DbPassword = self.dmConfig['DbPassword']
-        self.DbHttpPortNumber = self.dmConfig['DbHttpPortNumber']
-        self.DbHttpPath = self.dmConfig['DbHttpPath']
+            self.readConfig(configFile)
 
     # Save current parameters in configuration file
     def saveConfig(self, configFile):
