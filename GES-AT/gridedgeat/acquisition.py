@@ -47,7 +47,6 @@ class Acquisition(QObject):
                 'Device Area': [self.parent().samplewind.substrateAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
-        print(pdframe)
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
