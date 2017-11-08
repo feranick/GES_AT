@@ -38,7 +38,7 @@ class Acquisition(QObject):
                 'Acq Hold Time': [self.parent().acquisitionwind.holdTText.text()],
                 'Acq Step Voltage': [self.parent().acquisitionwind.stepVText.text()],
                 'Direction': [int(self.parent().acquisitionwind.directionCBox.currentIndex())],
-                'Acq Rev Voltage': [int(self.parent().acquisitionwind.reverseVText.text())],
+                'Acq Rev Voltage': [self.parent().acquisitionwind.reverseVText.text()],
                 'Acq Forw Voltage': [self.parent().acquisitionwind.forwardVText.text()],
                 'Architecture': [int(self.parent().acquisitionwind.architectureCBox.currentIndex())],
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
@@ -47,10 +47,12 @@ class Acquisition(QObject):
                 'Device Area': [self.parent().samplewind.substrateAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
+        print(pdframe)
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
                 'Device Area', 'Operator','Comments']]
+    
                 
     def start(self):
         # Using ALT with Start Acquisition button:
@@ -376,7 +378,7 @@ class acqThread(QThread):
         soak_time = float(self.dfAcqParams.at[0,'Acq Soak Time'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
         v_step = float(self.dfAcqParams.at[0,'Acq Step Voltage'])
-        v_r = int(self.dfAcqParams.at[0,'Acq Rev Voltage'])
+        v_r = float(self.dfAcqParams.at[0,'Acq Rev Voltage'])
         v_f = float(self.dfAcqParams.at[0,'Acq Forw Voltage'])
         direction = int(self.dfAcqParams.at[0,'Direction'])
         substrateArea = float(self.dfAcqParams.at[0,'Device Area'])
