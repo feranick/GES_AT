@@ -90,9 +90,9 @@ class CameraWindow(QMainWindow):
     def cameraFeed(self):
         self.setDefaultBtn.setEnabled(True)
         try:
-            if self.firstTimeRunning == True:
-                self.infoMessageBox()
-                self.firstTimeRunning = False
+            #if self.firstTimeRunning == True:
+                #self.infoMessageBox()
+            #    self.firstTimeRunning = False
 
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
             self.img = self.cam.grab_image()
@@ -196,7 +196,8 @@ class CameraWindow(QMainWindow):
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
         msgBox.exec_()
-    
+
+    '''
     # Info procedure panel
     def infoMessageBox(self):
         msgBox = QMessageBox( self )
@@ -206,11 +207,12 @@ class CameraWindow(QMainWindow):
                                    "2. Press \"q\" to stop the live feed and grab image\n"+\
                                    "3. Select with the mouse the area for alignemnt " )
         msgBox.exec_()
+    '''
     
     # Close camera feed upon closing window.
     def closeEvent(self, event):
         self.cam.closeLiveFeed = True
-        self.firstTimeRunning = True
+        #self.firstTimeRunning = True
         try:
             del self.cam
         except:
