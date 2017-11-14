@@ -53,11 +53,18 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
-        updateBtn = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
+        updateBtn = QAction(QIcon(QPixmap()),"Set integration window",self)
         updateBtn.setShortcut('Ctrl+c')
-        updateBtn.setStatusTip('Get Camera Feed')
+        updateBtn.setStatusTip('Get camera feed, set integration window')
         tb.addAction(updateBtn)
         tb.addSeparator()
+        
+        autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
+        autoAlignBtn.setShortcut('Ctrl+r')
+        autoAlignBtn.setStatusTip('Run Alignment routine')
+        tb.addAction(autoAlignBtn)
+        tb.addSeparator()
+        
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Check alignment [%]: ")
         tb.addWidget(contrastAlignLabel)
