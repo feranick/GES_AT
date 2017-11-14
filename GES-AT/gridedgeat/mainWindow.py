@@ -119,7 +119,7 @@ class MainWindow(QMainWindow):
         self.powermeterMenu = QAction("&Powermeter", self)
         self.powermeterMenu.setShortcut("Ctrl+p")
         self.powermeterMenu.setStatusTip('Powermeter controls')
-        self.powermeterMenu.triggered.connect(self.powermeterwind.show)
+        self.powermeterMenu.triggered.connect(self.showPowermeterShutter)
         self.shutterMenu = QAction("&Shutter", self)
         self.shutterMenu.setShortcut("Ctrl+e")
         self.shutterMenu.setStatusTip('Shutter controls')
@@ -292,6 +292,10 @@ class MainWindow(QMainWindow):
         obj.setWindowState(obj.windowState() & Qt.WindowMinimized | Qt.WindowActive)
         obj.raise_()
         obj.activateWindow()
+    
+    def showPowermeterShutter(self):
+        self.powermeterwind.show()
+        self.stagewind.show()
 
     # Logic to run when quitting the program
     # Dialog box for confirmation

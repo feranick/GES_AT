@@ -55,7 +55,6 @@ class PowermeterWindow(QMainWindow):
         self.powerMeterLabel2.setGeometry(QRect(20, 130, 300, 20))
         self.powerMeterLabel.setText("<qt><b>Before activating, place powermeter in complete dark </b></qt>")
 
-        
         self.powermeterStartButton = QPushButton(PowermeterWindow)
         self.powermeterStartButton.setGeometry(QRect(10, 160, 150, 30))
         self.powermeterStartButton.clicked.connect(self.startPMAcq)
