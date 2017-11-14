@@ -27,7 +27,7 @@ class StageWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, StageWindow):
-        self.setGeometry(380, 30, 310, 350)
+        self.setGeometry(380, 30, 310, 400)
         StageWindow.setWindowTitle("XY stage control settings")
         self.setFixedSize(self.size())
         
@@ -98,8 +98,14 @@ class StageWindow(QMainWindow):
         self.activateStageButton.setText("Activate Stage")
         self.activateStageButton.clicked.connect(self.activateStage)
         
+        self.moveToPowermeterButton = QPushButton(StageWindow)
+        self.moveToPowermeterButton.setGeometry(QRect(10, 300, 290, 40))
+        self.moveToPowermeterButton.setText("Move to Powermeter")
+        self.moveToPowermeterButton.clicked.connect(self.moveToPowermeter)
+        self.moveToPowermeterButton.setEnabled(False)
+        
         self.moveToReferenceCellButton = QPushButton(StageWindow)
-        self.moveToReferenceCellButton.setGeometry(QRect(10, 300, 290, 40))
+        self.moveToReferenceCellButton.setGeometry(QRect(10, 350, 290, 40))
         self.moveToReferenceCellButton.setText("Move to Reference Cell")
         self.moveToReferenceCellButton.clicked.connect(self.moveToReferenceCell)
         self.moveToReferenceCellButton.setEnabled(False)
@@ -153,6 +159,8 @@ class StageWindow(QMainWindow):
         self.devPosStageText.setEnabled(flag)
         self.subToButton.setEnabled(flag)
         self.moveToReferenceCellButton.setEnabled(flag)
+        self.moveToPowermeterButton.setEnabled(flag)
+
 
     # Move stage to home position
     def moveHome(self):
@@ -168,6 +176,24 @@ class StageWindow(QMainWindow):
         QApplication.processEvents()
         self.xystage.move_abs(float(self.parent().config.xPosRefCell),
                               float(self.parent().config.yPosRefCell))
+        self.showCurrentPos()
+    
+    # Move stage to position of reference solar cell
+    def moveToReferenceCell(self):
+        self.stageLabel.setText("Moving stage to Reference Cell...")
+        #self.parent().config.xPosRefCell
+        QApplication.processEvents()
+        self.xystage.move_abs(float(self.parent().config.xPosRefCell),
+                              float(self.parent().config.yPosRefCell))
+        self.showCurrentPos()
+    
+    # Move stage to position of Powermeter
+    def moveToPowermeter(self):
+        self.stageLabel.setText("Moving stage to Powermeter...")
+        #self.parent().config.xPosRefCell
+        QApplication.processEvents()
+        self.xystage.move_abs(float(self.parent().config.xPosPowermeter),
+                              float(self.parent().config.yPosPowermeter))
         self.showCurrentPos()
         
     # Set current position as origin

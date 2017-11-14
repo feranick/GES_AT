@@ -78,6 +78,8 @@ class Configuration():
             'sourcemeterID' : "GPIB0::24::INSTR",
             'xPosRefCell' : 240,
             'yPosRefCell' : 170,
+            'xPosPowermeter' : 240,
+            'yPosPowermeter' : 210,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -137,6 +139,8 @@ class Configuration():
             self.sourcemeterID = self.instrConfig['sourcemeterID']
             self.xPosRefCell = self.conf.getint('Instruments','xPosRefCell')
             self.yPosRefCell = self.conf.getint('Instruments','yPosRefCell')
+            self.xPosPowermeter = self.conf.getint('Instruments','xPosPowermeter')
+            self.yPosPowermeter = self.conf.getint('Instruments','yPosPowermeter')
 
             self.appVersion = self.sysConfig['appVersion']
             self.loggingLevel = self.sysConfig['loggingLevel']

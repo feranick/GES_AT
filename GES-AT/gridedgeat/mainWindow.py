@@ -293,6 +293,8 @@ class MainWindow(QMainWindow):
         obj.raise_()
         obj.activateWindow()
     
+    # Open both Powermeter and stage windows when calling the Powermeter menu
+    # This is to facilitate positioning of the stage with the solar sim over the powermeter
     def showPowermeterShutter(self):
         self.powermeterwind.show()
         self.stagewind.show()
