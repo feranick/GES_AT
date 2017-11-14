@@ -218,13 +218,10 @@ class CameraWindow(QMainWindow):
     
     # Close camera feed upon closing window.
     def closeEvent(self, event):
-        self.cam.closeLiveFeed = True
-        #self.firstTimeRunning = True
-        try:
+        if hasattr(self,"cam"):
+            self.cam.closeLiveFeed = True
+            #self.firstTimeRunning = True
             del self.cam
-        except:
-            pass
-
 '''
    GraphicsView
    Definition of the View for Camera
