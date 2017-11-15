@@ -53,11 +53,19 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
-        updateBtn = QAction(QIcon(QPixmap()),"Update Camera Feed",self)
-        updateBtn.setShortcut('Ctrl+c')
-        updateBtn.setStatusTip('Get Camera Feed')
-        tb.addAction(updateBtn)
+        self.updateBtn = QAction(QIcon(QPixmap()),"Get Feed",self)
+        self.updateBtn.setShortcut('Ctrl+c')
+        self.updateBtn.setStatusTip('Get camera feed, set integration window')
+        tb.addAction(self.updateBtn)
         tb.addSeparator()
+        
+        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
+        self.autoAlignBtn.setEnabled(False)
+        self.autoAlignBtn.setShortcut('Ctrl+r')
+        self.autoAlignBtn.setStatusTip('Run Alignment routine')
+        tb.addAction(self.autoAlignBtn)
+        tb.addSeparator()
+        
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Check alignment [%]: ")
         tb.addWidget(contrastAlignLabel)
@@ -75,19 +83,19 @@ class CameraWindow(QMainWindow):
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
         
-        #self.cam = CameraFeed()
-        tb.actionTriggered[QAction].connect(self.toolbtnpressed)
+        self.autoAlignBtn.triggered.connect(self.autoAlign)
+        self.updateBtn.triggered.connect(self.cameraFeed)
+        self.setDefaultBtn.triggered.connect(self.setDefault)
     
     # Define behavior of push buttons
-    def toolbtnpressed(self,a):
-        if a.text() == "Update Camera Feed":
-            self.cam = CameraFeed()
-            self.cameraFeed()
-        if a.text() == "Set Default Alignment":
-            self.setDefault()
+    # Handle the actual alignment substrate by substrate
+    def autoAlign(self):
+        pass
 
     # Get image from feed
     def cameraFeed(self):
+        self.updateBtn.setText("Set integration window")
+        self.cam = CameraFeed()
         self.setDefaultBtn.setEnabled(True)
         try:
             #if self.firstTimeRunning == True:
@@ -125,6 +133,7 @@ class CameraWindow(QMainWindow):
     # Event driven routines for cropping image with mouse
     # Main method for evaluating alignemnt from cropped selection
     def mouseReleaseEvent(self, event):
+        self.updateBtn.setText("Get feed")
         self.begin = event.pos()
         self.end = event.pos()
         self.final = event.pos()
@@ -215,7 +224,6 @@ class CameraWindow(QMainWindow):
             self.cam.closeLiveFeed = True
             #self.firstTimeRunning = True
             del self.cam
-
 '''
    GraphicsView
    Definition of the View for Camera
