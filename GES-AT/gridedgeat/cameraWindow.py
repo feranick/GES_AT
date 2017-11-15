@@ -53,13 +53,14 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
-        self.updateBtn = QAction(QIcon(QPixmap()),"Set integration window",self)
+        self.updateBtn = QAction(QIcon(QPixmap()),"Get Feed",self)
         self.updateBtn.setShortcut('Ctrl+c')
         self.updateBtn.setStatusTip('Get camera feed, set integration window')
         tb.addAction(self.updateBtn)
         tb.addSeparator()
         
         self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
+        self.autoAlignBtn.setEnabled(False)
         self.autoAlignBtn.setShortcut('Ctrl+r')
         self.autoAlignBtn.setStatusTip('Run Alignment routine')
         tb.addAction(self.autoAlignBtn)
@@ -93,6 +94,7 @@ class CameraWindow(QMainWindow):
 
     # Get image from feed
     def cameraFeed(self):
+        self.updateBtn.setText("Set integration window")
         self.cam = CameraFeed()
         self.setDefaultBtn.setEnabled(True)
         try:
@@ -131,6 +133,7 @@ class CameraWindow(QMainWindow):
     # Event driven routines for cropping image with mouse
     # Main method for evaluating alignemnt from cropped selection
     def mouseReleaseEvent(self, event):
+        self.updateBtn.setText("Get feed")
         self.begin = event.pos()
         self.end = event.pos()
         self.final = event.pos()
