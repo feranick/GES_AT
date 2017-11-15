@@ -53,16 +53,16 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
-        updateBtn = QAction(QIcon(QPixmap()),"Set integration window",self)
-        updateBtn.setShortcut('Ctrl+c')
-        updateBtn.setStatusTip('Get camera feed, set integration window')
-        tb.addAction(updateBtn)
+        self.updateBtn = QAction(QIcon(QPixmap()),"Set integration window",self)
+        self.updateBtn.setShortcut('Ctrl+c')
+        self.updateBtn.setStatusTip('Get camera feed, set integration window')
+        tb.addAction(self.updateBtn)
         tb.addSeparator()
         
-        autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
-        autoAlignBtn.setShortcut('Ctrl+r')
-        autoAlignBtn.setStatusTip('Run Alignment routine')
-        tb.addAction(autoAlignBtn)
+        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
+        self.autoAlignBtn.setShortcut('Ctrl+r')
+        self.autoAlignBtn.setStatusTip('Run Alignment routine')
+        tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
         
         contrastAlignLabel = QLabel()
@@ -82,19 +82,18 @@ class CameraWindow(QMainWindow):
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
         
-        #self.cam = CameraFeed()
-        tb.actionTriggered[QAction].connect(self.toolbtnpressed)
+        self.autoAlignBtn.triggered.connect(self.autoAlign)
+        self.updateBtn.triggered.connect(self.cameraFeed)
+        self.setDefaultBtn.triggered.connect(self.setDefault)
     
     # Define behavior of push buttons
-    def toolbtnpressed(self,a):
-        if a.text() == "Update Camera Feed":
-            self.cam = CameraFeed()
-            self.cameraFeed()
-        if a.text() == "Set Default Alignment":
-            self.setDefault()
+    # Handle the actual alignment substrate by substrate
+    def autoAlign(self):
+        pass
 
     # Get image from feed
     def cameraFeed(self):
+        self.cam = CameraFeed()
         self.setDefaultBtn.setEnabled(True)
         try:
             #if self.firstTimeRunning == True:
