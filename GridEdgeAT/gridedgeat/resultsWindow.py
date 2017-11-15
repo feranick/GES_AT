@@ -188,7 +188,7 @@ class ResultsWindow(QMainWindow):
         self.figureTJsc.clf()
         self.axTJsc = self.figureTJsc.add_subplot(111)
         self.plotSettings(self.axTJsc)
-        self.axTJsc.set_xlabel('Time [s]$',fontsize=8)
+        self.axTJsc.set_xlabel('Time [s]',fontsize=8)
         self.axTJsc.set_ylabel('Jsc [mA/cm$^2$]',fontsize=8)
         self.axTJsc.set_autoscale_on(True)
         self.axTJsc.autoscale_view(True,True,True)
