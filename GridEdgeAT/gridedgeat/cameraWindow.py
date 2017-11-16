@@ -16,7 +16,7 @@ import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene, QLineEdit,QMessageBox,QWidget)
+    QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
                          QBrush,QColor)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect)
@@ -59,6 +59,14 @@ class CameraWindow(QMainWindow):
         tb.addAction(self.updateBtn)
         tb.addSeparator()
         
+        self.liveFeedBtn = QAction(QIcon(QPixmap()),
+                                     "Live Feed",self)
+        self.liveFeedBtn.setShortcut('Ctrl+d')
+        self.liveFeedBtn.setStatusTip('Set Default Alignment')
+        self.liveFeedBtn.setEnabled(True)
+        tb.addAction(self.liveFeedBtn)
+        tb.addSeparator()
+        
         self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
         self.autoAlignBtn.setEnabled(False)
         self.autoAlignBtn.setShortcut('Ctrl+r')
@@ -84,8 +92,10 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
-        self.updateBtn.triggered.connect(self.cameraFeed)
+        self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
+        self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
+
     
     # Define behavior of push buttons
     # Handle the actual alignment substrate by substrate
@@ -93,8 +103,7 @@ class CameraWindow(QMainWindow):
         pass
 
     # Get image from feed
-    def cameraFeed(self):
-        self.updateBtn.setText("Set integration window")
+    def cameraFeed(self, live):
         self.cam = CameraFeed()
         self.setDefaultBtn.setEnabled(True)
         try:
@@ -103,13 +112,24 @@ class CameraWindow(QMainWindow):
             #    self.firstTimeRunning = False
 
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
-            self.img = self.cam.grab_image()
+            if live:
+                self.liveFeedBtn.setText("Set integration window")
+                self.updateBtn.setEnabled(False)
+                QApplication.processEvents()
+                self.img = self.cam.grab_image_live()
+            else:
+                self.updateBtn.setText("Set integration window")
+                self.liveFeedBtn.setEnabled(False)
+                QApplication.processEvents()
+                self.img = self.cam.grab_image()
             self.image, self.image_data, temp = self.cam.get_image(False,0,0,0,0)
             self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
         
             self.statusBar().showMessage('Camera-feed' + \
                  str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
             self.statusBar().showMessage(' Drag Mouse to select area for alignment', 5000)
+            self.liveFeedBtn.setEnabled(True)
+            self.updateBtn.setEnabled(True)
         except:
             self.statusBar().showMessage(' USB camera not connected', 5000)
             
