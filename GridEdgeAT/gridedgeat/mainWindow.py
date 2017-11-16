@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         self.cameraMenu = QAction("&Camera Alignment", self)
         self.cameraMenu.setShortcut("Ctrl+c")
         self.cameraMenu.setStatusTip('Camera controls')
-        self.cameraMenu.triggered.connect(self.camerawind.show)
+        self.cameraMenu.triggered.connect(self.showCameraSample)
 
         instrumentsMenu = self.menuBar.addMenu('&Instruments')
         instrumentsMenu.addAction(self.cameraMenu)
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         self.cameraToolbar = QAction("&Alignment", self)
         self.cameraToolbar.setShortcut("Ctrl+c")
         self.cameraToolbar.setStatusTip('Substrate alignment via Camera')
-        self.cameraToolbar.triggered.connect(self.camerawind.show)
+        self.cameraToolbar.triggered.connect(self.showCameraSample)
         
         #toolBar = self.addToolBar("&Toolbar")
         self.toolBar.addAction(self.sampleToolbar)
@@ -305,6 +305,12 @@ class MainWindow(QMainWindow):
     def showPowermeterShutter(self):
         self.powermeterwind.show()
         self.stagewind.show()
+    
+    # Open both Sample and Camera windows when calling the Camera alignment menu
+    # This is to facilitate checking ofr the alignment status for each substrate listed
+    def showCameraSample(self):
+        self.camerawind.show()
+        self.samplewind.show()
 
     # Logic to run when quitting the program
     # Dialog box for confirmation
