@@ -16,10 +16,11 @@ import sys
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
-    QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication)
+    QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication,
+    QGraphicsRectItem,QGraphicsItem)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
-                         QBrush,QColor)
-from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect)
+                         QBrush,QColor,QTransform)
+from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt)
 
 from .modules.camera.camera import *
 from . import logger
@@ -45,7 +46,8 @@ class CameraWindow(QMainWindow):
         self.view.setScene(self.scene)
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
-        self.setCentralWidget(self.imageLabel)
+        #self.setCentralWidget(self.imageLabel)
+        self.setCentralWidget(self.view)
         
         self.begin = QPoint()
         self.end = QPoint()
@@ -119,8 +121,12 @@ class CameraWindow(QMainWindow):
                 QApplication.processEvents()
                 self.img = self.cam.grab_image()
             self.image, self.image_data, temp = self.cam.get_image(False,0,0,0,0)
-            self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
-        
+            
+            pixMap = QPixmap.fromImage(self.image)
+            self.scene.addPixmap(pixMap)
+            #self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
+            self.view.fitInView(self.view.sceneRect(), Qt.KeepAspectRatio)
+            
             self.statusBar().showMessage('Camera-feed' + \
                  str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
             self.statusBar().showMessage(' Drag Mouse to select area for alignment', 5000)
@@ -128,7 +134,8 @@ class CameraWindow(QMainWindow):
             self.updateBtn.setEnabled(True)
         except:
             self.statusBar().showMessage(' USB camera not connected', 5000)
-            
+    
+    '''
     # Event driven routines for cropping image with mouse
     def paintEvent(self, event):
         qp = QPainter(self)
@@ -177,7 +184,7 @@ class CameraWindow(QMainWindow):
                 self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
         except:
             pass
-
+    '''
     # Set default values for alignment parameters
     def setDefault(self):
         try:
@@ -237,14 +244,14 @@ class GraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(GraphicsView, self).__init__(parent)
         self.setRenderHints(QPainter.Antialiasing)
-    '''
+    
     def resizeEvent(self, event):
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
     
     def drawBackground(self, painter, rect):
         painter.fillRect(rect, QBrush(Qt.lightGray))
         self.scene().drawBackground(painter, rect)
-    '''
+
 
 '''
    GraphicsScene
@@ -255,7 +262,42 @@ class GraphicsScene(QGraphicsScene):
 
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
-    '''
+    
+        self.spots = []
+        self.center = None
+        self.spotsLabel = []
+
+    def addSpot(self, item):
+        self.clearSelection()
+        self.addItem(item)
+        item.setSelected(True)
+        self.setFocusItem(item)
+        self.spots.append(item)
+        self.spotsLabel.append(str(len(self.spots)))
+        item.setToolTip(self.spotsLabel[-1])
+
+    def mousePressEvent(self, event):
+        """ Processes mouse events through either
+              - propagating the event
+            or
+              - instantiating a new Circle (on left-click)
+              - instantiating a new Center (on right-click)
+        """
+        transform = QTransform()
+        if hasattr(self, "image"):
+            if self.itemAt(event.scenePos(), transform):
+                super(GraphicsScene, self).mousePressEvent(event)
+            elif event.button() == Qt.LeftButton:
+                item = QGraphicsSelectionItem(event.scenePos(),
+                        40)
+                self.addSpot(item)
+                # Enable spots to be saved when present on the image
+                #if len(self.spots) > 0:
+                #    self.parent().fileSaveSpotsAction.setEnabled(True)
+
+        else:
+            print("Fail")
+    
     def drawBackground(self, painter, rect):
         """ Draws image in background if it exists. """
         if hasattr(self, "image"):
@@ -272,5 +314,81 @@ class GraphicsScene(QGraphicsScene):
         self.imlabel.setText(labeltext)
         self.image = image
         self.update()
-    '''
 
+
+class QGraphicsMovableItem(QGraphicsItem):
+    """ Provides an QGraphicsItem that can be moved with the arrow keys.
+
+        Pressing Shift at the same time allows fine adjustments. """
+
+    def __init__(self, parent=None):
+        super(QGraphicsMovableItem, self).__init__(parent)
+        self.setFlags(QGraphicsItem.ItemIsMovable)
+
+    def keyPressEvent(self, event):
+        """ Handles keyPressEvents.
+
+            The item can be moved using the arrow keys. Applying Shift
+            at the same time allows fine adjustments.
+        """
+        if event.key() == Qt.Key_Right:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.moveRight(0.1)
+            else:
+                self.moveRight(1)
+        elif event.key() == Qt.Key_Left:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.moveLeft(0.1)
+            else:
+                self.moveLeft(1)
+        elif event.key() == Qt.Key_Up:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.moveUp(0.1)
+            else:
+                self.moveUp(1)
+        elif event.key() == Qt.Key_Down:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.moveDown(0.1)
+            else:
+                self.moveDown(1)
+
+    def moveRight(self, distance):
+        """ Moves the circle distance to the right."""
+        self.setPos(self.pos() + QPointF(distance, 0.0))
+
+    def moveLeft(self, distance):
+        """ Moves the circle distance to the left."""
+        self.setPos(self.pos() + QPointF(-distance, 0.0))
+
+    def moveUp(self, distance):
+        """ Moves the circle distance up."""
+        self.setPos(self.pos() + QPointF(0.0, -distance))
+
+    def moveDown(self, distance):
+        """ Moves the circle distance down."""
+        self.setPos(self.pos() + QPointF(0.0, distance))
+
+    def onPositionChange(self, point):
+        """ Handles incoming position change request."""
+        self.setPos(point)
+
+
+class QGraphicsSelectionItem(QGraphicsRectItem, QGraphicsMovableItem):
+    """ Provides an QGraphicsItem to display a Spot on a QGraphicsScene. """
+
+    def __init__(self, point, radius, parent=None):
+        super(QGraphicsSelectionItem, self).__init__(parent)
+        offset = QPointF(radius, radius)
+        self.setRect(QRectF(-offset, offset))
+        self.setPen(QPen(Qt.blue))
+        self.setPos(point)
+        self.setFlags(self.flags() |
+                      QGraphicsItem.ItemIsSelectable|
+                      QGraphicsItem.ItemIsFocusable)
+
+    def keyPressEvent(self, event):
+        """ Handles keyPressEvents.
+
+            The circles radius can be changed using the plus and minus keys.
+        """
+        super(QGraphicsSelectionItem, self).keyPressEvent(event)
