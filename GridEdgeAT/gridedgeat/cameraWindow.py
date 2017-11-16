@@ -23,8 +23,9 @@ from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
 from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
 
 from .modules.camera.camera import *
-from . import logger
 from .configuration import *
+from .modules.xystage.xystage import *
+from . import logger
 
 '''
    Camera Window
@@ -38,7 +39,7 @@ class CameraWindow(QMainWindow):
     
     def initUI(self):
         # Set up Window geometry and shape
-        self.setGeometry(100, 500, 660, 480)
+        self.setGeometry(100, 500, 700, 480)
         self.setWindowTitle('Camera Panel')
         # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
@@ -58,29 +59,34 @@ class CameraWindow(QMainWindow):
         self.firstTimeRunning = True
         
         # Set up ToolBar
-        tb = self.addToolBar("Substrate alignment via Camera")
+        tb = self.addToolBar("Controls")
+        tb2 =  QToolBar(self)
+        tb2.setGeometry(0,480,660,25)
+        
         self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
         self.updateBtn.setShortcut('Ctrl+c')
         self.updateBtn.setStatusTip('Get camera feed, set integration window')
         
-        tb2 =  QToolBar(self)
-        tb2.setGeometry(0,480,660,25)
-        
-        self.liveFeedBtn = QAction(QIcon(QPixmap()),
-                                     "Live Feed",self)
+        self.liveFeedBtn = QAction(QIcon(QPixmap()), "Live Feed",self)
         self.liveFeedBtn.setShortcut('Ctrl+d')
         self.liveFeedBtn.setStatusTip('Set Default Alignment')
         self.liveFeedBtn.setEnabled(True)
-        
-        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Automated Alignment",self)
-        self.autoAlignBtn.setEnabled(False)
-        self.autoAlignBtn.setShortcut('Ctrl+r')
-        self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
         self.manualAlignBtn = QAction(QIcon(QPixmap()),"Check Alignment Manually",self)
         self.manualAlignBtn.setEnabled(False)
         self.manualAlignBtn.setShortcut('Ctrl+m')
         self.manualAlignBtn.setStatusTip('Check Alignment Manually')
+        
+        self.activateStageBtn = QAction(QIcon(QPixmap()),"Position stage",self)
+        self.activateStageBtn.setEnabled(True)
+        self.activateStageBtn.setShortcut('Ctrl+r')
+        self.activateStageBtn.setStatusTip('Position stage')
+        self.activeStage = False
+        
+        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Automated Alignment",self)
+        self.autoAlignBtn.setEnabled(False)
+        self.autoAlignBtn.setShortcut('Ctrl+r')
+        self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Current alignment [%]: ")
@@ -100,6 +106,8 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.manualAlignBtn)
         tb.addSeparator()
+        tb.addAction(self.activateStageBtn)
+        tb.addSeparator()
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
         
@@ -112,6 +120,7 @@ class CameraWindow(QMainWindow):
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.manualAlignBtn.triggered.connect(self.manualAlign)
+        self.activateStageBtn.triggered.connect(self.activateStage)
         self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
@@ -120,6 +129,33 @@ class CameraWindow(QMainWindow):
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
         pass
+    
+    def activateStage(self):
+        # Activate stage
+        if self.activeStage == False:
+            self.printMsg("Activating XY stage...")
+            self.xystage = XYstage()
+            if self.xystage.xystageInit == False:
+                self.printMsg(" Stage not activated: no acquisition possible")
+            else:
+                self.activateStageBtn.setText("Deactivate stage")
+                self.activeStage = True
+                print(" Stage activated.")
+                QApplication.processEvents()
+                self.printMsg(" Moving to first substrate")
+                self.xystage.move_abs(5,5)
+        else:
+            self.printMsg("Deactivating XY stage...")
+            QApplication.processEvents()
+            self.printMsg(" Moving to position [5,5]")
+            self.xystage.move_abs(5,5)
+            if self.xystage.xystageInit is True:
+                self.xystage.end_stage_control()
+                del self.xystage
+            self.activateStageBtn.setText("Position stage")
+            self.enableButtons(False)
+            self.activeStage = False
+            self.printMsg(" XY stage deactivated")
     
     # Manually check the alignment
     def manualAlign(self):
@@ -141,7 +177,7 @@ class CameraWindow(QMainWindow):
             self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
             self.outAlignmentMessageBox()
         else:
-            self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
+            self.printMsg(" Devices and masks appear to be correct")
 
     # Get image from feed
     def cameraFeed(self, live):
@@ -202,12 +238,11 @@ class CameraWindow(QMainWindow):
             with open(self.parent().config.configFile, 'w') as configfile:
                 self.parent().config.conf.write(configfile)
             self.parent().config.readConfig(self.parent().config.configFile)
-            print(" New alignment settings saved as default. Image saved in: ", self.filename)
-            logger.info(" New camera alignment settings saved as default. Image saved in: "+self.filename)
+            self.printMsg(" New alignment settings saved as default. Image saved in: "+self.filename)
             self.cam.save_image(self.parent().config.imagesFolder+self.filename)
             return True
         else:
-            print( " Alignment settings not saved as default" )
+            self.printMsg( " Alignment settings not saved as default")
             return False
 
     # Warning box for misalignment
@@ -217,6 +252,12 @@ class CameraWindow(QMainWindow):
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
         msgBox.exec_()
+    
+    # Show message on log and terminal
+    def printMsg(self, msg):
+        print(msg)
+        self.statusBar().showMessage(msg)
+        logger.info(msg)
 
     # Close camera feed upon closing window.
     def closeEvent(self, event):
@@ -283,7 +324,6 @@ class GraphicsScene(QGraphicsScene):
             self.removeRectangles()
         if event.button() == Qt.LeftButton:
             self.parent().begin = event.scenePos()
-            #self.parent().end = event.scenePos()
             self.parent().initial = event.scenePos()
             self.update()
 
@@ -309,7 +349,7 @@ class GraphicsScene(QGraphicsScene):
     def keyPressEvent(self, event):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
-                self.parent().manualAlign
+                self.parent().manualAlign()
     
     # Remove rectangular selections upon redrawing, leave image
     def removeRectangles(self):
