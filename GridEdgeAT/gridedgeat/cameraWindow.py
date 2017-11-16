@@ -53,7 +53,7 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Camera")
-        self.updateBtn = QAction(QIcon(QPixmap()),"Get Feed",self)
+        self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
         self.updateBtn.setShortcut('Ctrl+c')
         self.updateBtn.setStatusTip('Get camera feed, set integration window')
         tb.addAction(self.updateBtn)
@@ -107,10 +107,6 @@ class CameraWindow(QMainWindow):
         self.cam = CameraFeed()
         self.setDefaultBtn.setEnabled(True)
         try:
-            #if self.firstTimeRunning == True:
-                #self.infoMessageBox()
-            #    self.firstTimeRunning = False
-
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
             if live:
                 self.liveFeedBtn.setText("Set integration window")
@@ -153,12 +149,12 @@ class CameraWindow(QMainWindow):
     # Event driven routines for cropping image with mouse
     # Main method for evaluating alignemnt from cropped selection
     def mouseReleaseEvent(self, event):
-        self.updateBtn.setText("Get feed")
+        self.updateBtn.setText("Get Camera Image")
+        self.liveFeedBtn.setText("Live Feed")
         self.begin = event.pos()
         self.end = event.pos()
         self.final = event.pos()
         self.update()
-        #print(self.initial.x(), self.initial.y(), self.final.x(), self.final.y())
         try:
             self.image, self.image_data, self.image_orig = self.cam.get_image(True,
                              self.initial.x(),
@@ -226,18 +222,6 @@ class CameraWindow(QMainWindow):
         msgBox.setInformativeText( "Please realign and retry" )
         msgBox.exec_()
 
-    '''
-    # Info procedure panel
-    def infoMessageBox(self):
-        msgBox = QMessageBox( self )
-        msgBox.setIcon( QMessageBox.Information )
-        msgBox.setText( "INFO: Please follow the alignment procedure:" )
-        msgBox.setInformativeText( "1. Press \"Update camera Feed\" to start the live feed\n"+\
-                                   "2. Press \"q\" to stop the live feed and grab image\n"+\
-                                   "3. Select with the mouse the area for alignemnt " )
-        msgBox.exec_()
-    '''
-    
     # Close camera feed upon closing window.
     def closeEvent(self, event):
         if hasattr(self,"cam"):
@@ -253,13 +237,14 @@ class GraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(GraphicsView, self).__init__(parent)
         self.setRenderHints(QPainter.Antialiasing)
-    
+    '''
     def resizeEvent(self, event):
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
     
     def drawBackground(self, painter, rect):
         painter.fillRect(rect, QBrush(Qt.lightGray))
         self.scene().drawBackground(painter, rect)
+    '''
 
 '''
    GraphicsScene
@@ -270,7 +255,7 @@ class GraphicsScene(QGraphicsScene):
 
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
-    
+    '''
     def drawBackground(self, painter, rect):
         """ Draws image in background if it exists. """
         if hasattr(self, "image"):
@@ -287,4 +272,5 @@ class GraphicsScene(QGraphicsScene):
         self.imlabel.setText(labeltext)
         self.image = image
         self.update()
+    '''
 
