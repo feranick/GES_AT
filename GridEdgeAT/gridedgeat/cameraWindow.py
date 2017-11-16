@@ -51,6 +51,7 @@ class CameraWindow(QMainWindow):
         self.imageLabel = QLabel()
         #self.setCentralWidget(self.imageLabel)
         self.setCentralWidget(self.view)
+        self.image_data = None
         
         self.begin = QPoint()
         self.end = QPoint()
@@ -76,6 +77,11 @@ class CameraWindow(QMainWindow):
         self.autoAlignBtn.setShortcut('Ctrl+r')
         self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
+        self.manualAlignBtn = QAction(QIcon(QPixmap()),"Check Alignment Manually",self)
+        self.manualAlignBtn.setEnabled(False)
+        self.manualAlignBtn.setShortcut('Ctrl+m')
+        self.manualAlignBtn.setStatusTip('Check Alignment Manually')
+        
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Current alignment [%]: ")
         self.checkAlignText = QLineEdit()
@@ -92,6 +98,8 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.liveFeedBtn)
         tb.addSeparator()
+        tb.addAction(self.manualAlignBtn)
+        tb.addSeparator()
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
         
@@ -103,6 +111,7 @@ class CameraWindow(QMainWindow):
         tb2.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
+        self.manualAlignBtn.triggered.connect(self.manualAlign)
         self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
@@ -112,6 +121,27 @@ class CameraWindow(QMainWindow):
     def autoAlign(self):
         pass
     
+    # Manually check the alignment
+    def manualAlign(self):
+        self.updateBtn.setText("Get Camera Image")
+        self.liveFeedBtn.setText("Live Feed")
+        self.image, self.image_data, self.image_orig = self.cam.get_image(True,
+                             int(self.initial.x()),
+                             int(self.final.x()),
+                             int(self.initial.y()),
+                             int(self.final.y()))
+                
+        self.alignPerc, self.iMax = self.cam.check_alignment( \
+                self.image_data,
+                self.config.alignmentIntThreshold)
+
+        self.checkAlignText.setText(str(self.alignPerc))
+        if float(self.alignPerc) > self.config.alignmentContrastDefault \
+                and float(self.iMax) > self.config.alignmentIntMax:
+            self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+            self.outAlignmentMessageBox()
+        else:
+            self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
 
     # Get image from feed
     def cameraFeed(self, live):
@@ -270,6 +300,7 @@ class GraphicsScene(QGraphicsScene):
         try:
             if len(self.items()) !=0:
                 self.addRect()
+            self.parent().manualAlignBtn.setEnabled(True)
             self.parent().statusBar().showMessage(' Press SPACE to set Rectangular Selection', 5000)
         except:
             pass
@@ -278,25 +309,7 @@ class GraphicsScene(QGraphicsScene):
     def keyPressEvent(self, event):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
-                self.parent().updateBtn.setText("Get Camera Image")
-                self.parent().liveFeedBtn.setText("Live Feed")
-                self.image, self.image_data, self.image_orig = self.parent().cam.get_image(True,
-                             int(self.parent().initial.x()),
-                             int(self.parent().final.x()),
-                             int(self.parent().initial.y()),
-                             int(self.parent().final.y()))
-                
-                self.alignPerc, self.iMax = self.parent().cam.check_alignment( \
-                self.image_data,
-                self.parent().config.alignmentIntThreshold)
-
-                self.parent().checkAlignText.setText(str(self.alignPerc))
-                if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
-                    and float(self.iMax) > self.parent().config.alignmentIntMax:
-                    self.parent().checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-                    self.parent().outAlignmentMessageBox()
-                else:
-                    self.parent().statusBar().showMessage(' Devices and masks appear to be correct', 5000)
+                self.parent().manualAlign
     
     # Remove rectangular selections upon redrawing, leave image
     def removeRectangles(self):
