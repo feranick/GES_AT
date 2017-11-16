@@ -273,20 +273,16 @@ class GraphicsScene(QGraphicsScene):
 
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
-    
-        self.spots = []
-        self.center = None
-        self.spotsLabel = []
 
-    def addRect(self, item):
+    def addRect(self):
+        self.removeRectangles()
+        item = QGraphicsSelectionItem(self.parent().begin,self.parent().end)
         self.clearSelection()
         self.addItem(item)
         item.setSelected(True)
         self.setFocusItem(item)
-        self.spots.append(item)
-        self.spotsLabel.append(str(len(self.spots)))
-        item.setToolTip(self.spotsLabel[-1])
-    
+        #item.setToolTip(self.spotsLabel[-1])
+        self.update()
     
     # Event driven routines for cropping image with mouse
     def paintEvent(self, event):
@@ -296,12 +292,7 @@ class GraphicsScene(QGraphicsScene):
         qp.drawRect(QRect(self.parent().begin, self.parent().end))
 
     def mousePressEvent(self, event):
-        if len(self.items())<2:
-            self.image_item = self.items()[0]
-        for item in self.items():
-            self.removeItem(item)
-        self.addItem(self.image_item)
-        self.update
+        self.removeRectangles()
         if event.button() == Qt.LeftButton:
             self.parent().begin = event.scenePos()
             #self.parent().end = event.scenePos()
@@ -309,8 +300,9 @@ class GraphicsScene(QGraphicsScene):
             self.update()
 
     def mouseMoveEvent(self, event):
-        self.end = event.scenePos()
-        self.update()
+        self.parent().end = event.scenePos()
+        self.addRect()
+
 
     # Event driven routines for cropping image with mouse
     # Main method for evaluating alignemnt from cropped selection
@@ -331,8 +323,7 @@ class GraphicsScene(QGraphicsScene):
         
             #self.imageLabel.setPixmap(QPixmap.fromImage(self.image_orig))
             
-        item = QGraphicsSelectionItem(self.parent().begin,self.parent().end)
-        self.addRect(item)
+        self.addRect()
             
         '''
             self.alignPerc, self.iMax = self.cam.check_alignment( \
@@ -349,29 +340,7 @@ class GraphicsScene(QGraphicsScene):
         '''
         #except:
         #    pass
-    '''
-    def mousePressEvent(self, event):
-        """ Processes mouse events through either
-              - propagating the event
-            or
-              - instantiating a new Circle (on left-click)
-              - instantiating a new Center (on right-click)
-        """
-        transform = QTransform()
-        #if hasattr(self, "image"):
-        #if self.itemAt(event.scenePos(), transform):
-        #    super(GraphicsScene, self).mousePressEvent(event)
-        #    print("No clue!")
-        if event.button() == Qt.LeftButton:
-            item = QGraphicsSelectionItem(event.scenePos(),40)
-            self.addSpot(item)
-                # Enable spots to be saved when present on the image
-                #if len(self.spots) > 0:
-                #    self.parent().fileSaveSpotsAction.setEnabled(True)
-
-        #else:
-        #    print("Fail")
-    '''
+    
     def drawBackground(self, painter, rect):
         """ Draws image in background if it exists. """
         if hasattr(self, "image"):
@@ -389,11 +358,13 @@ class GraphicsScene(QGraphicsScene):
         self.image = image
         self.update()
 
-    def removeAll(self):
+    def removeRectangles(self):
         """ Remove all spots from the scene (leaves background unchanged). """
+        if len(self.items())<2:
+            self.image_item = self.items()[0]
         for item in self.items():
-            if type(item) == QGraphicsSelectionItem:
-                self.removeItem(item)
-        self.spots = []
+            self.removeItem(item)
+        self.addItem(self.image_item)
+        self.update
 
 
