@@ -24,6 +24,7 @@ from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
 
 from .modules.camera.camera import *
 from . import logger
+from .configuration import *
 
 '''
    Camera Window
@@ -32,6 +33,8 @@ class CameraWindow(QMainWindow):
     def __init__(self, parent=None):
         super(CameraWindow, self).__init__(parent)
         self.initUI()
+        self.config = Configuration()
+        self.config.readConfig(self.config.configFile)
     
     def initUI(self):
         # Set up Window geometry and shape
@@ -98,7 +101,6 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
 
-    
     # Define behavior of push buttons
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
@@ -134,57 +136,7 @@ class CameraWindow(QMainWindow):
             self.updateBtn.setEnabled(True)
         except:
             self.statusBar().showMessage(' USB camera not connected', 5000)
-    
-    '''
-    # Event driven routines for cropping image with mouse
-    def paintEvent(self, event):
-        qp = QPainter(self)
-        br = QBrush(QColor(100, 10, 10, 40))
-        qp.setBrush(br)
-        qp.drawRect(QRect(self.begin, self.end))
 
-    def mousePressEvent(self, event):
-        self.begin = event.pos()
-        self.end = event.pos()
-        self.initial = event.pos()
-        self.update()
-
-    def mouseMoveEvent(self, event):
-        self.end = event.pos()
-        self.update()
-
-    # Event driven routines for cropping image with mouse
-    # Main method for evaluating alignemnt from cropped selection
-    def mouseReleaseEvent(self, event):
-        self.updateBtn.setText("Get Camera Image")
-        self.liveFeedBtn.setText("Live Feed")
-        self.begin = event.pos()
-        self.end = event.pos()
-        self.final = event.pos()
-        self.update()
-        try:
-            self.image, self.image_data, self.image_orig = self.cam.get_image(True,
-                             self.initial.x(),
-                             self.final.x(),
-                             self.initial.y(),
-                             self.final.y())
-            
-            self.imageLabel.setPixmap(QPixmap.fromImage(self.image_orig))
-            
-            self.alignPerc, self.iMax = self.cam.check_alignment( \
-                self.image_data,
-                self.parent().config.alignmentIntThreshold)
-
-            self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
-                    and float(self.iMax) > self.parent().config.alignmentIntMax:
-                self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-                self.outAlignmentMessageBox()
-            else:
-                self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
-        except:
-            pass
-    '''
     # Set default values for alignment parameters
     def setDefault(self):
         try:
@@ -235,10 +187,15 @@ class CameraWindow(QMainWindow):
             self.cam.closeLiveFeed = True
             #self.firstTimeRunning = True
             del self.cam
+        self.scene.cleanup()
 
+'''
+   QGraphicsSelectionItem
+   Definition of the class to generate the rectangular selection
+'''
 class QGraphicsSelectionItem(QGraphicsRectItem):
-    """ Provides an QGraphicsItem to display a Spot on a QGraphicsScene. """
-
+    
+    # Class defining Rectangular Selection
     def __init__(self, initPos, finalPos, parent=None):
         super(QGraphicsSelectionItem, self).__init__(parent)
         self.setRect(QRectF(initPos, finalPos))
@@ -248,14 +205,14 @@ class QGraphicsSelectionItem(QGraphicsRectItem):
                       QGraphicsItem.ItemIsFocusable)
 '''
    GraphicsView
-   Definition of the View for Camera
+   Custom GraphicsView to display the scene
 '''
 class GraphicsView(QGraphicsView):
-    """ Custom GraphicsView to display the scene. """
     def __init__(self, parent=None):
         super(GraphicsView, self).__init__(parent)
         self.setRenderHints(QPainter.Antialiasing)
     
+    # Resize image when resizing cameraWindow
     def resizeEvent(self, event):
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
     
@@ -263,17 +220,16 @@ class GraphicsView(QGraphicsView):
         painter.fillRect(rect, QBrush(Qt.lightGray))
         self.scene().drawBackground(painter, rect)
 
-
 '''
    GraphicsScene
-   Definition of the Scene for Camera
+   Custom GraphicScene having all the main content.
 '''
 class GraphicsScene(QGraphicsScene):
-    """ Custom GraphicScene having all the main content."""
 
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
 
+    # Create rectangular selection
     def addRect(self):
         self.removeRectangles()
         item = QGraphicsSelectionItem(self.parent().begin,self.parent().end)
@@ -283,16 +239,11 @@ class GraphicsScene(QGraphicsScene):
         self.setFocusItem(item)
         #item.setToolTip(self.spotsLabel[-1])
         self.update()
-    
-    # Event driven routines for cropping image with mouse
-    def paintEvent(self, event):
-        qp = QPainter(self)
-        br = QBrush(QColor(100, 10, 10, 40))
-        qp.setBrush(br)
-        qp.drawRect(QRect(self.parent().begin, self.parent().end))
 
+    # Mouse event driven routines for generating rectangular selections
     def mousePressEvent(self, event):
-        self.removeRectangles()
+        if len(self.items()) !=0:
+            self.removeRectangles()
         if event.button() == Qt.LeftButton:
             self.parent().begin = event.scenePos()
             #self.parent().end = event.scenePos()
@@ -300,47 +251,68 @@ class GraphicsScene(QGraphicsScene):
             self.update()
 
     def mouseMoveEvent(self, event):
-        self.parent().end = event.scenePos()
-        self.addRect()
-
-
-    # Event driven routines for cropping image with mouse
-    # Main method for evaluating alignemnt from cropped selection
+        if len(self.items()) !=0:
+            self.parent().end = event.scenePos()
+            self.addRect()
+    
+    # Rectangular selection is
     def mouseReleaseEvent(self, event):
-        
-        #self.updateBtn.setText("Get Camera Image")
-        #self.liveFeedBtn.setText("Live Feed")
-        #self.parent().begin = event.scenePos()
         self.parent().end = event.scenePos()
         self.parent().final = event.scenePos()
         self.parent().update()
-        #try:
-        self.image, self.image_data, self.image_orig = self.parent().cam.get_image(True,
+        try:
+            if len(self.items()) !=0:
+                self.addRect()
+        except:
+            pass
+
+    # keyboard event driven routines for fixing the selection for analysis
+    def keyPressEvent(self, event):
+        if len(self.items())>1:
+            if event.key() == Qt.Key_Space:
+                self.parent().updateBtn.setText("Get Camera Image")
+                self.parent().liveFeedBtn.setText("Live Feed")
+                self.image, self.image_data, self.image_orig = self.parent().cam.get_image(True,
                              int(self.parent().initial.x()),
                              int(self.parent().final.x()),
                              int(self.parent().initial.y()),
                              int(self.parent().final.y()))
-        
-            #self.imageLabel.setPixmap(QPixmap.fromImage(self.image_orig))
-            
-        self.addRect()
-            
-        '''
-            self.alignPerc, self.iMax = self.cam.check_alignment( \
+                
+                self.alignPerc, self.iMax = self.parent().cam.check_alignment( \
                 self.image_data,
                 self.parent().config.alignmentIntThreshold)
 
-            self.checkAlignText.setText(str(self.alignPerc))
-            if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
+                self.parent().checkAlignText.setText(str(self.alignPerc))
+                if float(self.alignPerc) > self.parent().config.alignmentContrastDefault \
                     and float(self.iMax) > self.parent().config.alignmentIntMax:
-                self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-                self.outAlignmentMessageBox()
-            else:
-                self.statusBar().showMessage(' Devices and masks appear to be correct', 5000)
-        '''
-        #except:
-        #    pass
+                    self.parent().checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+                    self.parent().outAlignmentMessageBox()
+                else:
+                    self.parent().statusBar().showMessage(' Devices and masks appear to be correct', 5000)
     
+    # Remove rectangular selections upon redrawing, leave image
+    def removeRectangles(self):
+        """ Remove all spots from the scene (leaves background unchanged). """
+        if len(self.items()) == 1 :
+            self.image_item = self.items()[0]
+        for item in self.items():
+            self.removeItem(item)
+        self.addItem(self.image_item)
+        self.update
+
+    # cleaup scene and view
+    def cleanup(self):
+        try:
+            for item in self.items():
+                self.removeItem(item)
+            self.update
+            del self.image
+            del self.image_data
+            del self.image_orig
+        except:
+            pass
+
+    '''
     def drawBackground(self, painter, rect):
         """ Draws image in background if it exists. """
         if hasattr(self, "image"):
@@ -357,14 +329,8 @@ class GraphicsScene(QGraphicsScene):
         self.imlabel.setText(labeltext)
         self.image = image
         self.update()
+    '''
 
-    def removeRectangles(self):
-        """ Remove all spots from the scene (leaves background unchanged). """
-        if len(self.items())<2:
-            self.image_item = self.items()[0]
-        for item in self.items():
-            self.removeItem(item)
-        self.addItem(self.image_item)
-        self.update
+
 
 
