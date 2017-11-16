@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
         self.switchboxMenu.setShortcut("Ctrl+b")
         self.switchboxMenu.setStatusTip('Switchbox controls')
         self.switchboxMenu.triggered.connect(self.switchboxwind.show)
-        self.cameraMenu = QAction("&Camera", self)
+        self.cameraMenu = QAction("&Camera Alignment", self)
         self.cameraMenu.setShortcut("Ctrl+c")
         self.cameraMenu.setStatusTip('Camera controls')
         self.cameraMenu.triggered.connect(self.camerawind.show)
@@ -198,12 +198,19 @@ class MainWindow(QMainWindow):
         self.resultsToolbar.setStatusTip('Results Panel')
         self.resultsToolbar.triggered.connect(self.resultswind.show)
         
+        self.cameraToolbar = QAction("&Alignment", self)
+        self.cameraToolbar.setShortcut("Ctrl+c")
+        self.cameraToolbar.setStatusTip('Substrate alignment via Camera')
+        self.cameraToolbar.triggered.connect(self.camerawind.show)
+        
         #toolBar = self.addToolBar("&Toolbar")
         self.toolBar.addAction(self.sampleToolbar)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.acquisitionToolbar)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.resultsToolbar)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.cameraToolbar)
         self.toolBar.addSeparator()
        
         #### Create status bar ####

@@ -17,7 +17,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
     QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication,
-    QGraphicsRectItem,QGraphicsItem)
+    QGraphicsRectItem,QGraphicsItem,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
                          QBrush,QColor,QTransform,QPen)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
@@ -57,44 +57,50 @@ class CameraWindow(QMainWindow):
         self.firstTimeRunning = True
         
         # Set up ToolBar
-        tb = self.addToolBar("Camera")
+        tb = self.addToolBar("Substrate alignment via Camera")
         self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
         self.updateBtn.setShortcut('Ctrl+c')
         self.updateBtn.setStatusTip('Get camera feed, set integration window')
-        tb.addAction(self.updateBtn)
-        tb.addSeparator()
+        
+        tb2 =  QToolBar(self)
+        tb2.setGeometry(0,480,660,25)
         
         self.liveFeedBtn = QAction(QIcon(QPixmap()),
                                      "Live Feed",self)
         self.liveFeedBtn.setShortcut('Ctrl+d')
         self.liveFeedBtn.setStatusTip('Set Default Alignment')
         self.liveFeedBtn.setEnabled(True)
-        tb.addAction(self.liveFeedBtn)
-        tb.addSeparator()
         
-        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Alignment",self)
+        self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Automated Alignment",self)
         self.autoAlignBtn.setEnabled(False)
         self.autoAlignBtn.setShortcut('Ctrl+r')
-        self.autoAlignBtn.setStatusTip('Run Alignment routine')
-        tb.addAction(self.autoAlignBtn)
-        tb.addSeparator()
+        self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
         contrastAlignLabel = QLabel()
-        contrastAlignLabel.setText("Check alignment [%]: ")
-        tb.addWidget(contrastAlignLabel)
+        contrastAlignLabel.setText("Current alignment [%]: ")
         self.checkAlignText = QLineEdit()
         self.checkAlignText.setMaximumSize(50, 25)
         self.checkAlignText.setReadOnly(True)
-        tb.addWidget(self.checkAlignText)
-        self.checkAlignText.show()
-        tb.addSeparator()
+        
         self.setDefaultBtn = QAction(QIcon(QPixmap()),
                                      "Set Default Alignment",self)
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
-        tb.addAction(self.setDefaultBtn)
+        
+        tb.addAction(self.updateBtn)
         tb.addSeparator()
+        tb.addAction(self.liveFeedBtn)
+        tb.addSeparator()
+        tb.addAction(self.autoAlignBtn)
+        tb.addSeparator()
+        
+        tb2.addWidget(contrastAlignLabel)
+        tb2.addWidget(self.checkAlignText)
+        self.checkAlignText.show()
+        tb2.addSeparator()
+        tb2.addAction(self.setDefaultBtn)
+        tb2.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
@@ -105,6 +111,7 @@ class CameraWindow(QMainWindow):
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
         pass
+    
 
     # Get image from feed
     def cameraFeed(self, live):
