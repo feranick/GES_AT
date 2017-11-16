@@ -263,6 +263,7 @@ class GraphicsScene(QGraphicsScene):
         try:
             if len(self.items()) !=0:
                 self.addRect()
+            self.parent().statusBar().showMessage(' Press SPACE to set Rectangular Selection', 5000)
         except:
             pass
 
