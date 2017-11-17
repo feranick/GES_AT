@@ -169,7 +169,8 @@ class CameraWindow(QMainWindow):
                                 self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
 
-                                
+        self.printMsg(" Moving stage to parking position")
+        self.xystage.move_abs(5,5)                        
         self.printMsg("Deactivating Stage...")
         self.xystage.end_stage_control()
         del self.xystage
