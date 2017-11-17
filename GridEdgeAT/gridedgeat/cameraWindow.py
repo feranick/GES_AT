@@ -126,7 +126,7 @@ class CameraWindow(QMainWindow):
             return
         self.isAutoAlign = True
         self.autoAlignBtn.setEnabled(False)
-        '''
+        
         self.printMsg("Activating XY stage for automated alignment...")
         self.xystage = XYstage()
         if self.xystage.xystageInit == False:
@@ -134,9 +134,8 @@ class CameraWindow(QMainWindow):
             self.autoAlignBtn.setEnabled(True)
             return
         self.printMsg(" Stage activated.")
-        '''
+        
         self.firstRun = True
-        self.temp = True
         for j in range(self.numCol):
             for i in range(self.numRow):
                 # Convert to correct substrate number in holder
@@ -148,8 +147,7 @@ class CameraWindow(QMainWindow):
                     self.parent().samplewind.colorCellAcq(i,j,"yellow")
                                         
                     # Move stage to desired substrate
-                    #if self.xystage.xystageInit is True:
-                    if self.temp:
+                    if self.xystage.xystageInit is True:
                         self.printMsg("Moving stage to substrate #"+ \
                                         str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
@@ -159,7 +157,11 @@ class CameraWindow(QMainWindow):
                         # Perform alignment analysis 
                         self.cam = CameraFeed()
                         self.setSelWindow(False)
-                        alignFlag, alignPerc, iMax = self.alignment()
+                        if hasattr(self,"cam"):
+                            alignFlag, alignPerc, iMax = self.alignment()
+                        else:
+                            self.deactivateStage()
+                            return
                         if alignFlag:
                             self.parent().samplewind.colorCellAcq(i,j,"white")
                             self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
@@ -167,14 +169,9 @@ class CameraWindow(QMainWindow):
                             self.parent().samplewind.colorCellAcq(i,j,"grey")
                             self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
-        '''
-        self.printMsg(" Moving stage to parking position")
-        self.xystage.move_abs(5,5)
-        self.printMsg("Deactivating Stage...")
-        self.xystage.end_stage_control()
-        del self.xystage
-        self.printMsg("Stage deactivated")
-        '''
+        
+        self.deactivateStage()
+        
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
@@ -342,6 +339,15 @@ class CameraWindow(QMainWindow):
     def closeEvent(self, event):
         self.delCam()
         self.scene.cleanup()
+
+    # Deactivate stage after alignment
+    def deactivateStage(self):
+        self.printMsg(" Moving stage to parking position")
+        self.xystage.move_abs(5,5)
+        self.printMsg("Deactivating Stage...")
+        self.xystage.end_stage_control()
+        del self.xystage
+        self.printMsg("Stage deactivated")
 
 '''
    QGraphicsSelectionItem
