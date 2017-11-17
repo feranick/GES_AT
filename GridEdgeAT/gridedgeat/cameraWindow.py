@@ -63,8 +63,6 @@ class CameraWindow(QMainWindow):
         
         # Set up ToolBar
         tb = self.addToolBar("Controls")
-        tb2 =  QToolBar(self)
-        tb2.setGeometry(0,480,660,25)
         
         self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
         self.updateBtn.setShortcut('Ctrl+c')
@@ -104,15 +102,13 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.liveFeedBtn)
         tb.addSeparator()
-        #tb.addAction(self.manualAlignBtn)
-        tb.addSeparator()
 
-        tb2.addWidget(contrastAlignLabel)
-        tb2.addWidget(self.checkAlignText)
+        tb.addWidget(contrastAlignLabel)
+        tb.addWidget(self.checkAlignText)
         self.checkAlignText.show()
-        tb2.addSeparator()
-        tb2.addAction(self.setDefaultBtn)
-        tb2.addSeparator()
+        tb.addSeparator()
+        tb.addAction(self.setDefaultBtn)
+        tb.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         #self.manualAlignBtn.triggered.connect(lambda: self.manualAlign()
@@ -181,6 +177,7 @@ class CameraWindow(QMainWindow):
                         else:
                                 self.parent().samplewind.colorCellAcq(i,j,"white")
                                 self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
+        self.delCam()
 
         '''                        
         self.Msg.emit("Deactivating Stage...")
@@ -213,6 +210,7 @@ class CameraWindow(QMainWindow):
             self.outAlignmentMessageBox()
         else:
             self.printMsg(" Devices and masks appear to be correct")
+        self.delCam()
             
     # Alignment routine
     def alignment(self):
@@ -322,12 +320,15 @@ class CameraWindow(QMainWindow):
         self.statusBar().showMessage(msg)
         logger.info(msg)
 
-    # Close camera feed upon closing window.
-    def closeEvent(self, event):
+    # Delete camera feed
+    def delCam(self):
         if hasattr(self,"cam"):
             self.cam.closeLiveFeed = True
-            #self.firstTimeRunning = True
             del self.cam
+
+    # Close camera feed upon closing window.
+    def closeEvent(self, event):
+        self.delCam()
         self.scene.cleanup()
 
 '''
