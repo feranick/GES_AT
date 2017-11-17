@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-import sys
+import sys, time
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
@@ -107,7 +107,6 @@ class CameraWindow(QMainWindow):
         tb.addAction(self.manualAlignBtn)
         tb.addSeparator()
 
-        
         tb2.addWidget(contrastAlignLabel)
         tb2.addWidget(self.checkAlignText)
         self.checkAlignText.show()
@@ -161,9 +160,13 @@ class CameraWindow(QMainWindow):
                         time.sleep(0.1)
                         
                         self.cameraFeed(False)
-                        while self.firstRun:
+                        if self.firstRun:
                             self.printMsg(" press SPACE to continue with the alignment")
-                    
+                        while self.firstRun:
+                            time.sleep(0.05)
+                            QApplication.processEvents()
+                            pass
+                        self.firstRun = False
                         alignFlag, alignPerc, iMax = self.alignment()
                         
                         if float(alignPerc) > self.config.alignmentContrastDefault \
