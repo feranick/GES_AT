@@ -278,6 +278,10 @@ class MainWindow(QMainWindow):
         viewSampleMenu.setShortcut("Ctrl+d")
         viewSampleMenu.setStatusTip('Display Substrates Window')
         viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(obj.samplewind))
+        viewCameraMenu = QAction("&Alignment Window", self)
+        viewCameraMenu.setShortcut("Ctrl+c")
+        viewCameraMenu.setStatusTip('Camera alignment Window')
+        viewCameraMenu.triggered.connect(lambda: self.displayMainWindow(obj.camerawind))
         viewAcquisitionMenu = QAction("&Acquisition Window", self)
         viewAcquisitionMenu.setShortcut("Ctrl+a")
         viewAcquisitionMenu.setStatusTip('Display Acquisition Window')
@@ -290,6 +294,7 @@ class MainWindow(QMainWindow):
         windowMenu = menuObj.addMenu('&Window')
         windowMenu.addAction(viewMainWindowMenu)
         windowMenu.addAction(viewSampleMenu)
+        windowMenu.addAction(viewCameraMenu)
         windowMenu.addAction(viewAcquisitionMenu)
         windowMenu.addAction(viewResultsMenu)
 
