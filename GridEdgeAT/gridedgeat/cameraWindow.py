@@ -53,7 +53,6 @@ class CameraWindow(QMainWindow):
         self.view.setScene(self.scene)
         self.view.setMinimumSize(660, 480)
         self.imageLabel = QLabel()
-        #self.setCentralWidget(self.imageLabel)
         self.setCentralWidget(self.view)
         self.image_data = None
         
@@ -111,7 +110,6 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
-        #self.manualAlignBtn.triggered.connect(lambda: self.manualAlign()
         self.updateBtn.triggered.connect(lambda: self.manualAlign(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.manualAlign(True))
@@ -126,8 +124,9 @@ class CameraWindow(QMainWindow):
         if performAlignment == False:
             self.noSubstratesMessageBox()
             return
-
+        self.isAutoAlign = True
         self.autoAlignBtn.setEnabled(False)
+        '''
         self.printMsg("Activating XY stage for automated alignment...")
         self.xystage = XYstage()
         if self.xystage.xystageInit == False:
@@ -135,8 +134,9 @@ class CameraWindow(QMainWindow):
             self.autoAlignBtn.setEnabled(True)
             return
         self.printMsg(" Stage activated.")
-
+        '''
         self.firstRun = True
+        self.temp = True
         for j in range(self.numCol):
             for i in range(self.numRow):
                 # Convert to correct substrate number in holder
@@ -148,46 +148,49 @@ class CameraWindow(QMainWindow):
                     self.parent().samplewind.colorCellAcq(i,j,"yellow")
                                         
                     # Move stage to desired substrate
-                    if self.xystage.xystageInit is True:
+                    #if self.xystage.xystageInit is True:
+                    if self.temp:
                         self.printMsg("Moving stage to substrate #"+ \
                                         str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
-                        self.xystage.move_to_substrate_4x4(substrateNum)
+                        #self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
 
                         # Perform alignment analysis 
                         self.cam = CameraFeed()
                         self.setSelWindow(False)
                         alignFlag, alignPerc, iMax = self.alignment()
-                        
-                        if float(alignPerc) > self.config.alignmentContrastDefault \
-                                    and float(iMax) > self.config.alignmentIntMax:
-                                self.parent().samplewind.colorCellAcq(i,j,"grey")
-                                self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
+                        #if float(alignPerc) > self.config.alignmentContrastDefault \
+                        #            and float(iMax) > self.config.alignmentIntMax:
+                        if alignFlag:
+                            self.parent().samplewind.colorCellAcq(i,j,"white")
+                            self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
                         else:
-                                self.parent().samplewind.colorCellAcq(i,j,"white")
-                                self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
+                            self.parent().samplewind.colorCellAcq(i,j,"grey")
+                            self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
-
+        '''
         self.printMsg(" Moving stage to parking position")
-        self.xystage.move_abs(5,5)                        
+        self.xystage.move_abs(5,5)
         self.printMsg("Deactivating Stage...")
         self.xystage.end_stage_control()
         del self.xystage
         self.printMsg("Stage deactivated")
+        '''
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
 
-    # Manually check the alignment
+    # Perform manual alignment
     def manualAlign(self, live):
         self.cam = CameraFeed()
+        self.isAutoAlign = False
         self.firstRun = True
-        self.manualAlignOn = True
+        self.alignOn = True
         self.scene.selectionDef.connect(self.checkManualAlign)
         self.setSelWindow(live)
         QApplication.processEvents()
-        while self.manualAlignOn:
+        while self.alignOn:
             time.sleep(0.1)
             QApplication.processEvents()
 
@@ -197,15 +200,17 @@ class CameraWindow(QMainWindow):
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
         
+    # Routine for manual alignment check
     def checkManualAlign(self):
         alignFlag, alignPerc, iMax = self.alignment()
-        if float(alignPerc) > self.config.alignmentContrastDefault \
-                and float(iMax) > self.config.alignmentIntMax:
-            self.outAlignmentMessageBox()
-            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(alignPerc)+")")
-        else:
+        #if float(alignPerc) > self.config.alignmentContrastDefault \
+        #        and float(iMax) > self.config.alignmentIntMax:
+        if alignFlag:
             self.inAlignmentMessageBox()
             self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(alignPerc)+")")
+        else:
+            self.outAlignmentMessageBox()
+            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(alignPerc)+")")
 
     # Define selection window 
     def setSelWindow(self, live):
@@ -257,7 +262,6 @@ class CameraWindow(QMainWindow):
             
             pixMap = QPixmap.fromImage(self.image)
             self.scene.addPixmap(pixMap)
-            #self.imageLabel.setPixmap(QPixmap.fromImage(self.image))
             self.view.fitInView(self.view.sceneRect(), Qt.KeepAspectRatio)
 
             self.statusBar().showMessage('Camera-feed' + \
@@ -368,10 +372,6 @@ class GraphicsView(QGraphicsView):
     # Resize image when resizing cameraWindow
     def resizeEvent(self, event):
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
-    
-    def drawBackground(self, painter, rect):
-        painter.fillRect(rect, QBrush(Qt.lightGray))
-        self.scene().drawBackground(painter, rect)
 
 '''
    GraphicsScene
@@ -394,7 +394,7 @@ class GraphicsScene(QGraphicsScene):
         #item.setToolTip(self.spotsLabel[-1])
         self.update()
 
-    # Mouse event driven routines for generating rectangular selections
+    # Mouse events routines for generating rectangular selections
     def mousePressEvent(self, event):
         if len(self.items()) !=0:
             self.removeRectangles()
@@ -408,7 +408,7 @@ class GraphicsScene(QGraphicsScene):
             self.parent().end = event.scenePos()
             self.addRect()
     
-    # Rectangular selection is
+    # Rectangular selection is defined at mouse release
     def mouseReleaseEvent(self, event):
         self.parent().end = event.scenePos()
         self.parent().final = event.scenePos()
@@ -417,18 +417,21 @@ class GraphicsScene(QGraphicsScene):
             if len(self.items()) !=0:
                 self.addRect()
             self.parent().manualAlignBtn.setEnabled(True)
-            self.parent().statusBar().showMessage(' Press SPACE to set Check Alignment; ENTER to Close', 5000)
+            if self.parent().isAutoAlign:
+                self.parent().statusBar().showMessage(' Press SPACE to set integration window for alignment check', 5000)
+            else:
+                self.parent().statusBar().showMessage(' Press SPACE to set Check Alignment; ENTER to Close', 5000)
         except:
             pass
 
-    # keyboard event driven routines for fixing the selection for analysis
+    # keyboard event driven routines for fixing the selection for analysis and closing image
     def keyPressEvent(self, event):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
                 self.parent().firstRun = False
                 self.selectionDef.emit(True)
             if event.key() == Qt.Key_Return:
-                self.parent().manualAlignOn=False
+                self.parent().alignOn=False
     
     # Remove rectangular selections upon redrawing, leave image
     def removeRectangles(self):
