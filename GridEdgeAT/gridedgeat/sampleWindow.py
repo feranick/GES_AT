@@ -240,6 +240,8 @@ class SampleWindow(QMainWindow):
             self.tableWidget.item(row, column).setBackground(QColor(0,255,0))
         if color == "yellow":
             self.tableWidget.item(row, column).setBackground(QColor(255,255,0))
+        if color == "grey":
+            self.tableWidget.item(row, column).setBackground(QColor(192,192,192))
 
     # Reset color in sample cells
     def resetCellAcq(self):

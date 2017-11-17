@@ -24,6 +24,7 @@ from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
 
 from .modules.camera.camera import *
 from .configuration import *
+from .acquisition import *
 from .modules.xystage.xystage import *
 from . import logger
 
@@ -36,10 +37,12 @@ class CameraWindow(QMainWindow):
         self.initUI()
         self.config = Configuration()
         self.config.readConfig(self.config.configFile)
+        self.numRow = self.config.numSubsHolderRow
+        self.numCol = self.config.numSubsHolderCol
     
     def initUI(self):
         # Set up Window geometry and shape
-        self.setGeometry(100, 500, 700, 480)
+        self.setGeometry(480, 500, 700, 480)
         self.setWindowTitle('Camera Panel')
         # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
@@ -77,14 +80,8 @@ class CameraWindow(QMainWindow):
         self.manualAlignBtn.setShortcut('Ctrl+m')
         self.manualAlignBtn.setStatusTip('Check Alignment Manually')
         
-        self.activateStageBtn = QAction(QIcon(QPixmap()),"Position stage",self)
-        self.activateStageBtn.setEnabled(True)
-        self.activateStageBtn.setShortcut('Ctrl+r')
-        self.activateStageBtn.setStatusTip('Position stage')
-        self.activeStage = False
-        
         self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Automated Alignment",self)
-        self.autoAlignBtn.setEnabled(False)
+        self.autoAlignBtn.setEnabled(True)
         self.autoAlignBtn.setShortcut('Ctrl+r')
         self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
@@ -106,8 +103,6 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.manualAlignBtn)
         tb.addSeparator()
-        tb.addAction(self.activateStageBtn)
-        tb.addSeparator()
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
         
@@ -120,64 +115,98 @@ class CameraWindow(QMainWindow):
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.manualAlignBtn.triggered.connect(self.manualAlign)
-        self.activateStageBtn.triggered.connect(self.activateStage)
         self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
 
-    # Define behavior of push buttons
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
-        pass
-    
-    def activateStage(self):
-        # Activate stage
-        if self.activeStage == False:
-            self.printMsg("Activating XY stage...")
-            self.xystage = XYstage()
-            if self.xystage.xystageInit == False:
-                self.printMsg(" Stage not activated: no acquisition possible")
-            else:
-                self.activateStageBtn.setText("Deactivate stage")
-                self.activeStage = True
-                print(" Stage activated.")
-                QApplication.processEvents()
-                self.printMsg(" Moving to first substrate")
-                self.xystage.move_abs(5,5)
-        else:
-            self.printMsg("Deactivating XY stage...")
-            QApplication.processEvents()
-            self.printMsg(" Moving to position [5,5]")
-            self.xystage.move_abs(5,5)
-            if self.xystage.xystageInit is True:
-                self.xystage.end_stage_control()
-                del self.xystage
-            self.activateStageBtn.setText("Position stage")
-            self.enableButtons(False)
-            self.activeStage = False
-            self.printMsg(" XY stage deactivated")
-    
+        self.autoAlignBtn.setEnabled(False)
+        self.printMsg("Activating XY stage for automated alignment...")
+        self.xystage = XYstage()
+        if self.xystage.xystageInit == False:
+            self.printMsg(" Stage not activated: automated acquisition not possible. Aborting.")
+            self.autoAlignBtn.setEnabled(True)
+            return
+        self.printMsg(" Stage activated.")
+
+        self.firstRun = True
+        for j in range(self.numCol):
+            for i in range(self.numRow):
+                # convert to correct substrate number in holder
+                substrateNum = self.getSubstrateNumber(i,j)
+                substrateID = self.parent().samplewind.tableWidget.item(i,j).text()
+                
+                # Check if the holder has a substrate in that slot
+                if self.parent().samplewind.tableWidget.item(i,j).text() != ""  and \
+                        self.parent().samplewind.activeSubs[i,j] == True:
+                    self.parent().samplewind.colorCellAcq(i,j,"yellow")
+                    
+                    substrateNum = str(self.getSubstrateNumber(i,j))
+                    
+                    # Move stage to desired substrate
+                    if self.xystage.xystageInit is True:
+                        self.printMsg("Moving stage to substrate #"+ \
+                                        ubstrateNumber + \
+                                        ": ("+str(i+1)+", "+str(j+1)+")")
+                        self.xystage.move_to_substrate_4x4(substrateNum)
+                        time.sleep(0.1)
+                        
+                        self.cameraFeed(False)
+                        while self.firstRun:
+                            self.printMsg(" press SPACE to continue with the alignment")
+                    
+                        alignFlag, alignPerc, iMax = self.alignment()
+                        
+                        if float(alignPerc) > self.config.alignmentContrastDefault \
+                                    and float(iMax) > self.config.alignmentIntMax:
+                                self.parent().samplewind.colorCellAcq(i,j,"grey")
+                                self.printMsg("Substrate #"+substrateNum+" not aligned! (alignPerc = "+ alignPerc+")")
+                        else:
+                                self.parent().samplewind.colorCellAcq(i,j,"white")
+                                self.printMsg("Substrate #"+substrateNum+" aligned (alignPerc = "+ alignPerc+")")
+
+                else:
+                    self.printMsg(" No substrate entered in Substrate Window. Aborting alignment" )
+                                
+        self.Msg.emit("Deactivating Stage...")
+        self.xystage.end_stage_control()
+        del self.xystage
+        self.printMsg("Stage deactivated")
+        self.autoAlignBtn.setEnabled(True)
+
     # Manually check the alignment
     def manualAlign(self):
         self.updateBtn.setText("Get Camera Image")
         self.liveFeedBtn.setText("Live Feed")
-        self.image, self.image_data, self.image_orig = self.cam.get_image(True,
+        
+        alignFlag, alignPerc, iMax = self.alignment()
+        
+        if float(alignPerc) > self.config.alignmentContrastDefault \
+                and float(iMax) > self.config.alignmentIntMax:
+            self.outAlignmentMessageBox()
+        else:
+            self.printMsg(" Devices and masks appear to be correct")
+            
+    # Alignment routine
+    def alignment(self):
+        image, image_data, image_orig = self.cam.get_image(True,
                              int(self.initial.x()),
                              int(self.final.x()),
                              int(self.initial.y()),
                              int(self.final.y()))
                 
-        self.alignPerc, self.iMax = self.cam.check_alignment( \
-                self.image_data,
+        alignPerc, iMax = self.cam.check_alignment( \
+                image_data,
                 self.config.alignmentIntThreshold)
 
-        self.checkAlignText.setText(str(self.alignPerc))
-        if float(self.alignPerc) > self.config.alignmentContrastDefault \
-                and float(self.iMax) > self.config.alignmentIntMax:
+        self.checkAlignText.setText(str(alignPerc))
+        if float(alignPerc) > self.config.alignmentContrastDefault \
+                and float(iMax) > self.config.alignmentIntMax:
             self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-            self.outAlignmentMessageBox()
+            return False, alignPerc, iMax
         else:
-            self.printMsg(" Devices and masks appear to be correct")
+            return True, alignPerc, iMax
 
     # Get image from feed
     def cameraFeed(self, live):
@@ -349,7 +378,9 @@ class GraphicsScene(QGraphicsScene):
     def keyPressEvent(self, event):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
-                self.parent().manualAlign()
+                #self.parent().manualAlign()
+                self.parent().firstRun = False
+                self.parent().printMsg(" Continuing alignment...")
     
     # Remove rectangular selections upon redrawing, leave image
     def removeRectangles(self):
