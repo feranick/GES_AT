@@ -206,11 +206,11 @@ class MainWindow(QMainWindow):
         #toolBar = self.addToolBar("&Toolbar")
         self.toolBar.addAction(self.sampleToolbar)
         self.toolBar.addSeparator()
+        self.toolBar.addAction(self.cameraToolbar)
+        self.toolBar.addSeparator()
         self.toolBar.addAction(self.acquisitionToolbar)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.resultsToolbar)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.cameraToolbar)
         self.toolBar.addSeparator()
        
         #### Create status bar ####
