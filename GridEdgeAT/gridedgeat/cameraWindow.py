@@ -121,6 +121,15 @@ class CameraWindow(QMainWindow):
 
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
+        performAlignment = False
+        for j in range(self.numCol):
+            for i in range(self.numRow):
+                if self.parent().samplewind.tableWidget.item(i,j).text() != "":
+                    performAlignment = True
+        if performAlignment == False:
+            self.noSubstratesMessageBox()
+            return
+        
         self.autoAlignBtn.setEnabled(False)
         self.printMsg("Activating XY stage for automated alignment...")
         self.xystage = XYstage()
@@ -134,7 +143,7 @@ class CameraWindow(QMainWindow):
         for j in range(self.numCol):
             for i in range(self.numRow):
                 # convert to correct substrate number in holder
-                substrateNum = self.getSubstrateNumber(i,j)
+                substrateNum = Acquisition().getSubstrateNumber(i,j)
                 substrateID = self.parent().samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
@@ -280,6 +289,14 @@ class CameraWindow(QMainWindow):
         msgBox.setIcon( QMessageBox.Information )
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
+        msgBox.exec_()
+
+    # No substrate selected box
+    def noSubstratesMessageBox(self):
+        msgBox = QMessageBox( self )
+        msgBox.setIcon( QMessageBox.Information )
+        msgBox.setText( "WARNING: No substrates selected " )
+        msgBox.setInformativeText( "Please add the substrates in the substrate window" )
         msgBox.exec_()
     
     # Show message on log and terminal
