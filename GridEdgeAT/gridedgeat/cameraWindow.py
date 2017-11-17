@@ -183,25 +183,35 @@ class CameraWindow(QMainWindow):
     def manualAlign(self, live):
         self.cam = CameraFeed()
         self.firstRun = True
+        self.manualAlignOn = True
+        self.scene.selectionDef.connect(self.checkManualAlign)
         self.setSelWindow(live)
-        
-        alignFlag, alignPerc, iMax = self.alignment()
-        
-        if float(alignPerc) > self.config.alignmentContrastDefault \
-                and float(iMax) > self.config.alignmentIntMax:
-            self.outAlignmentMessageBox()
-        else:
-            self.printMsg(" Devices and masks appear to be correct")
+        QApplication.processEvents()
+        while self.manualAlignOn:
+            time.sleep(0.1)
+            QApplication.processEvents()
+
+        self.scene.cleanup()
         self.delCam()
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
+        
+    def checkManualAlign(self):
+        alignFlag, alignPerc, iMax = self.alignment()
+        if float(alignPerc) > self.config.alignmentContrastDefault \
+                and float(iMax) > self.config.alignmentIntMax:
+            self.outAlignmentMessageBox()
+            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(alignPerc)+")")
+        else:
+            self.inAlignmentMessageBox()
+            self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(alignPerc)+")")
 
     # Define selection window 
     def setSelWindow(self, live):
         self.cameraFeed(live)
         if self.firstRun:
-            self.printMsg(" press SPACE to continue with the alignment")
+            self.printMsg(" Use Mouse to set the integration window")
         while self.firstRun:
             time.sleep(0.05)
             QApplication.processEvents()
@@ -294,9 +304,17 @@ class CameraWindow(QMainWindow):
     # Warning box for misalignment
     def outAlignmentMessageBox(self):
         msgBox = QMessageBox( self )
-        msgBox.setIcon( QMessageBox.Information )
+        msgBox.setIcon( QMessageBox.Warning )
         msgBox.setText( "WARNING: devices and mask might be misaligned " )
         msgBox.setInformativeText( "Please realign and retry" )
+        msgBox.exec_()
+    
+    # Warning box for misalignment
+    def inAlignmentMessageBox(self):
+        msgBox = QMessageBox( self )
+        msgBox.setIcon( QMessageBox.Information )
+        msgBox.setText( "Devices and masks are correctly aligned " )
+        msgBox.setInformativeText( "" )
         msgBox.exec_()
 
     # No substrate selected box
@@ -360,7 +378,8 @@ class GraphicsView(QGraphicsView):
    Custom GraphicScene having all the main content.
 '''
 class GraphicsScene(QGraphicsScene):
-
+    
+    selectionDef = pyqtSignal(bool)
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
 
@@ -398,7 +417,7 @@ class GraphicsScene(QGraphicsScene):
             if len(self.items()) !=0:
                 self.addRect()
             self.parent().manualAlignBtn.setEnabled(True)
-            self.parent().statusBar().showMessage(' Press SPACE to set Rectangular Selection', 5000)
+            self.parent().statusBar().showMessage(' Press SPACE to set Check Alignment; ENTER to Close', 5000)
         except:
             pass
 
@@ -407,11 +426,12 @@ class GraphicsScene(QGraphicsScene):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
                 self.parent().firstRun = False
-                self.parent().printMsg(" Continuing alignment...")
+                self.selectionDef.emit(True)
+            if event.key() == Qt.Key_Return:
+                self.parent().manualAlignOn=False
     
     # Remove rectangular selections upon redrawing, leave image
     def removeRectangles(self):
-        """ Remove all spots from the scene (leaves background unchanged). """
         if len(self.items()) == 1 :
             self.image_item = self.items()[0]
         for item in self.items():
@@ -430,26 +450,6 @@ class GraphicsScene(QGraphicsScene):
             del self.image_orig
         except:
             pass
-
-    '''
-    def drawBackground(self, painter, rect):
-        """ Draws image in background if it exists. """
-        if hasattr(self, "image"):
-            painter.drawImage(QPoint(0, 0), self.image)
-
-    def setBackground(self, image, labeltext):
-        """ Sets the background image. """
-        if not hasattr(self, 'imlabel'):
-            self.imlabel = QGraphicsSimpleTextItem(labeltext)
-            self.imlabel.setBrush(QBrush(Qt.white))
-            self.imlabel.setPos(5, 5)
-        if not hasattr(self,"image") or len(self.items()) < 1:
-            self.addItem(self.imlabel)
-        self.imlabel.setText(labeltext)
-        self.image = image
-        self.update()
-    '''
-
 
 
 

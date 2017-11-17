@@ -327,10 +327,9 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             if self.stagewind.activeStage == True:
                 self.stagewind.activateStage()
-            try:
+            if hasattr(self.acquisition,"acq_thread"):
                 self.acquisition.acq_thread.stop()
-            except:
-                pass
+            self.camerawind.manualAlignOn=False
             self.close()
         else:
             event.ignore()
