@@ -175,6 +175,8 @@ class CameraWindow(QMainWindow):
         self.xystage.end_stage_control()
         del self.xystage
         self.printMsg("Stage deactivated")
+        self.updateBtn.setEnabled(True)
+        self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
 
     # Manually check the alignment
@@ -182,9 +184,6 @@ class CameraWindow(QMainWindow):
         self.cam = CameraFeed()
         self.firstRun = True
         self.setSelWindow(live)
-        
-        self.updateBtn.setText("Get Camera Image")
-        self.liveFeedBtn.setText("Live Feed")
         
         alignFlag, alignPerc, iMax = self.alignment()
         
@@ -194,6 +193,9 @@ class CameraWindow(QMainWindow):
         else:
             self.printMsg(" Devices and masks appear to be correct")
         self.delCam()
+        self.updateBtn.setEnabled(True)
+        self.liveFeedBtn.setEnabled(True)
+        self.autoAlignBtn.setEnabled(True)
 
     # Define selection window 
     def setSelWindow(self, live):
@@ -228,18 +230,17 @@ class CameraWindow(QMainWindow):
 
     # Get image from feed
     def cameraFeed(self, live):
-        
+        self.scene.cleanup()
         self.setDefaultBtn.setEnabled(True)
         try:
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
+            self.liveFeedBtn.setEnabled(False)
+            self.updateBtn.setEnabled(False)
+            self.autoAlignBtn.setEnabled(False)
             if live:
-                self.liveFeedBtn.setText("Set integration window")
-                self.updateBtn.setEnabled(False)
                 QApplication.processEvents()
                 self.img = self.cam.grab_image_live()
             else:
-                self.updateBtn.setText("Set integration window")
-                self.liveFeedBtn.setEnabled(False)
                 QApplication.processEvents()
                 self.img = self.cam.grab_image()
             self.image, self.image_data, temp = self.cam.get_image(False,0,0,0,0)
@@ -252,8 +253,6 @@ class CameraWindow(QMainWindow):
             self.statusBar().showMessage('Camera-feed' + \
                  str(datetime.now().strftime(' (%Y-%m-%d %H-%M-%S)')), 5000)
             self.statusBar().showMessage(' Drag Mouse to select area for alignment', 5000)
-            self.liveFeedBtn.setEnabled(True)
-            self.updateBtn.setEnabled(True)
         except:
             self.statusBar().showMessage(' USB camera not connected', 5000)
 
