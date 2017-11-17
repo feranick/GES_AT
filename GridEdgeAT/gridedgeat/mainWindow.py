@@ -329,8 +329,10 @@ class MainWindow(QMainWindow):
                 self.stagewind.activateStage()
             if hasattr(self.acquisition,"acq_thread"):
                 self.acquisition.acq_thread.stop()
-            self.camerawind.manualAlignOn=False
+            self.camerawind.alignOn=False
+            self.camerawind.firstRun=False
             self.close()
+            self.fileQuit()
         else:
             event.ignore()
 
