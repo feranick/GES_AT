@@ -42,7 +42,7 @@ class CameraWindow(QMainWindow):
     
     def initUI(self):
         # Set up Window geometry and shape
-        self.setGeometry(480, 500, 700, 480)
+        self.setGeometry(480, 500, 800, 600)
         self.setWindowTitle('Camera Panel')
         # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
@@ -85,7 +85,7 @@ class CameraWindow(QMainWindow):
         contrastAlignLabel = QLabel()
         contrastAlignLabel.setText("Current alignment [%]: ")
         self.checkAlignText = QLineEdit()
-        self.checkAlignText.setMaximumSize(50, 25)
+        self.checkAlignText.setMaximumSize(80, 25)
         self.checkAlignText.setReadOnly(True)
         
         self.setDefaultBtn = QAction(QIcon(QPixmap()),
@@ -160,8 +160,6 @@ class CameraWindow(QMainWindow):
                         self.cam = CameraFeed()
                         self.setSelWindow(False)
                         alignFlag, alignPerc, iMax = self.alignment()
-                        #if float(alignPerc) > self.config.alignmentContrastDefault \
-                        #            and float(iMax) > self.config.alignmentIntMax:
                         if alignFlag:
                             self.parent().samplewind.colorCellAcq(i,j,"white")
                             self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
@@ -194,6 +192,7 @@ class CameraWindow(QMainWindow):
             time.sleep(0.1)
             QApplication.processEvents()
 
+        self.scene.selectionDef.disconnect()
         self.scene.cleanup()
         self.delCam()
         self.updateBtn.setEnabled(True)
@@ -203,8 +202,6 @@ class CameraWindow(QMainWindow):
     # Routine for manual alignment check
     def checkManualAlign(self):
         alignFlag, alignPerc, iMax = self.alignment()
-        #if float(alignPerc) > self.config.alignmentContrastDefault \
-        #        and float(iMax) > self.config.alignmentIntMax:
         if alignFlag:
             self.inAlignmentMessageBox()
             self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(alignPerc)+")")
