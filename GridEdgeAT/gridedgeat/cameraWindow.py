@@ -104,7 +104,7 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.liveFeedBtn)
         tb.addSeparator()
-        tb.addAction(self.manualAlignBtn)
+        #tb.addAction(self.manualAlignBtn)
         tb.addSeparator()
 
         tb2.addWidget(contrastAlignLabel)
@@ -115,14 +115,15 @@ class CameraWindow(QMainWindow):
         tb2.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
-        self.manualAlignBtn.triggered.connect(self.manualAlign)
-        self.updateBtn.triggered.connect(lambda: self.cameraFeed(False))
+        #self.manualAlignBtn.triggered.connect(lambda: self.manualAlign()
+        self.updateBtn.triggered.connect(lambda: self.manualAlign(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
-        self.liveFeedBtn.triggered.connect(lambda: self.cameraFeed(True))
+        self.liveFeedBtn.triggered.connect(lambda: self.manualAlign(True))
 
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
         performAlignment = False
+        self.cam = CameraFeed()
         for j in range(self.numCol):
             for i in range(self.numRow):
                 if self.parent().samplewind.tableWidget.item(i,j).text() != "":
@@ -130,7 +131,8 @@ class CameraWindow(QMainWindow):
         if performAlignment == False:
             self.noSubstratesMessageBox()
             return
-        
+
+        '''
         self.autoAlignBtn.setEnabled(False)
         self.printMsg("Activating XY stage for automated alignment...")
         self.xystage = XYstage()
@@ -139,8 +141,10 @@ class CameraWindow(QMainWindow):
             self.autoAlignBtn.setEnabled(True)
             return
         self.printMsg(" Stage activated.")
+        '''
 
         self.firstRun = True
+        self.temp = True
         for j in range(self.numCol):
             for i in range(self.numRow):
                 # Convert to correct substrate number in holder
@@ -152,11 +156,12 @@ class CameraWindow(QMainWindow):
                     self.parent().samplewind.colorCellAcq(i,j,"yellow")
                                         
                     # Move stage to desired substrate
-                    if self.xystage.xystageInit is True:
+                    #if self.xystage.xystageInit is True:
+                    if self.temp is True:
                         self.printMsg("Moving stage to substrate #"+ \
                                         str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
-                        self.xystage.move_to_substrate_4x4(substrateNum)
+                        #self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
                         
                         self.cameraFeed(False)
@@ -166,7 +171,7 @@ class CameraWindow(QMainWindow):
                             time.sleep(0.05)
                             QApplication.processEvents()
                             pass
-                        self.firstRun = False
+                        firstRun = False
                         alignFlag, alignPerc, iMax = self.alignment()
                         
                         if float(alignPerc) > self.config.alignmentContrastDefault \
@@ -177,17 +182,27 @@ class CameraWindow(QMainWindow):
                                 self.parent().samplewind.colorCellAcq(i,j,"white")
                                 self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
 
-                else:
-                    self.printMsg(" No substrate entered in Substrate Window. Aborting alignment" )
-                                
+        '''                        
         self.Msg.emit("Deactivating Stage...")
         self.xystage.end_stage_control()
         del self.xystage
+        '''
         self.printMsg("Stage deactivated")
         self.autoAlignBtn.setEnabled(True)
 
     # Manually check the alignment
-    def manualAlign(self):
+    def manualAlign(self, live):
+        self.firstRun = True
+        self.cam = CameraFeed()
+        self.cameraFeed(live)
+        if self.firstRun:
+            self.printMsg(" press SPACE to continue with the alignment")
+        while self.firstRun:
+            time.sleep(0.05)
+            QApplication.processEvents()
+            pass
+        
+        self.firstRun = False
         self.updateBtn.setText("Get Camera Image")
         self.liveFeedBtn.setText("Live Feed")
         
@@ -221,7 +236,7 @@ class CameraWindow(QMainWindow):
 
     # Get image from feed
     def cameraFeed(self, live):
-        self.cam = CameraFeed()
+        
         self.setDefaultBtn.setEnabled(True)
         try:
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
@@ -397,7 +412,6 @@ class GraphicsScene(QGraphicsScene):
     def keyPressEvent(self, event):
         if len(self.items())>1:
             if event.key() == Qt.Key_Space:
-                #self.parent().manualAlign()
                 self.parent().firstRun = False
                 self.parent().printMsg(" Continuing alignment...")
     
