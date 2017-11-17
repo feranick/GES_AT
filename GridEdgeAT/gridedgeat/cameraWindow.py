@@ -151,7 +151,7 @@ class CameraWindow(QMainWindow):
                         self.printMsg("Moving stage to substrate #"+ \
                                         str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
-                        #self.xystage.move_to_substrate_4x4(substrateNum)
+                        self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
 
                         # Perform alignment analysis 
