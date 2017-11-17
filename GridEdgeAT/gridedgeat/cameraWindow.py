@@ -96,15 +96,17 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
-        
+
+        tb.addAction(self.autoAlignBtn)
+        tb.addSeparator()
+        tb.addSeparator()
         tb.addAction(self.updateBtn)
         tb.addSeparator()
         tb.addAction(self.liveFeedBtn)
         tb.addSeparator()
         tb.addAction(self.manualAlignBtn)
         tb.addSeparator()
-        tb.addAction(self.autoAlignBtn)
-        tb.addSeparator()
+
         
         tb2.addWidget(contrastAlignLabel)
         tb2.addWidget(self.checkAlignText)
@@ -142,21 +144,18 @@ class CameraWindow(QMainWindow):
         self.firstRun = True
         for j in range(self.numCol):
             for i in range(self.numRow):
-                # convert to correct substrate number in holder
+                # Convert to correct substrate number in holder
                 substrateNum = Acquisition().getSubstrateNumber(i,j)
-                substrateID = self.parent().samplewind.tableWidget.item(i,j).text()
                 
                 # Check if the holder has a substrate in that slot
                 if self.parent().samplewind.tableWidget.item(i,j).text() != ""  and \
                         self.parent().samplewind.activeSubs[i,j] == True:
                     self.parent().samplewind.colorCellAcq(i,j,"yellow")
-                    
-                    substrateNum = str(self.getSubstrateNumber(i,j))
-                    
+                                        
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
                         self.printMsg("Moving stage to substrate #"+ \
-                                        ubstrateNumber + \
+                                        str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
                         self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
@@ -170,10 +169,10 @@ class CameraWindow(QMainWindow):
                         if float(alignPerc) > self.config.alignmentContrastDefault \
                                     and float(iMax) > self.config.alignmentIntMax:
                                 self.parent().samplewind.colorCellAcq(i,j,"grey")
-                                self.printMsg("Substrate #"+substrateNum+" not aligned! (alignPerc = "+ alignPerc+")")
+                                self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         else:
                                 self.parent().samplewind.colorCellAcq(i,j,"white")
-                                self.printMsg("Substrate #"+substrateNum+" aligned (alignPerc = "+ alignPerc+")")
+                                self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
 
                 else:
                     self.printMsg(" No substrate entered in Substrate Window. Aborting alignment" )
