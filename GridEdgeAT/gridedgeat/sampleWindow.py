@@ -89,12 +89,14 @@ class SampleWindow(QMainWindow):
         self.tableWidget.setColumnCount(self.parent().config.numSubsHolderRow)
         self.tableWidget.setRowCount(self.parent().config.numSubsHolderCol)
         self.tableWidget.setVerticalHeaderLabels(("4","3","2","1"))
+        self.tableWidget.setHorizontalHeaderLabels(("4","3","2","1"))
         
         # This allows for background coloring of a cell
         for i in range(self.parent().config.numSubsHolderCol):
             for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
-                self.tableWidget.item(i,j).setToolTip("Substrate #"+str(j+4*(3-i)+1))
+                self.tableWidget.item(i,j).setToolTip("Substrate #"+\
+                    str(Acquisition().getSubstrateNumber(i,j)))
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)

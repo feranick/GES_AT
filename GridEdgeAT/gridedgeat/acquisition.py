@@ -125,7 +125,8 @@ class Acquisition(QObject):
             return 1
         else:
             #return int(i+4*j+1)
-            return int(j+4*(3-i)+1)
+            #return int(j+4*(3-i)+1)
+            return int(4*(4-j)-i)
 
 # Main Class for Acquisition
 # Everything happens here!
