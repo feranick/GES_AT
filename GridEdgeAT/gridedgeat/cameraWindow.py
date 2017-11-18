@@ -169,7 +169,7 @@ class CameraWindow(QMainWindow):
                             self.parent().samplewind.colorCellAcq(i,j,"grey")
                             self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
-        
+        self.printMsg("Auto-alignment completed")
         self.deactivateStage()
         
         self.updateBtn.setEnabled(True)
