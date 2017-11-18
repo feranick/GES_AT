@@ -79,7 +79,7 @@ class Configuration():
             'xPosRefCell' : 240,
             'yPosRefCell' : 170,
             'xPosPowermeter' : 240,
-            'yPosPowermeter' : 260,
+            'yPosPowermeter' : 223,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
