@@ -201,12 +201,13 @@ class SampleWindow(QMainWindow):
     def checkMatch(self, row, column):
         displayError = False
         ItemList = QListWidget
-        ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
-        subList = []
-        if len(ItemList) > 1:
-            for Item in ItemList:
-                subList.append(Acquisition().getSubstrateNumber(Item.row(),Item.column()))
-            displayError = True
+        if self.tableWidget.item(row,column).text() !="":
+            ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
+            subList = []
+            if len(ItemList) > 1:
+                for Item in ItemList:
+                    subList.append(Acquisition().getSubstrateNumber(Item.row(),Item.column()))
+                displayError = True
                 
         if displayError == True:
             msgBox = QMessageBox()
