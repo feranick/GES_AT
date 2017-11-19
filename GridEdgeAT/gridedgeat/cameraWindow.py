@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication,
     QGraphicsRectItem,QGraphicsItem,QToolBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
-                         QBrush,QColor,QTransform,QPen)
+                         QBrush,QColor,QTransform,QPen,QFont)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
 
 from .modules.camera.camera import *
@@ -83,7 +83,9 @@ class CameraWindow(QMainWindow):
         self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
         contrastAlignLabel = QLabel()
-        contrastAlignLabel.setText("Current alignment [%]: ")
+        font = QFont( "Arial", 11)
+        contrastAlignLabel.setFont(font)
+        contrastAlignLabel.setText("Alignment Threshold [%]: ")
         self.checkAlignText = QLineEdit()
         self.checkAlignText.setMaximumSize(80, 25)
         self.checkAlignText.setReadOnly(True)
@@ -396,7 +398,6 @@ class GraphicsScene(QGraphicsScene):
         self.addItem(item)
         item.setSelected(True)
         self.setFocusItem(item)
-        #item.setToolTip(self.spotsLabel[-1])
         self.update()
 
     # Mouse events routines for generating rectangular selections
@@ -423,9 +424,9 @@ class GraphicsScene(QGraphicsScene):
                 self.addRect()
             self.parent().manualAlignBtn.setEnabled(True)
             if self.parent().isAutoAlign:
-                self.parent().statusBar().showMessage(' Press SPACE to set integration window for alignment check', 5000)
+                self.parent().printMsg(" Press SPACE to set integration window for alignment check")
             else:
-                self.parent().statusBar().showMessage(' Press SPACE to set Check Alignment; ENTER to Close', 5000)
+                self.parent().printMsg(" Press SPACE to set Check Alignment; ENTER to Close")
         except:
             pass
 
