@@ -307,23 +307,23 @@ class CameraWindow(QMainWindow):
     def outAlignmentMessageBox(self):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Warning )
-        msgBox.setText( "WARNING: devices and mask might be misaligned " )
-        msgBox.setInformativeText( "Please realign and retry" )
+        msgBox.setText( "WARNING:\nDevices and mask may be misaligned " )
+        msgBox.setInformativeText( "Please realign and retry...\nClose this box and press ENTER to close" )
         msgBox.exec_()
     
     # Warning box for misalignment
     def inAlignmentMessageBox(self):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Information )
-        msgBox.setText( "Devices and masks are correctly aligned " )
-        msgBox.setInformativeText( "" )
+        msgBox.setText( "GOOD!\nDevices and mask are correctly aligned " )
+        msgBox.setInformativeText( " Close this box and press ENTER to close" )
         msgBox.exec_()
 
     # No substrate selected box
     def noSubstratesMessageBox(self):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Information )
-        msgBox.setText( "WARNING: No substrates selected " )
+        msgBox.setText( "WARNING:\nNo substrates selected " )
         msgBox.setInformativeText( "Please add the substrates in the substrate window" )
         msgBox.exec_()
     
@@ -436,6 +436,8 @@ class GraphicsScene(QGraphicsScene):
             if event.key() == Qt.Key_Space:
                 self.parent().firstRun = False
                 self.selectionDef.emit(True)
+            if event.key() == Qt.Key_Return:
+                self.parent().alignOn=False
             if event.key() == Qt.Key_Return:
                 self.parent().alignOn=False
     
