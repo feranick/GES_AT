@@ -99,7 +99,7 @@ class SampleWindow(QMainWindow):
                     str(Acquisition().getSubstrateNumber(i,j)))
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
-        self.tableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
+        self.tableWidget.itemChanged.connect(self.checkMatch)
         
         # This disable editing
         #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -192,15 +192,11 @@ class SampleWindow(QMainWindow):
                   str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
                   self.tableWidget.column(currentQTableWidgetItem))))
 
-    # Logic to set and validate substrate name in table
-    @pyqtSlot()
-    def onCellDoubleClick(self):
-        row = self.tableWidget.currentRow()
-        column = self.tableWidget.currentColumn()
-        self.tableWidget.cellChanged.connect(lambda: self.checkMatch(row,column))
+    # Logic to set and validate substrate name in table  
+    def checkMatch(self, item):
         self.resetCellAcq()
-    
-    def checkMatch(self, row, column):
+        row = item.row()
+        column = item.column()
         displayError = False
         ItemList = QListWidget
         if self.tableWidget.item(row,column).text() !="":
