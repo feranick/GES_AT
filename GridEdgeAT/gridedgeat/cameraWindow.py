@@ -247,8 +247,10 @@ class CameraWindow(QMainWindow):
             self.updateBtn.setEnabled(False)
             self.autoAlignBtn.setEnabled(False)
             if live:
+                self.parent().stagewind.show()
                 QApplication.processEvents()
                 self.img = self.cam.grab_image_live()
+                self.parent().stagewind.close()
             else:
                 QApplication.processEvents()
                 self.img = self.cam.grab_image()
