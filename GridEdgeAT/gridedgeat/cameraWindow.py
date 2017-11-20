@@ -83,7 +83,8 @@ class CameraWindow(QMainWindow):
         self.autoAlignBtn.setStatusTip('Run Automated Alignment Routine')
         
         contrastAlignLabel = QLabel()
-        font = QFont( "Arial", 11)
+        font = QFont()
+        font.setFamily(font.defaultFamily())
         contrastAlignLabel.setFont(font)
         contrastAlignLabel.setText("Alignment Threshold [%]: ")
         self.checkAlignText = QLineEdit()
