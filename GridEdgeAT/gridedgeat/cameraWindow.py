@@ -42,8 +42,8 @@ class CameraWindow(QMainWindow):
     
     def initUI(self):
         # Set up Window geometry and shape
-        self.setGeometry(480, 500, 800, 600)
-        self.setWindowTitle('Camera Panel')
+        self.setGeometry(550, 300, 800, 630)
+        self.setWindowTitle('Camera Alignment Panel')
         # Set up status bar
         self.statusBar().showMessage("Camera: Ready", 5000)
         
