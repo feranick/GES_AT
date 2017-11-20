@@ -20,9 +20,9 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
     QWidget, QAction,QVBoxLayout,QGridLayout,QLabel,QGraphicsView,
     QFileDialog,QStatusBar,QTableWidget,QGraphicsScene,QLineEdit,
     QMessageBox,QDialog,QComboBox,QMenuBar,QDialogButtonBox,
-    QAbstractItemView,QTableWidgetItem,QMenu,QListWidget)
+    QAbstractItemView,QTableWidgetItem,QMenu,QListWidget,QHeaderView)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
-    QCursor,)
+    QCursor)
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
@@ -39,13 +39,20 @@ class SampleWindow(QMainWindow):
     
     # Define UI elements
     def initUI(self,MainWindow):
-        self.setGeometry(10, 300, 440, 370)
+        self.setGeometry(10, 300, 520, 630)
         self.setFixedSize(self.size())
         MainWindow.setWindowTitle("Substrates configuration")
+        
+        self.stageImg = QLabel(self)
+        self.stageImg.setGeometry(QRect(10, 180, 567, 425))
+        self.stageImg.setText("GridEdge Solar @ MIT")
+        self.stageImg.setPixmap(QPixmap(os.path.dirname(__file__)+"/rsrc/stage.jpg"))
+        self.stageImg.setObjectName("stageimg")
+        
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayoutWidget = QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QRect(10, 0, 275, 150))
+        self.gridLayoutWidget.setGeometry(QRect(10, 0, 380, 150))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.windowGridLayout = QGridLayout(self.gridLayoutWidget)
         self.windowGridLayout.setContentsMargins(0, 0, 0, 0)
@@ -81,15 +88,16 @@ class SampleWindow(QMainWindow):
         self.commentsLabel.setGeometry(QRect(10, 150, 80, 20))
         self.commentsText = QLineEdit(self.centralwidget)
         self.commentsText.setText("")
-        self.commentsText.setGeometry(QRect(90, 150, 330, 20))
+        self.commentsText.setGeometry(QRect(90, 150, 420, 20))
         self.commentsText.setObjectName("commentsText")
        
         self.tableWidget = QTableWidget(self.centralwidget)
-        self.tableWidget.setGeometry(QRect(10, 190, 420, 145))
+        self.tableWidget.setGeometry(QRect(100, 430, 410, 145))
         self.tableWidget.setColumnCount(self.parent().config.numSubsHolderRow)
         self.tableWidget.setRowCount(self.parent().config.numSubsHolderCol)
         self.tableWidget.setVerticalHeaderLabels(("4","3","2","1"))
         self.tableWidget.setHorizontalHeaderLabels(("4","3","2","1"))
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         
         # This allows for background coloring of a cell
         for i in range(self.parent().config.numSubsHolderCol):
@@ -107,11 +115,11 @@ class SampleWindow(QMainWindow):
         self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
         self.loadButton = QPushButton(self.centralwidget)
-        self.loadButton.setGeometry(QRect(310, 30, 100, 40))
+        self.loadButton.setGeometry(QRect(405, 30, 100, 40))
         self.loadButton.setObjectName("loadButton")
         self.loadButton.clicked.connect(self.loadCsvSubstrates)
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setGeometry(QRect(310, 80, 100, 40))
+        self.saveButton.setGeometry(QRect(405, 80, 100, 40))
         self.saveButton.setObjectName("saveButton")
         self.saveButton.clicked.connect(self.saveCsvSubstrates)
 
