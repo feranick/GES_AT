@@ -209,7 +209,7 @@ class ResultsWindow(QMainWindow):
         self.axMPP = self.figureMPP.add_subplot(111)
         self.plotSettings(self.axMPP)
         self.axMPP.set_xlabel('Time [s]',fontsize=8)
-        self.axMPP.set_ylabel('Max power point [mW]',fontsize=8)
+        self.axMPP.set_ylabel('Max power point \n[mW/cm$^2$]',fontsize=8)
         self.axMPP.set_autoscale_on(True)
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
