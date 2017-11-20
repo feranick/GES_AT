@@ -44,7 +44,7 @@ class SampleWindow(QMainWindow):
         MainWindow.setWindowTitle("Substrates configuration")
         
         self.stageImg = QLabel(self)
-        self.stageImg.setGeometry(QRect(10, 180, 567, 425))
+        self.stageImg.setGeometry(QRect(10, 200, 567, 425))
         self.stageImg.setText("XY Stage")
         self.stageImg.setPixmap(QPixmap(os.path.dirname(__file__)+"/rsrc/stage.jpg"))
         
