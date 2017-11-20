@@ -45,9 +45,8 @@ class SampleWindow(QMainWindow):
         
         self.stageImg = QLabel(self)
         self.stageImg.setGeometry(QRect(10, 180, 567, 425))
-        self.stageImg.setText("GridEdge Solar @ MIT")
+        self.stageImg.setText("XY Stage")
         self.stageImg.setPixmap(QPixmap(os.path.dirname(__file__)+"/rsrc/stage.jpg"))
-        self.stageImg.setObjectName("stageimg")
         
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
