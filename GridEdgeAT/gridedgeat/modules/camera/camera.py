@@ -42,6 +42,8 @@ class CameraFeed():
 
             # Display the resulting frame
             cv2.imshow('Live Feed: push \"q\" to stop and grab frame',gray)
+            cv2.moveWindow('Live Feed: push \"q\" to stop and grab frame',30,30)
+
             if (cv2.waitKey(1) & 0xFF == ord('q')) or self.closeLiveFeed == True:
                 cv2.destroyAllWindows()
                 break

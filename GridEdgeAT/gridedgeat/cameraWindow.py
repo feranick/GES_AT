@@ -249,6 +249,7 @@ class CameraWindow(QMainWindow):
             self.updateBtn.setEnabled(False)
             self.autoAlignBtn.setEnabled(False)
             if live:
+                self.parent().stagewind.setGeometry(1350, 35, 310, 400)
                 self.parent().stagewind.show()
                 QApplication.processEvents()
                 self.img = self.cam.grab_image_live()

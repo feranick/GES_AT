@@ -27,7 +27,7 @@ class StageWindow(QMainWindow):
     
     # Setup UI elements
     def initUI(self, StageWindow):
-        self.setGeometry(800, 30, 310, 400)
+        self.setGeometry(400, 30, 310, 400)
         StageWindow.setWindowTitle("XY stage control settings")
         self.setFixedSize(self.size())
         
