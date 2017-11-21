@@ -309,19 +309,24 @@ class ResultsWindow(QMainWindow):
                 rPos.y()>0 and rPos.y()<self.resTableH and \
                 self.resTableWidget.rowCount() > 0 :
         
-            selectCellRemoveAction = QAction('Remove...', self)
-            selectCellRemoveAction.setShortcut("Del")
+            selectCellLoadAction = QAction("&Load from csv...", self)
+            selectCellLoadAction.setShortcut("Ctrl+o")
+            selectCellLoadAction.setStatusTip('Load csv data from saved file')
             selectCellSaveAction = QAction('Save locally', self)
             selectCellSaveAction.setShortcut("Ctrl+s")
+            selectCellRemoveAction = QAction('Remove...', self)
+            selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
             self.menu.addAction(selectCellRemoveAction)
             self.menu.addAction(selectRemoveAllAction)
             self.menu.addSeparator()
+            self.menu.addAction(selectCellLoadAction)
             self.menu.addAction(selectCellSaveAction)
-
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
+            
+            selectCellLoadAction.triggered.connect(self.read_csv)
         for currentQTableWidgetItem in self.resTableWidget.selectedItems():
             row = self.resTableWidget.currentRow()
             selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
