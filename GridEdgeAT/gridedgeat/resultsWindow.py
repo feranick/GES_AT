@@ -147,7 +147,7 @@ class ResultsWindow(QMainWindow):
         self.loadMenu.setStatusTip('Load csv data from saved file')
         self.loadMenu.triggered.connect(self.read_csv)
         self.directoryMenu = QAction("&Set directory for saved files", self)
-        self.directoryMenu.setShortcut("Ctrl+s")
+        self.directoryMenu.setShortcut("Ctrl+d")
         self.directoryMenu.setStatusTip('Set directory for saved files')
         self.directoryMenu.triggered.connect(self.set_dir_saved)
         
@@ -309,16 +309,24 @@ class ResultsWindow(QMainWindow):
                 rPos.y()>0 and rPos.y()<self.resTableH and \
                 self.resTableWidget.rowCount() > 0 :
         
-            selectCellSaveAction = QAction('Save locally', self)
             selectCellRemoveAction = QAction('Remove...', self)
-            self.menu.addAction(selectCellSaveAction)
+            selectCellRemoveAction.setShortcut("Del")
+            selectCellSaveAction = QAction('Save locally', self)
+            selectCellSaveAction.setShortcut("Ctrl+s")
+            selectRemoveAllAction = QAction('Remove All...', self)
+            selectRemoveAllAction.setShortcut("Shift+Del")
             self.menu.addAction(selectCellRemoveAction)
+            self.menu.addAction(selectRemoveAllAction)
+            self.menu.addSeparator()
+            self.menu.addAction(selectCellSaveAction)
+
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
         for currentQTableWidgetItem in self.resTableWidget.selectedItems():
             row = self.resTableWidget.currentRow()
             selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
             selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
+            selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):

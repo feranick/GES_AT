@@ -79,12 +79,12 @@ class MainWindow(QMainWindow):
 
         # Menu entries
         self.loadConfigMenu = QAction("&Load Configuration", self)
-        self.loadConfigMenu.setShortcut("Ctrl+l")
+        self.loadConfigMenu.setShortcut("Ctrl+Shift+l")
         self.loadConfigMenu.setStatusTip('Quit')
         self.loadConfigMenu.triggered.connect(self.loadConfig)
         
         self.saveConfigMenu = QAction("&Save Configuration", self)
-        self.saveConfigMenu.setShortcut("Ctrl+w")
+        self.saveConfigMenu.setShortcut("Ctrl+Shift+s")
         self.saveConfigMenu.setStatusTip('Quit')
         self.saveConfigMenu.triggered.connect(self.saveConfig)
         
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.loadMenu.triggered.connect(self.resultswind.read_csv)
         
         self.directoryMenu = QAction("&Set directory for saved files", self)
-        self.directoryMenu.setShortcut("Ctrl+s")
+        self.directoryMenu.setShortcut("Ctrl+d")
         self.directoryMenu.setStatusTip('Set directory for saved files')
         self.directoryMenu.triggered.connect(self.resultswind.set_dir_saved)
         
@@ -106,11 +106,11 @@ class MainWindow(QMainWindow):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.quitMenu)
         fileMenu.addSeparator()
-        fileMenu.addAction(self.loadConfigMenu)
-        fileMenu.addAction(self.saveConfigMenu)
-        fileMenu.addSeparator()
         fileMenu.addAction(self.loadMenu)
         fileMenu.addAction(self.directoryMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.loadConfigMenu)
+        fileMenu.addAction(self.saveConfigMenu)
         
         self.stageMenu = QAction("&Stage", self)
         self.stageMenu.setShortcut("Ctrl+x")
