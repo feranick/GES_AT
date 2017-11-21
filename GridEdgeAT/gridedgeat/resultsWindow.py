@@ -19,7 +19,8 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
                              QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
-                             QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout)
+                             QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
+                             QAbstractItemView)
 from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -133,6 +134,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Date"))
         self.resTableWidget.setHorizontalHeaderItem(10,QTableWidgetItem("Acq Time"))
         self.resTableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.resTableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
         self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
@@ -293,7 +295,7 @@ class ResultsWindow(QMainWindow):
 
         self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row])
+                self.dfTotJV.iat[0,row][0])
     
     # Action upon selecting a row in the table.
     @pyqtSlot()
