@@ -303,7 +303,15 @@ class ResultsWindow(QMainWindow):
         row = self.resTableWidget.selectedItems()[0].row()
         self.redirectToDM(self.dfTotDeviceID.iat[0,row][0][0][:-1])
 
-    # Enable right click on substrates for saving locally
+    # Process Key Events
+    def keyPressEvent(self, event):
+        if self.resTableWidget.rowCount() > 0:
+            if event.key() == Qt.Key_Delete:
+                selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
+                for row in selectedRows[::-1]:
+                    self.selectDeviceRemove(row)
+
+    # Enable right click on substrates for saving locally and delete
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
         rPos = self.resTableWidget.mapFromGlobal(QCursor.pos())
@@ -351,6 +359,7 @@ class ResultsWindow(QMainWindow):
             l.remove()
         for l in self.axPVresp.get_lines():
             l.remove()
+        print("Removed acquisition from table: ",str(self.dfTotDeviceID.iat[0,row]))
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
         self.resTableWidget.removeRow(row)
