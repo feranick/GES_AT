@@ -27,6 +27,7 @@ from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
 from .acquisition import *
+from .resultsWindow import *
 
 '''
    Sample Window
@@ -171,9 +172,12 @@ class SampleWindow(QMainWindow):
                     selectCellAction = QAction('Disable substrate', self)
                 else:
                     selectCellAction = QAction('Enable substrate', self)
+                viewDMEntryAction = QAction("&View Entry in Database", self)
                 self.menu.addAction(selectCellAction)
+                self.menu.addAction(viewDMEntryAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
+                viewDMEntryAction.triggered.connect(lambda: self.parent().resultswind.redirectToDM(self.tableWidget.item(row,col).text()))
         except:
             pass
 

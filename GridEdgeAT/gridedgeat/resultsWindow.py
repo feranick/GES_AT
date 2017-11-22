@@ -137,7 +137,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
-        self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
+        #self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         self.setCentralWidget(self.centralwidget)
 
         # Make Menu for plot related calls
@@ -296,12 +296,6 @@ class ResultsWindow(QMainWindow):
         self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
                 self.dfTotJV.iat[0,row][0])
-    
-    # Action upon selecting a row in the table.
-    @pyqtSlot()
-    def onCellDoubleClick(self):
-        row = self.resTableWidget.selectedItems()[0].row()
-        self.redirectToDM(self.dfTotDeviceID.iat[0,row][0][0][:-1])
 
     # Process Key Events
     def keyPressEvent(self, event):
@@ -324,6 +318,8 @@ class ResultsWindow(QMainWindow):
             selectCellLoadAction.setStatusTip('Load csv data from saved file')
             selectCellSaveAction = QAction('Save locally', self)
             selectCellSaveAction.setShortcut("Ctrl+s")
+            viewDMEntryAction = QAction("&View Entry in Database", self)
+            viewDMEntryAction.setShortcut("Ctrl+v")
             selectCellRemoveAction = QAction('Remove...', self)
             selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
@@ -333,15 +329,18 @@ class ResultsWindow(QMainWindow):
             self.menu.addSeparator()
             self.menu.addAction(selectCellLoadAction)
             self.menu.addAction(selectCellSaveAction)
+            self.menu.addSeparator()
+            self.menu.addAction(viewDMEntryAction)
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
             
             selectCellLoadAction.triggered.connect(self.read_csv)
             selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
-        for row in selectedRows[::-1]:
-            selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
-            selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
-            selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
+            for row in selectedRows[::-1]:
+                selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
+                selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
+                selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
+                viewDMEntryAction.triggered.connect(lambda: self.redirectToDM(self.dfTotDeviceID.iat[0,row]))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
@@ -559,5 +558,5 @@ class ResultsWindow(QMainWindow):
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
-        print("Selected substrate:",deviceID)
-        # webbrowser.open("https://gridedgedm.mit.edu/dm/"+deviceID)
+        print("Opening entry in DM for substrate:",deviceID[:10])
+        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+deviceID[:10])
