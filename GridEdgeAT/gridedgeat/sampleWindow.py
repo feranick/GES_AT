@@ -108,7 +108,8 @@ class SampleWindow(QMainWindow):
 
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
-        
+        self.tableWidget.itemDoubleClicked.connect(lambda item: self.resetSingleCellAcq(item))
+
         # This disable editing
         #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # This enables editing by Double Click
@@ -205,7 +206,6 @@ class SampleWindow(QMainWindow):
 
     # Logic to set and validate substrate name in table  
     def checkMatch(self, item):
-        self.resetCellAcq()
         row = item.row()
         column = item.column()
         displayError = False
@@ -258,6 +258,12 @@ class SampleWindow(QMainWindow):
         for i in range(self.parent().config.numSubsHolderCol):
             for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+
+    # Reset color in single cell
+    def resetSingleCellAcq(self, item):
+        i = item.row()
+        j = item.column()
+        self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
 
     # Clear names in cells
     def clearCells(self):

@@ -26,6 +26,7 @@ from .modules.camera.camera import *
 from .configuration import *
 from .acquisition import *
 from .modules.xystage.xystage import *
+from .modules.shutter.shutter import *
 from . import logger
 
 '''
@@ -131,12 +132,17 @@ class CameraWindow(QMainWindow):
         self.autoAlignBtn.setEnabled(False)
         
         self.printMsg("Activating XY stage for automated alignment...")
+        # If stage is open in stage window, close.
+        if self.parent().stagewind.activeStage:
+            self.parent().stagewind.activateStage()
         self.xystage = XYstage()
         if self.xystage.xystageInit == False:
             self.printMsg(" Stage not activated: automated acquisition not possible. Aborting.")
             self.autoAlignBtn.setEnabled(True)
             return
         self.printMsg(" Stage activated.")
+        
+        self.openShutter()
         
         self.firstRun = True
         for j in range(self.numCol):
@@ -174,6 +180,7 @@ class CameraWindow(QMainWindow):
                         self.delCam()
         self.printMsg("Auto-alignment completed")
         self.deactivateStage()
+        self.closeShutter()
         
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
@@ -181,6 +188,7 @@ class CameraWindow(QMainWindow):
 
     # Perform manual alignment
     def manualAlign(self, live):
+        self.openShutter()
         self.cam = CameraFeed()
         self.isAutoAlign = False
         self.firstRun = True
@@ -198,6 +206,7 @@ class CameraWindow(QMainWindow):
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
+        self.closeShutter()
         
     # Routine for manual alignment check
     def checkManualAlign(self):
@@ -354,6 +363,23 @@ class CameraWindow(QMainWindow):
         self.xystage.end_stage_control()
         del self.xystage
         self.printMsg("Stage deactivated")
+
+    # Activate shutter
+    def openShutter(self):
+        self.printMsg("Activating shutter...")
+        try:
+            self.shutter = Shutter()
+        except:
+            self.printMsg(" Shutter not activated: no acquisition possible")
+            return
+        self.shutter.open()
+        self.printMsg(" Shutter activated and open.")
+
+    # Deactivate shutter
+    def closeShutter(self):
+        self.shutter.closed()
+        del self.shutter
+        self.printMsg("Shutter deactivated")
 
 '''
    QGraphicsSelectionItem

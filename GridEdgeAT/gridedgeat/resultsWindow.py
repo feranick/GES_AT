@@ -274,6 +274,7 @@ class ResultsWindow(QMainWindow):
     
     # Clear all plots and fields
     def clearPlots(self, includeTable):
+        self.setWindowTitle('Results Panel')
         self.deviceID = np.zeros((0,1))
         self.perfData = np.zeros((0,8))
         self.JV = np.array([])
@@ -292,6 +293,8 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
+        
+        self.setWindowTitle('Results Panel - Device: '+ self.dfTotDeviceID.iat[0,row])
 
         self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],

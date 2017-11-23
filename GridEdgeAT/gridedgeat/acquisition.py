@@ -156,6 +156,9 @@ class acqThread(QThread):
     def run(self):
         # Activate stage
         self.Msg.emit("Activating stage...")
+        # If stage is open in stage window, close.
+        if self.parent().parent().stagewind.activeStage:
+            self.parent().parent().stagewind.activateStage()
         self.parent().xystage = XYstage()
         if self.parent().xystage.xystageInit == False:
             self.Msg.emit(" Stage not activated: no acquisition possible")
@@ -288,7 +291,9 @@ class acqThread(QThread):
                                                 perfDataDark, substrateID+str(dev_id), i, j)
                         
                         # tracking
-                        # self.solar_sim.shutter('ON')
+                        # open the shutter
+                        self.parent().shutter.open()
+                        
                         perfData, JV = self.tracking(substrateID+str(dev_id), v_mpp)
 
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
@@ -296,6 +301,8 @@ class acqThread(QThread):
                         
                     self.colorCell.emit(i,j,"green")
 
+        # close the shutter
+        self.parent().shutter.closed()
         self.Msg.emit("Acquisition Completed: "+ self.getDateTimeNow()[0] + \
                 " at "+self.getDateTimeNow()[1])
         self.endAcq()
