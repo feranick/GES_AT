@@ -343,10 +343,10 @@ class acqThread(QThread):
     ## low level api
     # xy substrate layout (default)
     # column:  1 ==> 4     row:
-    # 13 | 14 | 15 | 16     4
-    # 9  | 10 | 11 | 12     3
-    # 5  | 6  | 7  | 8      2
-    # 1  | 2  | 3  | 4      1
+    # 16 | 12 | 8 | 4     4
+    # 15 | 11 | 7 | 3     3
+    # 14 | 10 | 6 | 2      2
+    # 13 | 9  | 5 | 1      1
     # xy device layout (default)
     # |   ----   |
     # | 1 |  | 4 |
@@ -368,7 +368,8 @@ class acqThread(QThread):
     
     def get_pcb_id(self, i,j, xy_dev_id):
         "ID converison between xy to pcb"
-        return int((4-i)*4-(3-j)), xy_dev_id
+        #return int((4-i)*4-(3-j)), xy_dev_id
+        return int((4-j)*4-i), xy_dev_id
 
     def switch_device(self, i,j, dev_id):
         "Switch operation devices"
