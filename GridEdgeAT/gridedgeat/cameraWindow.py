@@ -142,6 +142,10 @@ class CameraWindow(QMainWindow):
             return
         self.printMsg(" Stage activated.")
         
+        ##########################
+        # Reference cell code here
+        ##########################
+        
         self.openShutter()
         
         self.firstRun = True
@@ -337,6 +341,30 @@ class CameraWindow(QMainWindow):
         msgBox.setText( "WARNING:\nNo substrates selected " )
         msgBox.setInformativeText( "Please add the substrates in the substrate window" )
         msgBox.exec_()
+    
+    # Move stage to position of reference solar cell
+    def moveToReferenceCell(self):
+        self.stageLabel.setText("Moving stage to Reference Cell...")
+        QApplication.processEvents()
+        self.xystage.move_abs(float(self.config.xPosRefCell),
+                              float(self.config.yPosRefCell))
+        self.showCurrentPos()
+    
+    # Action for stop button
+    def moveToReferenceCell(self):
+        msg = "Moving to the Reference cell first?"
+        self.printMsg(msg)
+        reply = QMessageBox.question(self.parent(), 'Message',
+                     msg, QMessageBox.No, QMessageBox.Yes)
+
+        if reply == QMessageBox.Yes:
+            self.stageLabel.setText("Moving stage to Reference Cell...")
+            QApplication.processEvents()
+            self.xystage.move_abs(float(self.config.xPosRefCell),
+                              float(self.config.yPosRefCell))
+            self.printMsg(msg)
+        else:
+            pass
     
     # Show message on log and terminal
     def printMsg(self, msg):
