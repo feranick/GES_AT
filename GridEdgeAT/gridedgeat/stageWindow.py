@@ -172,7 +172,6 @@ class StageWindow(QMainWindow):
     # Move stage to position of reference solar cell
     def moveToReferenceCell(self):
         self.stageLabel.setText("Moving stage to Reference Cell...")
-        self.parent().config.xPosRefCell
         QApplication.processEvents()
         self.xystage.move_abs(float(self.parent().config.xPosRefCell),
                               float(self.parent().config.yPosRefCell))
