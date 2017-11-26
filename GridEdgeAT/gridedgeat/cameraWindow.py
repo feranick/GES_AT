@@ -143,7 +143,7 @@ class CameraWindow(QMainWindow):
         self.printMsg(" Stage activated.")
         
         ##########################
-        # Reference cell code here
+        self.moveToReferenceCell()
         ##########################
         
         self.openShutter()
@@ -342,14 +342,6 @@ class CameraWindow(QMainWindow):
         msgBox.setInformativeText( "Please add the substrates in the substrate window" )
         msgBox.exec_()
     
-    # Move stage to position of reference solar cell
-    def moveToReferenceCell(self):
-        self.stageLabel.setText("Moving stage to Reference Cell...")
-        QApplication.processEvents()
-        self.xystage.move_abs(float(self.config.xPosRefCell),
-                              float(self.config.yPosRefCell))
-        self.showCurrentPos()
-    
     # Action for stop button
     def moveToReferenceCell(self):
         msg = "Moving to the Reference cell first?"
@@ -358,11 +350,16 @@ class CameraWindow(QMainWindow):
                      msg, QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
-            self.stageLabel.setText("Moving stage to Reference Cell...")
+            self.printMsg("Moving stage to reference cell...")
             QApplication.processEvents()
             self.xystage.move_abs(float(self.config.xPosRefCell),
                               float(self.config.yPosRefCell))
             self.printMsg(msg)
+            msgBox = QMessageBox( self )
+            msgBox.setIcon( QMessageBox.Information )
+            msgBox.setText( "Push OK to continue..." )
+            msgBox.setInformativeText( "... once you're done with the reference cell" )
+            msgBox.exec_()
         else:
             pass
     
@@ -405,9 +402,10 @@ class CameraWindow(QMainWindow):
 
     # Deactivate shutter
     def closeShutter(self):
-        self.shutter.closed()
-        del self.shutter
-        self.printMsg("Shutter deactivated")
+        if hasattr(self,"shutter"):
+            self.shutter.closed()
+            del self.shutter
+            self.printMsg("Shutter deactivated")
 
 '''
    QGraphicsSelectionItem
