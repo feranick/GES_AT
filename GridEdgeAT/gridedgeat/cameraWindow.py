@@ -142,6 +142,10 @@ class CameraWindow(QMainWindow):
             return
         self.printMsg(" Stage activated.")
         
+        ##########################
+        self.moveToReferenceCell()
+        ##########################
+        
         self.openShutter()
         
         self.firstRun = True
@@ -338,6 +342,27 @@ class CameraWindow(QMainWindow):
         msgBox.setInformativeText( "Please add the substrates in the substrate window" )
         msgBox.exec_()
     
+    # Action for stop button
+    def moveToReferenceCell(self):
+        msg = "Moving to the Reference cell first?"
+        self.printMsg(msg)
+        reply = QMessageBox.question(self.parent(), 'Message',
+                     msg, QMessageBox.No, QMessageBox.Yes)
+
+        if reply == QMessageBox.Yes:
+            self.printMsg("Moving stage to reference cell...")
+            QApplication.processEvents()
+            self.xystage.move_abs(float(self.config.xPosRefCell),
+                              float(self.config.yPosRefCell))
+            self.printMsg(msg)
+            msgBox = QMessageBox( self )
+            msgBox.setIcon( QMessageBox.Information )
+            msgBox.setText( "Push OK to continue..." )
+            msgBox.setInformativeText( "... once you're done with the reference cell" )
+            msgBox.exec_()
+        else:
+            pass
+    
     # Show message on log and terminal
     def printMsg(self, msg):
         print(msg)
@@ -377,9 +402,10 @@ class CameraWindow(QMainWindow):
 
     # Deactivate shutter
     def closeShutter(self):
-        self.shutter.closed()
-        del self.shutter
-        self.printMsg("Shutter deactivated")
+        if hasattr(self,"shutter"):
+            self.shutter.closed()
+            del self.shutter
+            self.printMsg("Shutter deactivated")
 
 '''
    QGraphicsSelectionItem
