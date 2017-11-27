@@ -283,7 +283,8 @@ class acqThread(QThread):
                         # Acquire dark JV
                         # close the shutter
                         self.parent().shutter.closed()
-                        
+
+                        self.Msg.emit(" Acquiring dark JV for device: "+substrateID+str(dev_id))
                         dark_JV_r, dark_JV_f = self.measure_JV()
                         perfDataDark = self.analyseDarkJV(dark_JV_r)
                         perfDataDark_f = self.analyseDarkJV(dark_JV_f)
@@ -469,7 +470,7 @@ class acqThread(QThread):
         #this is to prevent the tracking to start before the dark JV is completely processed.
         time.sleep(2)
         v = v_mpp
-        self.Msg.emit("Tracking device: "+deviceID+"...")
+        self.Msg.emit(" Tracking device: "+deviceID+"...")
         start_time = time.time()
 
         while time.time() - start_time <= track_time:
