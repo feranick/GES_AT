@@ -148,7 +148,7 @@ class AcquisitionWindow(QMainWindow):
         self.directionLabel.setText("Scan direction: ")
         self.architectureLabel.setText("Device architecture: ")
         self.delayBeforeMeasLabel.setText("Delays before measurements [s]")
-        self.trackingLabel.setText("<qt><b>Track MPP: </b></qt>")
+        self.trackingLabel.setText("<qt><b>Track Max Power Point: </b></qt>")
         self.numDevTrackLabel.setText("Number of devices to be tracked")
         self.trackTLabel.setText("Tracking time [s]")
 

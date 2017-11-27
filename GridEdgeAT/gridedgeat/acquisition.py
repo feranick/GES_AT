@@ -232,7 +232,7 @@ class acqThread(QThread):
                         print("Skipping acquisition: stage not activated.")
                         break
                     
-                    id_mpp_v = np.zeros((0,3))
+                    id_mpp_v = np.zeros((0,7))
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
@@ -248,6 +248,7 @@ class acqThread(QThread):
                         # light JV
                         # open the shutter
                         self.parent().shutter.open()
+                        time.sleep(0.2)
                         time.sleep(float(self.dfAcqParams.at[0,'Delay Before Meas']))
                         JV_r, JV_f = self.measure_JV()
 
@@ -261,19 +262,28 @@ class acqThread(QThread):
                         # Prepare stack for list of best devices
                         JV = np.vstack((JV_r, JV_f))
                         max_i = np.argmax(JV[:, 0] * JV[:, 1])
-                        id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0]],id_mpp_v))
+                        #id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0]],id_mpp_v))
+                        id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0],
+                                        perfData[0][3],perfData[0][4],perfData[0][7],perfData[0][8]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
 
                     id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
                     id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
-                    self.maxPowerDev.emit(" Device with max power: "+str(int(id_mpp_v[0,0])))
-
+                    self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
+                    self.maxPowerDev.emit("  Max power (mW/cm^2): "+str(id_mpp_v[0,1]))
+                    self.maxPowerDev.emit("  V at Max power (V): "+str(id_mpp_v[0,2]))
+                    self.maxPowerDev.emit("  Voc (V): "+str(id_mpp_v[0,3]))
+                    self.maxPowerDev.emit("  Jsc (mA/cm^2): "+str(id_mpp_v[0,4]))
+                    self.maxPowerDev.emit("  FF: "+str(id_mpp_v[0,5]))
+                    self.maxPowerDev.emit("  PCE: "+str(id_mpp_v[0,6])+"\n")
+                    
                     # Tracking
                     time.sleep(1)
                     tracking_points = int(self.dfAcqParams.at[0,'Num Track Devices'])
                     # Switch to device with max power and start tracking
-                    for dev_id_f, mpp, v_mpp in id_mpp_v[:tracking_points, :]:
-                        dev_id = int(dev_id_f)
+                    for dev_id, mpp, v_mpp, voc_mpp, jsc_mpp, ff_mpp, pcs_mpp in id_mpp_v[:tracking_points, :]:
+                        dev_id = int(dev_id)
+                        v_mpp = float(v_mpp)
                         
                         # Move and activate correct device
                         self.parent().xystage.move_to_device_3x2(self.parent().getSubstrateNumber(i, j), dev_id)
@@ -283,6 +293,7 @@ class acqThread(QThread):
                         # Acquire dark JV
                         # close the shutter
                         self.parent().shutter.closed()
+                        time.sleep(0.2)
 
                         self.Msg.emit(" Acquiring dark JV for device: "+substrateID+str(dev_id))
                         dark_JV_r, dark_JV_f = self.measure_JV()
@@ -295,6 +306,7 @@ class acqThread(QThread):
                         # tracking
                         # open the shutter
                         self.parent().shutter.open()
+                        time.sleep(0.2)
                         
                         perfData, JV = self.tracking(substrateID+str(dev_id), v_mpp)
 
@@ -447,8 +459,10 @@ class acqThread(QThread):
     # Tracking (take JV once and track Vpmax)
     def tracking(self, deviceID, v_mpp):
         track_time = float(self.dfAcqParams.at[0,'Track Time'])
-        hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
         substrateArea = float(self.dfAcqParams.at[0,'Device Area'])
+        hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
+        if hold_time <=0.5:
+            hold_time = 0.5
         dv = 0.0001
         step_size = 0.1
         if int(self.dfAcqParams.at[0,'Architecture']) == 0:
