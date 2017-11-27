@@ -192,7 +192,8 @@ class acqThread(QThread):
         # Activate shutter
         self.Msg.emit("Activating shutter...")
         try:
-            self.parent().shutter = Shutter()
+            if not hasattr(self.parent(),"shutter"):
+                self.parent().shutter = Shutter()
         except:
             self.Msg.emit(" Shutter not activated: no acquisition possible")
             self.stop()

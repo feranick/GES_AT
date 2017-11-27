@@ -293,12 +293,14 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-        
-        self.setWindowTitle('Results Panel - Device: '+ self.dfTotDeviceID.iat[0,row])
 
-        self.plotData(self.dfTotDeviceID.iat[0,row],
+        try:
+            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row][0][0]))
+            self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row][0])
+                self.dfTotJV.iat[0,row])
+        except:
+            pass
 
     # Process Key Events
     def keyPressEvent(self, event):
@@ -562,4 +564,4 @@ class ResultsWindow(QMainWindow):
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
         print("Opening entry in DM for substrate:",deviceID[:10])
-        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+deviceID[:10])
+        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10][0][0]))
