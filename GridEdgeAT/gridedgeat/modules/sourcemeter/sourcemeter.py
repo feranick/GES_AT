@@ -121,7 +121,7 @@ class SourceMeter(object):
 
     def read_values(self, area):
         data = list(map(float, self.ask(':READ?').split(',')))
-        data[1] = data[1]/float(area)
+        data[1] = data[1]*1000.0/float(area)
         return data
 
     def on(self):

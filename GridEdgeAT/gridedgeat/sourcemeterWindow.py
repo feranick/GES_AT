@@ -110,7 +110,7 @@ class sourcemeterThread(QThread):
     def run(self):
         try:
             self.sc = SourceMeter(self.parent().parent().config.sourcemeterID)
-            deviceArea = float(self.parent().parent().config.deviceArea)
+            substrateArea = float(self.parent().parent().config.substrateArea)
 
             self.sc.set_limit(voltage=self.maxV, current=0.12)
             self.runningFlag = True
@@ -123,7 +123,7 @@ class sourcemeterThread(QThread):
                     voltage = float(voltageText)
                     self.sc.set_output(voltage = voltage)
                     self.smResponse.emit("Voltage [V]: "+str(self.sc.read_values(deviceArea)[0]), \
-                        " Current [A]: "+str(self.sc.read_values(deviceArea)[1]), True)
+                        " Current [mA]: "+str(self.sc.read_values(substrateArea)[1]), True)
                     self.sc.off()
                 time.sleep(0.2)
         except:

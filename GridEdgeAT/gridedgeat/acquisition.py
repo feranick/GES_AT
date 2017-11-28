@@ -14,6 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import numpy as np
 import pandas as pd
+from scipy.interpolate import interp1d
 import time, random, math
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication,QAbstractItemView)
@@ -150,6 +151,8 @@ class acqThread(QThread):
         self.wait()
 
     def stop(self):
+        if hasattr(self.parent(), "shutter"):
+            self.parent().shutter.closed()
         self.terminate()
         self.endAcq()
     
@@ -454,6 +457,12 @@ class acqThread(QThread):
         self.parent().source_meter.set_output(voltage = 0.)
         jsc = self.parent().source_meter.read_values(substrateArea)[1]
         return voc, jsc
+
+    ## measurements: voc, jsc
+    def calculate_voc_jsc(self, JV):
+        jsc = interp1d(JV[:,0],JV[:,1])(0)
+        voc = interp1d(JV[:,1],JV[:,0])(0)
+        return voc, jsc
     
     ## New Flow
     # Tracking (take JV once and track Vpmax)
@@ -507,10 +516,16 @@ class acqThread(QThread):
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
         # measurements: voc, jsc
-        Voc, Jsc = self.measure_voc_jsc()
+        #Voc, Jsc = self.measure_voc_jsc()
+        Voc, Jsc = self.calculate_voc_jsc(JV)
         
-        Vpmax = PV[np.where(PV == np.amax(PV[:,1]))[0][0],0]
-        Jpmax = JV[np.where(PV == np.amax(PV[:,1]))[0][0],1]
+        #Vpmax = PV[np.where(PV == np.amax(PV[:,1]))[0][0],0]
+        #Jpmax = JV[np.where(PV == np.amax(PV[:,1]))[0][0],1]
+
+        Jpmax = np.amin(PV[np.where(PV[:,0]>0)][:,1])
+        Vpmax = PV[np.where(PV[:,0]>0)][np.argmin(PV[np.where(PV[:,0]>0)][:,1]),0]
+
+        print(Vpmax, Jpmax)
         
         if Voc != 0. and Jsc != 0.:
             FF = Vpmax*Jpmax/(Voc*Jsc)

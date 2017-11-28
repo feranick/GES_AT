@@ -349,10 +349,13 @@ class ResultsWindow(QMainWindow):
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
-        self.save_csv(self.dfTotDeviceID.iat[0,row],
-            self.dfTotAcqParams.iloc[[row]],
-            self.dfTotPerfData.iat[0,row],
-            self.dfTotJV.iat[0,row][0])
+        try:
+            self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
+                self.dfTotAcqParams.iloc[[row]],
+                self.dfTotPerfData.iat[0,row],
+                self.dfTotJV.iat[0,row])
+        except:
+            print("Error: cannot be saved")
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, row):

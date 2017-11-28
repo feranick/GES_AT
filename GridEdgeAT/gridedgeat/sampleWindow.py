@@ -77,7 +77,7 @@ class SampleWindow(QMainWindow):
         self.windowGridLayout.addWidget(self.substrateAreaText, 2, 1, 1, 1)
         self.substrateAreaText.setText(str(self.parent().config.substrateArea))
         self.substrateAreaText.editingFinished.connect(self.setsubstrateArea)
-        self.substrateAreaText.setEnabled(False)
+        self.substrateAreaText.setEnabled(True)
 
         self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
                                     "x"+str(self.parent().config.numSubsHolderRow))
