@@ -536,7 +536,7 @@ class ResultsWindow(QMainWindow):
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array([JV]))
+                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array(JV))
         except:
             print("Loading files failed")
 
