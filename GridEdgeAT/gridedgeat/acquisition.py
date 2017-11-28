@@ -82,15 +82,18 @@ class Acquisition(QObject):
     # Action for stop button
     def stop(self):
         quit_msg = "Are you sure you want to stop the acquisition?"
-        print(quit_msg)
         reply = QMessageBox.question(self.parent(), 'Message',
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
-
+        print("1")
         if reply == QMessageBox.Yes:
+            print("2")
             msg = "Acquisition stopped: " + self.acq_thread.getDateTimeNow()[0]+ \
                   " at "+self.acq_thread.getDateTimeNow()[1]
+            print("3")
             self.acq_thread.stop()
+            print("4")
             self.printMsg(msg)
+            print("5")
         else:
             pass
 
@@ -460,8 +463,13 @@ class acqThread(QThread):
 
     ## measurements: voc, jsc
     def calculate_voc_jsc(self, JV):
-        jsc = interp1d(JV[:,0],JV[:,1])(0)
-        voc = interp1d(JV[:,1],JV[:,0])(0)
+        try:
+            jsc = interp1d(JV[:,0],JV[:,1])(0)
+            voc = interp1d(JV[:,1],JV[:,0])(0)
+        except:
+            self.Msg.emit("Failed to calculate Voc and Jsc")
+            jsc = 0.
+            voc = 0.
         return voc, jsc
     
     ## New Flow
@@ -518,14 +526,12 @@ class acqThread(QThread):
         # measurements: voc, jsc
         #Voc, Jsc = self.measure_voc_jsc()
         Voc, Jsc = self.calculate_voc_jsc(JV)
-        
+
+        # Previous way to get Vpmax and Jpmax
         #Vpmax = PV[np.where(PV == np.amax(PV[:,1]))[0][0],0]
         #Jpmax = JV[np.where(PV == np.amax(PV[:,1]))[0][0],1]
-
         Jpmax = np.amin(PV[np.where(PV[:,0]>0)][:,1])
         Vpmax = PV[np.where(PV[:,0]>0)][np.argmin(PV[np.where(PV[:,0]>0)][:,1]),0]
-
-        print(Vpmax, Jpmax)
         
         if Voc != 0. and Jsc != 0.:
             FF = Vpmax*Jpmax/(Voc*Jsc)
