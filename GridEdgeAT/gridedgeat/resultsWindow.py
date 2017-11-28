@@ -551,8 +551,10 @@ class ResultsWindow(QMainWindow):
         
         for i in range(1,7,1):
             self.resTableWidget.setItem(self.lastRowInd, i,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,i+2].astype(float)))))
-            self.resTableWidget.item(self.lastRowInd,i).setToolTip("F:{0:0.3f}".format(float(obj[0,i+2]))+" / B:{0:0.3f}".format(float(obj[1,i+2])))
-
+            try:
+                self.resTableWidget.item(self.lastRowInd,i).setToolTip("F:{0:0.3f}".format(float(obj[0,i+2]))+" / B:{0:0.3f}".format(float(obj[1,i+2])))
+            except:
+                pass
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
