@@ -548,13 +548,11 @@ class ResultsWindow(QMainWindow):
             light = "OFF"
         
         self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem(deviceID))
-        #self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem(obj[0,2]+"-"+obj[1,2])) #Voc
-        self.resTableWidget.setItem(self.lastRowInd, 1,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,3].astype(float))))) #Voc
-        self.resTableWidget.setItem(self.lastRowInd, 2,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,4].astype(float))))) #Jsc
-        self.resTableWidget.setItem(self.lastRowInd, 3,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,5].astype(float))))) #VPP
-        self.resTableWidget.setItem(self.lastRowInd, 4,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,6].astype(float))))) #MPP
-        self.resTableWidget.setItem(self.lastRowInd, 5,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,7].astype(float))))) #FF
-        self.resTableWidget.setItem(self.lastRowInd, 6,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,8].astype(float))))) #PCE
+        
+        for i in range(1,7,1):
+            self.resTableWidget.setItem(self.lastRowInd, i,QTableWidgetItem("{0:0.3f}".format(np.mean(obj[:,i+2].astype(float)))))
+            self.resTableWidget.item(self.lastRowInd,i).setToolTip("F:{0:0.3f}".format(float(obj[0,i+2]))+" / B:{0:0.3f}".format(float(obj[1,i+2])))
+
         self.resTableWidget.setItem(self.lastRowInd, 7,QTableWidgetItem(light)) #Light
         self.resTableWidget.setItem(self.lastRowInd, 9,QTableWidgetItem(obj[0,0]))
         self.resTableWidget.setItem(self.lastRowInd, 10,QTableWidgetItem(obj[0,1]))
