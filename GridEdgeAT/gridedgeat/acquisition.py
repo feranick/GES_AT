@@ -144,15 +144,21 @@ class acqThread(QThread):
         self.numCol = numCol
         self.powerIn = float(self.parent().parent().config.conf['Instruments']['irradiance1Sun'])
         self.tracking_points = 2
+        self.stopAcqFlag = False
 
     def __del__(self):
         self.wait()
 
     def stop(self):
+        self.stopAcqFlag = True
+        print(" Stopping acquisition. Please wait...")
         if hasattr(self.parent(), "shutter"):
             self.parent().shutter.closed()
-        self.terminate()
+        while self.isRunning():
+            self.wait(100)
         self.endAcq()
+        print(" Stopping acquisition successful")
+        self.terminate()
     
     def run(self):
         # Activate stage
@@ -214,6 +220,8 @@ class acqThread(QThread):
         # Start from moving to the correct substrate
         for j in range(self.numCol):
             for i in range(self.numRow):
+                if self.stopAcqFlag == True:
+                            break
                 # convert to correct substrate number in holder
                 substrateNum = self.parent().getSubstrateNumber(i,j)
                 substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()
@@ -236,6 +244,8 @@ class acqThread(QThread):
                     id_mpp_v = np.zeros((0,7))
                     #self.devMaxPower = 0
                     for dev_id in range(1,7):
+                        if self.stopAcqFlag == True:
+                            break
                         self.Msg.emit(" Moving to device: " + str(dev_id)+", substrate #"+ \
                                 str(self.parent().getSubstrateNumber(i,j))) 
                         deviceID = substrateID+str(dev_id)
@@ -267,7 +277,8 @@ class acqThread(QThread):
                         id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0],
                                         perfData[0][3],perfData[0][4],perfData[0][7],perfData[0][8]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
-
+                    if self.stopAcqFlag == True:
+                            break
                     id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
                     id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
                     self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
