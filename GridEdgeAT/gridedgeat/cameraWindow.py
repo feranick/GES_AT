@@ -169,6 +169,9 @@ class CameraWindow(QMainWindow):
 
                         # Perform alignment analysis 
                         self.cam = CameraFeed()
+                        self.setWindowTitle('Camera Alignment Panel - Substrate #'+\
+                                    str(substrateNum)+" ("+\
+                                    self.parent().samplewind.tableWidget.item(i,j).text()+")")
                         self.setSelWindow(False)
                         if hasattr(self,"cam"):
                             alignFlag, alignPerc, iMax = self.alignment()
@@ -183,6 +186,7 @@ class CameraWindow(QMainWindow):
                             self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
         self.printMsg("Auto-alignment completed")
+        self.setWindowTitle('Camera Alignment Panel')
         self.deactivateStage()
         self.closeShutter()
         
