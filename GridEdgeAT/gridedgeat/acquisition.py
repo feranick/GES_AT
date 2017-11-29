@@ -84,16 +84,11 @@ class Acquisition(QObject):
         quit_msg = "Are you sure you want to stop the acquisition?"
         reply = QMessageBox.question(self.parent(), 'Message',
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
-        print("1")
         if reply == QMessageBox.Yes:
-            print("2")
             msg = "Acquisition stopped: " + self.acq_thread.getDateTimeNow()[0]+ \
                   " at "+self.acq_thread.getDateTimeNow()[1]
-            print("3")
             self.acq_thread.stop()
-            print("4")
             self.printMsg(msg)
-            print("5")
         else:
             pass
 
