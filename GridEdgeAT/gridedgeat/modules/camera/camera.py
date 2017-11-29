@@ -60,12 +60,13 @@ class CameraFeed():
         return self.img
         
     # Process image
-    def get_image(self, crop, x1, x2, y1, y2):
+    def get_image(self, crop, x1, x2, y1, y2, text=None):
         if crop == True:
             #cv2.rectangle(self.img,(x1,y1),(x2,y2),(0,255,0),3)
             self.img1 = self.img[y1:y2, x1:x2]
         else:
             self.img1 = self.img
+        cv2.putText(self.img,text,(5,30), cv2.FONT_HERSHEY_COMPLEX_SMALL , 1.5,(255,255,255),2,cv2.LINE_AA)
         self.img_raw = Image.fromarray(self.img1).convert('L')
         self.imgg = ImageQt(self.img_raw)
         self.img_data = np.asarray(self.img1)

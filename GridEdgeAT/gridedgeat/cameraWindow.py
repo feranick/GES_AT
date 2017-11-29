@@ -169,7 +169,7 @@ class CameraWindow(QMainWindow):
 
                         # Perform alignment analysis 
                         self.cam = CameraFeed()
-                        self.setSelWindow(False)
+                        self.setSelWindow(False, "Substrate #"+str(substrateNum))
                         if hasattr(self,"cam"):
                             alignFlag, alignPerc, iMax = self.alignment()
                         else:
@@ -198,7 +198,7 @@ class CameraWindow(QMainWindow):
         self.firstRun = True
         self.alignOn = True
         self.scene.selectionDef.connect(self.checkManualAlign)
-        self.setSelWindow(live)
+        self.setSelWindow(live, "Manual")
         QApplication.processEvents()
         while self.alignOn:
             time.sleep(0.1)
@@ -223,8 +223,8 @@ class CameraWindow(QMainWindow):
             self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(alignPerc)+")")
 
     # Define selection window 
-    def setSelWindow(self, live):
-        self.cameraFeed(live)
+    def setSelWindow(self, live, text):
+        self.cameraFeed(live, text)
         if self.firstRun:
             self.printMsg(" Use Mouse to set the integration window")
         while self.firstRun:
@@ -254,7 +254,7 @@ class CameraWindow(QMainWindow):
             return True, alignPerc, iMax
 
     # Get image from feed
-    def cameraFeed(self, live):
+    def cameraFeed(self, live, text):
         self.scene.cleanup()
         self.setDefaultBtn.setEnabled(True)
         try:
@@ -271,7 +271,7 @@ class CameraWindow(QMainWindow):
             else:
                 QApplication.processEvents()
                 self.img = self.cam.grab_image()
-            self.image, self.image_data, temp = self.cam.get_image(False,0,0,0,0)
+            self.image, self.image_data, temp = self.cam.get_image(False,0,0,0,0,text)
             
             pixMap = QPixmap.fromImage(self.image)
             self.scene.addPixmap(pixMap)
