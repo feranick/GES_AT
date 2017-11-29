@@ -186,13 +186,13 @@ class CameraWindow(QMainWindow):
                             self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
         self.printMsg("Auto-alignment completed")
-        self.setWindowTitle('Camera Alignment Panel')
         self.deactivateStage()
         self.closeShutter()
         
         self.updateBtn.setEnabled(True)
         self.liveFeedBtn.setEnabled(True)
         self.autoAlignBtn.setEnabled(True)
+        self.setWindowTitle('Camera Alignment Panel')
 
     # Perform manual alignment
     def manualAlign(self, live):
