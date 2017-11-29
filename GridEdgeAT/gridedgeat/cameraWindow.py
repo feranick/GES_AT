@@ -478,9 +478,11 @@ class GraphicsScene(QGraphicsScene):
                 self.addRect()
             self.parent().manualAlignBtn.setEnabled(True)
             if self.parent().isAutoAlign:
-                self.parent().printMsg(" Press SPACE to set integration window for alignment check")
+                msg = " Press SPACE to set integration window for alignment check"
             else:
-                self.parent().printMsg(" Press SPACE to set Check Alignment; ENTER to Close")
+                msg = " Press SPACE to set Check Alignment; ENTER to Close"
+            self.parent().printMsg(msg)
+            self.parent().view.setToolTip(msg)
         except:
             pass
 
