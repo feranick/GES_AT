@@ -107,7 +107,7 @@ class SourceMeter(object):
                 self.write('SOUR:VOLT {:f}'.format(voltage))
             else:
                 print('Warning: Voltage higher than compliance limit voltage (',
-                    str(self.voltage_limit),'V)'))
+                    str(self.voltage_limit),'V)')
                 self.write('SOUR:VOLT {:f}'.format(self.voltage_limit))
 
         elif current != None:

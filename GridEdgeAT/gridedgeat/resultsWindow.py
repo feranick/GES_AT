@@ -345,7 +345,7 @@ class ResultsWindow(QMainWindow):
                 selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
                 selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
                 selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
-                viewDMEntryAction.triggered.connect(lambda: self.redirectToDM(self.dfTotDeviceID.iat[0,row]))
+                viewDMEntryAction.triggered.connect(lambda: self.redirectToDM(self.dfTotDeviceID.iat[0,row][0][0]))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
