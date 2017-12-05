@@ -4,7 +4,7 @@ sourcemeter.py
 Class for providing a hardware support for 
 for the sourcemeter
 
-Version: 20171018
+Version: 20171205
 
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
@@ -106,7 +106,8 @@ class SourceMeter(object):
             if voltage <= self.voltage_limit:
                 self.write('SOUR:VOLT {:f}'.format(voltage))
             else:
-                print('Warning: Compliance Reached!!')
+                print('Warning: Voltage higher than compliance limit voltage (',
+                    str(self.voltage_limit),'V)'))
                 self.write('SOUR:VOLT {:f}'.format(self.voltage_limit))
 
         elif current != None:
