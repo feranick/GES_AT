@@ -217,6 +217,7 @@ class SampleWindow(QMainWindow):
                 for Item in ItemList:
                     subList.append(Acquisition().getSubstrateNumber(Item.row(),Item.column()))
                 displayError = True
+        self.parent().acquisitionwind.acquisitionTime()
                 
         if displayError == True:
             msgBox = QMessageBox()

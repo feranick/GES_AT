@@ -122,6 +122,8 @@ class AcquisitionWindow(QMainWindow):
         
         self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
         self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 2, 0, 1, 1)
+        self.totTimeAcqLabel = QLabel(self.gridLayoutWidget_2)
+        self.gridLayout_2.addWidget(self.totTimeAcqLabel, 3, 0, 1, 1)
        
         MainWindow.setCentralWidget(self.centralwidget)
         
@@ -164,11 +166,13 @@ class AcquisitionWindow(QMainWindow):
         
         self.initParameters()
     
-        self.soakTText.editingFinished.connect(self.timePerDevice)
-        self.forwardVText.editingFinished.connect(self.timePerDevice)
-        self.reverseVText.editingFinished.connect(self.timePerDevice)
-        self.stepVText.editingFinished.connect(self.timePerDevice)
-        self.delayBeforeMeasText.editingFinished.connect(self.timePerDevice)
+        self.soakTText.editingFinished.connect(self.acquisitionTime)
+        self.forwardVText.editingFinished.connect(self.acquisitionTime)
+        self.reverseVText.editingFinished.connect(self.acquisitionTime)
+        self.stepVText.editingFinished.connect(self.acquisitionTime)
+        self.delayBeforeMeasText.editingFinished.connect(self.acquisitionTime)
+        self.numDevTrackText.valueChanged.connect(self.acquisitionTime)
+        self.trackTText.editingFinished.connect(self.acquisitionTime)
 
     # Save acquisition parameters in configuration ini
     def saveParameters(self):
@@ -188,7 +192,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
         logger.info("Acquisition parameters saved as default")
-        self.timePerDevice()
+        self.acquisitionTime()
     
     # Set default acquisition parameters from configuration ini
     def defaultParameters(self):
@@ -197,7 +201,7 @@ class AcquisitionWindow(QMainWindow):
         self.initParameters()
         print("Default acquisition parameters restored")
         logger.info("Default acquisition parameters restored")
-        self.timePerDevice()
+        self.acquisitionTime()
 
     # Populate acquisition panel with values from config
     def initParameters(self):
@@ -212,7 +216,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.setText(str(self.parent().config.acqDelayBeforeMeas))
         self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
         self.trackTText.setText(str(self.parent().config.acqTrackTime))
-        self.timePerDevice()
+        self.acquisitionTime()
 
     # Field validator for Reverse and Forward Voltages
     def validateReverseVoltage(self):
@@ -232,18 +236,40 @@ class AcquisitionWindow(QMainWindow):
             self.show()  
 
     # Calculate the measurement time per device
-    def timePerDevice(self):
-        try:
-            timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
+    def acquisitionTime(self):
+        #try:
+        numActiveSubs = 0
+        totalAcqTime = 0
+
+        for j in range(self.parent().config.numSubsHolderRow):
+            for i in range(self.parent().config.numSubsHolderCol):
+                if self.parent().samplewind.tableWidget.item(i,j).text() != "":
+                        numActiveSubs +=1
+        timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
                                       float(self.forwardVText.text())+1e-9,
                                       float(self.stepVText.text())))* \
                                       float(self.holdTText.text()) + \
-                                      float(self.soakTText.text())
-        except:
-            timePerDevice = 0
+                                      float(self.soakTText.text()) + \
+                                      float(self.delayBeforeMeasText.text())
+
+        if numActiveSubs >0:
+            totalAcqTime += float(self.delayBeforeMeasText.text()) + \
+                    float(timePerDevice*numActiveSubs) +\
+                    float(self.numDevTrackText.text())*float(self.trackTText.text())+\
+                    float(self.delayBeforeMeasText.text())*numActiveSubs
+        #except:
+        #    timePerDevice = 0
+        #    totalAcqTime = 0
+
+        min_device, sec_device = divmod(timePerDevice,60)
+        min_total, sec_total = divmod(totalAcqTime,60)
+
         self.totTimePerDeviceLabel.setText(\
-                "Total time per device: <qt><b>{0:0.1f}s</b></qt>".format(timePerDevice))
-    
+                "Total time per device: <qt><b>{:d}".format(int(min_device))+\
+                " min - {:d}".format(int(sec_device))+" sec</b></qt>")
+        self.totTimeAcqLabel.setText(\
+                "Total acquisition time: <qt><b>{:d}".format(int(min_total))+\
+                " min - {:d}".format(int(sec_total))+" sec</b></qt>")
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableAcqPanel(self, flag):
