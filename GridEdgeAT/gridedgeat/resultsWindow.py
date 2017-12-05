@@ -469,31 +469,32 @@ class ResultsWindow(QMainWindow):
         jsonData.update(listPerfData)
         jsonData.update(listJV)
         jsonData.update(listAcqParams)
+        #print(jsonData)
 
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
-            #This is for using POST HTTP
-            url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
-            req = requests.post(url, json=jsonData)
-            if req.status_code == 200:
-                msg = " Device " + deviceID + \
-                      ", submission to DM via HTTP POST successful\n  (ETag: " + \
-                      str(req.headers['ETag'])+")"
-            else:
-                req.raise_for_status()
+            # This is for direct submission via pymongo
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
+            msg = " Device " + deviceID + \
+                    ": submission to DM via Mongo successful\n  (id: " + \
+                    str(db_entry.inserted_id)+")"
         except:
             try:
-                # This is for direct submission via pymongo
-                conn = DataManagement(self.dbConnectInfo)
-                client, _ = conn.connectDB()
-                db = client[self.dbConnectInfo[2]]
-                try:
-                    db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
+                msg = " Submission to DM via Mongo: failed. Trying via HTTP POST"
+                print(msg)
+                logger.info(msg)
+                #This is for using POST HTTP
+                url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
+                req = requests.post(url, json=jsonData)
+                if req.status_code == 200:
                     msg = " Device " + deviceID + \
-                          ": submission to DM via Mongo successful\n  (id: " + \
-                          str(db_entry.inserted_id)+")"
-                except:
-                    msg = " Submission to DM via Mongo: failed."
+                      ", submission to DM via HTTP POST successful\n  (ETag: " + \
+                      str(req.headers['ETag'])+")"
+                else:
+                    req.raise_for_status()
             except:
                 msg = " Connection to DM server: failed. Saving local file"
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
@@ -566,5 +567,5 @@ class ResultsWindow(QMainWindow):
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
-        print("Opening entry in DM for substrate:",deviceID[:10])
-        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10][0][0]))
+        print("Opening entry in DM for substrate:",deviceID[:8])
+        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:8]))
