@@ -567,5 +567,5 @@ class ResultsWindow(QMainWindow):
 
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
-        print("Opening entry in DM for substrate:",deviceID[:8])
-        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:8]))
+        print("Opening entry in DM for substrate:",deviceID[:10])
+        webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10]))

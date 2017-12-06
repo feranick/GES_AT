@@ -221,46 +221,56 @@ class AcquisitionWindow(QMainWindow):
 
     # Field validator for Reverse and Forward Voltages
     def validateReverseVoltage(self):
-        validateVoltage = QDoubleValidator(-50, float(self.forwardVText.text()),1,self.reverseVText)
-        if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
-            msg = "Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
+        if self.reverseVText.text() =="":
+            self.reverseVText.setText(str(self.parent().config.acqReverseVoltage))
+        try:
+            validateVoltage = QDoubleValidator(-50, float(self.forwardVText.text()),1,self.reverseVText)
+            if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
+                msg = "Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
                   ")\n\nPlease change \"Reverse voltage\" in the Acquisition window"
-            reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
-            self.show()
+                reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
+                self.show()
+        except:
+            self.reverseVText.setText(str(self.parent().config.acqReverseVoltage))
             
     def validateForwardVoltage(self):
-        validateVoltage = QDoubleValidator(float(self.reverseVText.text()),50,1,self.forwardVText)
-        if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
-            msg = "Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
+        if self.forwardVText.text() =="":
+            self.forwardVText.setText(str(self.parent().config.acqForwardVoltage))
+        try:
+            validateVoltage = QDoubleValidator(float(self.reverseVText.text()),50,1,self.forwardVText)
+            if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
+                msg = "Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
                   ")\n\nPlease change \"Forward voltage\" in the Acquisition window"
-            reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
-            self.show()  
+                reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
+                self.show()
+        except:
+            self.forwardVText.setText(str(self.parent().config.acqForwardVoltage))
 
     # Calculate the measurement time per device
     def acquisitionTime(self):
-        #try:
-        numActiveSubs = 0
-        totalAcqTime = 0
+        try:
+            numActiveSubs = 0
+            totalAcqTime = 0
 
-        for j in range(self.parent().config.numSubsHolderRow):
-            for i in range(self.parent().config.numSubsHolderCol):
-                if self.parent().samplewind.tableWidget.item(i,j).text() != "":
+            for j in range(self.parent().config.numSubsHolderRow):
+                for i in range(self.parent().config.numSubsHolderCol):
+                    if self.parent().samplewind.tableWidget.item(i,j).text() != "":
                         numActiveSubs +=1
-        timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
+            timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
                                       float(self.forwardVText.text())+1e-9,
                                       float(self.stepVText.text())))* \
                                       float(self.holdTText.text()) + \
                                       float(self.soakTText.text()) + \
                                       float(self.delayBeforeMeasText.text())
 
-        if numActiveSubs >0:
-            totalAcqTime += float(self.delayBeforeMeasText.text()) + \
+            if numActiveSubs >0:
+                totalAcqTime += float(self.delayBeforeMeasText.text()) + \
                     float(timePerDevice*numActiveSubs) +\
                     float(self.numDevTrackText.text())*float(self.trackTText.text())+\
                     float(self.delayBeforeMeasText.text())*numActiveSubs
-        #except:
-        #    timePerDevice = 0
-        #    totalAcqTime = 0
+        except:
+            timePerDevice = 0
+            totalAcqTime = 0
 
         min_device, sec_device = divmod(timePerDevice,60)
         min_total, sec_total = divmod(totalAcqTime,60)
