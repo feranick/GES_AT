@@ -218,13 +218,13 @@ class CameraWindow(QMainWindow):
         
     # Routine for manual alignment check
     def checkManualAlign(self):
-        alignFlag, alignPerc, iMax = self.alignment()
-        if alignFlag:
+        self.alignFlag, self.alignPerc, self.iMax = self.alignment()
+        if self.alignFlag:
             self.inAlignmentMessageBox()
-            self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(alignPerc)+")")
+            self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(self.alignPerc)+")")
         else:
             self.outAlignmentMessageBox()
-            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(alignPerc)+")")
+            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(self.alignPerc)+")")
 
     # Define selection window 
     def setSelWindow(self, live):

@@ -157,7 +157,7 @@ class MainWindow(QMainWindow):
         
         self.viewWindowMenus(self.menuBar, self)
 
-        self.helpMenu = QAction("&Help", self)
+        self.helpMenu = QAction("&Help - SOP", self)
         self.helpMenu.setShortcut("Ctrl+h")
         self.helpMenu.setStatusTip('Help')
         self.helpMenu.triggered.connect(self.weblinks.help)
@@ -345,7 +345,8 @@ class WebLinksWidget():
         super(WebLinksWidget, self).__init__()
 
     def help(self):
-        webbrowser.open("https://sites.google.com/site/gridedgesolar/")
+        #webbrowser.open("https://sites.google.com/site/gridedgesolar/")
+        webbrowser.open("https://docs.google.com/document/d/13y0wFV21d75kd37jS3CpJvZL-_ImOJHvAZBCXCPn-OQ/edit")
     def dev(self):
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
     def dm(self):

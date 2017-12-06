@@ -50,7 +50,7 @@ class Configuration():
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
             'numSubsHolderCol' : 4,
-            'substrateArea' : 6.4516,
+            'deviceArea' : 6.4516,
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
@@ -115,7 +115,7 @@ class Configuration():
 
             self.numSubsHolderRow = self.conf.getint('Devices','numSubsHolderRow')
             self.numSubsHolderCol = self.conf.getint('Devices','numSubsHolderCol')
-            self.substrateArea = self.conf.getfloat('Devices','substrateArea')
+            self.deviceArea = self.conf.getfloat('Devices','deviceArea')
         
             self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
             self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
