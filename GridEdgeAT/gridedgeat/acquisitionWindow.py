@@ -167,6 +167,7 @@ class AcquisitionWindow(QMainWindow):
         self.initParameters()
     
         self.soakTText.editingFinished.connect(self.acquisitionTime)
+        self.holdTText.editingFinished.connect(self.acquisitionTime)
         self.forwardVText.editingFinished.connect(self.acquisitionTime)
         self.reverseVText.editingFinished.connect(self.acquisitionTime)
         self.stepVText.editingFinished.connect(self.acquisitionTime)
