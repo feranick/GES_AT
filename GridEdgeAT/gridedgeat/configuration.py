@@ -76,6 +76,8 @@ class Configuration():
             'irradianceSensorArea' : 3.24,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR",
+            'xDefStageOrigin' : 25,
+            'yDefStageOrigin' : 120,
             'xPosRefCell' : 240,
             'yPosRefCell' : 170,
             'xPosPowermeter' : 240,
@@ -137,6 +139,8 @@ class Configuration():
             self.irradianceSensorArea = self.conf.getfloat('Instruments','irradianceSensorArea')
             self.switchboxID = self.instrConfig['switchboxID']
             self.sourcemeterID = self.instrConfig['sourcemeterID']
+            self.xDefStageOrigin = self.conf.getint('Instruments','xDefStageOrigin')
+            self.yDefStageOrigin = self.conf.getint('Instruments','yDefStageOrigin')
             self.xPosRefCell = self.conf.getint('Instruments','xPosRefCell')
             self.yPosRefCell = self.conf.getint('Instruments','yPosRefCell')
             self.xPosPowermeter = self.conf.getint('Instruments','xPosPowermeter')

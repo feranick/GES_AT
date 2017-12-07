@@ -4,7 +4,7 @@ xystage.py
 Class for providing a hardware support for 
 for the XYstage
 
-Version: 20171101
+Version: 20171206
 
 Copyright (C) 2017 Joel Jean <jjean@mit.edu>
 
@@ -15,6 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 import time, math
+from gridedgeat import Configuration
 try:
     from gridedgeat.modules.xystage.PyAPT import APTMotor
 except ImportError:
@@ -23,6 +24,8 @@ except ImportError:
 class XYstage():
     # Initialize X and Y stages
     def __init__(self):
+        self.config = Configuration()
+        self.config.readConfig(self.config.configFile)
         #Initialize stages
         self.SN1 = 45873236
         self.SN2 = 45873513
@@ -47,7 +50,8 @@ class XYstage():
         self.move_home(False)
         # self.move_abs(0,0)
         # self.set_ref_cell_origin(True, [0,0])
-        self.move_abs(25,120)
+        #self.move_abs(25,120)
+        self.move_abs(self.config.xDefStageOrigin,self.config.yDefStageOrigin)
         self.set_origin(True, [0,0])
         self.get_suborigins_4x4()
         self.get_devorigins_3x2()

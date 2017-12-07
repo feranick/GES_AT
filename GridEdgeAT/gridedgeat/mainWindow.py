@@ -169,6 +169,10 @@ class MainWindow(QMainWindow):
         self.dataManagMenu.setShortcut("Ctrl+m")
         self.dataManagMenu.setStatusTip('Data Management')
         self.dataManagMenu.triggered.connect(self.weblinks.dm)
+        self.wikiMenu = QAction("&GridEdge Wiki", self)
+        self.wikiMenu.setShortcut("Ctrl+y")
+        self.wikiMenu.setStatusTip('GridEdge Wiki')
+        self.wikiMenu.triggered.connect(self.weblinks.wiki)
         self.aboutMenu = QAction("&About", self)
         self.aboutMenu = QAction("&About", self)
         self.aboutMenu.setShortcut("Ctrl+a")
@@ -177,6 +181,8 @@ class MainWindow(QMainWindow):
         
         aboutMenu = self.menuBar.addMenu('&Help')
         aboutMenu.addAction(self.helpMenu)
+        aboutMenu.addSeparator()
+        aboutMenu.addAction(self.wikiMenu)
         aboutMenu.addAction(self.devBugsMenu)
         aboutMenu.addAction(self.dataManagMenu)
         aboutMenu.addSeparator()
@@ -351,6 +357,8 @@ class WebLinksWidget():
         webbrowser.open("https://github.mit.edu/GridEdgeSolar/Autotesting")
     def dm(self):
         webbrowser.open("http://gridedgedm.mit.edu")
+    def wiki(self):
+        webbrowser.open("https://sites.google.com/site/gridedgesolar/home")
 
 '''
    About Widget
