@@ -135,7 +135,8 @@ class CameraWindow(QMainWindow):
         # If stage is open in stage window, close.
         if self.parent().stagewind.activeStage:
             self.parent().stagewind.activateStage()
-        self.xystage = XYstage()
+        self.xystage = XYstage(self.parent().config.xDefStageOrigin,
+                            self.parent().config.yDefStageOrigin)
         if self.xystage.xystageInit == False:
             self.printMsg(" Stage not activated: automated acquisition not possible. Aborting.")
             self.autoAlignBtn.setEnabled(True)

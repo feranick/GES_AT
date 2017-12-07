@@ -118,7 +118,8 @@ class StageWindow(QMainWindow):
             self.activateStageButton.setEnabled(False)
             self.stageLabel.setText("Activating XY stage...")
             QApplication.processEvents()
-            self.xystage = XYstage()
+            self.xystage = XYstage(self.parent().config.xDefStageOrigin,
+                            self.parent().config.yDefStageOrigin)
             if self.xystage.xystageInit is False:
                 self.enableButtons(False)
                 self.stageLabel.setText("XY stage libraries or connection failed")
@@ -199,7 +200,18 @@ class StageWindow(QMainWindow):
     def setCurrentPosOrigin(self):
         self.stageLabel.setText("Setting current position as origin")
         QApplication.processEvents()
-        self.xystage.set_origin(True, (0,0))
+        #lastOrigin = ["{0:0.2f}".format(float(self.xystage.origin[0])),
+        #            "{0:0.2f}".format(float(self.xystage.origin[1]))]
+        #msg = " Last origin: ("+lastOrigin[0]+", "+lastOrigin[1]+")"
+        #print(msg)
+        self.xystage.set_origin(True, [0,0])
+        #newOrigin = ["{0:0.2f}".format(float(self.xystage.origin[0])),
+        #            "{0:0.2f}".format(float(self.xystage.origin[1]))]
+        #msg = " New origin: ("+newOrigin[0]+", "+newOrigin[1]+")"        
+        #print(msg)
+        # Recalculate substrate and device origins relative to new origin (middle of substrate 1)
+        self.xystage.get_suborigins_4x4()
+        self.xystage.get_devorigins_3x2()        
         QApplication.processEvents()
         self.showCurrentPos()
 

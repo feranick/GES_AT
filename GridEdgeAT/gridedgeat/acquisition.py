@@ -166,7 +166,8 @@ class acqThread(QThread):
         # If stage is open in stage window, close.
         if self.parent().parent().stagewind.activeStage:
             self.parent().parent().stagewind.activateStage()
-        self.parent().xystage = XYstage()
+        self.parent().xystage = XYstage(self.parent().parent().config.xDefStageOrigin,
+                            self.parent().parent().config.yDefStageOrigin)
         if self.parent().xystage.xystageInit == False:
             self.Msg.emit(" Stage not activated: no acquisition possible")
             self.stop()
