@@ -190,9 +190,7 @@ class CameraWindow(QMainWindow):
         self.deactivateStage()
         self.closeShutter()
         
-        self.updateBtn.setEnabled(True)
-        self.liveFeedBtn.setEnabled(True)
-        self.autoAlignBtn.setEnabled(True)
+        self.enableButtons(True)
         self.setWindowTitle('Camera Alignment Panel')
 
     # Perform manual alignment
@@ -264,9 +262,7 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.setEnabled(True)
         try:
             self.checkAlignText.setStyleSheet("color: rgb(0, 0, 0);")
-            self.liveFeedBtn.setEnabled(False)
-            self.updateBtn.setEnabled(False)
-            self.autoAlignBtn.setEnabled(False)
+            self.enableButtons(False)
             if live:
                 self.parent().stagewind.setGeometry(700, 60, 310, 400)
                 self.parent().stagewind.show()
@@ -382,6 +378,7 @@ class CameraWindow(QMainWindow):
 
     # Close camera feed upon closing window.
     def closeEvent(self, event):
+        self.enableButtons(True)
         self.delCam()
         self.scene.cleanup()
 
@@ -411,6 +408,12 @@ class CameraWindow(QMainWindow):
             self.shutter.closed()
             del self.shutter
             self.printMsg("Shutter deactivated")
+
+    # Enable/Disable Buttons
+    def enableButtons(self, flag):
+        self.updateBtn.setEnabled(flag)
+        self.liveFeedBtn.setEnabled(flag)
+        self.autoAlignBtn.setEnabled(flag)
 
 '''
    QGraphicsSelectionItem

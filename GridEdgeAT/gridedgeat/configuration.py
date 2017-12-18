@@ -50,7 +50,7 @@ class Configuration():
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
             'numSubsHolderCol' : 4,
-            'deviceArea' : 6.4516,
+            'deviceArea' : 0.1575,
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
@@ -72,16 +72,16 @@ class Configuration():
             'alignmentContrastDefault' : 1,
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
-            'irradiance1Sun' : 4.5044,
-            'irradianceSensorArea' : 3.24,
+            'irradiance1Sun' : 100,
+            'irradianceSensorArea' : 0.1575,
             'switchboxID' : "GPIB0::16::INSTR",
             'sourcemeterID' : "GPIB0::24::INSTR",
             'xDefStageOrigin' : 25,
             'yDefStageOrigin' : 120,
-            'xPosRefCell' : 240,
-            'yPosRefCell' : 170,
-            'xPosPowermeter' : 240,
-            'yPosPowermeter' : 223,
+            'xPosRefCell' : 233,
+            'yPosRefCell' : 124,
+            'xPosPowermeter' : 229,
+            'yPosPowermeter' : 211,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
