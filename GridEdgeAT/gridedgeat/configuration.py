@@ -82,6 +82,8 @@ class Configuration():
             'yPosRefCell' : 124,
             'xPosPowermeter' : 229,
             'yPosPowermeter' : 211,
+            'xPosLoading' : 5,
+            'yPosLoading' : 270,
             }
     def defineConfSystem(self):
         self.conf['System'] = {
@@ -145,6 +147,8 @@ class Configuration():
             self.yPosRefCell = self.conf.getint('Instruments','yPosRefCell')
             self.xPosPowermeter = self.conf.getint('Instruments','xPosPowermeter')
             self.yPosPowermeter = self.conf.getint('Instruments','yPosPowermeter')
+            self.xPosLoading = self.conf.getint('Instruments','xPosLoading')
+            self.yPosLoading = self.conf.getint('Instruments','yPosLoading')
 
             self.appVersion = self.sysConfig['appVersion']
             self.loggingLevel = self.sysConfig['loggingLevel']
