@@ -78,7 +78,7 @@ class Configuration():
             'sourcemeterID' : "GPIB0::24::INSTR",
             'xDefStageOrigin' : 25,
             'yDefStageOrigin' : 120,
-            'xPosRefCell' : 233,
+            'xPosRefCell' : 234,
             'yPosRefCell' : 124,
             'xPosPowermeter' : 229,
             'yPosPowermeter' : 211,
