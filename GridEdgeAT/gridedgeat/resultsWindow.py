@@ -295,7 +295,7 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
 
         try:
-            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row][0][0]))
+            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row]))
             self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
                 self.dfTotJV.iat[0,row])
