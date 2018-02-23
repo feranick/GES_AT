@@ -128,7 +128,7 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Av VPP [V]"))
         self.resTableWidget.setHorizontalHeaderItem(4,QTableWidgetItem("Av MPP [mW/cm\u00B2]"))
         self.resTableWidget.setHorizontalHeaderItem(5,QTableWidgetItem("Av FF"))
-        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE"))
+        self.resTableWidget.setHorizontalHeaderItem(6,QTableWidgetItem("Av PCE (%)"))
         self.resTableWidget.setHorizontalHeaderItem(7,QTableWidgetItem("Illumination"))
         self.resTableWidget.setHorizontalHeaderItem(8,QTableWidgetItem("Tracking time [s]"))
         self.resTableWidget.setHorizontalHeaderItem(9,QTableWidgetItem("Acq Date"))
@@ -253,7 +253,7 @@ class ResultsWindow(QMainWindow):
 
     # Plot MPP with tracking
     def plotMPP(self, data):
-        self.lineMPP.set_data(data[:,2].astype(float), data[:,5].astype(float))
+        self.lineMPP.set_data(data[:,2].astype(float), data[:,6].astype(float))
         self.axMPP.relim()
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
@@ -447,11 +447,16 @@ class ResultsWindow(QMainWindow):
                                      'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
         return dfPerfData
     
+    # def makeDFJV(self,JV):
+    #     dfJV = pd.DataFrame({'V_r':JV[:,0], 'J_r':JV[:,1],
+    #                         'V_f':JV[:,2], 'J_f':JV[:,3],
+    #                         })
+    #     dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
+    #     return dfJV
+
     def makeDFJV(self,JV):
-        dfJV = pd.DataFrame({'V_r':JV[:,0], 'J_r':JV[:,1],
-                            'V_f':JV[:,2], 'J_f':JV[:,3],
-                            })
-        dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
+        dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
+        dfJV = dfJV[['V', 'J']]
         return dfJV
     
     ### Submit json for device data to Data-Management
@@ -461,12 +466,15 @@ class ResultsWindow(QMainWindow):
         dfJV = self.makeDFJV(JV)
         
         # Prepare json-data
-        dfDeviceID = pd.DataFrame({'Device':[deviceID]})
-        jsonData = dict(dfDeviceID.to_dict(orient='list'))
+        jsonData = {'itemId':deviceID[-1]}
+        listSubstrateName = {'substrate':deviceID[:-1]}
+        jsonMeasType = {'measType':'device'}
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
-        listPerfData = dict(dfPerfData.to_dict(orient='list'))
+        listPerfData = dict(dfPerfData.to_dict('list'))
         listJV = dict(dfJV.to_dict(orient='list'))
         jsonData.update(listPerfData)
+        jsonData.update(jsonMeasType)
+        jsonData.update(listSubstrateName)
         jsonData.update(listJV)
         jsonData.update(listAcqParams)
         #print(jsonData)
@@ -477,7 +485,8 @@ class ResultsWindow(QMainWindow):
             conn = DataManagement(self.dbConnectInfo)
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
-            db_entry = db.EnvTrack.insert_one(json.loads(json.dumps(jsonData)))
+            db_entry = db.Measurement.insert_one(json.loads(json.dumps(jsonData)))
+            #print(jsonData)
             msg = " Device " + deviceID + \
                     ": submission to DM via Mongo successful\n  (id: " + \
                     str(db_entry.inserted_id)+")"

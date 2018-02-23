@@ -273,15 +273,22 @@ class acqThread(QThread):
                         
                         # Prepare stack for list of best devices
                         JV = np.vstack((JV_r, JV_f))
-                        max_i = np.argmax(JV[:, 0] * JV[:, 1])
-                        #id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0]],id_mpp_v))
+                        PV = np.zeros(JV.shape)
+                        PV[:,0] = JV[:,0]
+                        PV[:,1] = JV[:,0]*JV[:,1]
+                        max_i = np.argmin(PV[:,1])
                         id_mpp_v = np.vstack(([dev_id, JV[max_i, 0]*JV[max_i, 1],JV[max_i, 0],
-                                        perfData[0][3],perfData[0][4],perfData[0][7],perfData[0][8]],id_mpp_v))
+                                    perfData[0][3], perfData[0][4], perfData[0][7],
+                                    perfData[0][8]],id_mpp_v))
                         self.Msg.emit('  Device '+deviceID+' acquisition: complete')
                     if self.stopAcqFlag == True:
                             break
-                    id_mpp_v = id_mpp_v[np.argsort(id_mpp_v[:, 1]), :]
+                    
+                    id_mpp_v = id_mpp_v.astype(np.float32)
+                    id_mpp_v = id_mpp_v[sorted(range(len(id_mpp_v[:,1])), key=lambda k: id_mpp_v[:,1][k])]
                     id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
+
+                    #print('IDStuff',id_mpp_v,'\n')
                     self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
                     self.maxPowerDev.emit("  Max power (mW/cm^2): "+str(id_mpp_v[0,1]))
                     self.maxPowerDev.emit("  V at Max power (V): "+str(id_mpp_v[0,2]))
@@ -485,10 +492,10 @@ class acqThread(QThread):
         track_time = float(self.dfAcqParams.at[0,'Track Time'])
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
-        if hold_time <=0.5:
-            hold_time = 0.5
+        #if hold_time <=0.5:
+        #    hold_time = 0.5
         dv = 0.0001
-        step_size = 0.1
+        #step_size = 0.1
         if int(self.dfAcqParams.at[0,'Architecture']) == 0:
             polarity = 1
         else:
@@ -496,8 +503,10 @@ class acqThread(QThread):
         
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
-            time.sleep(hold_time)
-            return -1 * v * self.parent().source_meter.read_values(deviceArea)[0]
+            #time.sleep(hold_time)
+            time.sleep(0.05)
+            return -1 * v * self.parent().source_meter.read_values(deviceArea)[1]
+            #return v * self.parent().source_meter.read_values(deviceArea)[0]
         
         perfData = np.zeros((0,10))
         JV = np.zeros([1,4], dtype=float)
@@ -507,42 +516,113 @@ class acqThread(QThread):
         self.tempTracking.emit(JV, perfData, deviceID, True, False)
         #this is to prevent the tracking to start before the dark JV is completely processed.
         time.sleep(2)
-        v = v_mpp
+
+
+        # light JV
+        # open the shutter
+        self.parent().shutter.open()
+        time.sleep(0.2)
+        JVtrack_r, JVtrack_f = self.measure_JV()
+       
+        # Prepare stack for list of best devices
+        JVtrack = np.vstack((JVtrack_r, JVtrack_f))
+        PVtrack = np.zeros(JVtrack.shape)
+        PVtrack[:,0] = JVtrack[:,0]
+        PVtrack[:,1] = JVtrack[:,0]*JVtrack[:,1]
+        max_i = np.argmin(PVtrack[:,1])
+
+
+        v = PVtrack[:,0][max_i]
+        mp = PVtrack[:,1][max_i]
+        #mp= __measure_power(v)
         self.Msg.emit(" Tracking device: "+deviceID+"...")
         start_time = time.time()
 
         while time.time() - start_time <= track_time:
-            mp = __measure_power(v)
+            print('V_mpp',v_mpp)
+            print('Maximum power',mp)
+            print('Voltage',v)
+
+            dvpos_p=__measure_power(v+dv)
+            dvneg_p=__measure_power(v-dv)
+            dp_dvpos = (dvpos_p-mp)/dv
+            dp_dvneg = (dvneg_p-mp)/dv
+            
+            # mpd = __measure_power(v + dv)
+            # grad_mp = (mpd-mp)/dv
+            # v += grad_mp * step_size
+
+            #Incremental conductance algorithm
+
+
+            # #If both dp/dv are zero, we are at MPP
+            # if dp_dvpos==0 and dp_dvneg==0:
+            # 	v=v
+            # 	mp=mp
+            # else: 
+            # 	#Check to see which has a smaller slope, since that will be closer to MPP
+            # 	if abs(dp_dvpos)<abs(dp_dvneg):
+            # 		#Section for dp_dvpos being closer to MPP
+
+            # 		#With our convention, negative slope means we are left of MPP so increase voltage
+            # 		if dp_dvpos<0:
+            # 			v+=dv
+            # 			mp=dvpos_p
+            # 		#With our convention, positive slope means we are right of MPP so decrease voltage
+            # 		else:
+            # 			v-=dv
+            # 			mp= dvpos_p
+            # 	else:
+            # 		#Section for dp_dvneg being closer to MPP
+
+            # 		 #With our convention, negative slope means we are left of MPP so increase voltage
+            # 		if dp_dvneg<0:
+            # 			v+=dv
+            # 			mp=dvneg_p
+            # 		#With our convention, positive slope means we are right of MPP so decrease voltage
+            # 		else:
+            # 			v-=dv
+            # 			mp= dvneg_p
+
+
+            if dvpos_p>mp:
+                v+=dv
+                mp=dvpos_p
+            elif dvneg_p>mp:
+                v-=dv
+                mp=dvneg_p
+            else:
+                v=v
+                mp=mp
+
+
             data = np.array([ 0, 0, v, mp , 0, 0, 1])
-            data = np.hstack(([self.getDateTimeNow()[0],
-                                   self.getDateTimeNow()[1],time.time() - start_time], data))
+            data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
-            # calculate gradient
-            mpd = __measure_power(v + dv)
-            grad_mp = (mpd-mp)/dv
-            v += grad_mp * step_size
-        self.tempTracking.emit(JV, perfData, deviceID, False, True)
+            self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
+        
 
     # Extract parameters from JV
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
+        #print('shape',JV.shape)
+        #print('JV',JV)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
         # measurements: voc, jsc
         #Voc, Jsc = self.measure_voc_jsc()
         Voc, Jsc = self.calculate_voc_jsc(JV)
 
-        # Previous way to get Vpmax and Jpmax
-        #Vpmax = PV[np.where(PV == np.amax(PV[:,1]))[0][0],0]
-        #Jpmax = JV[np.where(PV == np.amax(PV[:,1]))[0][0],1]
-        Jpmax = np.amin(PV[np.where(PV[:,0]>0)][:,1])
-        Vpmax = PV[np.where(PV[:,0]>0)][np.argmin(PV[np.where(PV[:,0]>0)][:,1]),0]
+        # find mpp
+        ind_Pmax = np.argmin(PV[:,1])
+        Jpmax = JV[ind_Pmax,1]
+        Vpmax = JV[ind_Pmax,0]
         
         if Voc != 0. and Jsc != 0.:
             FF = Vpmax*Jpmax/(Voc*Jsc)
-            effic = Vpmax*Jpmax/self.powerIn
+            effic = abs(100*Vpmax*Jpmax/self.powerIn)
         else:
             FF = 0.
             effic = 0.
@@ -561,3 +641,4 @@ class acqThread(QThread):
     def getDateTimeNow(self):
         return str(datetime.now().strftime('%Y-%m-%d')),\
                     str(datetime.now().strftime('%H-%M-%S'))
+
