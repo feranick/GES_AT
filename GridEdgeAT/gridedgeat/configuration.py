@@ -65,6 +65,7 @@ class Configuration():
             'acqDelayBeforeMeas' : 1,
             'acqTrackNumDevices' : 2,
             'acqTrackTime' : 5,
+            'acqHoldTrackTime': 0.5,
             }
     def defineConfInstr(self):
         self.conf['Instruments'] = {
@@ -92,6 +93,7 @@ class Configuration():
             'loggingFilename' : self.logFile,
             'csvSavingFolder' : self.dataFolder,
             'saveLocalCsv' : False,
+            'logPlotJV' : True,
             }
     def defineConfDM(self):
         self.conf['DM'] = {
@@ -132,6 +134,7 @@ class Configuration():
             self.acqArchitecture = self.conf.getint('Acquisition','acqArchitecture')
             self.acqTrackNumDevices = self.conf.getint('Acquisition','acqTrackNumDevices')
             self.acqTrackTime = self.conf.getint('Acquisition','acqTrackTime')
+            self.acqHoldTrackTime = self.conf.getfloat('Acquisition','acqHoldTrackTime')
 
             self.alignmentIntThreshold = self.conf.getfloat('Instruments','alignmentIntThreshold')
             self.alignmentContrastDefault = self.conf.getfloat('Instruments','alignmentContrastDefault')
@@ -155,6 +158,7 @@ class Configuration():
             self.loggingFilename = self.sysConfig['loggingFilename']
             self.csvSavingFolder = self.sysConfig['csvSavingFolder']
             self.saveLocalCsv = self.conf.getboolean('System','saveLocalCsv')
+            self.logPlotJV = self.conf.getboolean('System','logPlotJV')
         
             self.submitToDb = self.conf.getboolean('DM','submitToDb')
             self.DbHostname = self.dmConfig['DbHostname']

@@ -267,6 +267,9 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Back')
         self.axJVresp.legend(loc='lower left')
         self.axPVresp.legend(loc='upper left')
+        if self.parent().config.logPlotJV:
+            self.axJVresp.set_yscale('log')
+            self.axPVresp.set_yscale('log')
         self.figureJVresp.tight_layout()
         self.figurePVresp.tight_layout()
         self.canvasJVresp.draw()

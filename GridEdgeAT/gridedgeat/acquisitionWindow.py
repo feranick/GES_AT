@@ -34,7 +34,7 @@ class AcquisitionWindow(QMainWindow):
     # Setup UI elements
     def initUI(self,MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setGeometry(10, 290, 340, 520)
+        MainWindow.setGeometry(10, 290, 340, 540)
         self.setFixedSize(self.size())
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -104,7 +104,7 @@ class AcquisitionWindow(QMainWindow):
         self.trackingLabel.setObjectName("trackingLabel")
         
         self.gridLayoutWidget_2 = QWidget(self.centralwidget)
-        self.gridLayoutWidget_2.setGeometry(QRect(10, 320, 330, 181))
+        self.gridLayoutWidget_2.setGeometry(QRect(10, 320, 330, 200))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_2.setHorizontalSpacing(10)
@@ -120,10 +120,16 @@ class AcquisitionWindow(QMainWindow):
         self.trackTText = QLineEdit(self)
         self.gridLayout_2.addWidget(self.trackTText, 1, 1, 1, 1)
         
+        self.holdTrackTLabel = QLabel(self.gridLayoutWidget_2)
+        self.gridLayout_2.addWidget(self.holdTrackTLabel, 2, 0, 1, 1)
+        self.holdTrackTText = QLineEdit(self)
+        self.gridLayout_2.addWidget(self.holdTrackTText, 2, 1, 1, 1)
+        self.holdTrackTText.setEnabled(False)  # Remove when done with implementation
+        
         self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 3, 0, 1, 1)
         self.totTimeAcqLabel = QLabel(self.gridLayoutWidget_2)
-        self.gridLayout_2.addWidget(self.totTimeAcqLabel, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.totTimeAcqLabel, 4, 0, 1, 1)
        
         MainWindow.setCentralWidget(self.centralwidget)
         
@@ -153,14 +159,15 @@ class AcquisitionWindow(QMainWindow):
         self.trackingLabel.setText("<qt><b>Track Max Power Point: </b></qt>")
         self.numDevTrackLabel.setText("Number of devices to be tracked")
         self.trackTLabel.setText("Tracking time [s]")
+        self.holdTrackTLabel.setText("Time step tracking [s]")
 
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setGeometry(QRect(250, 410, 80, 60))
+        self.saveButton.setGeometry(QRect(250, 440, 80, 60))
         self.saveButton.setText("Save")
         self.saveButton.clicked.connect(self.saveParameters)
         
         self.defaultButton = QPushButton(self.centralwidget)
-        self.defaultButton.setGeometry(QRect(160, 410, 80, 60))
+        self.defaultButton.setGeometry(QRect(160, 440, 80, 60))
         self.defaultButton.setText("Default")
         self.defaultButton.clicked.connect(self.defaultParameters)
         
@@ -174,6 +181,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.editingFinished.connect(self.acquisitionTime)
         self.numDevTrackText.valueChanged.connect(self.acquisitionTime)
         self.trackTText.editingFinished.connect(self.acquisitionTime)
+        self.holdTrackTText.editingFinished.connect(self.acquisitionTime)
 
     # Save acquisition parameters in configuration ini
     def saveParameters(self):
@@ -188,6 +196,7 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.conf['Acquisition']['acqArchitecture'] = str(self.architectureCBox.currentIndex())
         self.parent().config.conf['Acquisition']['acqTrackNumDevices'] = str(self.numDevTrackText.value())
         self.parent().config.conf['Acquisition']['acqTrackTime'] = str(self.trackTText.text())
+        self.parent().config.conf['Acquisition']['acqHoldTrackTime'] = str(self.holdTrackTText.text())
 
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
@@ -217,6 +226,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.setText(str(self.parent().config.acqDelayBeforeMeas))
         self.numDevTrackText.setValue(int(self.parent().config.acqTrackNumDevices))
         self.trackTText.setText(str(self.parent().config.acqTrackTime))
+        self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
         self.acquisitionTime()
 
     # Field validator for Reverse and Forward Voltages
@@ -294,6 +304,7 @@ class AcquisitionWindow(QMainWindow):
         self.directionCBox.setEnabled(flag)
         self.delayBeforeMeasText.setEnabled(flag)
         self.trackTText.setEnabled(flag)
+        self.holdTrackTText.setEnabled(False)
         self.numDevTrackText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)

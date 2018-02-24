@@ -505,8 +505,8 @@ class acqThread(QThread):
             self.parent().source_meter.set_output(voltage = polarity*v)
             #time.sleep(hold_time)
             time.sleep(0.05)
-            return -1 * v * self.parent().source_meter.read_values(deviceArea)[1]
-            #return v * self.parent().source_meter.read_values(deviceArea)[0]
+            #return -1 * v * self.parent().source_meter.read_values(deviceArea)[1]
+            return v * self.parent().source_meter.read_values(deviceArea)[1]
         
         perfData = np.zeros((0,10))
         JV = np.zeros([1,4], dtype=float)
