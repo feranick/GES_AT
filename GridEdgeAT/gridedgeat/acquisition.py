@@ -45,13 +45,14 @@ class Acquisition(QObject):
                 'Delay Before Meas': [self.parent().acquisitionwind.delayBeforeMeasText.text()],
                 'Num Track Devices': [int(self.parent().acquisitionwind.numDevTrackText.value())],
                 'Track Time': [self.parent().acquisitionwind.trackTText.text()],
+                'Hold Track Time': [self.parent().acquisitionwind.holdTrackTText.text()],
                 'Device Area': [self.parent().samplewind.deviceAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()]})
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
-                'Device Area', 'Operator','Comments']]
+                'Hold Track Time', 'Device Area', 'Operator','Comments']]
     
                 
     def start(self):
@@ -492,6 +493,8 @@ class acqThread(QThread):
         track_time = float(self.dfAcqParams.at[0,'Track Time'])
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
+        hold_track_time = float(self.dfAcqParams.at[0,'Hold Track Time'])
+
         #if hold_time <=0.5:
         #    hold_time = 0.5
         dv = 0.0001
@@ -517,7 +520,6 @@ class acqThread(QThread):
         #this is to prevent the tracking to start before the dark JV is completely processed.
         time.sleep(2)
 
-
         # light JV
         # open the shutter
         self.parent().shutter.open()
@@ -530,7 +532,6 @@ class acqThread(QThread):
         PVtrack[:,0] = JVtrack[:,0]
         PVtrack[:,1] = JVtrack[:,0]*JVtrack[:,1]
         max_i = np.argmin(PVtrack[:,1])
-
 
         v = PVtrack[:,0][max_i]
         mp = PVtrack[:,1][max_i]
@@ -553,7 +554,6 @@ class acqThread(QThread):
             # v += grad_mp * step_size
 
             #Incremental conductance algorithm
-
 
             # #If both dp/dv are zero, we are at MPP
             # if dp_dvpos==0 and dp_dvneg==0:
@@ -584,7 +584,6 @@ class acqThread(QThread):
             # 			v-=dv
             # 			mp= dvneg_p
 
-
             if dvpos_p>mp:
                 v+=dv
                 mp=dvpos_p
@@ -595,7 +594,6 @@ class acqThread(QThread):
                 v=v
                 mp=mp
 
-
             data = np.array([ 0, 0, v, mp , 0, 0, 1])
             data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
@@ -603,7 +601,7 @@ class acqThread(QThread):
             self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
         
-
+        
     # Extract parameters from JV
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
