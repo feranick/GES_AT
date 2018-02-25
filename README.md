@@ -11,7 +11,8 @@ GridEdge Autotesting is written in [Python 3.x](<http://www.python.org/>) and re
 - [PyQt version 5](<http://www.riverbankcomputing.co.uk/>)
 - [Numpy >1.5](http://www.numpy.org/)
 - [Scipy >0.9](<http://www.scipy.org/>)
-- [Matplotlib >0.9](<http://matplotlib.org/>) 
+- [Matplotlib >0.9](<http://matplotlib.org/>)
+- [Pandas](<https://pandas.pydata.org/>)
 - [OpenCV >3.2](<http://opencv.org/>)
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 - [PyVisa](<https://pyvisa.readthedocs.io/en/stable/index.html>)
@@ -39,7 +40,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
 The simplest way to get all the required python packages at once is to install the Python 3 distribution from [python.org](<http://www.python.org/>) (recommended) or from [Anaconda](<https://www.continuum.io/downloads/>). You will use ```pip``` for installing most of the dependencies.
 
     pip install numpy scipy matplotlib pillow pandas
-    pip install QtPy5 opencv-python
+    pip install pyqt5 opencv-python
 
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 
@@ -76,6 +77,9 @@ From the terminal, run: ```python gridedge_AT_run.py```
 ### Windows
 Launch by double clicking the file ```gridedge_AT_windows.bat```
 
+## User Manual
+It can be found in the User Manual folder within the repo or [online as a google doc](https://docs.google.com/document/d/13y0wFV21d75kd37jS3CpJvZL-_ImOJHvAZBCXCPn-OQ/edit?usp=sharing>).
+
 ## Features
 - Pressing ALT while starting the acquisition will temporarily enable saving acquisition data locally
 - After acquisition, right click on a device in the table in Results allows for saving locally the corresponding data.
@@ -84,5 +88,6 @@ Launch by double clicking the file ```gridedge_AT_windows.bat```
 - Devices can be removed form the sample list by selecting "Remove..." from the right click menu on the result table.
 
 ## History
+- Version 0.24 (20180223): Second stable release: Fully functional interface and overhauled workflow for camera, alignments, etc. 
 - Version 0.6 (20170928): First stable release. Fully functional interaface and control. In this release the acquisition workflow is in its initial implementation. The next major release will have a fairly extensive overhaul to account for a more detailed measurement of dark-bright measurements, and tracking.
 
