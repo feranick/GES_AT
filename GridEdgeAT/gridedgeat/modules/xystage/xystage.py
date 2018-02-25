@@ -6,7 +6,7 @@ for the XYstage
 
 Version: 20171207
 
-Copyright (C) 2017 Joel Jean <jjean@mit.edu>
+Copyright (C) 2017-2018 Joel Jean <jjean@mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

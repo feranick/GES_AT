@@ -3,7 +3,8 @@ acquisition.py
 -------------
 Class for providing a procedural support for data acquisition
 
-Copyright (C) 2017 Nicola Ferralis <ferralis@mit.edu>
+Copyright (C) 2017-2018 Nicola Ferralis <ferralis@mit.edu>
+Copyright (C) 2017-2018 Roberto Brenes <rbrenes@mit.edu>
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 
 This program is free software; you can redistribute it and/or modify
@@ -540,9 +541,9 @@ class acqThread(QThread):
         start_time = time.time()
 
         while time.time() - start_time <= track_time:
-            print('V_mpp',v_mpp)
-            print('Maximum power',mp)
-            print('Voltage',v)
+            print('V_mpp:',v_mpp)
+            print('Maximum power:',mp)
+            print('Voltage:',v)
 
             dvpos_p=__measure_power(v+dv)
             dvneg_p=__measure_power(v-dv)
