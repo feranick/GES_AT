@@ -124,7 +124,6 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout_2.addWidget(self.holdTrackTLabel, 2, 0, 1, 1)
         self.holdTrackTText = QLineEdit(self)
         self.gridLayout_2.addWidget(self.holdTrackTText, 2, 1, 1, 1)
-        self.holdTrackTText.setEnabled(False)  # Remove when done with implementation
         
         self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
         self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 3, 0, 1, 1)
@@ -304,7 +303,7 @@ class AcquisitionWindow(QMainWindow):
         self.directionCBox.setEnabled(flag)
         self.delayBeforeMeasText.setEnabled(flag)
         self.trackTText.setEnabled(flag)
-        self.holdTrackTText.setEnabled(False)
+        self.holdTrackTText.setEnabled(flag)
         self.numDevTrackText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)

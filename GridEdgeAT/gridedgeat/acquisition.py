@@ -495,11 +495,11 @@ class acqThread(QThread):
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
         hold_track_time = float(self.dfAcqParams.at[0,'Hold Track Time'])
+        print('hold_track_time',hold_track_time)
 
-        #if hold_time <=0.5:
-        #    hold_time = 0.5
+        
         dv = 0.0001
-        #step_size = 0.1
+        
         if int(self.dfAcqParams.at[0,'Architecture']) == 0:
             polarity = 1
         else:
@@ -507,9 +507,7 @@ class acqThread(QThread):
         
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
-            #time.sleep(hold_time)
-            time.sleep(0.05)
-            #return -1 * v * self.parent().source_meter.read_values(deviceArea)[1]
+            time.sleep(hold_track_time)
             return v * self.parent().source_meter.read_values(deviceArea)[1]
         
         perfData = np.zeros((0,10))
