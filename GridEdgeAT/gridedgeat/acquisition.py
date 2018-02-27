@@ -293,12 +293,12 @@ class acqThread(QThread):
 
                     #print('IDStuff',id_mpp_v,'\n')
                     self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
-                    self.maxPowerDev.emit("  Max power [mW/cm^2]: {0:0.3e}".format(id_mpp_v[0,1]))
-                    self.maxPowerDev.emit("  V at Max power [V]: {0:0.3e}".format(id_mpp_v[0,2]))
-                    self.maxPowerDev.emit("  Voc [V]: {0:0.3e}".format(id_mpp_v[0,3]))
-                    self.maxPowerDev.emit("  Jsc [mA/cm^2]: {0:0.3e}".format(id_mpp_v[0,4]))
+                    self.maxPowerDev.emit("  Max power (mW/cm^2): {0:0.3e}".format(id_mpp_v[0,1]))
+                    self.maxPowerDev.emit("  V at Max power (V): {0:0.3e}".format(id_mpp_v[0,2]))
+                    self.maxPowerDev.emit("  Voc (V): {0:0.3e}".format(id_mpp_v[0,3]))
+                    self.maxPowerDev.emit("  Jsc (mA/cm^2): {0:0.3e}".format(id_mpp_v[0,4]))
                     self.maxPowerDev.emit("  FF: {0:0.2f}".format(id_mpp_v[0,5]))
-                    self.maxPowerDev.emit("  PCE [%]: {0:0.2f}\n".format(id_mpp_v[0,6]))
+                    self.maxPowerDev.emit("  PCE[%]: {0:0.2f}\n".format(id_mpp_v[0,6]))
                     
                     # Tracking
                     time.sleep(1)
@@ -541,9 +541,9 @@ class acqThread(QThread):
 
         while time.time() - start_time <= track_time:
             print(" Time step: {0:0.1f}".format(time.time() - start_time))
-            print("  V_mpp [V]: {0:0.3e}".format(v_mpp))
-            print("  Maximum power [mW]: {0:0.3e}".format(mp))
-            print("  Voltage [V]: {0:0.3e}".format(v))
+            print("  V_mpp: {0:0.3e}".format(v_mpp))
+            print("  Maximum power: {0:0.3e}".format(mp))
+            print("  Voltage: {0:0.3e}".format(v))
 
             dvpos_p=__measure_power(v+dv)
             dvneg_p=__measure_power(v-dv)

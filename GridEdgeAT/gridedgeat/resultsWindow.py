@@ -457,30 +457,44 @@ class ResultsWindow(QMainWindow):
     #     dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
     #     return dfJV
 
-    def makeDFJV(self,JV):
-        dfJV = pd.DataFrame({'V':JV[:,0], 'J':JV[:,1]})
+    def makeDFJV(self,JV,set):
+        dfJV = pd.DataFrame({'V':JV[:,2*set+0], 'J':JV[:,2*set+1]})
         dfJV = dfJV[['V', 'J']]
-        return dfJV
+        listJV = dict(dfJV.to_dict(orient='split'))
+        listJV['columnlabel'] = listJV.pop('columns')
+        listJV['output'] = listJV.pop('data')
+        del listJV['index']
+        return listJV
     
     ### Submit json for device data to Data-Management
     def submit_DM(self,deviceID, dfAcqParams, perfData, JV):
         
         dfPerfData = self.makeDFPerfData(perfData)
-        dfJV = self.makeDFJV(JV)
         
         # Prepare json-data
-        jsonData = {'itemId':deviceID[-1]}
-        listSubstrateName = {'substrate':deviceID[:-1]}
-        jsonMeasType = {'measType':'device'}
+        jsonData = {'itemId' : deviceID[-1]}
+        listSubstrateName = {'substrate' : deviceID[:-1]}
+        listMeasType = {'measType' : 'device'}
+        listEquipment = {'equipment' : 'auto-testing'}
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
         listPerfData = dict(dfPerfData.to_dict('list'))
-        listJV = dict(dfJV.to_dict(orient='list'))
+        
+        listName = {'name': 'JV_r'}
+        listName1 = {'name': 'JV_f'}
+        jsonData.update(listName)
+        
         jsonData.update(listPerfData)
-        jsonData.update(jsonMeasType)
+        jsonData.update(listMeasType)
+        jsonData.update(listEquipment)
         jsonData.update(listSubstrateName)
-        jsonData.update(listJV)
         jsonData.update(listAcqParams)
-        #print(jsonData)
+        
+        jsonData1 = jsonData
+        jsonData1.update(listName1)
+        listJV0 = self.makeDFJV(JV,0)
+        listJV1 = self.makeDFJV(JV,1)
+        jsonData.update(listJV0)
+        jsonData1.update(listJV1)
 
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
@@ -489,10 +503,11 @@ class ResultsWindow(QMainWindow):
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
             db_entry = db.Measurement.insert_one(json.loads(json.dumps(jsonData)))
+            db_entry1 = db.Measurement.insert_one(json.loads(json.dumps(jsonData1)))
             #print(jsonData)
             msg = " Device " + deviceID + \
-                    ": submission to DM via Mongo successful\n  (id: " + \
-                    str(db_entry.inserted_id)+")"
+                    ": submission to DM via Mongo successful\n  (ids: " + \
+                    str(db_entry.inserted_id)+", "+str(db_entry1.inserted_id)+")"
         except:
             try:
                 msg = " Submission to DM via Mongo: failed. Trying via HTTP POST"
@@ -501,12 +516,14 @@ class ResultsWindow(QMainWindow):
                 #This is for using POST HTTP
                 url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
                 req = requests.post(url, json=jsonData)
-                if req.status_code == 200:
+                req1 = requests.post(url, json=jsonData1)
+                if req.status_code == 200 and req1.status_code == 200:
                     msg = " Device " + deviceID + \
                       ", submission to DM via HTTP POST successful\n  (ETag: " + \
-                      str(req.headers['ETag'])+")"
+                      str(req.headers['ETag'])+", "+str(req1.headers['ETag'])+")"
                 else:
                     req.raise_for_status()
+                    req1.raise_for_status()
             except:
                 msg = " Connection to DM server: failed. Saving local file"
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
