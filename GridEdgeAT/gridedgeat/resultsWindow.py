@@ -395,7 +395,7 @@ class ResultsWindow(QMainWindow):
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
-    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag, tracking):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
@@ -420,7 +420,7 @@ class ResultsWindow(QMainWindow):
                     self.parent().acquisition.modifiers == Qt.AltModifier:
                 self.save_csv(deviceID, dfAcqParams, self.perfData, self.JV)
             if self.parent().config.submitToDb == True:
-                self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV)
+                self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV, tracking)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
@@ -464,11 +464,10 @@ class ResultsWindow(QMainWindow):
         listJV['columnlabel'] = listJV.pop('columns')
         listJV['output'] = listJV.pop('data')
         del listJV['index']
-        return listJV
+        return dfJV, listJV
     
     ### Submit json for device data to Data-Management
-    def submit_DM(self,deviceID, dfAcqParams, perfData, JV):
-        
+    def submit_DM(self,deviceID, dfAcqParams, perfData, JV, tracking):
         dfPerfData = self.makeDFPerfData(perfData)
         
         # Prepare json-data
@@ -477,24 +476,37 @@ class ResultsWindow(QMainWindow):
         listMeasType = {'measType' : 'device'}
         listEquipment = {'equipment' : 'auto-testing'}
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
-        listPerfData = dict(dfPerfData.to_dict('list'))
-        
-        listName = {'name': 'JV_r'}
-        listName1 = {'name': 'JV_f'}
-        jsonData.update(listName)
-        
-        jsonData.update(listPerfData)
+
         jsonData.update(listMeasType)
         jsonData.update(listEquipment)
         jsonData.update(listSubstrateName)
         jsonData.update(listAcqParams)
-        
-        jsonData1 = jsonData
-        jsonData1.update(listName1)
-        listJV0 = self.makeDFJV(JV,0)
-        listJV1 = self.makeDFJV(JV,1)
+
+        listName = {'name': 'JV_r'}
+        _, listJV0 = self.makeDFJV(JV,0)
         jsonData.update(listJV0)
-        jsonData1.update(listJV1)
+
+        if tracking is False:
+            listPerfData = dict(dfPerfData.iloc[[0]].to_dict('list'))
+            jsonData.update(listPerfData)
+            jsonData.update(listName)
+            
+            jsonData1 = jsonData.copy()
+            jsonData1 = jsonData.copy()
+            listName1 = {'name': 'JV_f'}
+            jsonData1.update(listName1)
+            listPerfData1 = dict(dfPerfData.iloc[[1]].to_dict('list'))
+            jsonData1.update(listPerfData1)
+            _, listJV1 = self.makeDFJV(JV,1)
+            jsonData1.update(listJV1)
+        else:
+            listName = {'name': 'Tracking'}
+            listPerfData = dict(dfPerfData.to_dict('split'))
+            listPerfData['columnlabel'] = listPerfData.pop('columns')
+            listPerfData['output'] = listPerfData.pop('data')
+            del listPerfData['index']
+            jsonData.update(listPerfData)
+            jsonData.update(listName)
 
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
@@ -503,11 +515,13 @@ class ResultsWindow(QMainWindow):
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
             db_entry = db.Measurement.insert_one(json.loads(json.dumps(jsonData)))
-            db_entry1 = db.Measurement.insert_one(json.loads(json.dumps(jsonData1)))
-            #print(jsonData)
             msg = " Device " + deviceID + \
                     ": submission to DM via Mongo successful\n  (ids: " + \
-                    str(db_entry.inserted_id)+", "+str(db_entry1.inserted_id)+")"
+                    str(db_entry.inserted_id)
+            if tracking is False:
+                db_entry1 = db.Measurement.insert_one(json.loads(json.dumps(jsonData1)))
+                msg += ", "+str(db_entry1.inserted_id)
+            msg += ")"
         except:
             try:
                 msg = " Submission to DM via Mongo: failed. Trying via HTTP POST"
@@ -515,15 +529,24 @@ class ResultsWindow(QMainWindow):
                 logger.info(msg)
                 #This is for using POST HTTP
                 url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
-                req = requests.post(url, json=jsonData)
-                req1 = requests.post(url, json=jsonData1)
-                if req.status_code == 200 and req1.status_code == 200:
-                    msg = " Device " + deviceID + \
-                      ", submission to DM via HTTP POST successful\n  (ETag: " + \
-                      str(req.headers['ETag'])+", "+str(req1.headers['ETag'])+")"
+                if tracking is False:
+                    req = requests.post(url, json=jsonData)
+                    req1 = requests.post(url, json=jsonData1)
+                    if req.status_code == 200 and req1.status_code == 200:
+                        msg = " Device " + deviceID + \
+                          ", submission to DM via HTTP POST successful\n  (ETag: " + \
+                          str(req.headers['ETag'])+", "+str(req1.headers['ETag'])+")"
+                    else:
+                        req.raise_for_status()
+                        req1.raise_for_status()
                 else:
-                    req.raise_for_status()
-                    req1.raise_for_status()
+                    if req.status_code == 200:
+                        req = requests.post(url, json=jsonData)
+                        msg = " Device " + deviceID + \
+                          ", submission to DM via HTTP POST successful\n  (ETag: " + \
+                          str(req.headers['ETag'])+")"
+                    else:
+                        req.raise_for_status()
             except:
                 msg = " Connection to DM server: failed. Saving local file"
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
@@ -533,11 +556,13 @@ class ResultsWindow(QMainWindow):
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
         dfPerfData = self.makeDFPerfData(perfData)
-        dfJV = self.makeDFJV(JV)
+        dfJV0,_ = self.makeDFJV(JV,0)
+        dfJV1,_ = self.makeDFJV(JV,1)
     
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
-        dfTot = pd.concat([dfTot,dfJV], axis = 1)
+        dfTot = pd.concat([dfTot,dfJV0], axis = 1)
+        dfTot = pd.concat([dfTot,dfJV1], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
         dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
         csvFilename = deviceID+"_"
@@ -555,20 +580,20 @@ class ResultsWindow(QMainWindow):
     def read_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
-        try:
-            for filename in filenames[0]:
-                print("Open saved device data from: ", filename)
-                dftot = pd.read_csv(filename, na_filter=False)
-                deviceID = dftot.at[0,'Device']
-                perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
-                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
-                dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
-                self.plotData(deviceID, perfData, JV)
-                self.setupResultTable()
-                self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array(JV))
-        except:
-            print("Loading files failed")
+        #try:
+        for filename in filenames[0]:
+            print("Open saved device data from: ", filename)
+            dftot = pd.read_csv(filename, na_filter=False)
+            deviceID = dftot.at[0,'Device']
+            perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
+            JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['JV_r']))][:,np.arange(11,15)].astype(float)
+            dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
+            self.plotData(deviceID, perfData, JV)
+            self.setupResultTable()
+            self.fillTableData(deviceID, perfData)
+            self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array(JV))
+        #except:
+        #    print("Loading files failed")
 
     # Populate result table.
     def fillTableData(self, deviceID, obj):
