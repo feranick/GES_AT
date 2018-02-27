@@ -105,7 +105,7 @@ class Acquisition(QObject):
         self.parent().resultswind.clearPlots(False)
         self.parent().resultswind.setupResultTable()
         #perfData = self.analyseJV(JV)
-        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, True)
+        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, True, False)
         QApplication.processEvents()
         time.sleep(1)
             
@@ -114,7 +114,7 @@ class Acquisition(QObject):
         #self.parent().resultswind.clearPlots(False)
         if setupTable is True:
             self.parent().resultswind.setupResultTable()
-        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, saveData)
+        self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, saveData, True)
         QApplication.processEvents()
         if saveData is True:
             time.sleep(1)
