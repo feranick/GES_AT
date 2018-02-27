@@ -111,12 +111,13 @@ class Acquisition(QObject):
             
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, setupTable, saveData):
-        self.parent().resultswind.clearPlots(False)
+        #self.parent().resultswind.clearPlots(False)
         if setupTable is True:
             self.parent().resultswind.setupResultTable()
         self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, saveData)
         QApplication.processEvents()
-        time.sleep(1)
+        if saveData is True:
+            time.sleep(1)
 
     # Convert coordinates as in the Sample Windown Table into the
     # correct substrate number as defined in xystage.py
@@ -292,12 +293,12 @@ class acqThread(QThread):
 
                     #print('IDStuff',id_mpp_v,'\n')
                     self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
-                    self.maxPowerDev.emit("  Max power (mW/cm^2): "+str(id_mpp_v[0,1]))
-                    self.maxPowerDev.emit("  V at Max power (V): "+str(id_mpp_v[0,2]))
-                    self.maxPowerDev.emit("  Voc (V): "+str(id_mpp_v[0,3]))
-                    self.maxPowerDev.emit("  Jsc (mA/cm^2): "+str(id_mpp_v[0,4]))
-                    self.maxPowerDev.emit("  FF: "+str(id_mpp_v[0,5]))
-                    self.maxPowerDev.emit("  PCE: "+str(id_mpp_v[0,6])+"\n")
+                    self.maxPowerDev.emit("  Max power (mW/cm^2): {0:0.3e}".format(id_mpp_v[0,1]))
+                    self.maxPowerDev.emit("  V at Max power (V): {0:0.3e}".format(id_mpp_v[0,2]))
+                    self.maxPowerDev.emit("  Voc (V): {0:0.3e}".format(id_mpp_v[0,3]))
+                    self.maxPowerDev.emit("  Jsc (mA/cm^2): {0:0.3e}".format(id_mpp_v[0,4]))
+                    self.maxPowerDev.emit("  FF: {0:0.2f}".format(id_mpp_v[0,5]))
+                    self.maxPowerDev.emit("  PCE[%]: {0:0.2f}\n".format(id_mpp_v[0,6]))
                     
                     # Tracking
                     time.sleep(1)
@@ -495,9 +496,9 @@ class acqThread(QThread):
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
         hold_track_time = float(self.dfAcqParams.at[0,'Hold Track Time'])
-        print('hold_track_time',hold_track_time)
+        #print('hold_track_time',hold_track_time)
 
-        
+
         dv = 0.0001
         
         if int(self.dfAcqParams.at[0,'Architecture']) == 0:
@@ -539,9 +540,10 @@ class acqThread(QThread):
         start_time = time.time()
 
         while time.time() - start_time <= track_time:
-            print('V_mpp:',v_mpp)
-            print('Maximum power:',mp)
-            print('Voltage:',v)
+            print(" Time step: {0:0.1f}".format(time.time() - start_time))
+            print("  V_mpp: {0:0.3e}".format(v_mpp))
+            print("  Maximum power: {0:0.3e}".format(mp))
+            print("  Voltage: {0:0.3e}".format(v))
 
             dvpos_p=__measure_power(v+dv)
             dvneg_p=__measure_power(v-dv)
@@ -597,7 +599,7 @@ class acqThread(QThread):
             data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
-            self.tempTracking.emit(JV, perfData, deviceID, False, True)
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
         
         
