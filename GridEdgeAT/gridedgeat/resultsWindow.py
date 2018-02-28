@@ -353,7 +353,6 @@ class ResultsWindow(QMainWindow):
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
         try:
-            print(self.dfTotDeviceID.iat[0,row])
             self.save_csv(self.dfTotDeviceID.iat[0,row],
                 self.dfTotAcqParams.iloc[[row]],
                 self.dfTotPerfData.iat[0,row],
