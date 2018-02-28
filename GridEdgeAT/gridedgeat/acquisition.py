@@ -104,7 +104,6 @@ class Acquisition(QObject):
     def JVDeviceProcess(self, JV, perfData, deviceID, i,j):
         self.parent().resultswind.clearPlots(False)
         self.parent().resultswind.setupResultTable()
-        #perfData = self.analyseJV(JV)
         self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, True, False)
         QApplication.processEvents()
         time.sleep(1)
@@ -291,7 +290,6 @@ class acqThread(QThread):
                     id_mpp_v = id_mpp_v[sorted(range(len(id_mpp_v[:,1])), key=lambda k: id_mpp_v[:,1][k])]
                     id_mpp_v[:,0] = id_mpp_v[:,0].astype('int')
 
-                    #print('IDStuff',id_mpp_v,'\n')
                     self.maxPowerDev.emit("\n Summary of device with max power: "+str(int(id_mpp_v[0,0])))
                     self.maxPowerDev.emit("  Max power (mW/cm^2): {0:0.3e}".format(id_mpp_v[0,1]))
                     self.maxPowerDev.emit("  V at Max power (V): {0:0.3e}".format(id_mpp_v[0,2]))
@@ -330,11 +328,9 @@ class acqThread(QThread):
                         # open the shutter
                         self.parent().shutter.open()
                         time.sleep(0.2)
-                        
+        
                         perfData, JV = self.tracking(substrateID+str(dev_id), v_mpp)
-
                         self.Msg.emit(' Device '+substrateID+str(dev_id)+' tracking: complete')
-                        #self.acqJVComplete.emit(JV, perfData, substrateID+str(dev_id), i, j)
                         
                     self.colorCell.emit(i,j,"green")
 
@@ -432,7 +428,6 @@ class acqThread(QThread):
             polarity = 1
         else:
             polarity = -1
-        #polarity = 1 if acq_params['acqPolarity'] == 'pn' else -1
 
         # enforce
         #if v_r < 0 and v_f > 0:
@@ -496,11 +491,8 @@ class acqThread(QThread):
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
         hold_track_time = float(self.dfAcqParams.at[0,'Hold Track Time'])
-        #print('hold_track_time',hold_track_time)
-
-
         dv = 0.0001
-        
+
         if int(self.dfAcqParams.at[0,'Architecture']) == 0:
             polarity = 1
         else:
@@ -535,15 +527,14 @@ class acqThread(QThread):
 
         v = PVtrack[:,0][max_i]
         mp = PVtrack[:,1][max_i]
-        #mp= __measure_power(v)
         self.Msg.emit(" Tracking device: "+deviceID+"...")
         start_time = time.time()
 
         while time.time() - start_time <= track_time:
-            print(" Time step: {0:0.1f}".format(time.time() - start_time))
-            print("  V_mpp: {0:0.3e}".format(v_mpp))
-            print("  Maximum power: {0:0.3e}".format(mp))
-            print("  Voltage: {0:0.3e}".format(v))
+            print(" Time step [s]: {0:0.1f}".format(time.time() - start_time))
+            print("  Voltage at max power point [V]: {0:0.3e}".format(v_mpp))
+            print("  Maximum power [mW]: {0:0.3e}".format(mp))
+            print("  Voltage [V]: {0:0.3e}".format(v))
 
             dvpos_p=__measure_power(v+dv)
             dvneg_p=__measure_power(v-dv)
@@ -601,17 +592,13 @@ class acqThread(QThread):
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
-        
-        
+    
     # Extract parameters from JV
     def analyseJV(self, JV):
         PV = np.zeros(JV.shape)
-        #print('shape',JV.shape)
-        #print('JV',JV)
         PV[:,0] = JV[:,0]
         PV[:,1] = JV[:,0]*JV[:,1]
         # measurements: voc, jsc
-        #Voc, Jsc = self.measure_voc_jsc()
         Voc, Jsc = self.calculate_voc_jsc(JV)
 
         # find mpp

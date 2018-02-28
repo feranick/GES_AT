@@ -45,7 +45,7 @@ The simplest way to get all the required python packages at once is to install t
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 
 ### "Online" dependencies for hardware control:
-    pip install pyvisa ThorlabsPM100 requests ftd2xx
+    pip install pyvisa ThorlabsPM100 requests ftd2xx pywin32
     
 ### Creating a wheel package for redistribution
 In order to satisfy all dependency and at the same time have a seamless experience, assuming ```python 3```, ```pip``` and ```wheel``` are installed, one can create a wheel package that can be used for seamless installation. To create the wheel package:
@@ -88,7 +88,7 @@ It can be found in the User Manual folder within the repo or [online as a google
 - Devices can be removed form the sample list by selecting "Remove..." from the right click menu on the result table.
 
 ## History
-- Version 0.24 (20180227): Second stable release: Fully functional 
+- Version 0.27 (20180228): Second stable release: Fully functional 
 interface and overhauled workflow for camera, alignments, etc. 
 - Version 0.6 (20170928): First stable release. Fully functional interaface and control. In this release the acquisition workflow is in its initial implementation. The next major release will have a fairly extensive overhaul to account for a more detailed measurement of dark-bright measurements, and tracking.
 

@@ -298,7 +298,7 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
 
         try:
-            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row]))
+            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row][0][0]))
             self.plotData(self.dfTotDeviceID.iat[0,row],
                 self.dfTotPerfData.iat[0,row],
                 self.dfTotJV.iat[0,row])
@@ -353,7 +353,7 @@ class ResultsWindow(QMainWindow):
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
         try:
-            self.save_csv(self.dfTotDeviceID.iat[0,row],
+            self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
                 self.dfTotAcqParams.iloc[[row]],
                 self.dfTotPerfData.iat[0,row],
                 self.dfTotJV.iat[0,row])
@@ -449,13 +449,6 @@ class ResultsWindow(QMainWindow):
         dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
                                      'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
         return dfPerfData
-    
-    # def makeDFJV(self,JV):
-    #     dfJV = pd.DataFrame({'V_r':JV[:,0], 'J_r':JV[:,1],
-    #                         'V_f':JV[:,2], 'J_f':JV[:,3],
-    #                         })
-    #     dfJV = dfJV[['V_r', 'J_r', 'V_f', 'J_f']]
-    #     return dfJV
 
     def makeDFJV(self,JV,set):
         dfJV = pd.DataFrame({'V':JV[:,2*set+0], 'J':JV[:,2*set+1]})
@@ -562,7 +555,6 @@ class ResultsWindow(QMainWindow):
         dfJV1 = dfJV1.rename(columns={"V": "V_f", "J": "J_f"})
     
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
-        print(deviceID)
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
         dfTot = pd.concat([dfTot,dfJV0], axis = 1)
         dfTot = pd.concat([dfTot,dfJV1], axis = 1)
@@ -594,7 +586,7 @@ class ResultsWindow(QMainWindow):
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.lastRowInd, deviceID, perfData, dfAcqParams, np.array(JV))
+                self.makeInternalDataFrames(self.lastRowInd, [[deviceID]], perfData, dfAcqParams, np.array(JV))
         except:
             print("Loading files failed")
 

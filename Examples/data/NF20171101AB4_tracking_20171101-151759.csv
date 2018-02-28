@@ -1,6 +1,0 @@
-Device,Acq Date,Acq Time,Time step,Voc,Jsc,VPP,MPP,FF,PCE,Light,V_r,J_r,V_f,J_f,Acq Soak Voltage,Acq Soak Time,Acq Hold Time,Acq Step Voltage,Acq Rev Voltage,Acq Forw Voltage,Architecture,Direction,Num Track Devices,Delay Before Meas,Track Time,Device Area,Operator,Comments
-NF20171101AB4,11/1/17,15-17-01,0,0,0,0,0,0,0,0,-1.000000001,-3.96E-11,0.999999999,4.17E-12,1,1,1,0.5,-1,1,0,0,2,1,2,6.4516,,
-,11/1/17,15-17-01,0,0,0,0,0,0,0,0,-0.500000001,-2.53E-11,0.499999999,-8.60E-12,,,,,,,,,,,,,,
-,,,,,,,,,,,-1.00E-09,-4.71E-12,-1.00E-09,-2.49E-11,,,,,,,,,,,,,,
-,,,,,,,,,,,0.499999999,-6.60E-14,-0.500000001,-3.40E-11,,,,,,,,,,,,,,
-,,,,,,,,,,,0.999999999,1.89E-11,-1.000000001,-4.93E-11,,,,,,,,,,,,,,
