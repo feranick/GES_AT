@@ -558,6 +558,8 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(perfData)
         dfJV0,_ = self.makeDFJV(JV,0)
         dfJV1,_ = self.makeDFJV(JV,1)
+        dfJV0 = dfJV0.rename(columns={"V": "V_r", "J": "J_r"})
+        dfJV1 = dfJV1.rename(columns={"V": "V_f", "J": "J_f"})
     
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
@@ -586,7 +588,7 @@ class ResultsWindow(QMainWindow):
                 dftot = pd.read_csv(filename, na_filter=False)
                 deviceID = dftot.at[0,'Device']
                 perfData = dftot.as_matrix()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
-                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V']))][:,np.arange(11,15)].astype(float)
+                JV = dftot.as_matrix()[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
                 dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
