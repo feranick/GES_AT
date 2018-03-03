@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWi
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
                              QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
                              QAbstractItemView)
-from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
+from PyQt5.QtCore import (QRect,pyqtSlot,Qt, QObject)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -75,12 +75,14 @@ class ResultsWindow(QMainWindow):
         self.jvVLayout = QVBoxLayout()
         
         self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
+        #self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
+        self.toolbarJVresp = CustomToolbar(self.canvasJVresp, self.figureJVresp, self)
         self.toolbarJVresp.setMaximumHeight(30)
         self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
 
         self.canvasPVresp = FigureCanvas(self.figurePVresp)
-        self.toolbarPVresp = NavigationToolbar(self.canvasPVresp, self)
+        #self.toolbarPVresp = NavigationToolbar(self.canvasPVresp, self)
+        self.toolbarPVresp = CustomToolbar(self.canvasPVresp, self.figurePVresp, self)
         self.toolbarPVresp.setMaximumHeight(30)
         self.toolbarPVresp.setStyleSheet("QToolBar { border: 0px }")
 
@@ -623,3 +625,30 @@ class ResultsWindow(QMainWindow):
     def redirectToDM(self, deviceID):
         print("Opening entry in DM for substrate:",deviceID[:10])
         webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10]))
+
+
+class CustomToolbar(NavigationToolbar):
+    def __init__(self, figure_canvas, figure, parent= None):
+        self.toolitems = (('Home', 'Lorem ipsum dolor sit amet', 'home', 'home'),
+            ('Back', 'consectetuer adipiscing elit', 'back', 'back'),
+            ('Forward', 'sed diam nonummy nibh euismod', 'forward', 'forward'),
+            (None, None, None, None),
+            ('Pan', 'tincidunt ut laoreet', 'move', 'pan'),
+            ('Zoom', 'dolore magna aliquam', 'zoom_to_rect', 'zoom'),
+            (None, None, None, None),
+            ('Subplots', 'putamus parum claram', 'subplots', 'configure_subplots'),
+            ('Save', 'sollemnes in futurum', 'filesave', 'save_figure'),
+            ('Log/Lin', 'Log/Lin', "Log/Lin scale", 'log_lin_scale'),
+            )
+        NavigationToolbar.__init__(self, figure_canvas, parent=parent)
+        self.figure = figure
+        self.figure_canvas = figure_canvas
+
+    def log_lin_scale(self):
+        if len(self.figure.gca().lines) > 2:
+            if self.figure.gca().get_yscale() == 'log':
+                self.figure.gca().set_yscale('linear')
+            else:
+                self.figure.gca().set_yscale('log')
+            self.figure_canvas.draw()
+
