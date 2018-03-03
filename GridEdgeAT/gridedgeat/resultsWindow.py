@@ -626,23 +626,15 @@ class ResultsWindow(QMainWindow):
         print("Opening entry in DM for substrate:",deviceID[:10])
         webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10]))
 
-
+'''
+   Custom Toolbar
+'''
 class CustomToolbar(NavigationToolbar):
     def __init__(self, figure_canvas, figure, parent= None):
-        self.toolitems = (('Home', 'Lorem ipsum dolor sit amet', 'home', 'home'),
-            ('Back', 'consectetuer adipiscing elit', 'back', 'back'),
-            ('Forward', 'sed diam nonummy nibh euismod', 'forward', 'forward'),
-            (None, None, None, None),
-            ('Pan', 'tincidunt ut laoreet', 'move', 'pan'),
-            ('Zoom', 'dolore magna aliquam', 'zoom_to_rect', 'zoom'),
-            (None, None, None, None),
-            ('Subplots', 'putamus parum claram', 'subplots', 'configure_subplots'),
-            ('Save', 'sollemnes in futurum', 'filesave', 'save_figure'),
-            ('Log/Lin', 'Log/Lin', "Log/Lin scale", 'log_lin_scale'),
-            )
-        NavigationToolbar.__init__(self, figure_canvas, parent=parent)
         self.figure = figure
         self.figure_canvas = figure_canvas
+        self.toolitems +=(('Log/Lin', 'Log/Lin', "Log/Lin scale", 'log_lin_scale'),)
+        NavigationToolbar.__init__(self, figure_canvas, parent=parent)
 
     def log_lin_scale(self):
         if len(self.figure.gca().lines) > 2:
