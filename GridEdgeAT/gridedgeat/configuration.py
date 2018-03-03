@@ -93,7 +93,7 @@ class Configuration():
             'loggingFilename' : self.logFile,
             'csvSavingFolder' : self.dataFolder,
             'saveLocalCsv' : False,
-            'logPlotJV' : True,
+            'logPlotJV' : False,
             }
     def defineConfDM(self):
         self.conf['DM'] = {
