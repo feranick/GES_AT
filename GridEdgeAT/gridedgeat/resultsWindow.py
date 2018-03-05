@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWi
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
                              QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
                              QAbstractItemView)
-from PyQt5.QtCore import (QRect,pyqtSlot,Qt, QObject)
+from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
