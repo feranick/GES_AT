@@ -85,7 +85,6 @@ It can be found in the User Manual folder within the repo or [online as a google
 - Devices can be removed form the sample list by selecting "Remove..." from the right click menu on the result table.
 
 ## History
-- Version 0.27 (20180228): Second stable release: Fully functional 
-interface and overhauled workflow for camera, alignments, etc. 
+- Version 0.28.0 (20180306): Second stable release: Fully functional interface and overhauled workflow for camera, alignments, etc. 
 - Version 0.6 (20170928): First stable release. Fully functional interaface and control. In this release the acquisition workflow is in its initial implementation. The next major release will have a fairly extensive overhaul to account for a more detailed measurement of dark-bright measurements, and tracking.
 
