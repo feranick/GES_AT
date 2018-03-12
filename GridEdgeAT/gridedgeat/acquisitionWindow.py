@@ -124,6 +124,8 @@ class AcquisitionWindow(QMainWindow):
         self.gridLayout_2.addWidget(self.holdTrackTLabel, 2, 0, 1, 1)
         self.holdTrackTText = QLineEdit(self)
         self.gridLayout_2.addWidget(self.holdTrackTText, 2, 1, 1, 1)
+
+        self.holdTrackTText.editingFinished.connect(self.validateTimeStepTrack)
         
         self.totTimePerDeviceLabel = QLabel(self.gridLayoutWidget_2)
         self.gridLayout_2.addWidget(self.totTimePerDeviceLabel, 3, 0, 1, 1)
@@ -235,8 +237,8 @@ class AcquisitionWindow(QMainWindow):
         try:
             validateVoltage = QDoubleValidator(-50, float(self.forwardVText.text()),1,self.reverseVText)
             if validateVoltage.validate(self.reverseVText.text(),1)[0] != 2:
-                msg = "Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
-                  ")\n\nPlease change \"Reverse voltage\" in the Acquisition window"
+                msg = "<qt><b>Reverse voltage needs to be less than\n forward voltage (V_f="+self.forwardVText.text()+\
+                  ")</qt></b> \n\nPlease change \"Reverse voltage\" in the Acquisition window"
                 reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
                 self.show()
         except:
@@ -248,12 +250,28 @@ class AcquisitionWindow(QMainWindow):
         try:
             validateVoltage = QDoubleValidator(float(self.reverseVText.text()),50,1,self.forwardVText)
             if validateVoltage.validate(self.forwardVText.text(),1)[0] != 2:
-                msg = "Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
-                  ")\n\nPlease change \"Forward voltage\" in the Acquisition window"
+                msg = "<qt><b>Forward voltage needs to be more than\n reverse voltage (V_r="+self.reverseVText.text()+\
+                  ")</qt></b> \n\nPlease change \"Forward voltage\" in the Acquisition window"
                 reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
                 self.show()
         except:
             self.forwardVText.setText(str(self.parent().config.acqForwardVoltage))
+
+    # Field validator for Time Step Tracking
+    def validateTimeStepTrack(self):
+        if self.holdTrackTText.text() =="":
+            self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
+        try:
+            validateTimeStep = QDoubleValidator(1e-8,1e3,1,self.holdTrackTText)
+            if validateTimeStep.validate(self.holdTrackTText.text(),1)[0] != 2:
+                msg = "<qt><b>Time Step Tracking must be > 0</qt></b>"+\
+                      "\n\n Please change it in the Acquisition window"
+                reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
+                self.show()
+                self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
+        except:
+            self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
+
 
     # Calculate the measurement time per device
     def acquisitionTime(self):
