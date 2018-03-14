@@ -247,6 +247,7 @@ class CameraWindow(QMainWindow):
         alignPerc, iMax = self.cam.check_alignment( \
                 image_data,
                 self.config.alignmentIntThreshold)
+        print(" DEBUG: alignPerc: ",alignPerc,"; iMax: ",iMax)
 
         self.checkAlignText.setText(str(alignPerc))
         if float(alignPerc) > self.config.alignmentContrastDefault \
