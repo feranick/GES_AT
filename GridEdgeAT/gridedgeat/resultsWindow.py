@@ -633,7 +633,7 @@ class CustomToolbar(NavigationToolbar):
     def __init__(self, figure_canvas, figure, parent= None):
         self.figure = figure
         self.figure_canvas = figure_canvas
-        self.toolitems +=(('Log/Lin', 'Log/Lin', "Log/Lin scale", 'log_lin_scale'),)
+        self.toolitems +=(('Log/Lin', "Log/Lin scale", "Log/Lin scale", 'log_lin_scale'),)
         NavigationToolbar.__init__(self, figure_canvas, parent=parent)
 
     def log_lin_scale(self):
