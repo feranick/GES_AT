@@ -77,10 +77,10 @@ class CameraFeed():
         cv2.imwrite(filename,self.img)
 
     # Logic for checking alignment
-    def check_alignment(self, img_data, threshold):
+    def check_alignment(self, img_data, thresholdPerc):
         count = 0
         self.iMax = np.amax(img_data)
-        threshold = threshold*self.iMax
+        threshold = thresholdPerc*self.iMax
         for i in np.nditer(img_data):
             if i > threshold:
                 count = count + 1
