@@ -250,6 +250,7 @@ class MainWindow(QMainWindow):
         filename = QFileDialog.getOpenFileName(self,
                         "Open INI config file", "","*.ini")
         self.config.readConfig(filename)
+        self.acquisitionwind.initParameters()
         print("Confguration parameters loaded from:",filename[0])
         logger.info("Confguration parameters loaded from:"+filename[0])
     
@@ -257,6 +258,7 @@ class MainWindow(QMainWindow):
     def saveConfig(self):
         filename = QFileDialog.getSaveFileName(self,
                         "Save INI config file", "","*.ini")
+        self.acquisitionwind.grabParameters()
         self.config.saveConfig(filename[0])
         print("Confguration parameters saved to:",filename[0])
         logger.info("Confguration parameters saved to:"+filename[0])

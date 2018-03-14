@@ -184,8 +184,8 @@ class AcquisitionWindow(QMainWindow):
         self.trackTText.editingFinished.connect(self.acquisitionTime)
         self.holdTrackTText.editingFinished.connect(self.acquisitionTime)
 
-    # Save acquisition parameters in configuration ini
-    def saveParameters(self):
+    # Grab acquisition parameters from Acquisition panel
+    def grabParameters(self):
         self.parent().config.conf['Acquisition']['acqSoakVoltage'] = str(self.soakVText.text())
         self.parent().config.conf['Acquisition']['acqSoakTime'] = str(self.soakTText.text())
         self.parent().config.conf['Acquisition']['acqHoldTime'] = str(self.holdTText.text())
@@ -199,6 +199,9 @@ class AcquisitionWindow(QMainWindow):
         self.parent().config.conf['Acquisition']['acqTrackTime'] = str(self.trackTText.text())
         self.parent().config.conf['Acquisition']['acqHoldTrackTime'] = str(self.holdTrackTText.text())
 
+    # Save acquisition parameters in configuration ini
+    def saveParameters(self):
+        self.grabParameters()
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
         print("Acquisition parameters saved as default")
