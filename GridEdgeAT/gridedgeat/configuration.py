@@ -70,7 +70,7 @@ class Configuration():
     def defineConfInstr(self):
         self.conf['Instruments'] = {
             'alignmentIntThreshold' : 0.6,
-            'alignmentContrastDefault' : 1,
+            'alignmentContrastDefault' : 40,
             'alignmentIntMax' : 10,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
             'irradiance1Sun' : 100,
