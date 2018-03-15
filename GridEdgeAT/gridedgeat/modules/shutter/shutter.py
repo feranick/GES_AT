@@ -32,7 +32,7 @@ class Shutter():
             self.shutter.setTimeouts(1000,1000)
             self.closed()
         except:
-            Pass
+            pass
 
     def __del__(self):
         try:
