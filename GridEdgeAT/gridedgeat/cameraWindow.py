@@ -250,12 +250,39 @@ class CameraWindow(QMainWindow):
         print(" DEBUG: alignPerc: ",alignPerc,"; iMax: ",iMax)
 
         self.checkAlignText.setText(str(alignPerc))
+        if float(alignPerc) > self.config.alignmentContrastDefault:
+            self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+            alignFlag = 1
+        else:
+            if float(iMax) > self.config.alignmentIntMax:
+                self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
+                alignFlag = 2
+            else:
+                alignFlag = 0
+        return alignFlag, alignPerc, iMax
+    
+    '''
+    # Old Alignment routine
+    def alignment(self):
+        image, image_data, image_orig = self.cam.get_image(True,
+                             int(self.initial.x()),
+                             int(self.final.x()),
+                             int(self.initial.y()),
+                             int(self.final.y()))
+                
+        alignPerc, iMax = self.cam.check_alignment( \
+                image_data,
+                self.config.alignmentIntThreshold)
+        print(" DEBUG: alignPerc: ",alignPerc,"; iMax: ",iMax)
+
+        self.checkAlignText.setText(str(alignPerc))
         if float(alignPerc) > self.config.alignmentContrastDefault \
                 and float(iMax) > self.config.alignmentIntMax:
             self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-            return False, alignPerc, iMax
+            return 1, alignPerc, iMax
         else:
-            return True, alignPerc, iMax
+            return 0, alignPerc, iMax
+    '''
 
     # Get image from feed
     def cameraFeed(self, live):
