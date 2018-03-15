@@ -71,7 +71,7 @@ class Configuration():
         self.conf['Instruments'] = {
             'alignmentIntThreshold' : 0.6,
             'alignmentContrastDefault' : 40,
-            'alignmentIntMax' : 10,
+            'alignmentIntMax' : 255,
             'powermeterID' : "USB0::0x1313::0x8072::P2008173::INSTR",
             'irradiance1Sun' : 100,
             'irradianceSensorArea' : 0.1575,
