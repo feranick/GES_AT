@@ -162,7 +162,7 @@ class CameraWindow(QMainWindow):
                                         
                     # Move stage to desired substrate
                     if self.xystage.xystageInit is True:
-                        self.printMsg("Moving stage to substrate #"+ \
+                        self.printMsg("\nMoving stage to substrate #"+ \
                                         str(substrateNum) + \
                                         ": ("+str(i+1)+", "+str(j+1)+")")
                         self.xystage.move_to_substrate_4x4(substrateNum)
@@ -181,12 +181,12 @@ class CameraWindow(QMainWindow):
                             return
                         if alignFlag:
                             self.parent().samplewind.colorCellAcq(i,j,"white")
-                            self.printMsg("Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
+                            self.printMsg(" Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
                         else:
                             self.parent().samplewind.colorCellAcq(i,j,"grey")
-                            self.printMsg("Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
+                            self.printMsg(" Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
-        self.printMsg("Auto-alignment completed")
+        self.printMsg("\nAuto-alignment completed")
         self.deactivateStage()
         self.closeShutter()
         
