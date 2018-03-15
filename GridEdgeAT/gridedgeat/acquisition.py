@@ -237,7 +237,7 @@ class acqThread(QThread):
                     if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
                                         str(self.parent().getSubstrateNumber(i,j))+ \
-                                        ": ("+str(i+1)+", "+str(j+1)+")")
+                                        ": ("+str(4-i)+", "+str(4-j)+")")
                         self.parent().xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
                     else:

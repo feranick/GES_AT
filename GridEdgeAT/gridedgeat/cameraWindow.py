@@ -164,7 +164,7 @@ class CameraWindow(QMainWindow):
                     if self.xystage.xystageInit is True:
                         self.printMsg("\nMoving stage to substrate #"+ \
                                         str(substrateNum) + \
-                                        ": ("+str(i+1)+", "+str(j+1)+")")
+                                        ": ("+str(4-i)+", "+str(4-j)+")")
                         self.xystage.move_to_substrate_4x4(substrateNum)
                         time.sleep(0.1)
 
