@@ -29,6 +29,8 @@ class Configuration():
         Path(self.substrateFolder).mkdir(parents=True, exist_ok=True)
         self.imagesFolder = self.generalFolder + 'images/'
         Path(self.imagesFolder).mkdir(parents=True, exist_ok=True)
+        self.customConfigFolder = self.generalFolder+'saved_configurations'
+        Path(self.customConfigFolder).mkdir(parents=True, exist_ok=True)
         self.conf = configparser.ConfigParser()
         self.conf.optionxform = str
     

@@ -163,14 +163,24 @@ class AcquisitionWindow(QMainWindow):
         self.holdTrackTLabel.setText("Time step tracking [s]")
 
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setGeometry(QRect(250, 440, 80, 60))
-        self.saveButton.setText("Save")
+        self.saveButton.setGeometry(QRect(250, 420, 80, 60))
+        self.saveButton.setText("Save as \nDefault")
         self.saveButton.clicked.connect(self.saveParameters)
         
         self.defaultButton = QPushButton(self.centralwidget)
-        self.defaultButton.setGeometry(QRect(160, 440, 80, 60))
-        self.defaultButton.setText("Default")
+        self.defaultButton.setGeometry(QRect(160, 420, 80, 60))
+        self.defaultButton.setText("Restore \nas Default")
         self.defaultButton.clicked.connect(self.defaultParameters)
+        
+        self.saveCustomButton = QPushButton(self.centralwidget)
+        self.saveCustomButton.setGeometry(QRect(250, 460, 80, 60))
+        self.saveCustomButton.setText("Save\nCustom")
+        self.saveCustomButton.clicked.connect(self.parent().saveConfig)
+        
+        self.loadCustomButton = QPushButton(self.centralwidget)
+        self.loadCustomButton.setGeometry(QRect(160, 460, 80, 60))
+        self.loadCustomButton.setText("Load\nCustom")
+        self.loadCustomButton.clicked.connect(self.parent().loadConfig)
         
         self.initParameters()
     
@@ -182,7 +192,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.editingFinished.connect(self.acquisitionTime)
         self.numDevTrackText.valueChanged.connect(self.acquisitionTime)
         self.trackTText.editingFinished.connect(self.acquisitionTime)
-        self.holdTrackTText.editingFinished.connect(self.acquisitionTime)
+        self.holdTrackTText.editingFinished.connect(self.parent().saveConfig)
 
     # Grab acquisition parameters from Acquisition panel
     def grabParameters(self):
