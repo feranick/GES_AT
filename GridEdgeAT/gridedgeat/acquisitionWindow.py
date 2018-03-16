@@ -163,22 +163,22 @@ class AcquisitionWindow(QMainWindow):
         self.holdTrackTLabel.setText("Time step tracking [s]")
 
         self.saveButton = QPushButton(self.centralwidget)
-        self.saveButton.setGeometry(QRect(250, 420, 80, 60))
+        self.saveButton.setGeometry(QRect(250, 410, 80, 40))
         self.saveButton.setText("Save as \nDefault")
         self.saveButton.clicked.connect(self.saveParameters)
         
         self.defaultButton = QPushButton(self.centralwidget)
-        self.defaultButton.setGeometry(QRect(160, 420, 80, 60))
-        self.defaultButton.setText("Restore \nas Default")
+        self.defaultButton.setGeometry(QRect(160, 410, 80, 40))
+        self.defaultButton.setText("Restore \n Default")
         self.defaultButton.clicked.connect(self.defaultParameters)
         
         self.saveCustomButton = QPushButton(self.centralwidget)
-        self.saveCustomButton.setGeometry(QRect(250, 460, 80, 60))
+        self.saveCustomButton.setGeometry(QRect(250, 460, 80, 40))
         self.saveCustomButton.setText("Save\nCustom")
         self.saveCustomButton.clicked.connect(self.parent().saveConfig)
         
         self.loadCustomButton = QPushButton(self.centralwidget)
-        self.loadCustomButton.setGeometry(QRect(160, 460, 80, 60))
+        self.loadCustomButton.setGeometry(QRect(160, 460, 80, 40))
         self.loadCustomButton.setText("Load\nCustom")
         self.loadCustomButton.clicked.connect(self.parent().loadConfig)
         
@@ -192,7 +192,7 @@ class AcquisitionWindow(QMainWindow):
         self.delayBeforeMeasText.editingFinished.connect(self.acquisitionTime)
         self.numDevTrackText.valueChanged.connect(self.acquisitionTime)
         self.trackTText.editingFinished.connect(self.acquisitionTime)
-        self.holdTrackTText.editingFinished.connect(self.parent().saveConfig)
+        self.holdTrackTText.editingFinished.connect(self.acquisitionTime)
 
     # Grab acquisition parameters from Acquisition panel
     def grabParameters(self):
@@ -338,3 +338,5 @@ class AcquisitionWindow(QMainWindow):
         self.numDevTrackText.setEnabled(flag)
         self.saveButton.setEnabled(flag)
         self.defaultButton.setEnabled(flag)
+        self.saveCustomButton.setEnabled(flag)
+        self.loadCustomButton.setEnabled(flag)

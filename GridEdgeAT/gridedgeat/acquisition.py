@@ -323,7 +323,7 @@ class acqThread(QThread):
                         perfDataDark = np.vstack((perfDataDark_f, perfDataDark))
                         self.acqJVComplete.emit(np.hstack((dark_JV_r, dark_JV_f)),
                                                 perfDataDark, substrateID+str(dev_id), i, j)
-                        
+                        time.sleep(1)
                         # tracking
                         # open the shutter
                         self.parent().shutter.open()
@@ -500,7 +500,7 @@ class acqThread(QThread):
         
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
-            time.sleep(hold_track_time)
+            time.sleep(hold_track_time/2)
             return v * self.parent().source_meter.read_values(deviceArea)[1]
         
         perfData = np.zeros((0,10))
