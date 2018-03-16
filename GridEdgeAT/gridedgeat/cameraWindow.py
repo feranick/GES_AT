@@ -66,20 +66,6 @@ class CameraWindow(QMainWindow):
         tb = QToolBar()
         self.addToolBar(Qt.BottomToolBarArea, tb)
         
-        self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
-        self.updateBtn.setShortcut('Ctrl+c')
-        self.updateBtn.setStatusTip('Get camera feed, set integration window')
-        
-        self.liveFeedBtn = QAction(QIcon(QPixmap()), "Live Feed",self)
-        self.liveFeedBtn.setShortcut('Ctrl+d')
-        self.liveFeedBtn.setStatusTip('Set Default Alignment')
-        self.liveFeedBtn.setEnabled(True)
-        
-        self.manualAlignBtn = QAction(QIcon(QPixmap()),"Check Alignment Manually",self)
-        self.manualAlignBtn.setEnabled(False)
-        self.manualAlignBtn.setShortcut('Ctrl+m')
-        self.manualAlignBtn.setStatusTip('Check Alignment Manually')
-        
         self.autoAlignBtn = QAction(QIcon(QPixmap()),"Run Automated Alignment",self)
         self.autoAlignBtn.setEnabled(True)
         self.autoAlignBtn.setShortcut('Ctrl+r')
@@ -95,10 +81,16 @@ class CameraWindow(QMainWindow):
         self.checkAlignText.setReadOnly(True)
         
         self.setDefaultBtn = QAction(QIcon(QPixmap()),
-                                     "Set Default Alignment",self)
+                                     "Set Alignment as Default",self)
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
+        
+        intensityLabel = QLabel()
+        intensityLabel.setText("Pixel Intensity: ")
+        self.intensityText = QLineEdit()
+        self.intensityText.setMaximumSize(30, 25)
+        self.intensityText.setReadOnly(True)
         
         self.resetBtn = QAction(QIcon(QPixmap()),
                                      "Reset",self)
@@ -108,25 +100,19 @@ class CameraWindow(QMainWindow):
 
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
-        tb.addSeparator()
-        tb.addAction(self.updateBtn)
-        tb.addSeparator()
-        tb.addAction(self.liveFeedBtn)
-        tb.addSeparator()
-
         tb.addWidget(contrastAlignLabel)
         tb.addWidget(self.checkAlignText)
         self.checkAlignText.show()
         tb.addSeparator()
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
+        tb.addWidget(intensityLabel)
+        tb.addWidget(self.intensityText)
         tb.addAction(self.resetBtn)
         tb.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
-        self.updateBtn.triggered.connect(lambda: self.manualAlign(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
-        self.liveFeedBtn.triggered.connect(lambda: self.manualAlign(True))
         self.resetBtn.triggered.connect(self.setAlignOnFalse)
 
         # Make Menu for plot related calls
@@ -501,8 +487,8 @@ class CameraWindow(QMainWindow):
 
     # Enable/Disable Buttons
     def enableButtons(self, flag):
-        self.updateBtn.setEnabled(flag)
-        self.liveFeedBtn.setEnabled(flag)
+        #self.updateBtn.setEnabled(flag)
+        #self.liveFeedBtn.setEnabled(flag)
         self.autoAlignBtn.setEnabled(flag)
         self.manualAlignmentMenu.setEnabled(flag)
         self.autoAlignmentMenu.setEnabled(flag)
@@ -512,6 +498,16 @@ class CameraWindow(QMainWindow):
     def setAlignOnFalse(self):
         self.alignOn = False
         self.resetBtn.setEnabled(False)
+
+    # Extract pixel intensity from cursor position
+    def getPixelIntensity(self):
+        x = int(self.end.x())
+        y = int(self.end.y())
+        if x > 0 and y > 0:
+            intensity = cv2.cvtColor(self.cam.img, cv2.COLOR_RGB2GRAY)[y,x]
+            msg = " Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity)
+            self.printMsg(msg)
+            self.intensityText.setText(str(intensity))
 
 '''
    QGraphicsSelectionItem
@@ -570,9 +566,19 @@ class GraphicsScene(QGraphicsScene):
             self.update()
 
     def mouseMoveEvent(self, event):
+        self.parent().end = event.scenePos()
+        self.parent().getPixelIntensity()
         if len(self.items()) !=0:
-            self.parent().end = event.scenePos()
             self.addRect()
+
+    def mouseDoubleClickEvent(self, event):
+        if len(self.items()) ==1:
+            self.parent().initial = event.scenePos()
+            self.parent().getPixelIntensity()
+
+    def hoverMoveEvent(self, event):
+        self.parent().end = event.scenePos()
+        self.parent().getPixelIntensity()
     
     # Rectangular selection is defined at mouse release
     def mouseReleaseEvent(self, event):
@@ -580,15 +586,15 @@ class GraphicsScene(QGraphicsScene):
         self.parent().final = event.scenePos()
         self.parent().update()
         try:
-            if len(self.items()) !=0:
+            if len(self.items()) ==2:
                 self.addRect()
-            self.parent().manualAlignBtn.setEnabled(True)
-            if self.parent().isAutoAlign:
-                msg = " Press SPACE to set integration window for alignment check"
-            else:
-                msg = " Press SPACE to set Check Alignment; ENTER to Close"
-            self.parent().printMsg(msg)
-            self.parent().view.setToolTip(msg)
+                self.parent().manualAlignBtn.setEnabled(True)
+                if self.parent().isAutoAlign:
+                    msg = " Press SPACE to set integration window for alignment check"
+                else:
+                    msg = " Press SPACE to set Check Alignment; ENTER to Close"
+                self.parent().printMsg(msg)
+                self.parent().view.setToolTip(msg)
         except:
             pass
 

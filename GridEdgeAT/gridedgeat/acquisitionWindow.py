@@ -275,7 +275,7 @@ class AcquisitionWindow(QMainWindow):
         if self.holdTrackTText.text() =="":
             self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
         try:
-            validateTimeStep = QDoubleValidator(1e-8,1e3,1,self.holdTrackTText)
+            validateTimeStep = QDoubleValidator(0,1e3,3,self.holdTrackTText)
             if validateTimeStep.validate(self.holdTrackTText.text(),1)[0] != 2:
                 msg = "<qt><b>Time Step Tracking must be > 0</qt></b>"+\
                       "\n\n Please change it in the Acquisition window"
