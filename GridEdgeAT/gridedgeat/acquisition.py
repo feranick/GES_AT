@@ -500,7 +500,6 @@ class acqThread(QThread):
         
         def __measure_power(v):
             self.parent().source_meter.set_output(voltage = polarity*v)
-            time.sleep(hold_track_time/2)
             return v * self.parent().source_meter.read_values(deviceArea)[1]
         
         perfData = np.zeros((0,10))
@@ -591,6 +590,7 @@ class acqThread(QThread):
             data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],time.time() - start_time], data))
             perfData = np.vstack((data, perfData))
             self.tempTracking.emit(JV, perfData, deviceID, False, False)
+            time.sleep(hold_track_time)
         self.tempTracking.emit(JV, perfData, deviceID, False, True)
         return perfData, JV
     

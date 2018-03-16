@@ -302,6 +302,14 @@ class MainWindow(QMainWindow):
         viewResultsMenu.setShortcut("Ctrl+r")
         viewResultsMenu.setStatusTip('Display Results Window')
         viewResultsMenu.triggered.connect(lambda: self.displayMainWindow(obj.resultswind))
+        viewStageMenu = QAction("&Stage Window", self)
+        viewStageMenu.setShortcut("Ctrl+j")
+        viewStageMenu.setStatusTip('Display Stage Window')
+        viewStageMenu.triggered.connect(lambda: self.displayMainWindow(obj.stagewind))
+        viewShutterMenu = QAction("&Shutter Window", self)
+        viewShutterMenu.setShortcut("Ctrl+h")
+        viewShutterMenu.setStatusTip('Display Shutter Window')
+        viewShutterMenu.triggered.connect(lambda: self.displayMainWindow(obj.shutterwind))
 
         windowMenu = menuObj.addMenu('&Window')
         windowMenu.addAction(viewMainWindowMenu)
@@ -309,6 +317,9 @@ class MainWindow(QMainWindow):
         windowMenu.addAction(viewCameraMenu)
         windowMenu.addAction(viewAcquisitionMenu)
         windowMenu.addAction(viewResultsMenu)
+        windowMenu.addSeparator()
+        windowMenu.addAction(viewStageMenu)
+        windowMenu.addAction(viewShutterMenu)
 
     # Display main window
     def displayMainWindow(self, obj):

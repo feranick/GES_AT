@@ -63,7 +63,8 @@ class CameraWindow(QMainWindow):
         self.alignOn = False
         
         # Set up ToolBar
-        tb = self.addToolBar("Controls")
+        tb = QToolBar()
+        self.addToolBar(Qt.BottomToolBarArea, tb)
         
         self.updateBtn = QAction(QIcon(QPixmap()),"Get Camera Image",self)
         self.updateBtn.setShortcut('Ctrl+c')
@@ -127,19 +128,41 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.manualAlign(True))
         self.resetBtn.triggered.connect(self.setAlignOnFalse)
-    
+
         # Make Menu for plot related calls
         self.menuBar = QMenuBar(self)
         self.menuBar.setGeometry(0,0,1150,25)
+
+        self.autoAlignmentMenu = QAction("&Autoalignment", self)
+        self.autoAlignmentMenu.setShortcut("Ctrl+k")
+        self.autoAlignmentMenu.setStatusTip('Run Autoalignment')
+        self.autoAlignmentMenu.triggered.connect(self.autoAlign)
+
+        self.manualAlignmentMenu = QAction("&Manual alignment", self)
+        self.manualAlignmentMenu.setShortcut("Ctrl+m")
+        self.manualAlignmentMenu.setStatusTip('Run manual alignment')
+        self.manualAlignmentMenu.triggered.connect(lambda: self.manualAlign(False))
+
+        self.liveAlignmentMenu = QAction("&Manual alignment - Live", self)
+        self.liveAlignmentMenu.setShortcut("Ctrl+l")
+        self.liveAlignmentMenu.setStatusTip('Run manual alignment from live mode')
+        self.liveAlignmentMenu.triggered.connect(lambda: self.manualAlign(True))
 
         self.saveImageMenu = QAction("&Save Image", self)
         self.saveImageMenu.setShortcut("Ctrl+s")
         self.saveImageMenu.setStatusTip('Save image to png file')
         self.saveImageMenu.triggered.connect(self.saveImage)
+        self.saveImageMenu.setEnabled(False)
         
-        fileMenu = self.menuBar.addMenu('&File')
-        fileMenu.addAction(self.saveImageMenu)
+        alignmentMenu = self.menuBar.addMenu('&Alignment')
+        alignmentMenu.addAction(self.autoAlignmentMenu)
+        alignmentMenu.addAction(self.manualAlignmentMenu)
+        alignmentMenu.addAction(self.liveAlignmentMenu)
+        imageMenu = self.menuBar.addMenu('&Image')
+        imageMenu.addAction(self.saveImageMenu)
 
+        self.parent().viewWindowMenus(self.menuBar, self.parent())
+        
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
         performAlignment = False
@@ -222,6 +245,7 @@ class CameraWindow(QMainWindow):
     def manualAlign(self, live):
         self.openShutter()
         self.cam = CameraFeed()
+        self.saveImageMenu.setEnabled(True)
         self.isAutoAlign = False
         self.firstRun = True
         self.alignOn = True
@@ -236,9 +260,8 @@ class CameraWindow(QMainWindow):
         self.scene.selectionDef.disconnect()
         self.scene.cleanup()
         self.delCam()
-        self.updateBtn.setEnabled(True)
-        self.liveFeedBtn.setEnabled(True)
-        self.autoAlignBtn.setEnabled(True)
+        self.enableButtons(True)
+        self.saveImageMenu.setEnabled(False)
         self.closeShutter()
         
     # Routine for manual alignment check
@@ -321,7 +344,6 @@ class CameraWindow(QMainWindow):
                 self.parent().stagewind.show()
                 QApplication.processEvents()
                 self.img = self.cam.grab_image_live()
-                self.parent().stagewind.close()
             else:
                 QApplication.processEvents()
                 self.img = self.cam.grab_image()
@@ -442,6 +464,7 @@ class CameraWindow(QMainWindow):
 
     # Close camera feed upon closing window.
     def closeEvent(self, event):
+        self.parent().stagewind.close()
         self.enableButtons(True)
         self.delCam()
         self.scene.cleanup()
@@ -481,6 +504,9 @@ class CameraWindow(QMainWindow):
         self.updateBtn.setEnabled(flag)
         self.liveFeedBtn.setEnabled(flag)
         self.autoAlignBtn.setEnabled(flag)
+        self.manualAlignmentMenu.setEnabled(flag)
+        self.autoAlignmentMenu.setEnabled(flag)
+        self.liveAlignmentMenu.setEnabled(flag)
 
     # Set alignOn variable as False
     def setAlignOnFalse(self):
