@@ -514,6 +514,7 @@ class acqThread(QThread):
 
         # light JV
         # open the shutter
+        self.Msg.emit("  Acquiring JV from device: " + deviceID)
         self.parent().shutter.open()
         time.sleep(0.2)
         JVtrack_r, JVtrack_f = self.measure_JV()

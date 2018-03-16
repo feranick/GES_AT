@@ -42,7 +42,7 @@ class CameraFeed():
 
             # Display the resulting frame
             cv2.imshow('Live Feed: push \"q\" to stop and grab frame',gray)
-            cv2.moveWindow('Live Feed: push \"q\" to stop and grab frame',30,30)
+            #cv2.moveWindow('Live Feed: push \"q\" to stop and grab frame',30,30)
 
             if (cv2.waitKey(1) & 0xFF == ord('q')) or self.closeLiveFeed == True:
                 cv2.destroyAllWindows()
@@ -74,7 +74,8 @@ class CameraFeed():
 
     # Save image
     def save_image(self, filename):
-        cv2.imwrite(filename,self.img)
+        img_bw = cv2.cvtColor(self.img, cv2.COLOR_RGB2GRAY)
+        cv2.imwrite(filename,img_bw)
 
     # Logic for checking alignment
     def check_alignment(self, img_data, thresholdPerc):

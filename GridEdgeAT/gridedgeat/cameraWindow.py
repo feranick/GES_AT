@@ -17,7 +17,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QPushButton, QAction,
     QVBoxLayout,QLabel,QGraphicsView,QFileDialog,QStatusBar,
     QGraphicsScene, QLineEdit,QMessageBox,QWidget,QApplication,
-    QGraphicsRectItem,QGraphicsItem,QToolBar)
+    QGraphicsRectItem,QGraphicsItem,QToolBar,QMenuBar)
 from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,
                          QBrush,QColor,QTransform,QPen,QFont)
 from PyQt5.QtCore import (pyqtSlot,QRectF,QPoint,QRect,Qt,QPointF)
@@ -60,6 +60,7 @@ class CameraWindow(QMainWindow):
         self.begin = QPoint()
         self.end = QPoint()
         self.firstTimeRunning = True
+        self.alignOn = False
         
         # Set up ToolBar
         tb = self.addToolBar("Controls")
@@ -97,6 +98,12 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.setShortcut('Ctrl+d')
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
+        
+        self.resetBtn = QAction(QIcon(QPixmap()),
+                                     "Reset",self)
+        self.resetBtn.setShortcut('Ctrl+r')
+        self.resetBtn.setStatusTip('Reset Camera Live Interface')
+        self.resetBtn.setEnabled(False)
 
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
@@ -112,11 +119,26 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
+        tb.addAction(self.resetBtn)
+        tb.addSeparator()
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.updateBtn.triggered.connect(lambda: self.manualAlign(False))
         self.setDefaultBtn.triggered.connect(self.setDefault)
         self.liveFeedBtn.triggered.connect(lambda: self.manualAlign(True))
+        self.resetBtn.triggered.connect(self.setAlignOnFalse)
+    
+        # Make Menu for plot related calls
+        self.menuBar = QMenuBar(self)
+        self.menuBar.setGeometry(0,0,1150,25)
+
+        self.saveImageMenu = QAction("&Save Image", self)
+        self.saveImageMenu.setShortcut("Ctrl+s")
+        self.saveImageMenu.setStatusTip('Save image to png file')
+        self.saveImageMenu.triggered.connect(self.saveImage)
+        
+        fileMenu = self.menuBar.addMenu('&File')
+        fileMenu.addAction(self.saveImageMenu)
 
     # Handle the actual alignment substrate by substrate
     def autoAlign(self):
@@ -179,12 +201,15 @@ class CameraWindow(QMainWindow):
                         else:
                             self.deactivateStage()
                             return
-                        if alignFlag:
+                        if alignFlag == 0:
                             self.parent().samplewind.colorCellAcq(i,j,"white")
                             self.printMsg(" Substrate #"+str(substrateNum)+" aligned (alignPerc = "+ str(alignPerc)+")")
                         else:
                             self.parent().samplewind.colorCellAcq(i,j,"grey")
-                            self.printMsg(" Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
+                            if alignFlag == 1:
+                                self.printMsg(" Substrate #"+str(substrateNum)+" Empty! (alignPerc = "+ str(alignPerc)+")")
+                            if alignFlag == 2:
+                                self.printMsg(" Substrate #"+str(substrateNum)+" not aligned! (alignPerc = "+ str(alignPerc)+")")
                         self.delCam()
         self.printMsg("\nAuto-alignment completed")
         self.deactivateStage()
@@ -202,6 +227,7 @@ class CameraWindow(QMainWindow):
         self.alignOn = True
         self.scene.selectionDef.connect(self.checkManualAlign)
         self.setSelWindow(live)
+        self.resetBtn.setEnabled(True)
         QApplication.processEvents()
         while self.alignOn:
             time.sleep(0.1)
@@ -218,12 +244,11 @@ class CameraWindow(QMainWindow):
     # Routine for manual alignment check
     def checkManualAlign(self):
         self.alignFlag, self.alignPerc, self.iMax = self.alignment()
-        if self.alignFlag:
+        if self.alignFlag == 0:
             self.inAlignmentMessageBox()
-            self.printMsg(" Devices and masks appear to be correct (alignPerc = "+ str(self.alignPerc)+")")
+            self.printMsg(" Devices and masks appear to be correctly aligned (alignPerc = "+ str(self.alignPerc)+")")
         else:
-            self.outAlignmentMessageBox()
-            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(self.alignPerc)+")")
+            self.outAlignmentMessageBox(self.alignFlag)
 
     # Define selection window 
     def setSelWindow(self, live):
@@ -334,25 +359,30 @@ class CameraWindow(QMainWindow):
         ret = msgBox.exec_()
 
         if ret == QMessageBox.Yes:
-            self.filename = "calib"+str(datetime.now().strftime('_%Y%m%d_%H-%M-%S.png'))
             self.parent().config.conf['Instruments']['alignmentContrastDefault'] = str(self.alignPerc)
             self.parent().config.conf['Instruments']['alignmentIntMax'] = str(self.iMax)
             with open(self.parent().config.configFile, 'w') as configfile:
                 self.parent().config.conf.write(configfile)
             self.parent().config.readConfig(self.parent().config.configFile)
-            self.printMsg(" New alignment settings saved as default. Image saved in: "+self.filename)
-            self.cam.save_image(self.parent().config.imagesFolder+self.filename)
+            self.printMsg(" New alignment settings saved as default.")
+            self.saveImage()
             return True
         else:
             self.printMsg( " Alignment settings not saved as default")
             return False
 
     # Warning box for misalignment
-    def outAlignmentMessageBox(self):
+    def outAlignmentMessageBox(self, flag):
         msgBox = QMessageBox( self )
         msgBox.setIcon( QMessageBox.Warning )
-        msgBox.setText( "WARNING:\nDevices and mask may be misaligned " )
-        msgBox.setInformativeText( "Please realign and retry...\nClose this box and press ENTER to close" )
+        if flag == 1:
+            msgBox.setText( "WARNING:\nNo substrate appears to be loaded " )
+            msgBox.setInformativeText( "Please check and retry...\nClose this box and press ENTER to close" )
+            self.printMsg(" No substrates appear to be loaded (alignPerc = "+ str(self.alignPerc)+")")
+        if flag == 2:
+            msgBox.setText( "WARNING:\nDevices and mask may be misaligned " )
+            msgBox.setInformativeText( "Please realign and retry...\nClose this box and press ENTER to close" )
+            self.printMsg(" Devices and masks are not aligned! (alignPerc = "+ str(self.alignPerc)+")")
         msgBox.exec_()
     
     # Warning box for misalignment
@@ -397,6 +427,12 @@ class CameraWindow(QMainWindow):
         print(msg)
         self.statusBar().showMessage(msg)
         logger.info(msg)
+    
+    # Save Image to file
+    def saveImage(self):
+        filename = "calib"+str(datetime.now().strftime('_%Y%m%d_%H-%M-%S.png'))
+        self.printMsg(" Image saved in: "+filename)
+        self.cam.save_image(self.parent().config.imagesFolder+filename)
 
     # Delete camera feed
     def delCam(self):
@@ -424,24 +460,32 @@ class CameraWindow(QMainWindow):
         self.printMsg("Activating shutter...")
         try:
             self.shutter = Shutter()
+            self.shutter.open()
+            self.printMsg(" Shutter activated and open.")
         except:
             self.printMsg(" Shutter not activated: no acquisition possible")
             return
-        self.shutter.open()
-        self.printMsg(" Shutter activated and open.")
 
     # Deactivate shutter
     def closeShutter(self):
         if hasattr(self,"shutter"):
-            self.shutter.closed()
-            del self.shutter
-            self.printMsg("Shutter deactivated")
+            try:
+                self.shutter.closed()
+                del self.shutter
+                self.printMsg("Shutter deactivated")
+            except:
+                pass
 
     # Enable/Disable Buttons
     def enableButtons(self, flag):
         self.updateBtn.setEnabled(flag)
         self.liveFeedBtn.setEnabled(flag)
         self.autoAlignBtn.setEnabled(flag)
+
+    # Set alignOn variable as False
+    def setAlignOnFalse(self):
+        self.alignOn = False
+        self.resetBtn.setEnabled(False)
 
 '''
    QGraphicsSelectionItem
@@ -528,8 +572,6 @@ class GraphicsScene(QGraphicsScene):
             if event.key() == Qt.Key_Space:
                 self.parent().firstRun = False
                 self.selectionDef.emit(True)
-            if event.key() == Qt.Key_Return:
-                self.parent().alignOn=False
             if event.key() == Qt.Key_Return:
                 self.parent().alignOn=False
     

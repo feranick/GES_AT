@@ -296,16 +296,27 @@ class AcquisitionWindow(QMainWindow):
                 for i in range(self.parent().config.numSubsHolderCol):
                     if self.parent().samplewind.tableWidget.item(i,j).text() != "":
                         numActiveSubs +=1
-            timePerDevice = len(np.arange(float(self.reverseVText.text())-1e-9,
-                                      float(self.forwardVText.text())+1e-9,
-                                      float(self.stepVText.text())))* \
-                                      float(self.holdTText.text()) + \
-                                      float(self.soakTText.text()) + \
-                                      float(self.delayBeforeMeasText.text())
-
+            #timePerDevice is one scan forward, but needs to be multiplied by 2 for the backwards scan
+            #if holdtime=0, by default add 10 seconds for every device
+            if float(self.holdTText.text()) == 0:            
+                timePerDevice = 2*(len(np.arange(float(self.reverseVText.text())-1e-9,
+                                        float(self.forwardVText.text())+1e-9,
+                                        float(self.stepVText.text())))* \
+                                        float(self.holdTText.text()) + \
+                                        float(self.soakTText.text()) + \
+                                        float(self.delayBeforeMeasText.text())) + \
+                                        10
+            else:
+                timePerDevice = 2*(len(np.arange(float(self.reverseVText.text())-1e-9,
+                                        float(self.forwardVText.text())+1e-9,
+                                        float(self.stepVText.text())))* \
+                                        float(self.holdTText.text()) + \
+                                        float(self.soakTText.text()) + \
+                                        float(self.delayBeforeMeasText.text()))
+            #When tracking is activated, software runs 1 dark JV + 1 light JV before the tracking, so 4*timePerDevice and 4*delayBeforeMeas
             if numActiveSubs >0:
-                totalAcqTime += float(self.delayBeforeMeasText.text()) + \
-                    float(timePerDevice*numActiveSubs) +\
+                totalAcqTime += 4*float(self.delayBeforeMeasText.text()) + \
+                    float(4*timePerDevice*numActiveSubs) +\
                     float(self.numDevTrackText.text())*float(self.trackTText.text())+\
                     float(self.delayBeforeMeasText.text())*numActiveSubs
         except:
