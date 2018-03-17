@@ -86,12 +86,6 @@ class CameraWindow(QMainWindow):
         self.setDefaultBtn.setStatusTip('Set Default Alignment')
         self.setDefaultBtn.setEnabled(False)
         
-        intensityLabel = QLabel()
-        intensityLabel.setText("Pixel Intensity: ")
-        self.intensityText = QLineEdit()
-        self.intensityText.setMaximumSize(30, 25)
-        self.intensityText.setReadOnly(True)
-        
         self.resetBtn = QAction(QIcon(QPixmap()),
                                      "Reset",self)
         self.resetBtn.setShortcut('Ctrl+r')
@@ -106,8 +100,6 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.setDefaultBtn)
         tb.addSeparator()
-        tb.addWidget(intensityLabel)
-        tb.addWidget(self.intensityText)
         tb.addAction(self.resetBtn)
         tb.addSeparator()
         
@@ -243,7 +235,10 @@ class CameraWindow(QMainWindow):
             time.sleep(0.1)
             QApplication.processEvents()
 
-        self.scene.selectionDef.disconnect()
+        try:
+            self.scene.selectionDef.disconnect()
+        except:
+            pass
         self.scene.cleanup()
         self.delCam()
         self.enableButtons(True)
@@ -454,6 +449,7 @@ class CameraWindow(QMainWindow):
         self.enableButtons(True)
         self.delCam()
         self.scene.cleanup()
+        self.statusBar().showMessage("Camera: Ready")
 
     # Deactivate stage after alignment
     def deactivateStage(self):
@@ -487,8 +483,6 @@ class CameraWindow(QMainWindow):
 
     # Enable/Disable Buttons
     def enableButtons(self, flag):
-        #self.updateBtn.setEnabled(flag)
-        #self.liveFeedBtn.setEnabled(flag)
         self.autoAlignBtn.setEnabled(flag)
         self.manualAlignmentMenu.setEnabled(flag)
         self.autoAlignmentMenu.setEnabled(flag)
@@ -501,13 +495,15 @@ class CameraWindow(QMainWindow):
 
     # Extract pixel intensity from cursor position
     def getPixelIntensity(self):
-        x = int(self.end.x())
-        y = int(self.end.y())
-        if x > 0 and y > 0:
-            intensity = cv2.cvtColor(self.cam.img, cv2.COLOR_RGB2GRAY)[y,x]
-            msg = " Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity)
-            self.printMsg(msg)
-            self.intensityText.setText(str(intensity))
+        if hasattr(self,"cam"):
+            img_y, img_x, c = self.cam.img.shape
+            x = int(self.end.x())
+            y = int(self.end.y())
+            if x > 0 and y > 0 and x < img_x and y < img_y:
+                intensity = cv2.cvtColor(self.cam.img, cv2.COLOR_RGB2GRAY)[y,x]
+                msg = " Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity)
+                #self.printMsg(msg)
+                self.statusBar().showMessage(msg)
 
 '''
    QGraphicsSelectionItem
@@ -531,6 +527,7 @@ class GraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(GraphicsView, self).__init__(parent)
         self.setRenderHints(QPainter.Antialiasing)
+        self.setMouseTracking(True)
     
     # Resize image when resizing cameraWindow
     def resizeEvent(self, event):
@@ -545,6 +542,7 @@ class GraphicsScene(QGraphicsScene):
     selectionDef = pyqtSignal(bool)
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
+        self.btnPressed = False
 
     # Create rectangular selection
     def addRect(self):
@@ -564,24 +562,19 @@ class GraphicsScene(QGraphicsScene):
             self.parent().begin = event.scenePos()
             self.parent().initial = event.scenePos()
             self.update()
+            self.btnPressed = True
 
     def mouseMoveEvent(self, event):
         self.parent().end = event.scenePos()
         self.parent().getPixelIntensity()
-        if len(self.items()) !=0:
+        #print(len(self.items()))
+        #if len(self.items()) >0:
+        if self.btnPressed == True and hasattr(self.parent(),"cam"):
             self.addRect()
-
-    def mouseDoubleClickEvent(self, event):
-        if len(self.items()) ==1:
-            self.parent().initial = event.scenePos()
-            self.parent().getPixelIntensity()
-
-    def hoverMoveEvent(self, event):
-        self.parent().end = event.scenePos()
-        self.parent().getPixelIntensity()
     
     # Rectangular selection is defined at mouse release
     def mouseReleaseEvent(self, event):
+        self.btnPressed = False
         self.parent().end = event.scenePos()
         self.parent().final = event.scenePos()
         self.parent().update()
@@ -613,7 +606,8 @@ class GraphicsScene(QGraphicsScene):
             self.image_item = self.items()[0]
         for item in self.items():
             self.removeItem(item)
-        self.addItem(self.image_item)
+        if hasattr(self,"image_item"):
+            self.addItem(self.image_item)
         self.update
 
     # cleaup scene and view
