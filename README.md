@@ -69,10 +69,11 @@ On MS Windows:
 After downloading the zip-file extract its content to a directory. If you have already installed the dependencies, you are ready to go.
 
 ### Linux/Mac OSX
-From the terminal, run: ```python gridedge_AT_run.py```
+From the terminal, run: ```python3 gridedge_AT_run.py```
     
 ### Windows
-Launch by double clicking the file ```gridedge_AT_windows.bat```
+From the terminal, run: ```python gridedge_AT_run.py```
+Alternatively, launch by double clicking the file ```gridedge_AT_windows.bat```
 
 ## User Manual
 It can be found in the User Manual folder within the repo or [online as a google doc](https://docs.google.com/document/d/13y0wFV21d75kd37jS3CpJvZL-_ImOJHvAZBCXCPn-OQ/edit?usp=sharing>).
@@ -84,7 +85,6 @@ It can be found in the User Manual folder within the repo or [online as a google
 - Double click on a device in the table in Results will open the default browser in the Data Management page with the corresponding substrate info.
 - Devices can be removed form the sample list by selecting "Remove..." from the right click menu on the result table.
 
-## History
-- Version 0.28.0 (20180306): Second stable release: Fully functional interface and overhauled workflow for camera, alignments, etc. 
-- Version 0.6 (20170928): First stable release. Fully functional interaface and control. In this release the acquisition workflow is in its initial implementation. The next major release will have a fairly extensive overhaul to account for a more detailed measurement of dark-bright measurements, and tracking.
+## Release History
+Pre-release, beta and stable releases are available in [github](https://github.com/feranick/GES_AT/releases).
 
