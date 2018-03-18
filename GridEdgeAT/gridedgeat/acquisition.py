@@ -55,7 +55,6 @@ class Acquisition(QObject):
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
                 'Hold Track Time', 'Device Area', 'Operator','Comments']]
     
-                
     def start(self):
         # Using ALT with Start Acquisition button:
         # 1. overrides the config settings.
@@ -129,7 +128,7 @@ class Acquisition(QObject):
             #return int(j+4*(3-i)+1)
             return int(4*(4-j)-i)
 
-# Main Class for Acquisition
+# Independent Thread for Acquisition
 # Everything happens here!
 class acqThread(QThread):
 
@@ -370,9 +369,7 @@ class acqThread(QThread):
         self.parent().parent().enableButtonsAcq(True)
         QApplication.processEvents()
         self.Msg.emit("System: ready")
-    
-    # New version to adapt to changes in Joel's stage code
-    # Conversion between device naming is no longer needed.
+
     ## low level api
     # xy substrate layout (default)
     # column:  1 ==> 4     row:
@@ -381,18 +378,6 @@ class acqThread(QThread):
     # 14 | 10 | 6 | 2      2
     # 13 | 9  | 5 | 1      1
     # xy device layout (default)
-    # |   ----   |
-    # | 1 |  | 4 |
-    # | 2 |  | 5 |
-    # | 3 |  | 6 |
-    # |   ----   |
-    
-    # pcb substrate layout
-    # 1  | 2  | 3  | 4  (-3*4)
-    # 5  | 6  | 7  | 8  (-1*4)
-    # 9  | 10 | 11 | 12 (+1*4)
-    # 13 | 14 | 15 | 16 (+3*4)
-    # pcb device layout (default)
     # |   ----   |
     # | 1 |  | 4 |
     # | 2 |  | 5 |
@@ -541,6 +526,9 @@ class acqThread(QThread):
             dp_dvpos = (dvpos_p-mp)/dv
             dp_dvneg = (dvneg_p-mp)/dv
             
+            #################################
+            ### Beginning obsolete code?
+            #################################
             # mpd = __measure_power(v + dv)
             # grad_mp = (mpd-mp)/dv
             # v += grad_mp * step_size
@@ -575,6 +563,9 @@ class acqThread(QThread):
             # 		else:
             # 			v-=dv
             # 			mp= dvneg_p
+            #################################
+            ### End obsolete code?
+            #################################
 
             if dvpos_p>mp:
                 v+=dv
