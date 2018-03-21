@@ -11,7 +11,7 @@ setup(
     package_data={ 'GridEdgeAT': ['gridedgeat/rsrc/*',
                       'gridedgeat/modules/switchbox/*.scr','gridedgeat/modules/xystage/APT.*'],},
     include_package_data=True,
-    version='0.34.2',
+    version='0.35.0',
     description='Automated measurements of Current/Voltage profiles for photovoltaic solar cells',
     long_description= """ Control software for automated measurements of Current/Voltage profiles, device tracking for photovoltaic solar cells """,
     author='Nicola Ferralis',
