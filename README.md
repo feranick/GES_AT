@@ -40,7 +40,7 @@ All required packages can be obtained through [MacPorts](<http://www.macports.or
 The simplest way to get all the required python packages at once is to install the Python 3 distribution from [python.org](<http://www.python.org/>) (recommended) or from [Anaconda](<https://www.continuum.io/downloads/>). You will use ```pip``` for installing most of the dependencies.
 
     pip install numpy scipy matplotlib pillow pandas
-    pip install pyqt5 opencv-python
+    pip install pyqt5 opencv-contrib-python
 
 Install Qt5 from the [qt.io](https://www.qt.io/download/) directly.
 
