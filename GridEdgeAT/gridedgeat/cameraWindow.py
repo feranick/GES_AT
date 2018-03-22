@@ -91,6 +91,12 @@ class CameraWindow(QMainWindow):
         self.resetBtn.setShortcut('Ctrl+r')
         self.resetBtn.setStatusTip('Reset Camera Live Interface')
         self.resetBtn.setEnabled(False)
+        
+        self.intensityLabel = QLabel()
+        font = QFont()
+        font.setFamily(font.defaultFamily())
+        self.intensityLabel.setFont(font)
+        self.intensityLabel.setText("")
 
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
@@ -102,6 +108,7 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.resetBtn)
         tb.addSeparator()
+        tb.addWidget(self.intensityLabel)
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.setDefaultBtn.triggered.connect(self.setDefault)
@@ -227,15 +234,15 @@ class CameraWindow(QMainWindow):
         self.saveImageMenu.setEnabled(True)
         self.isAutoAlign = False
         self.firstRun = True
+        if self.alignOn == False:
+            self.scene.selectionDef.connect(self.checkManualAlign)
         self.alignOn = True
-        self.scene.selectionDef.connect(self.checkManualAlign)
         self.setSelWindow(live)
         self.resetBtn.setEnabled(True)
         QApplication.processEvents()
         while self.alignOn:
             time.sleep(0.1)
             QApplication.processEvents()
-
         try:
             self.scene.selectionDef.disconnect()
         except:
@@ -452,6 +459,7 @@ class CameraWindow(QMainWindow):
         self.delCam()
         self.scene.cleanup()
         self.statusBar().showMessage("Camera: Ready")
+        self.intensityLabel.setText("")
 
     # Deactivate stage after alignment
     def deactivateStage(self):
@@ -506,9 +514,10 @@ class CameraWindow(QMainWindow):
             y = int(self.end.y())
             if x > 0 and y > 0 and x < img_x and y < img_y:
                 intensity = cv2.cvtColor(self.cam.img, cv2.COLOR_RGB2GRAY)[y,x]
-                msg = " Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity)
+                msg = " Int: <b>"+str(intensity)+"</b> - ["+str(x)+", "+str(y)+"] "
                 #self.printMsg(msg)
-                self.statusBar().showMessage(msg)
+                #self.statusBar().showMessage(msg)
+                self.intensityLabel.setText(msg)
 
 '''
    QGraphicsSelectionItem
