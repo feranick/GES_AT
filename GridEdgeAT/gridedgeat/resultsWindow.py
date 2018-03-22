@@ -53,26 +53,23 @@ class ResultsWindow(QMainWindow):
         self.setFixedSize(self.size())
         
         # A figure instance to plot on
-        self.figureTJsc = plt.figure()
-        self.figureTVoc = plt.figure()
         self.figureMPP = plt.figure()
         self.figureJVresp = plt.figure()
         self.figurePVresp = plt.figure()
         self.figureJVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
         self.figurePVresp.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.15)
-
-        self.figureTJsc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figureTVoc.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
-        self.figureMPP.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.21)
+        self.figureMPP.subplots_adjust(left=0.08, right=0.98, top=0.95, bottom=0.20)
         
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         
-        self.gridLayoutWidget = QWidget(self.centralwidget)
-        self.gridLayoutWidget.setGeometry(QRect(20, 30, 1100, 710))
+        self.jvGridLayoutWidget = QWidget(self.centralwidget)
+        self.jvGridLayoutWidget.setGeometry(QRect(0, 30, 1150, 455))
+        self.mppGridLayoutWidget = QWidget(self.centralwidget)
+        self.mppGridLayoutWidget.setGeometry(QRect(0, 475, 1150, 290))
 
-        self.HLayout = QHBoxLayout(self.gridLayoutWidget)
-        self.jvVLayout = QVBoxLayout()
+        self.VLayout = QVBoxLayout(self.jvGridLayoutWidget)
+        self.jvHLayout = QHBoxLayout()
         
         self.canvasJVresp = FigureCanvas(self.figureJVresp)
         #self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
@@ -86,41 +83,32 @@ class ResultsWindow(QMainWindow):
         self.toolbarPVresp.setMaximumHeight(30)
         self.toolbarPVresp.setStyleSheet("QToolBar { border: 0px }")
 
-        self.jvVLayout.addWidget(self.toolbarJVresp)
-        self.jvVLayout.addWidget(self.canvasJVresp)
-        self.jvVLayout.addWidget(self.toolbarPVresp)
-        self.jvVLayout.addWidget(self.canvasPVresp)
-        self.HLayout.addLayout(self.jvVLayout)
+        self.jvLayout = QVBoxLayout()
+        self.pvLayout = QVBoxLayout()
 
-        self.VLayout = QVBoxLayout()
+        self.jvLayout.addWidget(self.toolbarJVresp)
+        self.jvLayout.addWidget(self.canvasJVresp)
+        self.jvHLayout.addLayout(self.jvLayout)
+        
+        self.pvLayout.addWidget(self.toolbarPVresp)
+        self.pvLayout.addWidget(self.canvasPVresp)
+        self.jvHLayout.addLayout(self.pvLayout)
+        self.VLayout.addLayout(self.jvHLayout)
 
-        self.canvasTJsc = FigureCanvas(self.figureTJsc)
-        self.toolbarTJsc = NavigationToolbar(self.canvasTJsc, self)
-        self.toolbarTJsc.setMaximumHeight(30)
-        self.toolbarTJsc.setStyleSheet("QToolBar { border: 0px }")
+        self.mppLayout = QVBoxLayout(self.mppGridLayoutWidget)
 
-        self.VLayout.addWidget(self.toolbarTJsc)
-        self.VLayout.addWidget(self.canvasTJsc)
-        self.canvasTVoc = FigureCanvas(self.figureTVoc)
-        self.toolbarTVoc = NavigationToolbar(self.canvasTVoc, self)
-        self.toolbarTVoc.setMaximumHeight(30)
-        self.toolbarTVoc.setStyleSheet("QToolBar { border: 0px }")
-
-        self.VLayout.addWidget(self.toolbarTVoc)
-        self.VLayout.addWidget(self.canvasTVoc)
         self.canvasMPP = FigureCanvas(self.figureMPP)
         self.toolbarMPP = NavigationToolbar(self.canvasMPP, self)
         self.toolbarMPP.setMaximumHeight(30)
         self.toolbarMPP.setStyleSheet("QToolBar { border: 0px }")
 
-        self.VLayout.addWidget(self.toolbarMPP)
-        self.VLayout.addWidget(self.canvasMPP)
-        self.HLayout.addLayout(self.VLayout)
+        self.mppLayout.addWidget(self.toolbarMPP)
+        self.mppLayout.addWidget(self.canvasMPP)
 
-        self.resTableW = 1100
+        self.resTableW = 1130
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
-        self.resTableWidget.setGeometry(QRect(20, 770, self.resTableW, self.resTableH))
+        self.resTableWidget.setGeometry(QRect(10, 770, self.resTableW, self.resTableH))
         self.resTableWidget.setColumnCount(11)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
@@ -189,26 +177,6 @@ class ResultsWindow(QMainWindow):
     
     # Initialize Time-based plots
     def initPlots(self, data):
-        self.figureTJsc.clf()
-        self.axTJsc = self.figureTJsc.add_subplot(111)
-        self.plotSettings(self.axTJsc)
-        self.axTJsc.set_xlabel('Time [s]',fontsize=8)
-        self.axTJsc.set_ylabel('Jsc [mA/cm$^2$]',fontsize=8)
-        self.axTJsc.set_autoscale_on(True)
-        self.axTJsc.autoscale_view(True,True,True)
-        self.canvasTJsc.draw()
-        self.lineTJsc, = self.axTJsc.plot(data[:,0],data[:,2], '.-',linewidth=0.5)
-        
-        self.figureTVoc.clf()
-        self.axTVoc = self.figureTVoc.add_subplot(111)
-        self.plotSettings(self.axTVoc)
-        self.axTVoc.set_xlabel('Time [s]',fontsize=8)
-        self.axTVoc.set_ylabel('Voc [V]',fontsize=8)
-        self.axTVoc.set_autoscale_on(True)
-        self.axTVoc.autoscale_view(True,True,True)
-        self.canvasTVoc.draw()
-        self.lineTVoc, = self.axTVoc.plot(data[:,0],data[:,1], '.-',linewidth=0.5)
-        
         self.figureMPP.clf()
         self.axMPP = self.figureMPP.add_subplot(111)
         self.plotSettings(self.axMPP)
@@ -238,22 +206,6 @@ class ResultsWindow(QMainWindow):
         self.axPVresp.axhline(y=0, linewidth=0.5)
         self.canvasJVresp.draw()
         self.canvasPVresp.draw()
-
-    # Plot Transient Jsc
-    def plotTJsc(self, data):
-        self.toolbarTJsc.update()
-        self.lineTJsc.set_data(data[:,2].astype(float), data[:,4].astype(float))
-        self.axTJsc.relim()
-        self.axTJsc.autoscale_view(True,True,True)
-        self.canvasTJsc.draw()
-    
-    # Plot Transient Voc
-    def plotTVoc(self, data):
-        self.toolbarTVoc.update()
-        self.lineTVoc.set_data(data[:,2].astype(float), data[:,3].astype(float))
-        self.axTVoc.relim()
-        self.axTVoc.autoscale_view(True,True,True)
-        self.canvasTVoc.draw()
 
     # Plot MPP with tracking
     def plotMPP(self, data):
@@ -402,7 +354,7 @@ class ResultsWindow(QMainWindow):
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
-    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag, tracking):
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
@@ -427,14 +379,12 @@ class ResultsWindow(QMainWindow):
                     self.parent().acquisition.modifiers == Qt.AltModifier:
                 self.save_csv(deviceID, dfAcqParams, self.perfData, self.JV)
             if self.parent().config.submitToDb == True:
-                self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV, tracking)
+                self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV)
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
         self.plotJVresp(JV)
-        self.plotTVoc(perfData)
         self.plotMPP(perfData)
-        self.plotTJsc(perfData)
         self.show()
     
     # Create internal dataframe with all the data.
@@ -467,7 +417,7 @@ class ResultsWindow(QMainWindow):
         return dfJV, listJV
     
     ### Submit json for device data to Data-Management
-    def submit_DM(self,deviceID, dfAcqParams, perfData, JV, tracking):
+    def submit_DM(self,deviceID, dfAcqParams, perfData, JV):
         dfPerfData = self.makeDFPerfData(perfData)
         
         # Prepare json-data
@@ -482,25 +432,30 @@ class ResultsWindow(QMainWindow):
         jsonData.update(listSubstrateName)
         jsonData.update(listAcqParams)
 
-        listName = {'name': 'JV_r'}
         _, listJV0 = self.makeDFJV(JV,0)
         jsonData.update(listJV0)
-
-        if tracking is False:
+        if float(perfData[0,2]) == 0:
+            if int(float(dfPerfData.at[0,'Light'])) == 0:
+                listMeasType = {'measType' : 'JV_dark'}
+                listName = {'name': 'JV_dark_f'}
+                listName1 = {'name': 'JV_dark_r'}
+                jsonData.update(listMeasType)
+            else:
+                listName = {'name': 'JV_f'}
+                listName1 = {'name': 'JV_r'}
             listPerfData = dict(dfPerfData.iloc[[0]].to_dict('list'))
             jsonData.update(listPerfData)
             jsonData.update(listName)
             
             jsonData1 = jsonData.copy()
-            jsonData1 = jsonData.copy()
-            listName1 = {'name': 'JV_f'}
             jsonData1.update(listName1)
             listPerfData1 = dict(dfPerfData.iloc[[1]].to_dict('list'))
             jsonData1.update(listPerfData1)
             _, listJV1 = self.makeDFJV(JV,1)
             jsonData1.update(listJV1)
+
         else:
-            listName = {'name': 'Tracking'}
+            listName = {'measType': 'tracking'}
             listPerfData = dict(dfPerfData.to_dict('split'))
             listPerfData['columnlabel'] = listPerfData.pop('columns')
             listPerfData['output'] = listPerfData.pop('data')
@@ -518,7 +473,7 @@ class ResultsWindow(QMainWindow):
             msg = " Device " + deviceID + \
                     ": submission to DM via Mongo successful\n  (ids: " + \
                     str(db_entry.inserted_id)
-            if tracking is False:
+            if float(perfData[0,2]) == 0:
                 db_entry1 = db.Measurement.insert_one(json.loads(json.dumps(jsonData1)))
                 msg += ", "+str(db_entry1.inserted_id)
             msg += ")"
@@ -529,7 +484,7 @@ class ResultsWindow(QMainWindow):
                 logger.info(msg)
                 #This is for using POST HTTP
                 url = "http://"+self.dbConnectInfo[0]+":"+self.dbConnectInfo[5]+self.dbConnectInfo[6]
-                if tracking is False:
+                if float(perfData[0,2]) == 0:
                     req = requests.post(url, json=jsonData)
                     req1 = requests.post(url, json=jsonData1)
                     if req.status_code == 200 and req1.status_code == 200:
@@ -558,8 +513,8 @@ class ResultsWindow(QMainWindow):
         dfPerfData = self.makeDFPerfData(perfData)
         dfJV0,_ = self.makeDFJV(JV,0)
         dfJV1,_ = self.makeDFJV(JV,1)
-        dfJV0 = dfJV0.rename(columns={"V": "V_r", "J": "J_r"})
-        dfJV1 = dfJV1.rename(columns={"V": "V_f", "J": "J_f"})
+        dfJV0 = dfJV0.rename(columns={"V": "V_f", "J": "J_f"})
+        dfJV1 = dfJV1.rename(columns={"V": "V_r", "J": "J_r"})
     
         dfDeviceID = pd.DataFrame({'Device':[deviceID]})
         dfTot = pd.concat([dfDeviceID, dfPerfData], axis = 1)
@@ -568,10 +523,11 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
         dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
         csvFilename = deviceID+"_"
-        if dfPerfData.at[0,'Light'] == "0.0":
+        if int(float(dfPerfData.at[0,'Light'])) == 0:
             csvFilename+="dark_"
-        if dfPerfData.at[0,'Time step'] != "0.0":
-            csvFilename += "tracking_"
+        if int(float(dfPerfData.at[0,'Light'])) != 0:
+            if float(perfData[0,2]) != 0:
+                csvFilename += "tracking_"
         csvFilename += dateTimeTag + ".csv"
         dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
         msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename

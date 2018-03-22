@@ -45,7 +45,7 @@ class CameraFeed():
             def mouse_callback(event, x, y, flags, param):
                 if event == cv2.EVENT_LBUTTONDOWN:
                     intensity = gray[y,x]
-                    print(" Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity))
+                    print(" Intensity: "+str(intensity)+" - ["+str(x)+", "+str(y)+"] ")
         
             cv2.setMouseCallback(windowTitle, mouse_callback)
             cv2.imshow(windowTitle,gray)

@@ -77,7 +77,7 @@ class CameraWindow(QMainWindow):
         contrastAlignLabel.setFont(font)
         contrastAlignLabel.setText("Alignment Threshold [%]: ")
         self.checkAlignText = QLineEdit()
-        self.checkAlignText.setMaximumSize(80, 25)
+        self.checkAlignText.setMaximumSize(60, 25)
         self.checkAlignText.setReadOnly(True)
         
         self.setDefaultBtn = QAction(QIcon(QPixmap()),
@@ -91,6 +91,12 @@ class CameraWindow(QMainWindow):
         self.resetBtn.setShortcut('Ctrl+r')
         self.resetBtn.setStatusTip('Reset Camera Live Interface')
         self.resetBtn.setEnabled(False)
+        
+        self.intensityLabel = QLabel()
+        font = QFont()
+        font.setFamily(font.defaultFamily())
+        self.intensityLabel.setFont(font)
+        self.intensityLabel.setText("")
 
         tb.addAction(self.autoAlignBtn)
         tb.addSeparator()
@@ -102,10 +108,11 @@ class CameraWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.resetBtn)
         tb.addSeparator()
+        tb.addWidget(self.intensityLabel)
         
         self.autoAlignBtn.triggered.connect(self.autoAlign)
         self.setDefaultBtn.triggered.connect(self.setDefault)
-        self.resetBtn.triggered.connect(self.setAlignOnFalse)
+        self.resetBtn.triggered.connect(lambda: self.setAlignOn(False))
 
         # Make Menu for plot related calls
         self.menuBar = QMenuBar(self)
@@ -227,15 +234,15 @@ class CameraWindow(QMainWindow):
         self.saveImageMenu.setEnabled(True)
         self.isAutoAlign = False
         self.firstRun = True
+        if self.alignOn == False:
+            self.scene.selectionDef.connect(self.checkManualAlign)
         self.alignOn = True
-        self.scene.selectionDef.connect(self.checkManualAlign)
         self.setSelWindow(live)
         self.resetBtn.setEnabled(True)
         QApplication.processEvents()
         while self.alignOn:
             time.sleep(0.1)
             QApplication.processEvents()
-
         try:
             self.scene.selectionDef.disconnect()
         except:
@@ -452,6 +459,7 @@ class CameraWindow(QMainWindow):
         self.delCam()
         self.scene.cleanup()
         self.statusBar().showMessage("Camera: Ready")
+        self.intensityLabel.setText("")
 
     # Deactivate stage after alignment
     def deactivateStage(self):
@@ -466,7 +474,8 @@ class CameraWindow(QMainWindow):
     def openShutter(self):
         self.printMsg("Activating shutter...")
         try:
-            self.shutter = Shutter()
+            if not hasattr(self,"shutter"):
+                self.shutter = Shutter()
             self.shutter.open()
             self.printMsg(" Shutter activated and open.")
         except:
@@ -486,14 +495,14 @@ class CameraWindow(QMainWindow):
     # Enable/Disable Buttons
     def enableButtons(self, flag):
         self.autoAlignBtn.setEnabled(flag)
-        self.manualAlignmentMenu.setEnabled(flag)
         self.autoAlignmentMenu.setEnabled(flag)
+        #self.manualAlignmentMenu.setEnabled(flag)
         #self.liveAlignmentMenu.setEnabled(flag)
 
     # Set alignOn variable as False
-    def setAlignOnFalse(self):
-        self.alignOn = False
-        self.resetBtn.setEnabled(False)
+    def setAlignOn(self, flag):
+        self.alignOn = flag
+        self.resetBtn.setEnabled(flag)
 
     # Extract pixel intensity from cursor position
     def getPixelIntensity(self):
@@ -506,9 +515,10 @@ class CameraWindow(QMainWindow):
             y = int(self.end.y())
             if x > 0 and y > 0 and x < img_x and y < img_y:
                 intensity = cv2.cvtColor(self.cam.img, cv2.COLOR_RGB2GRAY)[y,x]
-                msg = " Intensity pixel at ["+str(x)+", "+str(y)+"]: "+str(intensity)
+                msg = " Int: <b>"+str(intensity)+"</b> - ["+str(x)+", "+str(y)+"] "
                 #self.printMsg(msg)
-                self.statusBar().showMessage(msg)
+                #self.statusBar().showMessage(msg)
+                self.intensityLabel.setText(msg)
 
 '''
    QGraphicsSelectionItem
@@ -584,9 +594,10 @@ class GraphicsScene(QGraphicsScene):
         self.parent().final = event.scenePos()
         self.parent().update()
         try:
-            if len(self.items()) ==2:
+            if len(self.items()) == 2:
                 self.addRect()
-                self.parent().manualAlignBtn.setEnabled(True)
+                self.parent().manualAlignmentMenu.setEnabled(True)
+                self.parent().liveAlignmentMenu.setEnabled(True)
                 if self.parent().isAutoAlign:
                     msg = " Press SPACE to set integration window for alignment check"
                 else:
