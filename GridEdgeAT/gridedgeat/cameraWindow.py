@@ -458,6 +458,11 @@ class CameraWindow(QMainWindow):
         self.enableButtons(True)
         self.delCam()
         self.scene.cleanup()
+        try:
+            self.alignOn = False
+            self.scene.selectionDef.disconnect()
+        except:
+            pass
         self.statusBar().showMessage("Camera: Ready")
         self.intensityLabel.setText("")
 
