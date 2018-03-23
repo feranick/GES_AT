@@ -272,6 +272,7 @@ class AcquisitionWindow(QMainWindow):
 
     # Field validator for Time Step Tracking
     def validateTimeStepTrack(self):
+        minTrackTime = 0.2
         if self.holdTrackTText.text() =="":
             self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
         try:
@@ -281,9 +282,9 @@ class AcquisitionWindow(QMainWindow):
                       "\n\n Please change it in the Acquisition Window"
                 reply = QMessageBox.question(self, 'Critical', msg, QMessageBox.Ok)
                 self.show()
-                self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
+                self.holdTrackTText.setText(str(minTrackTime))
         except:
-            self.holdTrackTText.setText(str(self.parent().config.acqHoldTrackTime))
+            self.holdTrackTText.setText(str(minTrackTime))
 
 
     # Calculate the measurement time per device

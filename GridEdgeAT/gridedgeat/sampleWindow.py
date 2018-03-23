@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys
+import sys, re
 import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
@@ -208,7 +208,8 @@ class SampleWindow(QMainWindow):
     def checkMatch(self, item):
         row = item.row()
         column = item.column()
-        displayError = False
+        displayMultipleSamplesError = False
+        displaySubNameError = False
         ItemList = QListWidget
         if self.tableWidget.item(row,column).text() !="":
             ItemList = self.tableWidget.findItems(self.tableWidget.item(row,column).text(), Qt.MatchExactly)
@@ -216,15 +217,43 @@ class SampleWindow(QMainWindow):
             if len(ItemList) > 1:
                 for Item in ItemList:
                     subList.append(Acquisition().getSubstrateNumber(Item.row(),Item.column()))
-                displayError = True
+                displayMultipleSamplesError = True
+            if self.isValidSubName(self.tableWidget.item(row,column).text()) is False and \
+                self.parent().config.validateSubName:
+                displaySubNameError = True
+                self.tableWidget.item(row,column).setText("")
         self.parent().acquisitionwind.acquisitionTime()
                 
-        if displayError == True:
+        if displayMultipleSamplesError:
             msgBox = QMessageBox()
             msgBox.setIcon( QMessageBox.Information )
             msgBox.setText( "Multiple substrates with the same name already exist. Please change" )
             msgBox.setInformativeText(str(subList))
             msgBox.exec_()
+
+        if displaySubNameError:
+            print(" Naming format for substrate #",
+                  str(Acquisition().getSubstrateNumber(row, column)),
+                  "is not correct. Please change.")
+            msgBox2 = QMessageBox()
+            msgBox2.setIcon( QMessageBox.Information )
+            msgBox2.setText( "Format for the substrate name is not correct, please use:" )
+            msgBox2.setInformativeText("NF20180323AA \
+                    \nNF: user initials\n20180323: date in YYYYMMDD format \
+                    \nAA: sequential code (AA, AB, AC, ..., BK,...")
+            msgBox2.exec_()
+
+    # Validate substrate names:
+    def isValidSubName(self, sub):
+        try:
+            if re.match("^[A-Z][A-Z]$", sub[0:2]) == None or \
+                sub[2:10] != datetime.strptime(sub[2:10], "%Y%m%d").strftime('%Y%m%d') or \
+                re.match("^[A-Z][A-Z]$", sub[10:12]) == None or \
+                len(sub)!=12:
+                raise ValueError
+            return True
+        except ValueError:
+            return False
 
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):

@@ -96,6 +96,7 @@ class Configuration():
             'csvSavingFolder' : self.dataFolder,
             'saveLocalCsv' : False,
             'logPlotJV' : False,
+            'validateSubName' : False,
             }
     def defineConfDM(self):
         self.conf['DM'] = {
@@ -161,6 +162,7 @@ class Configuration():
             self.csvSavingFolder = self.sysConfig['csvSavingFolder']
             self.saveLocalCsv = self.conf.getboolean('System','saveLocalCsv')
             self.logPlotJV = self.conf.getboolean('System','logPlotJV')
+            self.validateSubName = self.conf.getboolean('System','validateSubName')
         
             self.submitToDb = self.conf.getboolean('DM','submitToDb')
             self.DbHostname = self.dmConfig['DbHostname']

@@ -202,12 +202,16 @@ class acqThread(QThread):
         self.Msg.emit("Activating shutter...")
         try:
             if not hasattr(self.parent(),"shutter"):
+                print("DEBUG: Acq-open-1")
                 self.parent().shutter = Shutter()
+                print("DEBUG: Acq-open-2")
         except:
             self.Msg.emit(" Shutter not activated: no acquisition possible")
             self.stop()
             return
+        print("DEBUG: Acq-open-3")
         self.parent().shutter.closed()
+        print("DEBUG: Acq-open-4")
         self.Msg.emit(" Shutter activated and closed.")
 
         ### Setup interface and get parameters before acquisition
