@@ -480,11 +480,8 @@ class CameraWindow(QMainWindow):
         self.printMsg("Activating shutter...")
         try:
             if not hasattr(self,"shutter"):
-                print("DEBUG: Cam-open-1")
                 self.shutter = Shutter()
-                print("DEBUG: Cam-op-2")
             self.shutter.open()
-            print("DEBUG: Cam-op-3")
             self.printMsg(" Shutter activated and open.")
         except:
             self.printMsg(" Shutter not activated: no acquisition possible")
@@ -495,9 +492,7 @@ class CameraWindow(QMainWindow):
         if hasattr(self,"shutter"):
             try:
                 self.shutter.closed()
-                print("DEBUG: Cam-close-1")
                 del self.shutter
-                print("DEBUG: Cam-close-2")
                 self.printMsg("Shutter deactivated")
             except:
                 pass
