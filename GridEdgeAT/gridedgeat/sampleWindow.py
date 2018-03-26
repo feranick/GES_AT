@@ -316,7 +316,8 @@ class SampleWindow(QMainWindow):
         import csv
         try:
             filename = QFileDialog.getOpenFileName(self,
-                        "Open CSV substrates file", "","*.csv")
+                        "Open CSV substrates file",
+                        self.parent().config.substrateFolder,"*.csv")
             with open(filename[0], 'rU') as inputFile:
                 input = csv.reader(inputFile)
                 devConf=[]
@@ -343,7 +344,8 @@ class SampleWindow(QMainWindow):
                 devConf[i][j] = self.tableWidget.item(i,j).text()
         try:
             filename = QFileDialog.getSaveFileName(self,
-                    "Save CSV substrates file", "","*.csv")
+                    "Save CSV substrates file",
+                    self.parent().config.substrateFolder,"*.csv")
             with open(filename[0], 'w', newline='') as inputFile:
                 csvwrite = csv.writer(inputFile)
                 for i in range(self.parent().config.numSubsHolderRow):
