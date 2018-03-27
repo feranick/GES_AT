@@ -18,6 +18,9 @@ from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox,
                              QWidget,QMainWindow,QPushButton)
 from .modules.switchbox.switchbox import *
 
+####################################################################
+# Switchbox control window
+####################################################################
 class SwitchboxWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SwitchboxWindow, self).__init__(parent)
@@ -48,6 +51,9 @@ class SwitchboxWindow(QMainWindow):
         print(msg)
         self.activateSwitchboxButton.setEnabled(True)
 
+####################################################################
+#   Switchbox thread
+####################################################################
 class switchboxThread(QThread):
 
     swbResponse = pyqtSignal(str)

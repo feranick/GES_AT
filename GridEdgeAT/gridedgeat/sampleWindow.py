@@ -29,9 +29,9 @@ from . import logger
 from .acquisition import *
 from .resultsWindow import *
 
-'''
-   Sample Window
-'''
+####################################################################
+#   Sample Window
+####################################################################
 class SampleWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleWindow, self).__init__(parent)
@@ -110,9 +110,7 @@ class SampleWindow(QMainWindow):
         self.tableWidget.itemChanged.connect(self.checkMatch)
         self.tableWidget.itemDoubleClicked.connect(lambda item: self.resetSingleCellAcq(item))
 
-        # This disable editing
-        #self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        # This enables editing by Double Click
+        # Enable editing by Double Click
         self.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
 
         self.loadButton = QPushButton(self.centralwidget)
@@ -258,7 +256,6 @@ class SampleWindow(QMainWindow):
     # Enable and disable fields (flag is either True or False) during acquisition.
     def enableSamplePanel(self, flag):
         self.holderTypeCBox.setEnabled(flag)
-        #self.deviceAreaText.setEnabled(flag)
         self.operatorText.setEnabled(flag)
         self.commentsText.setEnabled(flag)
         self.loadButton.setEnabled(flag)

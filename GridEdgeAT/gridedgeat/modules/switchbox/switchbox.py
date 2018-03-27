@@ -14,16 +14,29 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
+    - Keithley 3706A + 3723 card
+    - command manual: c:/Users/PV_Test/Desktop/keithley-3700a-referencehandbuchswitch-901-01c-jul-2016.pdf
+    - cards: https://smt.at/wp-content/uploads/smt-handbuch-keithley-3700a-scannerkarten-englisch.pdf
+        # pins 5 (yellow), 6 (dark green)
+        # wires
+        # 1: brown
+        # 3: orange
+        # 4: pink
+        # 7: torqoise
+        # 5: yellow
+        # 6: dark green
+        # 8: blue
+        # 9: sky blue
+        # 10: purple
+        # 12: white
+        # 13: black
+
 '''
 import visa, os.path
-
+####################################################################
+# Switchbox low-level class
+####################################################################
 class SwitchBox(object):
-    '''
-    SwitchBox Class
-        - Keithley 3706A + 3723 card
-        - command manual: c:/Users/PV_Test/Desktop/keithley-3700a-referencehandbuchswitch-901-01c-jul-2016.pdf
-        - cards: https://smt.at/wp-content/uploads/smt-handbuch-keithley-3700a-scannerkarten-englisch.pdf
-    '''
     def __init__(self, visa_string='GPIB0::16::INSTR'):
         self.manager = visa.ResourceManager().open_resource(visa_string) 
         self.open_all()
@@ -93,22 +106,6 @@ class SwitchBox(object):
         else:
             self.write('channel.close("1923")')
 
-
-        # pins 5 (yellow), 6 (dark green)
-
-        # wires
-        # 1: brown
-        # 3: orange
-        # 4: pink
-        # 7: torqoise
-        # 5: yellow
-        # 6: dark green
-        # 8: blue
-        # 9: sky blue
-        # 10: purple
-        # 12: white
-        # 13: black
-
     def get_connect(self):
         'get the channels that are connected'
         return self.ask('print(channel.getclose("allslots"))')
@@ -122,7 +119,7 @@ if __name__ == '__main__':
     print(sb.get_connect())
     pass
 '''
-
+'''
 if __name__ == '__main__':
     # test
     sb = SwitchBox()
@@ -142,10 +139,8 @@ if __name__ == '__main__':
     #sb.connect(4, 4)
     #sb.connect(4, 3)
     #sb.connect(4, 1)
-    
-    
-    
     print(sb.get_connect())
     import time
     time.sleep(1120)
     pass
+'''

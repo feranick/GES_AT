@@ -19,6 +19,9 @@ from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox, QWidget,
                              QMainWindow,QPushButton)
 from .modules.sourcemeter.sourcemeter import *
 
+####################################################################
+# Source meter control window
+####################################################################
 class SourcemeterWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SourcemeterWindow, self).__init__(parent)
@@ -88,7 +91,9 @@ class SourcemeterWindow(QMainWindow):
     def closeEvent(self, event):
         self.stopSourcemeter()
 
+####################################################################
 # Main class thread for sourcemeter
+####################################################################
 class sourcemeterThread(QThread):
     smResponse = pyqtSignal(str, str, bool)
     
@@ -110,7 +115,6 @@ class sourcemeterThread(QThread):
     def run(self):
         try:
             self.sc = SourceMeter(self.parent().parent().config.sourcemeterID)
-            #deviceArea = float(self.parent().parent().config.deviceArea)
             deviceArea = 1
 
             self.sc.set_limit(voltage=self.maxV, current=0.12)

@@ -24,17 +24,16 @@ Shutter should be connected to RTS and GND
 '''
 import ftd2xx
 
+####################################################################
+# Shutter low-level class
+####################################################################
 class Shutter():
     # Define connection to powermeter
     def __init__(self):
         try:
-            print("DEBUG: Sh-1")
             self.shutter = ftd2xx.open(0)
-            print("DEBUG: Sh-2")
             self.shutter.setTimeouts(1000,1000)
-            print("DEBUG: Sh-3")
             self.closed()
-            print("DEBUG: Sh-4")
         except:
             pass
 
@@ -46,26 +45,10 @@ class Shutter():
 
     # Open the shutter (0V)
     def open(self):
-        print("DEBUG: Sh-open-1")
         self.shutter.clrRts()
-        print("DEBUG: Sh-open-2")
 
     # Close the shutter (5V)
     def closed(self):
-        print("DEBUG: Sh-close-1")
         self.shutter.setRts()
-        print("DEBUG: Sh-close-2")
 
-
-### This is only for testing - to be removed ###
-if __name__ == '__main__':
-    import time
-    # test
-    shutter = Shutter()
-    time.sleep(1)
-    
-    shutter.open()
-    time.sleep(2)
-    shutter.closed()
-    pass
 

@@ -15,11 +15,10 @@ import sys, math, json, os.path, time
 global MongoDBhost
 
 #************************************
-''' Class Database '''
+#   Class Database
 #************************************
 class DataManagement:
     def __init__(self, info):
-        #self.info = info
         self.dbHostname = info[0]
         self.dbPortNum = info[1]
         self.dbName = info[2]
@@ -37,9 +36,7 @@ class DataManagement:
             client[self.dbName]
         try:
             client.admin.command('ismaster')
-            #print(" Server Available!")
             flag = True
         except:
-            #print(" Server not available")
             flag = False
         return client, flag

@@ -21,13 +21,15 @@ from PIL import Image
 from PIL.ImageQt import ImageQt
 from datetime import datetime
 
+####################################################################
+# Camera low-level class
+####################################################################
 class CameraFeed():
     # Setup connection to OpenCV
     def __init__(self):
         self.camera_port = 0
         self.ramp_frames = 2
         self.camera = cv2.VideoCapture(self.camera_port)
-        #time.sleep(2)
         self.camera.set(10, -200)
         self.camera.set(15, -8.0)
 
@@ -59,7 +61,6 @@ class CameraFeed():
         return self.img
         
     def grab_image(self):
-        #ret, frame = self.camera.read()
         for i in range(self.ramp_frames):
             temp = self.camera.read()
         _, self.img = self.camera.read()
@@ -93,16 +94,6 @@ class CameraFeed():
         contrast = 100*count/img_data.size
         print(" Check alignment [%]: {0:0.3f}".format(contrast))
         return "{0:0.3f}".format(contrast), self.iMax
-
-    '''
-    def check_alignment_old(self, threshold):
-        sumint=np.sum(self.img_data)
-        #print(sumint)
-        if sumint>10000000:
-            print ('Attention: devices and mask might be misaligned')
-        else :
-            print ('Devices and mask are properly aligned')
-    '''
 
     # Close connection to camera
     def close_cam(self):

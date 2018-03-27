@@ -23,9 +23,9 @@ from PyQt5.QtCore import (pyqtSlot,QRectF,QRect)
 
 from . import logger
 
-'''
-   Acquisition Window
-'''
+####################################################################
+#   Acquisition Window
+####################################################################
 class AcquisitionWindow(QMainWindow):
     def __init__(self, parent=None):
         super(AcquisitionWindow, self).__init__(parent)

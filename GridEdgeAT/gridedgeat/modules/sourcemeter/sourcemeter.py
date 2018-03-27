@@ -14,15 +14,16 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
+ Keithley 2400
+ command manual: http://research.physics.illinois.edu/bezryadin/labprotocol/Keithley2400Manual.pdf
+ 
 '''
 import visa
 
+####################################################################
+# Sourcemeter low-level class
+####################################################################
 class SourceMeter(object):
-    '''
-    SourceMeter Class
-        - Keithley 2400
-        - command manual: http://research.physics.illinois.edu/bezryadin/labprotocol/Keithley2400Manual.pdf
-    '''
     def __init__(self, visa_string):
         self.manager = visa.ResourceManager().open_resource(visa_string) 
 
@@ -95,10 +96,8 @@ class SourceMeter(object):
                 self.current_limit = current
 
     def set_output(self, voltage = None, current = None):
-        """
-        Only one output accepted (voltage will override current if both present).
-        This functions helps switching modes.
-        """
+        # Only one output accepted (voltage will override current if both present).
+        # This functions helps switching modes.
         if voltage != None:
             if self.get_mode('source') != 'VOLT':
                 self.set_mode('VOLT')

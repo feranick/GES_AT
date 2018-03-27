@@ -30,9 +30,9 @@ import matplotlib.pyplot as plt
 from .dataManagement import *
 from . import logger
 
-'''
-   Results Window
-'''
+####################################################################
+#   Results Window
+####################################################################
 class ResultsWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ResultsWindow, self).__init__(parent)
@@ -72,13 +72,11 @@ class ResultsWindow(QMainWindow):
         self.jvHLayout = QHBoxLayout()
         
         self.canvasJVresp = FigureCanvas(self.figureJVresp)
-        #self.toolbarJVresp = NavigationToolbar(self.canvasJVresp, self)
         self.toolbarJVresp = CustomToolbar(self.canvasJVresp, self.figureJVresp, self)
         self.toolbarJVresp.setMaximumHeight(30)
         self.toolbarJVresp.setStyleSheet("QToolBar { border: 0px }")
 
         self.canvasPVresp = FigureCanvas(self.figurePVresp)
-        #self.toolbarPVresp = NavigationToolbar(self.canvasPVresp, self)
         self.toolbarPVresp = CustomToolbar(self.canvasPVresp, self.figurePVresp, self)
         self.toolbarPVresp.setMaximumHeight(30)
         self.toolbarPVresp.setStyleSheet("QToolBar { border: 0px }")
@@ -127,7 +125,6 @@ class ResultsWindow(QMainWindow):
         self.resTableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.resTableWidget.itemClicked.connect(self.onCellClick)
-        #self.resTableWidget.itemDoubleClicked.connect(self.onCellDoubleClick)
         self.setCentralWidget(self.centralwidget)
 
         # Make Menu for plot related calls
@@ -582,9 +579,9 @@ class ResultsWindow(QMainWindow):
         print("Opening entry in DM for substrate:",deviceID[:10])
         webbrowser.open("http://gridedgedm.mit.edu/lots/view/"+str(deviceID[:10]))
 
-'''
-   Custom Toolbar
-'''
+####################################################################
+#   Custom Toolbar with linear/log button
+####################################################################
 class CustomToolbar(NavigationToolbar):
     def __init__(self, figure_canvas, figure, parent= None):
         self.figure = figure

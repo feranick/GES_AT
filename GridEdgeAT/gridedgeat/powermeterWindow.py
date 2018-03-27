@@ -19,6 +19,9 @@ from PyQt5.QtWidgets import (QLabel, QLineEdit, QWidget, QMainWindow,
 from .modules.powermeter.powermeter import *
 from . import logger
 
+####################################################################
+#   Powermeter Window
+####################################################################
 class PowermeterWindow(QMainWindow):
     def __init__(self, parent=None):
         super(PowermeterWindow, self).__init__(parent)
@@ -152,8 +155,10 @@ class PowermeterWindow(QMainWindow):
         with open(self.parent().config.configFile, 'w') as configfile:
                 self.parent().config.conf.write(configfile)
         self.parent().config.readConfig(self.parent().config.configFile)
-        
-# Acquisition takes place in a separate thread
+
+####################################################################
+#   Powermeter thread
+####################################################################
 class powermeterThread(QThread):
     pmResponse = pyqtSignal(float, float, bool)
     

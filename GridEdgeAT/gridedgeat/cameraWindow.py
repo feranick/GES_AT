@@ -29,9 +29,9 @@ from .modules.xystage.xystage import *
 from .modules.shutter.shutter import *
 from . import logger
 
-'''
-   Camera Window
-'''
+####################################################################
+#   Camera Window
+####################################################################
 class CameraWindow(QMainWindow):
     def __init__(self, parent=None):
         super(CameraWindow, self).__init__(parent)
@@ -176,7 +176,6 @@ class CameraWindow(QMainWindow):
         ##########################
         self.moveToReferenceCell()
         ##########################
-        
         self.openShutter()
         
         self.firstRun = True
@@ -297,29 +296,6 @@ class CameraWindow(QMainWindow):
             else:
                 alignFlag = 0
         return alignFlag, alignPerc, iMax
-    
-    '''
-    # Old Alignment routine
-    def alignment(self):
-        image, image_data, image_orig = self.cam.get_image(True,
-                             int(self.initial.x()),
-                             int(self.final.x()),
-                             int(self.initial.y()),
-                             int(self.final.y()))
-                
-        alignPerc, iMax = self.cam.check_alignment( \
-                image_data,
-                self.config.alignmentIntThreshold)
-        print(" DEBUG: alignPerc: ",alignPerc,"; iMax: ",iMax)
-
-        self.checkAlignText.setText(str(alignPerc))
-        if float(alignPerc) > self.config.alignmentContrastDefault \
-                and float(iMax) > self.config.alignmentIntMax:
-            self.checkAlignText.setStyleSheet("color: rgb(255, 0, 255);")
-            return 1, alignPerc, iMax
-        else:
-            return 0, alignPerc, iMax
-    '''
 
     # Get image from feed
     def cameraFeed(self, live):
@@ -525,10 +501,10 @@ class CameraWindow(QMainWindow):
                 #self.statusBar().showMessage(msg)
                 self.intensityLabel.setText(msg)
 
-'''
-   QGraphicsSelectionItem
-   Definition of the class to generate the rectangular selection
-'''
+####################################################################
+#   QGraphicsSelectionItem
+#   Definition of the class to generate the rectangular selection
+####################################################################
 class QGraphicsSelectionItem(QGraphicsRectItem):
     
     # Class defining Rectangular Selection
@@ -539,10 +515,10 @@ class QGraphicsSelectionItem(QGraphicsRectItem):
         self.setFlags(self.flags() |
                       QGraphicsItem.ItemIsSelectable|
                       QGraphicsItem.ItemIsFocusable)
-'''
-   GraphicsView
-   Custom GraphicsView to display the scene
-'''
+####################################################################
+#   GraphicsView
+#   Custom GraphicsView to display the scene
+####################################################################
 class GraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(GraphicsView, self).__init__(parent)
@@ -553,10 +529,10 @@ class GraphicsView(QGraphicsView):
     def resizeEvent(self, event):
         self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
 
-'''
-   GraphicsScene
-   Custom GraphicScene having all the main content.
-'''
+####################################################################
+#   GraphicsScene
+#   Custom GraphicScene having all the main content.
+####################################################################
 class GraphicsScene(QGraphicsScene):
     
     selectionDef = pyqtSignal(bool)
@@ -587,8 +563,6 @@ class GraphicsScene(QGraphicsScene):
     def mouseMoveEvent(self, event):
         self.parent().end = event.scenePos()
         self.parent().getPixelIntensity()
-        #print(len(self.items()))
-        #if len(self.items()) >0:
         if self.btnPressed == True and hasattr(self.parent(),"cam"):
             self.addRect()
     

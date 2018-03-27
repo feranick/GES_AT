@@ -19,6 +19,9 @@ from PyQt5.QtGui import (QIntValidator)
 from .modules.xystage.xystage import *
 from .acquisition import *
 
+####################################################################
+#   Stage control window
+####################################################################
 class StageWindow(QMainWindow):
     def __init__(self, parent=None):
         super(StageWindow, self).__init__(parent)
@@ -190,15 +193,7 @@ class StageWindow(QMainWindow):
     def setCurrentPosOrigin(self):
         self.stageLabel.setText("Setting current position as origin")
         QApplication.processEvents()
-        #lastOrigin = ["{0:0.2f}".format(float(self.xystage.origin[0])),
-        #            "{0:0.2f}".format(float(self.xystage.origin[1]))]
-        #msg = " Last origin: ("+lastOrigin[0]+", "+lastOrigin[1]+")"
-        #print(msg)
         self.xystage.set_origin(True, [0,0])
-        #newOrigin = ["{0:0.2f}".format(float(self.xystage.origin[0])),
-        #            "{0:0.2f}".format(float(self.xystage.origin[1]))]
-        #msg = " New origin: ("+newOrigin[0]+", "+newOrigin[1]+")"        
-        #print(msg)
         # Recalculate substrate and device origins relative to new origin (middle of substrate 1)
         self.xystage.get_suborigins_4x4()
         self.xystage.get_devorigins_3x2()        
@@ -249,33 +244,7 @@ class StageWindow(QMainWindow):
         
         self.stageLabel.setText(msg)
         print(msg)
-    '''
-    # Move stage to substrate location set by coordinates in the LineEdits.
-    def moveToSubstrateCoord(self):
-        validXCoord = QIntValidator(1,4,self.subXPosStageText)
-        validYCoord = QIntValidator(1,4,self.subYPosStageText)
-        validDevNum = QIntValidator(1,6,self.devPosStageText)
-
-        if validDevNum.validate(self.devPosStageText.text(),1)[0] == 2 \
-           and validXCoord.validate(self.subXPosStageText.text(),1)[0] == 2 \
-           and validYCoord.validate(self.subYPosStageText.text(),1)[0] == 2:
-            xCoord = int(self.subXPosStageText.text())-1
-            yCoord = int(self.subYPosStageText.text())-1
-            ac = Acquisition()
-            self.xystage.move_to_substrate_4x4(ac.getSubstrateNumber(xCoord,
-                                                                     yCoord))
-            time.sleep(0.5)
-            devNum = int(self.devPosStageText.text())
-            self.xystage.move_to_device_3x2(ac.getSubstrateNumber(xCoord,
-                                yCoord),int(self.devPosStageText.text()))
-            self.showCurrentPos()
-            print("Substrate number:",ac.getSubstrateNumber(xCoord,yCoord))
-            del ac
-        else:
-            msg = "Substrates/device indeces out of range"
-            self.stageLabel.setText(msg)
-            print(msg)
-    '''
+    
     # Close connection upon closing window.
     def closeEvent(self, event):
         if self.activeStage == True:

@@ -16,10 +16,13 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import time, math
 try:
-    from .PyAPT import APTMotor
+    from gridedgeat.modules.xystage.PyAPT import APTMotor
 except ImportError:
     pass
 
+####################################################################
+# XY-stage low-level class
+####################################################################
 class XYstage():
     # Initialize X and Y stages
     def __init__(self, xDefStageOrigin, yDefStageOrigin):
@@ -45,9 +48,6 @@ class XYstage():
         # Calculate center positions of all substrates and devices
         print(" Homing stage")
         self.move_home(False)
-        # self.move_abs(0,0)
-        # self.set_ref_cell_origin(True, [0,0])
-        #self.move_abs(25,120)
         self.move_abs(xDefStageOrigin, yDefStageOrigin)
         self.set_origin(True, [0,0])
         self.get_suborigins_4x4()
@@ -108,34 +108,7 @@ class XYstage():
             xPos = self.origin[0] + (xIndex - 1) * self.pitchSub
             yPos = self.origin[1] + (yIndex - 1) * self.pitchSub
             self.subOriginList[subIndex - 1] = [xPos, yPos]
-            #return subOriginList
-
-    '''
-    # This is Joel, original implementation. it's reimplemented to be consistent with Tony's
-    # Calculate the absolute position of each device center, given list of substrate centers
-    def get_devorigins_3x2(self):
-        # Returns Nsubstrate-long list of 6-long lists of (x,y) positions
-        # |          |
-        # |   ----   |
-        # | 3 |  | 4 |
-        # | 2 |  | 5 |
-        # | 1 |  | 6 |
-        # |   ----   |
-        # |          |
-        self.devOriginList = [[[0,0] for x in range(6)] for y in range(len(self.subOriginList))]
-        # Iterate through all substrates (index runs from 0-15)
-        for index,subOrigin in enumerate(self.subOriginList):
-            devOrigin1 = [subOrigin[0] - self.pitchDevX/2, subOrigin[1] - self.pitchDevY]
-            devOrigin2 = [subOrigin[0] - self.pitchDevX/2, subOrigin[1]]
-            devOrigin3 = [subOrigin[0] - self.pitchDevX/2, subOrigin[1] + self.pitchDevY]
-            devOrigin4 = [subOrigin[0] + self.pitchDevX/2, subOrigin[1] + self.pitchDevY]
-            devOrigin5 = [subOrigin[0] + self.pitchDevX/2, subOrigin[1]]
-            devOrigin6 = [subOrigin[0] + self.pitchDevX/2, subOrigin[1] - self.pitchDevY]
-            self.devOriginList[index] = [devOrigin1,
-                devOrigin2, devOrigin3, devOrigin4, devOrigin5, devOrigin6]
-        #return devOriginList
-    '''
-    #
+            
     # Calculate the absolute position of each device center, given list of substrate centers
     def get_devorigins_3x2(self):
         # Returns Nsubstrate-long list of 6-long lists of (x,y) positions

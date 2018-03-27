@@ -40,10 +40,10 @@ from .shutterWindow import *
 from .dataManagement import *
 from .dataManagementWindow import *
 
-'''
-   Main Window
-   Definition of Main Panel
-'''
+####################################################################
+#   Main Window
+#   Definition of Main Panel
+####################################################################
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
@@ -225,7 +225,6 @@ class MainWindow(QMainWindow):
         self.statusBarLabel = QLabel(self)
         self.statusBar.addPermanentWidget(self.statusBarLabel, 1)
         self.statusBarLabel.setText("System: ready")
-        #self.statusBar().showMessage("Ready", 5000)
     
         #### Create basic push buttons to run acquisition ####
         self.startAcqButton = QPushButton(self)
@@ -359,14 +358,13 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
-'''
-   WebLinks Widget
-   Definition of Web links
-'''
+####################################################################
+#   WebLinks Widget
+#   Definition of Web links
+####################################################################
 class WebLinksWidget():
     def __init__(self):
         super(WebLinksWidget, self).__init__()
-
     def help(self):
         #webbrowser.open("https://sites.google.com/site/gridedgesolar/")
         webbrowser.open("https://docs.google.com/document/d/13y0wFV21d75kd37jS3CpJvZL-_ImOJHvAZBCXCPn-OQ/edit")
@@ -377,13 +375,11 @@ class WebLinksWidget():
     def wiki(self):
         webbrowser.open("https://sites.google.com/site/gridedgesolar/home")
 
-'''
-   About Widget
-   Definition of About Panel
-'''
+####################################################################
+#   About Widget
+#   Definition of About Panel
+####################################################################
 class AboutWidget(QWidget):
-    """ PyQt widget for About Box Panel """
-    
     def __init__(self):
         super(AboutWidget, self).__init__()
         self.initUI()

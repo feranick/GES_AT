@@ -20,7 +20,10 @@ try:
     import visa
 except ImportError:
     pass
-
+    
+####################################################################
+# Powermeter low-level class
+####################################################################
 class PowerMeter():
     # Define connection to powermeter
     def __init__(self, powermeterID):

@@ -18,6 +18,9 @@ from PyQt5.QtWidgets import (QLabel, QLineEdit, QCheckBox,
                              QWidget,QMainWindow,QPushButton)
 from .modules.shutter.shutter import *
 
+####################################################################
+# Shutter control window
+####################################################################
 class ShutterWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ShutterWindow, self).__init__(parent)

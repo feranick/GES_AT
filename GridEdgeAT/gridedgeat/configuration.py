@@ -16,6 +16,9 @@ from pathlib import Path
 from datetime import datetime
 from . import __version__
 
+####################################################################
+# Configuration
+####################################################################
 class Configuration():
     def __init__(self):
         self.home = str(Path.home())+"/"

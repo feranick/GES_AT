@@ -25,10 +25,10 @@ from PyQt5.QtCore import (pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 from .dataManagement import *
 from . import logger
 
-'''
-   DBConnection Widget
-   Definition of Database connection Widget
-'''
+####################################################################
+#   DBConnection Widget
+#   Definition of Database connection Widget
+####################################################################
 class DataManagementWindow(QMainWindow):
     def __init__(self, parent=None):
         super(DataManagementWindow, self).__init__(parent)

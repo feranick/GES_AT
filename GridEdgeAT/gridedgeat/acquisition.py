@@ -26,6 +26,9 @@ from .modules.sourcemeter.sourcemeter import *
 from .modules.switchbox.switchbox import *
 from .modules.shutter.shutter import *
 
+####################################################################
+# Acquisition
+####################################################################
 class Acquisition(QObject):
     def __init__(self, parent=None):
         super(Acquisition, self).__init__(parent)
@@ -109,7 +112,6 @@ class Acquisition(QObject):
             
     # Plot temporary data from tracking
     def plotTempTracking(self, JV, perfData, deviceID, setupTable, saveData):
-        #self.parent().resultswind.clearPlots(False)
         if setupTable is True:
             self.parent().resultswind.setupResultTable()
         self.parent().resultswind.processDeviceData(deviceID, self.dfAcqParams, perfData, JV, saveData)
@@ -128,8 +130,10 @@ class Acquisition(QObject):
             #return int(j+4*(3-i)+1)
             return int(4*(4-j)-i)
 
+####################################################################
 # Independent Thread for Acquisition
 # Everything happens here!
+####################################################################
 class acqThread(QThread):
 
     acqJVComplete = pyqtSignal(np.ndarray, np.ndarray, str, int, int)
@@ -395,7 +399,6 @@ class acqThread(QThread):
     
     ## measurements: JV - new flow
     def measure_JV(self):
-        #self.source_meter.set_mode('VOLT')
         self.parent().source_meter.set_mode('VOLT')
         self.parent().source_meter.on()
 
@@ -413,10 +416,6 @@ class acqThread(QThread):
             polarity = 1
         else:
             polarity = -1
-
-        # enforce
-        #if v_r < 0 and v_f > 0:
-        #    raise ValueError('Voltage Errors')
 
         # create list of voltage to measure
         if direction == 0:
@@ -526,47 +525,6 @@ class acqThread(QThread):
             dp_dvpos = (dvpos_p-mp)/dv
             dp_dvneg = (dvneg_p-mp)/dv
             
-            #################################
-            ### Beginning obsolete code?
-            #################################
-            # mpd = __measure_power(v + dv)
-            # grad_mp = (mpd-mp)/dv
-            # v += grad_mp * step_size
-
-            #Incremental conductance algorithm
-
-            # #If both dp/dv are zero, we are at MPP
-            # if dp_dvpos==0 and dp_dvneg==0:
-            # 	v=v
-            # 	mp=mp
-            # else: 
-            # 	#Check to see which has a smaller slope, since that will be closer to MPP
-            # 	if abs(dp_dvpos)<abs(dp_dvneg):
-            # 		#Section for dp_dvpos being closer to MPP
-
-            # 		#With our convention, negative slope means we are left of MPP so increase voltage
-            # 		if dp_dvpos<0:
-            # 			v+=dv
-            # 			mp=dvpos_p
-            # 		#With our convention, positive slope means we are right of MPP so decrease voltage
-            # 		else:
-            # 			v-=dv
-            # 			mp= dvpos_p
-            # 	else:
-            # 		#Section for dp_dvneg being closer to MPP
-
-            # 		 #With our convention, negative slope means we are left of MPP so increase voltage
-            # 		if dp_dvneg<0:
-            # 			v+=dv
-            # 			mp=dvneg_p
-            # 		#With our convention, positive slope means we are right of MPP so decrease voltage
-            # 		else:
-            # 			v-=dv
-            # 			mp= dvneg_p
-            #################################
-            ### End obsolete code?
-            #################################
-
             if dvpos_p>mp:
                 v+=dv
                 mp=dvpos_p
