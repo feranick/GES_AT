@@ -97,13 +97,13 @@ class Configuration():
             'loggingLevel' : logging.INFO,
             'loggingFilename' : self.logFile,
             'csvSavingFolder' : self.dataFolder,
-            'saveLocalCsv' : False,
+            'saveLocalCsv' : True,
             'logPlotJV' : False,
             'validateSubName' : False,
             }
     def defineConfDM(self):
         self.conf['DM'] = {
-            'submitToDb' : True,
+            'submitToDb' : False,
             'DbHostname' : "18.82.1.200",
             'DbPortNumber' : "27017",
             'DbName' : "test",
