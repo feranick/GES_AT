@@ -35,10 +35,10 @@ from .resultsWindow import *
 class SampleWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleWindow, self).__init__(parent)
-        self.initUI(self)
         self.activeSubs = np.ones((self.parent().config.numSubsHolderRow,
                 self.parent().config.numSubsHolderCol),
                 dtype=bool)
+        self.initUI(self)
     
     # Define UI elements
     def initUI(self,MainWindow):
@@ -184,7 +184,6 @@ class SampleWindow(QMainWindow):
         except:
             pass
 
-
     # Logic to disable non-working cells
     def disableBrokenCells(self, brokenCells):
         self.enableAllCells()
@@ -192,6 +191,7 @@ class SampleWindow(QMainWindow):
             item = self.tableWidget.item(row, col)
             item.setFlags(Qt.ItemIsEditable)
             self.colorCellAcq(row,col,"grey")
+            self.activeSubs[row,col] = False
 
     # Logic to enable non-working cells
     def enableBrokenCells(self):
@@ -199,6 +199,7 @@ class SampleWindow(QMainWindow):
             item = self.tableWidget.item(row, col)
             item.setFlags(item.flags() | ~Qt.ItemIsEditable)
             self.colorCellAcq(row,col,"white")
+            self.activeSubs[row,col] = True
 
     # Logic to enable all cells in Sample table
     def enableAllCells(self):
@@ -207,6 +208,7 @@ class SampleWindow(QMainWindow):
                 item = self.tableWidget.item(row, col)
                 item.setFlags(item.flags() | ~Qt.ItemIsEditable)
                 self.colorCellAcq(row,col,"white")
+                self.activeSubs[row,col] = True
 
     # Logic to set substrate status for acquisition
     def selectCell(self, row,col):
@@ -225,11 +227,10 @@ class SampleWindow(QMainWindow):
             if modifiers == Qt.AltModifier and \
                         currentQTableWidgetItem.text() != "":
                 self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
-            
             print(" Selected substrate #",
-                  str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
+                str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
                   self.tableWidget.column(currentQTableWidgetItem))))
-
+        
     # Logic to set and validate substrate name in table  
     def checkMatch(self, item):
         row = item.row()

@@ -227,7 +227,7 @@ class acqThread(QThread):
         for j in range(self.numCol):
             for i in range(self.numRow):
                 if self.stopAcqFlag == True:
-                            break
+                    break
                 # convert to correct substrate number in holder
                 substrateNum = self.parent().getSubstrateNumber(i,j)
                 substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()

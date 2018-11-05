@@ -131,7 +131,6 @@ class Configuration():
             self.numSubsHolderCol = self.conf.getint('Devices','numSubsHolderCol')
             self.brokenCells = eval(self.conf.get('Devices','brokenCells'))
             self.deviceArea = self.conf.getfloat('Devices','deviceArea')
-            print(self.brokenCells)
         
             self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
             self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
