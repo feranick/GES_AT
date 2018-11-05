@@ -252,6 +252,8 @@ class MainWindow(QMainWindow):
                         "*.ini")
         self.config.readConfig(filename)
         self.acquisitionwind.initParameters()
+        self.samplewind.disableBrokenCells(self.config.brokenCells)
+        
         print("Confguration parameters loaded from:",filename[0])
         logger.info("Confguration parameters loaded from:"+filename[0])
     

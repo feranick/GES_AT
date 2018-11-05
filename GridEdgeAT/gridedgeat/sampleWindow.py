@@ -36,7 +36,9 @@ class SampleWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleWindow, self).__init__(parent)
         self.initUI(self)
-        self.activeSubs = np.ones((4,4), dtype=bool)
+        self.activeSubs = np.ones((self.parent().config.numSubsHolderRow,
+                self.parent().config.numSubsHolderCol),
+                dtype=bool)
     
     # Define UI elements
     def initUI(self,MainWindow):
@@ -105,6 +107,8 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
                 self.tableWidget.item(i,j).setToolTip("Substrate #"+\
                     str(Acquisition().getSubstrateNumber(i,j)))
+    
+        self.disableBrokenCells(self.parent().config.brokenCells)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
@@ -182,20 +186,27 @@ class SampleWindow(QMainWindow):
 
 
     # Logic to disable non-working cells
-    def disableBrokenCell(self, brokenCells):
-        brokenCells = []
+    def disableBrokenCells(self, brokenCells):
+        self.enableAllCells()
         for row,col in brokenCells:
             item = self.tableWidget.item(row, col)
             item.setFlags(Qt.ItemIsEditable)
             self.colorCellAcq(row,col,"grey")
 
     # Logic to enable non-working cells
-    def enableBrokenCell(self):
-        brokenCells = []
+    def enableBrokenCells(self):
         for row,col in brokenCells:
             item = self.tableWidget.item(row, col)
             item.setFlags(item.flags() | ~Qt.ItemIsEditable)
             self.colorCellAcq(row,col,"white")
+
+    # Logic to enable all cells in Sample table
+    def enableAllCells(self):
+        for col in range(self.parent().config.numSubsHolderCol):
+            for row in range(self.parent().config.numSubsHolderRow):
+                item = self.tableWidget.item(row, col)
+                item.setFlags(item.flags() | ~Qt.ItemIsEditable)
+                self.colorCellAcq(row,col,"white")
 
     # Logic to set substrate status for acquisition
     def selectCell(self, row,col):

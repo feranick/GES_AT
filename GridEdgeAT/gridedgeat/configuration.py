@@ -12,6 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 import configparser, logging, os
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from . import __version__
@@ -55,6 +56,7 @@ class Configuration():
         self.conf['Devices'] = {
             'numSubsHolderRow' : 4,
             'numSubsHolderCol' : 4,
+            'brokenCells' : [],
             'deviceArea' : 0.1575,
             }
     def defineConfAcq(self):
@@ -127,7 +129,9 @@ class Configuration():
 
             self.numSubsHolderRow = self.conf.getint('Devices','numSubsHolderRow')
             self.numSubsHolderCol = self.conf.getint('Devices','numSubsHolderCol')
+            self.brokenCells = eval(self.conf.get('Devices','brokenCells'))
             self.deviceArea = self.conf.getfloat('Devices','deviceArea')
+            print(self.brokenCells)
         
             self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
             self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
