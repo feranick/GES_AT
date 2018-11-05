@@ -105,7 +105,7 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.setItem(i,j,QTableWidgetItem())
                 self.tableWidget.item(i,j).setToolTip("Substrate #"+\
                     str(Acquisition().getSubstrateNumber(i,j)))
-
+        
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
         self.tableWidget.itemDoubleClicked.connect(lambda item: self.resetSingleCellAcq(item))
@@ -179,6 +179,23 @@ class SampleWindow(QMainWindow):
                 viewDMEntryAction.triggered.connect(lambda: self.parent().resultswind.redirectToDM(self.tableWidget.item(row,col).text()))
         except:
             pass
+
+
+    # Logic to disable non-working cells
+    def disableBrokenCell(self, brokenCells):
+        brokenCells = []
+        for row,col in brokenCells:
+            item = self.tableWidget.item(row, col)
+            item.setFlags(Qt.ItemIsEditable)
+            self.colorCellAcq(row,col,"grey")
+
+    # Logic to enable non-working cells
+    def enableBrokenCell(self):
+        brokenCells = []
+        for row,col in brokenCells:
+            item = self.tableWidget.item(row, col)
+            item.setFlags(item.flags() | ~Qt.ItemIsEditable)
+            self.colorCellAcq(row,col,"white")
 
     # Logic to set substrate status for acquisition
     def selectCell(self, row,col):
