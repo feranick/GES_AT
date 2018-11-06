@@ -328,6 +328,7 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
         self.activeSubs = np.ones((4,4), dtype=bool)
+        self.disableBrokenCells(self.parent().config.brokenCells)
 
     # Check if table is filled or empty
     def checkTableEmpty(self, numRow, numCol):
