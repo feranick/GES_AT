@@ -314,6 +314,7 @@ class SampleWindow(QMainWindow):
         for i in range(self.parent().config.numSubsHolderCol):
             for j in range(self.parent().config.numSubsHolderRow):
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
+        self.disableBrokenCells(self.parent().config.brokenCells)
 
     # Reset color in single cell
     def resetSingleCellAcq(self, item):
@@ -328,12 +329,13 @@ class SampleWindow(QMainWindow):
                 self.tableWidget.item(i, j).setText('')
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
         self.activeSubs = np.ones((4,4), dtype=bool)
+        self.disableBrokenCells(self.parent().config.brokenCells)
 
     # Check if table is filled or empty
     def checkTableEmpty(self, numRow, numCol):
         for i in range(numRow):
             for j in range(numCol):
-                if self.tableWidget.item(i,j).text() != "":
+                if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
                     return False
         return True
 
