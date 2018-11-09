@@ -326,7 +326,7 @@ class SampleWindow(QMainWindow):
     def clearCells(self):
         for i in range(self.parent().config.numSubsHolderCol):
             for j in range(self.parent().config.numSubsHolderRow):
-                self.tableWidget.item(i, j).setText('')
+                self.tableWidget.setItem(i,j,QTableWidgetItem(''))
                 self.tableWidget.item(i, j).setBackground(QColor(255,255,255))
         self.activeSubs = np.ones((4,4), dtype=bool)
         self.disableBrokenCells(self.parent().config.brokenCells)
@@ -354,7 +354,8 @@ class SampleWindow(QMainWindow):
             for i in range(self.parent().config.numSubsHolderRow):
                 for j in range(self.parent().config.numSubsHolderCol):
                     try:
-                        self.tableWidget.item(i,j).setText(devConf[i][j])
+                        self.tableWidget.setItem(i,j,QTableWidgetItem(devConf[i][j]))
+                        self.disableBrokenCells(self.parent().config.brokenCells)
                     except:
                         pass
             print("Substrates configuration loaded from:",filename[0])
