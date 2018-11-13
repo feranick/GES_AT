@@ -332,6 +332,9 @@ class ResultsWindow(QMainWindow):
 
     # Add row and initialize it within the table
     def setupResultTable(self):
+        self.resTableWidget.insertRow(0)
+        self.lastRowInd = 0
+        '''
         self.resTableWidget.insertRow(self.resTableWidget.rowCount())
         self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,
                                         QTableWidgetItem())
@@ -341,6 +344,7 @@ class ResultsWindow(QMainWindow):
         self.lastRowInd = self.resTableWidget.rowCount()-1
         for f in range(9):
             self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
+        '''
 
     # Create internal dataframe with all the data.
     # This is needed for plotting data after acquisition
@@ -358,6 +362,7 @@ class ResultsWindow(QMainWindow):
         self.JV = JV
         
         # Populate table.
+        self.setupResultTable()
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
         # Plot results
