@@ -334,17 +334,17 @@ class ResultsWindow(QMainWindow):
     def setupResultTable(self):
         self.resTableWidget.insertRow(0)
         self.lastRowInd = 0
-        '''
-        self.resTableWidget.insertRow(self.resTableWidget.rowCount())
-        self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,
-                                        QTableWidgetItem())
-        for j in range(self.resTableWidget.columnCount()):
-            self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,
-                                        QTableWidgetItem())
-        self.lastRowInd = self.resTableWidget.rowCount()-1
-        for f in range(9):
-            self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
-        '''
+
+        ### Uncomment this to display latest acquisition last 
+        #self.resTableWidget.insertRow(self.resTableWidget.rowCount())
+        #self.resTableWidget.setItem(self.resTableWidget.rowCount()-1,0,
+        #                                QTableWidgetItem())
+        #for j in range(self.resTableWidget.columnCount()):
+        #    self.resTableWidget.setItem(self.resTableWidget.rowCount(),j,
+        #                                QTableWidgetItem())
+        #self.lastRowInd = self.resTableWidget.rowCount()-1
+        #for f in range(9):
+        #    self.resTableWidget.setItem(self.lastRowInd, 0,QTableWidgetItem())
 
     # Create internal dataframe with all the data.
     # This is needed for plotting data after acquisition
@@ -355,14 +355,15 @@ class ResultsWindow(QMainWindow):
         self.dfTotJV = pd.DataFrame()
     
     # Process data from devices
-    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag):
+    def processDeviceData(self, deviceID, dfAcqParams, perfData, JV, flag, track_flag):
         # create numpy arrays for all devices as well as dataframes for csv and jsons
         self.deviceID = np.vstack((self.deviceID, np.array([deviceID])))
         self.perfData = perfData
         self.JV = JV
         
         # Populate table.
-        self.setupResultTable()
+        if flag is False and track_flag is False:
+            self.setupResultTable()
         self.fillTableData(deviceID, self.perfData)
         QApplication.processEvents()
         # Plot results
