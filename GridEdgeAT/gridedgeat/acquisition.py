@@ -469,8 +469,95 @@ class acqThread(QThread):
         return voc, jsc
     
     ## New Flow
-    # Tracking (take JV once and track Vpmax)
+    # Tracking (take JV once and track Vpmax) - testing
     def tracking(self, deviceID, v_mpp):
+        track_time = float(self.dfAcqParams.at[0,'Track Time'])
+        deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
+        hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
+        hold_track_time = float(self.dfAcqParams.at[0,'Hold Track Time'])
+        dv = .5
+
+        if int(self.dfAcqParams.at[0,'Architecture']) == 0:
+            polarity = 1
+        else:
+            polarity = -1
+        
+        def __measure_power(v):
+            self.parent().source_meter.set_output(voltage = polarity*v)
+            return v * self.parent().source_meter.read_values(deviceArea)[1]
+        
+        perfData = np.zeros((0,10))
+        JV = np.zeros([1,4], dtype=float)
+        data = np.array([0,0, 0, v_mpp, __measure_power(v_mpp), 0,0,1])
+        data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1]], data))
+        perfData = np.vstack((data, perfData))
+        self.tempTracking.emit(JV, perfData, deviceID, True, False)
+        #this is to prevent the tracking to start before the dark JV is completely processed.
+        time.sleep(2)
+
+        # light JV
+        # open the shutter
+        self.Msg.emit("  Acquiring JV from device: " + deviceID)
+        self.parent().shutter.open()
+        time.sleep(0.2)
+        JVtrack_r, JVtrack_f = self.measure_JV()
+       
+        # Prepare stack for list of best devices
+        JVtrack = np.vstack((JVtrack_r, JVtrack_f))
+        PVtrack = np.zeros(JVtrack.shape)
+        PVtrack[:,0] = JVtrack[:,0]
+        PVtrack[:,1] = JVtrack[:,0]*JVtrack[:,1]
+        max_i = np.argmin(PVtrack[:,1])
+
+        v = PVtrack[:,0][max_i]
+        mp = PVtrack[:,1][max_i]
+        self.Msg.emit(" Tracking device: "+deviceID+"...")
+        start_time = time.time()
+
+        while time.time() - start_time <= track_time:
+            print(" Time step [s]: {0:0.1f}".format(time.time() - start_time))
+            print("  Voltage at max power point [V]: {0:0.3e}".format(v_mpp))
+            print("  Maximum power [mW]: {0:0.3e}".format(mp))
+            print("  Voltage [V]: {0:0.3e}".format(v))
+
+            dvpos_p =__measure_power(v+dv)
+            dvneg_p =__measure_power(v-dv)
+
+            print("DEBUG")
+            print("dvpos_p = ",dvpos_p)
+            print("dvneg_p = ",dvneg_p)
+            print("mp = ",mp)
+            
+            if dvpos_p > 0 or dvneg_p > 0:
+                dv -=0.01
+                print("Rescaling dv =",dv)
+            else:
+                dp_dvpos = (dvpos_p-mp)/dv
+                dp_dvneg = (dvneg_p-mp)/dv
+            
+                if abs(dvpos_p)>abs(mp):
+                    v+=dv
+                    mp=dvpos_p
+                    print("dvpos_p>mp, mp=dvpos_p",mp)
+                elif abs(dvneg_p)>abs(mp):
+                    v-=dv
+                    mp=dvneg_p
+                    print("dvneg_p>mp, mp=dvneg_p",mp)
+                else:
+                    v=v
+                    mp=mp
+                    print("else, mp=mp",mp)
+
+            data = np.array([ 0, 0, v, mp , 0, 0, 1])
+            data = np.hstack(([self.getDateTimeNow()[0],self.getDateTimeNow()[1],time.time() - start_time], data))
+            perfData = np.vstack((data, perfData))
+            self.tempTracking.emit(JV, perfData, deviceID, False, False)
+            time.sleep(hold_track_time)
+        self.tempTracking.emit(JV, perfData, deviceID, False, True)
+        return perfData, JV
+        
+    # Tracking (take JV once and track Vpmax) - stable
+    def tracking_stable(self, deviceID, v_mpp):
         track_time = float(self.dfAcqParams.at[0,'Track Time'])
         deviceArea = float(self.dfAcqParams.at[0,'Device Area'])
         hold_time = float(self.dfAcqParams.at[0,'Acq Hold Time'])
