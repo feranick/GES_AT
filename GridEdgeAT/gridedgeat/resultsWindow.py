@@ -252,12 +252,11 @@ class ResultsWindow(QMainWindow):
                 self.resTableWidget.item(i,j).setBackground(QColor(255,255,255))
         for j in range(self.resTableWidget.columnCount()):
             self.resTableWidget.item(row,j).setBackground(QColor(0,255,0))
-
         try:
-            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,row][0][0]))
-            self.plotData(self.dfTotDeviceID.iat[0,row],
-                self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row])
+            self.setWindowTitle('Results Panel - Device: '+ str(self.dfTotDeviceID.iat[0,self.resTableWidget.rowCount()-1-row][0][0]))
+            self.plotData(self.dfTotDeviceID.iat[0,self.resTableWidget.rowCount()-1-row],
+                self.dfTotPerfData.iat[0,self.resTableWidget.rowCount()-1-row],
+                self.dfTotJV.iat[0,self.resTableWidget.rowCount()-1-row])
         except:
             pass
 
@@ -373,7 +372,7 @@ class ResultsWindow(QMainWindow):
         
         if flag is True:
             # Save to internal dataFrame
-            self.makeInternalDataFrames(self.lastRowInd,
+            self.makeInternalDataFrames(self.lastRowInd+self.resTableWidget.rowCount() ,
                 self.deviceID,self.perfData, dfAcqParams, self.JV)
 
             # Enable/disable saving to file
@@ -552,7 +551,7 @@ class ResultsWindow(QMainWindow):
                 self.plotData(deviceID, perfData, JV)
                 self.setupResultTable()
                 self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.lastRowInd, [[deviceID]], perfData, dfAcqParams, np.array(JV))
+                self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
         except:
             print("Loading files failed")
 
