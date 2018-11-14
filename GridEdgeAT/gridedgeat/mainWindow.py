@@ -231,7 +231,8 @@ class MainWindow(QMainWindow):
         self.startAcqButton.setGeometry(QRect(10, 110, 160, 50))
         self.startAcqButton.setObjectName("Start Acquisition")
         self.startAcqButton.setText("Start Acquisition")
-        self.startAcqButton.clicked.connect(self.acquisition.start)
+        #self.startAcqButton.clicked.connect(self.acquisition.start)
+        self.startAcqButton.clicked.connect(self.preAcqMessage)
         self.stopAcqButton = QPushButton(self)
         self.stopAcqButton.setGeometry(QRect(170, 110, 160, 50))
         self.stopAcqButton.setObjectName("Stop Acquisition")
@@ -340,6 +341,23 @@ class MainWindow(QMainWindow):
     def showCameraSample(self):
         self.camerawind.show()
         self.samplewind.show()
+    
+    # Logic to run when starting the acquisition
+    # Make sure the system is aligned and reading correctly before start
+    # Dialog box for confirmation
+    def preAcqMessage(self, event):
+        preAcqMessBox = QMessageBox()
+        preAcqMessBox.setText("Have you aligned the cells? Have you checked the reference cell?")
+        preAcqMessBox.addButton("Cancel", QMessageBox.RejectRole)
+        preAcqMessBox.addButton('Run Alignment/Reference Cell Check', QMessageBox.NoRole)
+        preAcqMessBox.addButton('Yes, Both', QMessageBox.YesRole)
+        reply = preAcqMessBox.exec_()
+        if reply == 1:
+            print("Initiating Stage control for Alignment/Reference Cell")
+        elif reply == 2:
+            self.acquisition.start()
+        else:
+            pass
 
     # Logic to run when quitting the program
     # Dialog box for confirmation
@@ -347,7 +365,6 @@ class MainWindow(QMainWindow):
         quit_msg = "Are you sure you want to exit the program?"
         reply = QMessageBox.question(self, 'Message',
                      quit_msg, QMessageBox.No, QMessageBox.Yes)
-
         if reply == QMessageBox.Yes:
             if self.stagewind.activeStage == True:
                 self.stagewind.activateStage()
