@@ -354,6 +354,7 @@ class MainWindow(QMainWindow):
         reply = preAcqMessBox.exec_()
         if reply == 1:
             print("Initiating Stage control for Alignment/Reference Cell")
+            self.stagewind.show()
         elif reply == 2:
             self.acquisition.start()
         else:
