@@ -207,7 +207,7 @@ class ResultsWindow(QMainWindow):
     # Plot MPP with tracking
     def plotMPP(self, data):
         self.toolbarMPP.update()
-        self.lineMPP.set_data(data[:,2].astype(float), data[:,6].astype(float))
+        self.lineMPP.set_data(data[:,2].astype(float), abs(data[:,6].astype(float)))
         self.axMPP.relim()
         self.axMPP.autoscale_view(True,True,True)
         self.canvasMPP.draw()
