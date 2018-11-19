@@ -106,7 +106,7 @@ class Configuration():
     def defineConfDM(self):
         self.conf['DM'] = {
             'submitToDb' : False,
-            'DbHostname' : "18.82.1.200",
+            'DbHostname' : "gridedgedm.mit.edu",
             'DbPortNumber' : "27017",
             'DbName' : "test",
             'DbUsername' : "user",
