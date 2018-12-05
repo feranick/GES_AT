@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
     # Make sure the system is aligned and reading correctly before start
     # Dialog box for confirmation
     def preAcqMessage(self, event):
-        preAcqMessBox = QMessageBox()
+        preAcqMessBox = CustomAlignMessageBox("Check Alignment and Irradiance")
         preAcqMessBox.setText("Have you aligned the cells? Have you checked the reference cell?")
         preAcqMessBox.addButton("Cancel", QMessageBox.RejectRole)
         preAcqMessBox.addButton('Run Alignment/Reference Cell Check', QMessageBox.NoRole)
@@ -377,6 +377,14 @@ class MainWindow(QMainWindow):
             self.fileQuit()
         else:
             event.ignore()
+
+####################################################################
+# Custom QMessageBox to allow chaning the box title
+####################################################################
+class CustomAlignMessageBox(QMessageBox):
+    def __init__(self, msg):
+        super(CustomAlignMessageBox, self).__init__()
+        self.setWindowTitle(msg)
 
 ####################################################################
 #   WebLinks Widget
