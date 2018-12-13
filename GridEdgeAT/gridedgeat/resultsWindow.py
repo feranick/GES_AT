@@ -531,8 +531,11 @@ class ResultsWindow(QMainWindow):
             if float(perfData[0,2]) != 0:
                 csvFilename += "tracking_"
         csvFilename += dateTimeTag + ".csv"
-        dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
-        msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
+        try:
+            dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
+            msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
+        except:
+            msg=" Device data NOT saved. Check File saving folder in INI file"
         print(msg)
         logger.info(msg)
 
