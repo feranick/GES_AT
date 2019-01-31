@@ -176,11 +176,17 @@ class SampleWindow(QMainWindow):
                 else:
                     selectCellAction = QAction('Enable substrate', self)
                 viewDMEntryAction = QAction("&View Entry in Database", self)
+                showJsonInfoDMAction = QAction("&Show Json info from Database", self)
+                removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
+                #self.menu.addAction(showJsonInfoDMAction)
+                #self.menu.addAction(removeEntryDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.parent().resultswind.redirectToDM(self.tableWidget.item(row,col).text()))
+                showJsonInfoDMAction.triggered.connect(lambda: self.parent().resultswind.showJsonInfoDM(self.tableWidget.item(row,col).text()))
+                removeEntryDMAction.triggered.connect(lambda: self.parent().resultswind.removeEntryDM(self.tableWidget.item(row,col).text()))
         except:
             pass
 
