@@ -509,6 +509,11 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
         print(msg)
         logger.info(msg)
+    
+    # Redirect to DM page for substrate/device
+    def redirectToDM(self, deviceID):
+        print("Opening entry in DM for substrate:",deviceID[:10])
+        webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(deviceID[:10]))
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
@@ -581,11 +586,6 @@ class ResultsWindow(QMainWindow):
             self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("None")) #track_time
         else:
             self.resTableWidget.setItem(self.lastRowInd, 8,QTableWidgetItem("{0:0.3f}".format(float(obj[0,2])))) #track_time
-
-    # Redirect to DM page for substrate/device
-    def redirectToDM(self, deviceID):
-        print("Opening entry in DM for substrate:",deviceID[:10])
-        webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(deviceID[:10]))
 
 ####################################################################
 #   Custom Toolbar with linear/log button
