@@ -512,8 +512,20 @@ class ResultsWindow(QMainWindow):
     
     # Redirect to DM page for substrate/device
     def redirectToDM(self, deviceID):
-        print("Opening entry in DM for substrate:",deviceID[:10])
-        webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(deviceID[:10]))
+        print("Opening entry in DM for substrate:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            #print(db.collection_names())
+            #entry = db.Measurement.find_one({'substrate':deviceID[:10]})
+            entry = db.Lot.find_one({'label':deviceID[:8]})
+            #print(entry)
+            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(entry['_id']))
+        except:
+            print(" No data entry for this substrate found in DM. If appropriate, please add new one")
+            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/")
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
