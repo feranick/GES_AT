@@ -458,7 +458,7 @@ class SampleWindow(QMainWindow):
 
     # View entry in DM page for substrate/device
     def checkCreateLotDM(self, deviceID):
-        print("Opening entry in DM for Lot:",deviceID[:8])
+        print("\nOpening entry in DM for Lot:",deviceID[:8])
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
             conn = DataManagement(self.dbConnectInfo)
@@ -472,7 +472,7 @@ class SampleWindow(QMainWindow):
                 jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
                 db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
                 msg = " Created " + deviceID[:8] + \
-                    ": submission to DM via Mongo successful\n  (ids: " +    str(db_entry.inserted_id)
+                    ": submission to DM via Mongo successful\n  (ids: " + str(db_entry.inserted_id)+")"
                 print(msg)
         except:
             print(" Connection with DM via Mongo cannot be established.")

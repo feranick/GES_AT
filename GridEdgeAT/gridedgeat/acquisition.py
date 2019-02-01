@@ -231,12 +231,12 @@ class acqThread(QThread):
                 # convert to correct substrate number in holder
                 substrateNum = self.parent().getSubstrateNumber(i,j)
                 substrateID = self.parent().parent().samplewind.tableWidget.item(i,j).text()
-                self.parent().parent().samplewind.checkCreateLotDM(substrateID)
                 
                 # Check if the holder has a substrate in that slot
                 if self.parent().parent().samplewind.tableWidget.item(i,j).text() != ""  and \
                         self.parent().parent().samplewind.activeSubs[i,j] == True:
                     self.colorCell.emit(i,j,"yellow")
+                    self.parent().parent().samplewind.checkCreateLotDM(substrateID)
                     # Move stage to desired substrate
                     if self.parent().xystage.xystageInit is True:
                         self.Msg.emit("Moving stage to substrate #"+ \
