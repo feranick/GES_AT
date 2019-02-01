@@ -147,8 +147,8 @@ class MainWindow(QMainWindow):
         instrumentsMenu.addAction(self.sourcemeterMenu)
         instrumentsMenu.addAction(self.switchboxMenu)
         
-        self.dataManagementMenu = QAction("&Data Management", self)
-        self.dataManagementMenu.setShortcut("Ctrl+m")
+        self.dataManagementMenu = QAction("&Data Management Config", self)
+        self.dataManagementMenu.setShortcut("Ctrl+g")
         self.dataManagementMenu.setStatusTip('Data Management Settings')
         self.dataManagementMenu.triggered.connect(self.dbconnectionwind.show)
         
@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
         self.devBugsMenu.setShortcut("Ctrl+b")
         self.devBugsMenu.setStatusTip('Development and bugs')
         self.devBugsMenu.triggered.connect(self.weblinks.dev)
-        self.dataManagMenu = QAction("&Data management", self)
+        self.dataManagMenu = QAction("&Data management website", self)
         self.dataManagMenu.setShortcut("Ctrl+m")
         self.dataManagMenu.setStatusTip('Data Management')
         self.dataManagMenu.triggered.connect(self.weblinks.dm)
@@ -289,7 +289,7 @@ class MainWindow(QMainWindow):
         viewMainWindowMenu.setStatusTip('Display Main Window')
         viewMainWindowMenu.triggered.connect(lambda: self.displayMainWindow(obj))
         viewSampleMenu = QAction("&Substrates Window", self)
-        viewSampleMenu.setShortcut("Ctrl+d")
+        viewSampleMenu.setShortcut("Ctrl+u")
         viewSampleMenu.setStatusTip('Display Substrates Window')
         viewSampleMenu.triggered.connect(lambda: self.displayMainWindow(obj.samplewind))
         viewCameraMenu = QAction("&Alignment Window", self)
