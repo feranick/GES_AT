@@ -303,7 +303,7 @@ class ResultsWindow(QMainWindow):
                 selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
                 selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
                 selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
-                viewDMEntryAction.triggered.connect(lambda: self.redirectToDM(self.dfTotDeviceID.iat[0,row][0][0]))
+                viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.dfTotDeviceID.iat[0,row][0][0]))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
@@ -509,58 +509,6 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
         print(msg)
         logger.info(msg)
-    
-    # Redirect to DM page for substrate/device
-    def redirectToDM(self, deviceID):
-        print("Opening entry in DM for substrate:",deviceID[:8])
-        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        try:
-            conn = DataManagement(self.dbConnectInfo)
-            client, _ = conn.connectDB()
-            db = client[self.dbConnectInfo[2]]
-            #print(db.collection_names())
-            #entry = db.Measurement.find_one({'substrate':deviceID[:10]})
-            entry = db.Lot.find_one({'label':deviceID[:8]})
-            #print(entry)
-            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(entry['_id']))
-        except:
-            print(" No data entry for this substrate found in DM. If appropriate, please add new one")
-            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/")
-
-    # Remove Entry from DM - disabled by default
-    def removeEntryDM(self, deviceID):
-        print("Checking entry in DM for substrate:",deviceID[:8])
-        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        try:
-            conn = DataManagement(self.dbConnectInfo)
-            client, _ = conn.connectDB()
-            db = client[self.dbConnectInfo[2]]
-            #print(db.collection_names())
-            db.Lot.delete_one({'label':deviceID[:8]})
-            #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
-            #db.Lot.delete_one({'owner': 'MH'})
-            print(" Entry for substrate", deviceID[:8],"deleted")
-        except:
-            print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
-
-    # Show Json info on a substrate in Database - disabled by default
-    def showJsonInfoDM(self, deviceID):
-        print("Checking entry in DM for substrate:",deviceID[:8])
-        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        try:
-            conn = DataManagement(self.dbConnectInfo)
-            client, _ = conn.connectDB()
-            db = client[self.dbConnectInfo[2]]
-            print(db.collection_names())
-            print("Number of Lot entries: ",db.Lot.find().count())
-            for cursor in db.Lot.find():
-                print(cursor)
-            print("Number of Measurement entries: ",db.Measurement.find().count())
-            for cursor in db.Measurement.find():
-                print(cursor)
-            #print(db.Lot.find_one({'label':deviceID[:8]}))
-        except:
-            print(" Error!")
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):

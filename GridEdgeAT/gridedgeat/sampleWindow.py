@@ -184,9 +184,9 @@ class SampleWindow(QMainWindow):
                 #self.menu.addAction(removeEntryDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
-                viewDMEntryAction.triggered.connect(lambda: self.parent().resultswind.redirectToDM(self.tableWidget.item(row,col).text()))
-                showJsonInfoDMAction.triggered.connect(lambda: self.parent().resultswind.showJsonInfoDM(self.tableWidget.item(row,col).text()))
-                removeEntryDMAction.triggered.connect(lambda: self.parent().resultswind.removeEntryDM(self.tableWidget.item(row,col).text()))
+                viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
+                showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
+                removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
         except:
             pass
 
@@ -232,7 +232,7 @@ class SampleWindow(QMainWindow):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             if modifiers == Qt.AltModifier and \
                         currentQTableWidgetItem.text() != "":
-                self.parent().resultswind.redirectToDM(currentQTableWidgetItem.text())
+                self.parent().resultswind.viewOnDM(currentQTableWidgetItem.text())
             print(" Selected substrate #",
                 str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
                   self.tableWidget.column(currentQTableWidgetItem))))
@@ -396,3 +396,59 @@ class SampleWindow(QMainWindow):
         self.parent().config.conf['Devices']['deviceArea'] = str(self.deviceAreaText.text())
         self.parent().config.saveConfig(self.parent().config.configFile)
         self.parent().config.readConfig(self.parent().config.configFile)
+    
+    ####################################################################
+    #   Sample Window
+    ####################################################################
+
+    # View entry in DM page for substrate/device
+    def viewOnDM(self, deviceID):
+        print("Opening entry in DM for substrate:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            #print(db.collection_names())
+            #entry = db.Measurement.find_one({'substrate':deviceID[:10]})
+            entry = db.Lot.find_one({'label':deviceID[:8]})
+            #print(entry)
+            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(entry['_id']))
+        except:
+            print(" No data entry for this substrate found in DM. If appropriate, please add new one")
+            webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/")
+
+    # Remove Entry from DM - disabled by default
+    def removeEntryDM(self, deviceID):
+        print("Checking entry in DM for substrate:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            #print(db.collection_names())
+            db.Lot.delete_one({'label':deviceID[:8]})
+            #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
+            #db.Lot.delete_one({'owner': 'MH'})
+            print(" Entry for substrate", deviceID[:8],"deleted")
+        except:
+            print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
+
+    # Show Json info on a substrate in Database - disabled by default
+    def showJsonInfoDM(self, deviceID):
+        print("Checking entry in DM for substrate:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            print(db.collection_names())
+            print("Number of Lot entries: ",db.Lot.find().count())
+            for cursor in db.Lot.find():
+                print(cursor)
+            print("Number of Measurement entries: ",db.Measurement.find().count())
+            for cursor in db.Measurement.find():
+                print(cursor)
+            #print(db.Lot.find_one({'label':deviceID[:8]}))
+        except:
+            print(" Error!")
