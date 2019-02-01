@@ -551,9 +551,12 @@ class ResultsWindow(QMainWindow):
             conn = DataManagement(self.dbConnectInfo)
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
-            #print(db.collection_names())
-            print("Number of entries: ",db.Lot.find().count())
+            print(db.collection_names())
+            print("Number of Lot entries: ",db.Lot.find().count())
             for cursor in db.Lot.find():
+                print(cursor)
+            print("Number of Measurement entries: ",db.Measurement.find().count())
+            for cursor in db.Measurement.find():
                 print(cursor)
             #print(db.Lot.find_one({'label':deviceID[:8]}))
         except:
