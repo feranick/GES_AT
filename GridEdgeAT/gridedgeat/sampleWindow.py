@@ -176,7 +176,7 @@ class SampleWindow(QMainWindow):
                 else:
                     selectCellAction = QAction('Enable substrate', self)
                 viewDMEntryAction = QAction("&View Entry in Database", self)
-                showJsonInfoDMAction = QAction("&Show Json info from Database", self)
+                showJsonInfoDMAction = QAction("&Show JSON info from Database", self)
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
