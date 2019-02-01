@@ -180,8 +180,8 @@ class SampleWindow(QMainWindow):
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
-                self.menu.addAction(showJsonInfoDMAction)
-                self.menu.addAction(removeEntryDMAction)
+                #self.menu.addAction(showJsonInfoDMAction)
+                #self.menu.addAction(removeEntryDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
@@ -428,10 +428,12 @@ class SampleWindow(QMainWindow):
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
             #print(db.collection_names())
-            db.Lot.delete_one({'label':deviceID[:8]})
+            #db.Lot.delete_one({'label':deviceID[:8]})
             #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
             #db.Lot.delete_one({'owner': 'MH'})
-            print(" Entry for substrate", deviceID[:8],"deleted")
+            for cursor in db.Measurement.find():
+                db.Measurement.delete_one({'substrate': deviceID})
+            print(" Entry for substrate", deviceID,"deleted")
         except:
             print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
 
