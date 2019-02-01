@@ -180,8 +180,8 @@ class SampleWindow(QMainWindow):
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
-                #self.menu.addAction(showJsonInfoDMAction)
-                #self.menu.addAction(removeEntryDMAction)
+                self.menu.addAction(showJsonInfoDMAction)
+                self.menu.addAction(removeEntryDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
@@ -255,6 +255,7 @@ class SampleWindow(QMainWindow):
                 self.parent().config.validateSubName:
                 displaySubNameError = True
                 self.tableWidget.item(row,column).setText("")
+            #self.checkCreateLotDM(self.tableWidget.item(row,column).text())
         self.parent().acquisitionwind.acquisitionTime()
                 
         if displayMultipleSamplesError:
@@ -443,12 +444,35 @@ class SampleWindow(QMainWindow):
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
             print(db.collection_names())
-            print("Number of Lot entries: ",db.Lot.find().count())
-            for cursor in db.Lot.find():
-                print(cursor)
+            print("\nMeasurements\n")
             print("Number of Measurement entries: ",db.Measurement.find().count())
             for cursor in db.Measurement.find():
+                print(cursor)
+            print("\nLots\n")
+            print("Number of Lot entries: ",db.Lot.find().count())
+            for cursor in db.Lot.find():
                 print(cursor)
             #print(db.Lot.find_one({'label':deviceID[:8]}))
         except:
             print(" Error!")
+
+    # View entry in DM page for substrate/device
+    def checkCreateLotDM(self, deviceID):
+        print("Opening entry in DM for Lot:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            entry = db.Lot.find_one({'label':deviceID[:8]})
+            if entry:
+                print(" Data entry for this batch found in DM.")
+            else:
+                print(" No data entry for this substrate found in DM. Creating new one")
+                jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
+                db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
+                msg = " Created " + deviceID[:8] + \
+                    ": submission to DM via Mongo successful\n  (ids: " +    str(db_entry.inserted_id)
+                print(msg)
+        except:
+            print(" Connection with DM via Mongo cannot be established.")
