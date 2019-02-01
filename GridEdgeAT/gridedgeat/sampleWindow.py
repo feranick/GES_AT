@@ -271,8 +271,8 @@ class SampleWindow(QMainWindow):
             msgBox2 = QMessageBox()
             msgBox2.setIcon( QMessageBox.Information )
             msgBox2.setText( "Format for the substrate name is not correct, please use:" )
-            msgBox2.setInformativeText("NF20180323AA \
-                    \nNF: user initials\n20180323: date in YYYYMMDD format \
+            msgBox2.setInformativeText("NF180323AA \
+                    \nNF: user initials\n180323: date in YYMMDD format \
                     \nAA: sequential code (AA, AB, AC, ..., BK,...")
             msgBox2.exec_()
 
@@ -280,9 +280,9 @@ class SampleWindow(QMainWindow):
     def isValidSubName(self, sub):
         try:
             if re.match("^[A-Z][A-Z]$", sub[0:2]) == None or \
-                sub[2:10] != datetime.strptime(sub[2:10], "%Y%m%d").strftime('%Y%m%d') or \
-                re.match("^[A-Z][A-Z]$", sub[10:12]) == None or \
-                len(sub)!=12:
+                sub[2:8] != datetime.strptime(sub[2:8], "%y%m%d").strftime('%y%m%d') or \
+                re.match("^[A-Z][A-Z]$", sub[8:10]) == None or \
+                len(sub)!=10:
                 raise ValueError
             return True
         except ValueError:
