@@ -203,7 +203,7 @@ class SampleWindow(QMainWindow):
     def enableBrokenCells(self):
         for row,col in brokenCells:
             item = self.tableWidget.item(row, col)
-            item.setFlags(item.flags() | ~Qt.ItemIsEditable)
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
             self.colorCellAcq(row,col,"white")
             self.activeSubs[row,col] = True
 
@@ -212,7 +212,7 @@ class SampleWindow(QMainWindow):
         for col in range(self.parent().config.numSubsHolderCol):
             for row in range(self.parent().config.numSubsHolderRow):
                 item = self.tableWidget.item(row, col)
-                item.setFlags(item.flags() | ~Qt.ItemIsEditable)
+                item.setFlags(item.flags() | Qt.ItemIsEditable)
                 self.colorCellAcq(row,col,"white")
                 self.activeSubs[row,col] = True
 
