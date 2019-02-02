@@ -152,8 +152,8 @@ class ResultsWindow(QMainWindow):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
         fileMenu.addAction(self.directoryMenu)
-        #fileMenu.addSeparator()
-        #fileMenu.addAction(self.loadDMMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.loadDMMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.clearMenu)
         
@@ -518,6 +518,8 @@ class ResultsWindow(QMainWindow):
         
     # Show Json info on a substrate in Database - disabled by default
     def load_DM(self, deviceID):
+        self.dataSelectorDM = DataSelectorDM(parent=self)
+        self.dataSelectorDM.show()
         deviceID = "MN190201AA"
         print("Checking entry in DM for substrate:",deviceID[:8])
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
@@ -632,3 +634,29 @@ class CustomToolbar(NavigationToolbar):
                 self.figure.gca().set_yscale('log')
             self.figure_canvas.draw()
 
+class DataSelectorDM(QMainWindow):
+
+    def __init__(self, parent=None):
+        super(DataSelectorDM, self).__init__(parent)
+        self.title = 'Select Data from DM'
+        self.initUI()
+        print(self.title)
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(QRect(10, 10, 240, 100))
+        self.textbox = QLineEdit(self)
+        self.textbox.setGeometry(QRect(20, 20, 200, 30))
+        self.button = QPushButton('Retrieve data', self)
+        self.button.setGeometry(QRect(20, 60, 140, 30))
+        #self.button.move(20,80)
+        # connect button to function on_click
+        self.button.clicked.connect(self.on_click)
+        self.show()
+
+    @pyqtSlot()
+    def on_click(self):
+        textboxValue = self.textbox.text()
+        #QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
+        self.textbox.setText("")
+        print(textboxValue)
