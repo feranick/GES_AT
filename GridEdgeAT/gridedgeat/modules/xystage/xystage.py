@@ -6,6 +6,7 @@ for the XYstage
 
 Version: 20171207
 
+Copyright (C) 2018-2019 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017-2018 Joel Jean <jjean@mit.edu>
 
 This program is free software; you can redistribute it and/or modify

@@ -3,8 +3,8 @@ acquisition.py
 -------------
 Class for providing a procedural support for data acquisition
 
-Copyright (C) 2017-2018 Nicola Ferralis <ferralis@mit.edu>
-Copyright (C) 2017-2018 Roberto Brenes <rbrenes@mit.edu>
+Copyright (C) 2017-2019 Nicola Ferralis <ferralis@mit.edu>
+Copyright (C) 2017-2019 Roberto Brenes <rbrenes@mit.edu>
 Copyright (C) 2017 Tony Wu <tonyw@mit.edu>
 
 This program is free software; you can redistribute it and/or modify

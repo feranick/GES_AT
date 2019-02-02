@@ -4,7 +4,7 @@ cameraFeed.py
 Class for providing a hardware support for 
 for the cameraFeed
 
-Copyright (C) 2017-2018 Nicola Ferralis <ferralis@mit.edu>
+Copyright (C) 2017-2019 Nicola Ferralis <ferralis@mit.edu>
 Copyright (C) 2017-2018 Michel Nasilowski <micheln@mit.edu>
 
 This program is free software; you can redistribute it and/or modify
