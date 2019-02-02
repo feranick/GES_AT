@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
         self.loadMenu = QAction("&Load Data", self)
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load csv data from saved file')
-        self.loadMenu.triggered.connect(self.resultswind.read_csv)
+        self.loadMenu.triggered.connect(self.resultswind.load_csv)
         
         self.directoryMenu = QAction("&Set directory for saved files", self)
         self.directoryMenu.setShortcut("Ctrl+d")

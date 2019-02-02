@@ -131,10 +131,14 @@ class ResultsWindow(QMainWindow):
         self.menuBar = QMenuBar(self)
         self.menuBar.setGeometry(0,0,1150,25)
 
-        self.loadMenu = QAction("&Load Data", self)
+        self.loadMenu = QAction("&Load Local Data", self)
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load csv data from saved file')
-        self.loadMenu.triggered.connect(self.read_csv)
+        self.loadMenu.triggered.connect(self.load_csv)
+        self.loadDMMenu = QAction("&Load Data from Data Management", self)
+        self.loadDMMenu.setShortcut("Ctrl+Shift+o")
+        self.loadDMMenu.setStatusTip('Load ata from Data Management')
+        self.loadDMMenu.triggered.connect(self.load_DM)
         self.directoryMenu = QAction("&Set directory for saved files", self)
         self.directoryMenu.setShortcut("Ctrl+d")
         self.directoryMenu.setStatusTip('Set directory for saved files')
@@ -148,6 +152,8 @@ class ResultsWindow(QMainWindow):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
         fileMenu.addAction(self.directoryMenu)
+        #fileMenu.addSeparator()
+        #fileMenu.addAction(self.loadDMMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.clearMenu)
         
@@ -297,7 +303,7 @@ class ResultsWindow(QMainWindow):
             self.menu.popup(QCursor.pos())
             QApplication.processEvents()
             
-            selectCellLoadAction.triggered.connect(self.read_csv)
+            selectCellLoadAction.triggered.connect(self.load_csv)
             selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
             for row in selectedRows[::-1]:
                 selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
@@ -509,6 +515,51 @@ class ResultsWindow(QMainWindow):
                 self.save_csv(deviceID, dfAcqParams, perfData, JV)
         print(msg)
         logger.info(msg)
+        
+    # Show Json info on a substrate in Database - disabled by default
+    def load_DM(self, deviceID):
+        deviceID = "MN190201AA"
+        print("Checking entry in DM for substrate:",deviceID[:8])
+        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
+        #try:
+        conn = DataManagement(self.dbConnectInfo)
+        client, _ = conn.connectDB()
+        db = client[self.dbConnectInfo[2]]
+        #print(db.Measurement.find_one({'substrate':deviceID}))
+        print("\nMeasurements\n")
+        print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
+        for cursor in db.Measurement.find({'substrate':deviceID}):
+            #print(cursor['Light'])
+            if cursor['Light'] == ['1.0']:
+                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
+            else:
+                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'],"_dark")
+        #print("\nLots\n")
+        #print("Number of Lot entries: ",db.Lot.find().count())
+        #for cursor in db.Lot.find():
+        #    print(cursor)
+        #print(db.Lot.find_one({'label':deviceID[:8]}))
+        #except:
+        #    print(" Error!")
+
+    ### Load data from saved CSV
+    def load_csv(self):
+        filenames = QFileDialog.getOpenFileNames(self,
+                        "Open csv data", "","*.csv")
+        try:
+            for filename in filenames[0]:
+                print("Open saved device data from: ", filename)
+                dftot = pd.read_csv(filename, na_filter=False)
+                deviceID = dftot.at[0,'Device']
+                perfData = dftot.values[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
+                JV = dftot.values[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
+                dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
+                self.plotData(deviceID, perfData, JV)
+                self.setupResultTable()
+                self.fillTableData(deviceID, perfData)
+                self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
+        except:
+            print("Loading files failed")
 
     ### Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
@@ -538,25 +589,6 @@ class ResultsWindow(QMainWindow):
             msg=" Device data NOT saved. Check File saving folder in INI file"
         print(msg)
         logger.info(msg)
-
-    ### Load data from saved CSV
-    def read_csv(self):
-        filenames = QFileDialog.getOpenFileNames(self,
-                        "Open csv data", "","*.csv")
-        try:
-            for filename in filenames[0]:
-                print("Open saved device data from: ", filename)
-                dftot = pd.read_csv(filename, na_filter=False)
-                deviceID = dftot.at[0,'Device']
-                perfData = dftot.values[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
-                JV = dftot.values[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
-                dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
-                self.plotData(deviceID, perfData, JV)
-                self.setupResultTable()
-                self.fillTableData(deviceID, perfData)
-                self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
-        except:
-            print("Loading files failed")
 
     # Populate result table.
     def fillTableData(self, deviceID, obj):
