@@ -531,7 +531,23 @@ class ResultsWindow(QMainWindow):
         conn = DataManagement(self.dbConnectInfo)
         client, _ = conn.connectDB()
         db = client[self.dbConnectInfo[2]]
-        #print(db.Measurement.find_one({'substrate':deviceID}))
+        entry = db.Measurement.find_one({'substrate':deviceID})
+        #print(entry)
+        perfData = np.append(entry['Acq Date'],entry['Acq Time'])
+        perfData = np.append(perfData,entry['Time step'])
+        perfData = np.append(perfData,entry['Voc'])
+        perfData = np.append(perfData,entry['Jsc'])
+        perfData = np.append(perfData,entry['VPP'])
+        perfData = np.append(perfData,entry['MPP'])
+        perfData = np.append(perfData,entry['FF'])
+        perfData = np.append(perfData,entry['PCE'])
+        perfData = np.append(perfData,entry['Light'])
+        print(perfData)
+        
+        
+        
+        
+        '''
         print("\nMeasurements\n")
         print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
         for cursor in db.Measurement.find({'substrate':deviceID}):
@@ -547,7 +563,7 @@ class ResultsWindow(QMainWindow):
         #print(db.Lot.find_one({'label':deviceID[:8]}))
         #except:
         #    print(" Error!")
-
+        '''
 
     ### Load data from saved CSV
     def load_csv(self):
