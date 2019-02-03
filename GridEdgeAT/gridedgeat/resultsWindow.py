@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWi
                              QMenuBar,QStatusBar, QApplication,QTableWidget,
                              QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
                              QAbstractItemView)
-from PyQt5.QtCore import (QRect,pyqtSlot,Qt)
+from PyQt5.QtCore import (QRect,pyqtSlot,pyqtSignal,Qt)
 from PyQt5.QtGui import (QColor,QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -137,8 +137,8 @@ class ResultsWindow(QMainWindow):
         self.loadMenu.triggered.connect(self.load_csv)
         self.loadDMMenu = QAction("&Load Data from Data Management", self)
         self.loadDMMenu.setShortcut("Ctrl+Shift+o")
-        self.loadDMMenu.setStatusTip('Load ata from Data Management')
-        self.loadDMMenu.triggered.connect(self.load_DM)
+        self.loadDMMenu.setStatusTip('Load data from Data Management')
+        self.loadDMMenu.triggered.connect(self.openWindowDM)
         self.directoryMenu = QAction("&Set directory for saved files", self)
         self.directoryMenu.setShortcut("Ctrl+d")
         self.directoryMenu.setStatusTip('Set directory for saved files')
@@ -517,10 +517,14 @@ class ResultsWindow(QMainWindow):
         logger.info(msg)
         
     # Show Json info on a substrate in Database - disabled by default
-    def load_DM(self, deviceID):
-        self.dataSelectorDM = DataSelectorDM(parent=self)
-        self.dataSelectorDM.show()
-        deviceID = "MN190201AA"
+    def openWindowDM(self, deviceID):
+        self.loadDMWindow = DataLoadDMWindow(parent=self)
+        self.loadDMWindow.show()
+        deviceID = self.loadDMWindow.deviceSig.connect(self.loadDeviceDM)
+    
+    def loadDeviceDM(self, deviceID):
+        print("Device:",deviceID)
+        #deviceID = "MN190201AA"
         print("Checking entry in DM for substrate:",deviceID[:8])
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         #try:
@@ -543,6 +547,7 @@ class ResultsWindow(QMainWindow):
         #print(db.Lot.find_one({'label':deviceID[:8]}))
         #except:
         #    print(" Error!")
+
 
     ### Load data from saved CSV
     def load_csv(self):
@@ -634,14 +639,18 @@ class CustomToolbar(NavigationToolbar):
                 self.figure.gca().set_yscale('log')
             self.figure_canvas.draw()
 
-class DataSelectorDM(QMainWindow):
+####################################################################
+#   Window for data loading form DM
+####################################################################
+class DataLoadDMWindow(QMainWindow):
+    deviceSig = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(DataSelectorDM, self).__init__(parent)
-        self.title = 'Select Data from DM'
+        super(DataLoadDMWindow, self).__init__(parent)
+        self.title = 'Open Data from DM'
+        self.device = ""
         self.initUI()
-        print(self.title)
-
+    
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(QRect(10, 10, 240, 100))
@@ -649,14 +658,11 @@ class DataSelectorDM(QMainWindow):
         self.textbox.setGeometry(QRect(20, 20, 200, 30))
         self.button = QPushButton('Retrieve data', self)
         self.button.setGeometry(QRect(20, 60, 140, 30))
-        #self.button.move(20,80)
-        # connect button to function on_click
         self.button.clicked.connect(self.on_click)
         self.show()
-
+    
     @pyqtSlot()
     def on_click(self):
-        textboxValue = self.textbox.text()
-        #QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
+        self.device = self.textbox.text()
         self.textbox.setText("")
-        print(textboxValue)
+        self.deviceSig.emit(self.device)
