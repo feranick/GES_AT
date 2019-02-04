@@ -635,22 +635,21 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 10, 440, 320))
+        self.setGeometry(QRect(10, 30, 320, 320))
         self.textbox = QLineEdit(self)
-        self.textbox.setGeometry(QRect(20, 20, 180, 30))
+        self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
         self.textbox.setText("NF190203AA")
         self.button = QPushButton('Search DM', self)
-        self.button.setGeometry(QRect(220, 20, 100, 30))
+        self.button.setGeometry(QRect(205, 15, 100, 30))
         
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, 420, 240))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, 300, 240))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
-        self.resTableDMWidget.setColumnCount(4)
+        self.resTableDMWidget.setColumnCount(3)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Substrate ID"))
         self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
         self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
-        self.resTableDMWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Time"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.lastRowInd=0
@@ -678,19 +677,16 @@ class DataLoadDMWindow(QMainWindow):
                 self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
                 self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                 self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
             elif cursor['measType'] == "JV_dark":
                 self.resTableDMWidget.insertRow(0)
                 self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
                 self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                 self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV dark"))
-                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
             elif cursor['measType'] == "tracking":
                 self.resTableDMWidget.insertRow(0)
                 self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
                 self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                 self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
-                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Track Time'][0]+"s"))
         
             self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
             QApplication.processEvents()
