@@ -629,41 +629,62 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 10, 320, 180))
+        self.setGeometry(QRect(10, 10, 440, 260))
         self.textbox = QLineEdit(self)
-        self.textbox.setGeometry(QRect(20, 20, 200, 30))
+        self.textbox.setGeometry(QRect(20, 20, 180, 30))
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(220, 20, 100, 30))
         
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, 300, 100))
-        self.resTableDMWidget.setColumnCount(3)
-        self.resTableDMWidget.setRowCount(0)
-        self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
-        self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
-        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Date"))
-        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("type"))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, 420, 180))
+        #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
+        self.resTableDMWidget.setColumnCount(4)
+        self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Substrate ID"))
+        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
+        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Date"))
+        self.resTableDMWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Type"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.lastRowInd=0
 
+        self.button.clicked.connect(self.onSearchButtonClick)
         #self.resTableDMWidget.itemClicked.connect(self.onCellClick)
-        
-        self.button.clicked.connect(self.on_click)
         self.show()
     
     @pyqtSlot()
-    def on_click(self):
+    def onSearchButtonClick(self):
+        self.deviceID = self.textbox.text()
+        self.textbox.setText("")
+        self.deviceSig.emit(self.deviceID)
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        print("\nMeasurements\n")
+        print("Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
+        for cursor in db.Measurement.find({'substrate':self.deviceID}):
+            #print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
+            print("rowCount:",self.resTableDMWidget.rowCount())
+            self.resTableDMWidget.insertRow(0)
+            self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+            self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+            self.resTableDMWidget.setItem(0, 2,QTableWidgetItem(cursor['Acq Date'][0]))
+            self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['name']))
+            
+            print("rowCount:",self.resTableDMWidget.rowCount())
+            QApplication.processEvents()
+    
+    @pyqtSlot()
+    def onTableEntryClick(self):
         self.deviceID = self.textbox.text()
         self.textbox.setText("")
         self.deviceSig.emit(self.deviceID)
         print("Device:",self.deviceID)
-        #deviceID = "MN190201AA"
-        print("Checking entry in DM for substrate:",self.deviceID[:8])
-        self.dbConnectInfo = self.parent().parent().dbconnectionwind.getDbConnectionInfo()
-        #try:
-        conn = DataManagement(self.dbConnectInfo)
-        client, _ = conn.connectDB()
-        db = client[self.dbConnectInfo[2]]
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        
         entry = db.Measurement.find_one({'substrate':self.deviceID})
         print(entry)
         
@@ -696,3 +717,15 @@ class DataLoadDMWindow(QMainWindow):
         #except:
         #    print(" Error!")
         '''
+
+    def connectDM(self):
+        self.dbConnectInfo = self.parent().parent().dbconnectionwind.getDbConnectionInfo()
+        try:
+            conn = DataManagement(self.dbConnectInfo)
+            client, _ = conn.connectDB()
+            db = client[self.dbConnectInfo[2]]
+            print(" Connected to DM")
+            return db, True
+        except:
+            print(" Connection to DM failed")
+            return None, False
