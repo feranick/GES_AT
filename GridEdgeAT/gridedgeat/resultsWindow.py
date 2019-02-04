@@ -48,7 +48,7 @@ class ResultsWindow(QMainWindow):
     
     # Define UI elements
     def initUI(self):
-        self.setGeometry(380, 30, 1150, 950)
+        self.setGeometry(380, 30, 1180, 950)
         self.setWindowTitle('Results Panel')
         self.setFixedSize(self.size())
         
@@ -64,9 +64,9 @@ class ResultsWindow(QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         
         self.jvGridLayoutWidget = QWidget(self.centralwidget)
-        self.jvGridLayoutWidget.setGeometry(QRect(0, 30, 1150, 455))
+        self.jvGridLayoutWidget.setGeometry(QRect(0, 30, 1180, 455))
         self.mppGridLayoutWidget = QWidget(self.centralwidget)
-        self.mppGridLayoutWidget.setGeometry(QRect(0, 475, 1150, 290))
+        self.mppGridLayoutWidget.setGeometry(QRect(0, 475, 1180, 290))
 
         self.VLayout = QVBoxLayout(self.jvGridLayoutWidget)
         self.jvHLayout = QHBoxLayout()
@@ -103,7 +103,7 @@ class ResultsWindow(QMainWindow):
         self.mppLayout.addWidget(self.toolbarMPP)
         self.mppLayout.addWidget(self.canvasMPP)
 
-        self.resTableW = 1130
+        self.resTableW = 1160
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(10, 770, self.resTableW, self.resTableH))
@@ -516,16 +516,21 @@ class ResultsWindow(QMainWindow):
         print(msg)
         logger.info(msg)
         
-    # Show Json info on a substrate in Database - disabled by default
+    # Open DM window for searching for data in DM
     def openWindowDM(self, deviceID):
         self.loadDMWindow = DataLoadDMWindow(parent=self)
         self.loadDMWindow.show()
-        deviceID = self.loadDMWindow.deviceSig.connect(self.loadDeviceDM)
+        deviceID = self.loadDMWindow.deviceData.connect(lambda deviceID, perfData, JV:\
+            self.loadDeviceDM(deviceID, perfData, JV))
     
-    def loadDeviceDM(self, deviceID):
-        print("Device:",deviceID)
+    # Once data is retrieved from DM, plot it and populate table
+    def loadDeviceDM(self, deviceID, perfData, JV):
+        print(" Plotting data for:",deviceID)
+        self.plotData(deviceID, perfData, JV)
+        self.setupResultTable()
+        self.fillTableData(deviceID, perfData)
 
-    ### Load data from saved CSV
+    # Load data from saved CSV
     def load_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,
                         "Open csv data", "","*.csv")
@@ -544,7 +549,7 @@ class ResultsWindow(QMainWindow):
         except:
             print("Loading files failed")
 
-    ### Save device acquisition as csv
+    # Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV):
         dfPerfData = self.makeDFPerfData(perfData)
         dfJV0,_ = self.makeDFJV(JV,0)
@@ -619,7 +624,7 @@ class CustomToolbar(NavigationToolbar):
 #   Window for data loading form DM
 ####################################################################
 class DataLoadDMWindow(QMainWindow):
-    deviceSig = pyqtSignal(str)
+    deviceData = pyqtSignal(str, np.ndarray, np.ndarray)
 
     def __init__(self, parent=None):
         super(DataLoadDMWindow, self).__init__(parent)
@@ -654,52 +659,45 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMWidget.itemDoubleClicked.connect(self.onTableEntryClick)
         self.show()
     
+    # Get list of devices data from DM
     @pyqtSlot()
     def onSearchButtonClick(self):
         self.deviceID = self.textbox.text()
         self.textbox.setText("")
-        self.deviceSig.emit(self.deviceID)
         db, connFlag = self.connectDM()
         if connFlag == False:
             print("Abort")
             return
-        print("\nMeasurements\n")
-        print("Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
+        print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
         for cursor in db.Measurement.find({'substrate':self.deviceID}):
-            #print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
-            print("rowCount:",self.resTableDMWidget.rowCount())
             self.resTableDMWidget.insertRow(0)
             self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
             self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
             self.resTableDMWidget.setItem(0, 2,QTableWidgetItem(cursor['name']))
             self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
             self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-            
-            print("rowCount:",self.resTableDMWidget.rowCount())
             QApplication.processEvents()
-    
+
+    # Get specific device data from DM and push it back to parent for plotting
     @pyqtSlot()
     def onTableEntryClick(self):
         substrate = self.resTableDMWidget.selectedItems()[0].text()
         device = self.resTableDMWidget.selectedItems()[1].text()
         name = self.resTableDMWidget.selectedItems()[2].text()
-        print(substrate, device, name)
         db, connFlag = self.connectDM()
         if connFlag == False:
             print("Abort")
             return
-        
         entryR = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_r"})
         entryF = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_f"})
         
         perfData = np.array([self.getPerfData(entryR),self.getPerfData(entryF)])
-        print(perfData)
         JV_r = self.getJV(entryR)
         JV_f = self.getJV(entryF)
-        JV = np.array([np.append(JV_r,JV_f)])
-        print(JV)
+        JV = np.append(JV_r,JV_f,axis=1)
+        self.deviceData.emit(substrate+device, perfData, JV)
         
-        
+    # Process entry from DM into perfData
     def getPerfData(self,entry):
         perfData = np.append(entry['Acq Date'],entry['Acq Time'])
         perfData = np.append(perfData,entry['Time step'])
@@ -712,18 +710,19 @@ class DataLoadDMWindow(QMainWindow):
         perfData = np.append(perfData,entry['Light'])
         return perfData
     
+    # Format JV data from DM
     def getJV(self,entry):
-        JV = entry['output']
+        JV = np.array(entry['output'])
         return JV
 
-
+    # Connect to DM
     def connectDM(self):
         self.dbConnectInfo = self.parent().parent().dbconnectionwind.getDbConnectionInfo()
         try:
             conn = DataManagement(self.dbConnectInfo)
             client, _ = conn.connectDB()
             db = client[self.dbConnectInfo[2]]
-            print(" Connected to DM")
+            #print(" Connected to DM")
             return db, True
         except:
             print(" Connection to DM failed")
