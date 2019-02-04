@@ -629,26 +629,28 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 10, 440, 260))
+        self.setGeometry(QRect(10, 10, 440, 320))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(20, 20, 180, 30))
+        self.textbox.setToolTip("Ex: MN190201AA")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(220, 20, 100, 30))
         
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, 420, 180))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, 420, 240))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableDMWidget.setColumnCount(4)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Substrate ID"))
         self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
-        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Date"))
-        self.resTableDMWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Type"))
+        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
+        self.resTableDMWidget.setHorizontalHeaderItem(3,QTableWidgetItem("Time"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.lastRowInd=0
+        self.resTableDMWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         self.button.clicked.connect(self.onSearchButtonClick)
-        #self.resTableDMWidget.itemClicked.connect(self.onCellClick)
+        self.resTableDMWidget.itemDoubleClicked.connect(self.onTableEntryClick)
         self.show()
     
     @pyqtSlot()
@@ -668,14 +670,33 @@ class DataLoadDMWindow(QMainWindow):
             self.resTableDMWidget.insertRow(0)
             self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
             self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-            self.resTableDMWidget.setItem(0, 2,QTableWidgetItem(cursor['Acq Date'][0]))
-            self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['name']))
+            self.resTableDMWidget.setItem(0, 2,QTableWidgetItem(cursor['name']))
+            self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
             
             print("rowCount:",self.resTableDMWidget.rowCount())
             QApplication.processEvents()
     
     @pyqtSlot()
     def onTableEntryClick(self):
+        substrate = self.resTableDMWidget.selectedItems()[0].text()
+        device = self.resTableDMWidget.selectedItems()[1].text()
+        name = self.resTableDMWidget.selectedItems()[2].text()
+        print(substrate, device, name)
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        
+        entry = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':name})
+        print(entry)
+        
+        #for currentQTableWidgetItem in self.resTableDMWidget.selectedItems():
+        #    device = currentQTableWidgetItem.text().split('\n',1)
+        #    print("DEVICE:",device)
+        
+        
+        '''
         self.deviceID = self.textbox.text()
         self.textbox.setText("")
         self.deviceSig.emit(self.deviceID)
@@ -699,8 +720,6 @@ class DataLoadDMWindow(QMainWindow):
         perfData = np.append(perfData,entry['Light'])
         print(perfData)
         
-
-        '''
         print("\nMeasurements\n")
         print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
         for cursor in db.Measurement.find({'substrate':deviceID}):
