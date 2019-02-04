@@ -88,10 +88,15 @@ class MainWindow(QMainWindow):
         self.saveConfigMenu.setStatusTip('Quit')
         self.saveConfigMenu.triggered.connect(self.saveConfig)
         
-        self.loadMenu = QAction("&Load Data", self)
+        self.loadMenu = QAction("&Load Data from File", self)
         self.loadMenu.setShortcut("Ctrl+o")
         self.loadMenu.setStatusTip('Load csv data from saved file')
         self.loadMenu.triggered.connect(self.resultswind.load_csv)
+        
+        self.loadDMMenu = QAction("&Load Data from Data Management", self)
+        self.loadDMMenu.setShortcut("Ctrl+Shift+o")
+        self.loadDMMenu.setStatusTip('Import data from Data Management')
+        self.loadDMMenu.triggered.connect(self.resultswind.openWindowDM)
         
         self.directoryMenu = QAction("&Set directory for saved files", self)
         self.directoryMenu.setShortcut("Ctrl+d")
@@ -107,6 +112,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.quitMenu)
         fileMenu.addSeparator()
         fileMenu.addAction(self.loadMenu)
+        fileMenu.addAction(self.loadDMMenu)
         fileMenu.addAction(self.directoryMenu)
         fileMenu.addSeparator()
         fileMenu.addAction(self.loadConfigMenu)
