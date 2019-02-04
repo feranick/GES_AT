@@ -668,15 +668,16 @@ class DataLoadDMWindow(QMainWindow):
         if connFlag == False:
             print("Abort")
             return
-        print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
+        #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
         for cursor in db.Measurement.find({'substrate':self.deviceID}):
-            self.resTableDMWidget.insertRow(0)
-            self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-            self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-            self.resTableDMWidget.setItem(0, 2,QTableWidgetItem(cursor['name']))
-            self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
-            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-            QApplication.processEvents()
+            if cursor['name'] == "JV_f":
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+                QApplication.processEvents()
 
     # Get specific device data from DM and push it back to parent for plotting
     @pyqtSlot()
