@@ -629,11 +629,25 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 10, 240, 100))
+        self.setGeometry(QRect(10, 10, 320, 180))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(20, 20, 200, 30))
-        self.button = QPushButton('Retrieve data', self)
-        self.button.setGeometry(QRect(20, 60, 140, 30))
+        self.button = QPushButton('Search DM', self)
+        self.button.setGeometry(QRect(220, 20, 100, 30))
+        
+        self.resTableDMWidget = QTableWidget(self)
+        self.resTableDMWidget.setGeometry(QRect(10, 60, 300, 100))
+        self.resTableDMWidget.setColumnCount(3)
+        self.resTableDMWidget.setRowCount(0)
+        self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
+        self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
+        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Date"))
+        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("type"))
+        self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        #self.resTableDMWidget.itemClicked.connect(self.onCellClick)
+        
         self.button.clicked.connect(self.on_click)
         self.show()
     
