@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.loadMenu)
         fileMenu.addAction(self.loadDMMenu)
+        fileMenu.addSeparator()
         fileMenu.addAction(self.directoryMenu)
         fileMenu.addSeparator()
         fileMenu.addAction(self.loadConfigMenu)

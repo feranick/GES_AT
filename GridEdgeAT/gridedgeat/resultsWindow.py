@@ -151,9 +151,9 @@ class ResultsWindow(QMainWindow):
         
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.loadMenu)
-        fileMenu.addAction(self.directoryMenu)
-        fileMenu.addSeparator()
         fileMenu.addAction(self.loadDMMenu)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.directoryMenu)
         plotMenu = self.menuBar.addMenu('&Plot')
         plotMenu.addAction(self.clearMenu)
         
@@ -463,13 +463,15 @@ class ResultsWindow(QMainWindow):
             jsonData1.update(listJV1)
 
         else:
-            listName = {'measType': 'tracking'}
+            listName = {'name': 'tracking'}
+            listMeasType = {'measType' : 'tracking'}
             listPerfData = dict(dfPerfData.to_dict('split'))
             listPerfData['columnlabel'] = listPerfData.pop('columns')
             listPerfData['output'] = listPerfData.pop('data')
             del listPerfData['index']
             jsonData.update(listPerfData)
             jsonData.update(listName)
+            jsonData.update(listMeasType)
 
         self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
         try:
@@ -637,8 +639,8 @@ class DataLoadDMWindow(QMainWindow):
         self.setGeometry(QRect(10, 10, 440, 320))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(20, 20, 180, 30))
-        self.textbox.setToolTip("Ex: MN190201AA")
-        self.textbox.setText("MN190201AA")
+        self.textbox.setToolTip("Ex: MN190201AF")
+        self.textbox.setText("MN190201AF")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(220, 20, 100, 30))
         
@@ -669,16 +671,33 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
-        for cursor in db.Measurement.find({'substrate':self.deviceID}):
-            if cursor['name'] == "JV_f":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
-                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-                QApplication.processEvents()
+        try:
+            for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                if cursor['name'] == "JV_f":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+                elif cursor['name'] == "JV_dark_f":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV dark"))
+                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+                elif cursor['measType'] == "tracking":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
 
+            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+            QApplication.processEvents()
+        except:
+            print(" Error in reading from DM. Aborting")
+            
+            
     # Get specific device data from DM and push it back to parent for plotting
     @pyqtSlot()
     def onTableEntryClick(self):
