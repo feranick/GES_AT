@@ -638,8 +638,8 @@ class DataLoadDMWindow(QMainWindow):
         self.setGeometry(QRect(10, 10, 440, 320))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(20, 20, 180, 30))
-        self.textbox.setToolTip("Ex: MN190201AF")
-        self.textbox.setText("MN190201AF")
+        self.textbox.setToolTip("Ex: NF190203AA")
+        self.textbox.setText("NF190203AA")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(220, 20, 100, 30))
         
@@ -670,33 +670,32 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
-        try:
-            for cursor in db.Measurement.find({'substrate':self.deviceID}):
-                if cursor['name'] == "JV_f":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
-                '''
-                elif cursor['name'] == "JV_dark_f":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV dark"))
-                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
-                elif cursor['measType'] == "tracking":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
-                    self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
-                '''
-
+        
+        for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                
+            if cursor['measType'] == "JV":
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+            elif cursor['measType'] == "JV_dark":
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV dark"))
+                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+            elif cursor['measType'] == "tracking":
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+                self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Track Time'][0]+"s"))
+        
             self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
             QApplication.processEvents()
-        except:
-            print(" Error in reading from DM. Aborting")
+        #except:
+        #    print(" Error in reading from DM. Aborting")
             
             
     # Get specific device data from DM and push it back to parent for plotting
