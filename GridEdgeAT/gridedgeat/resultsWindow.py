@@ -524,46 +524,6 @@ class ResultsWindow(QMainWindow):
     
     def loadDeviceDM(self, deviceID):
         print("Device:",deviceID)
-        #deviceID = "MN190201AA"
-        print("Checking entry in DM for substrate:",deviceID[:8])
-        self.dbConnectInfo = self.parent().dbconnectionwind.getDbConnectionInfo()
-        #try:
-        conn = DataManagement(self.dbConnectInfo)
-        client, _ = conn.connectDB()
-        db = client[self.dbConnectInfo[2]]
-        entry = db.Measurement.find_one({'substrate':deviceID})
-        #print(entry)
-        perfData = np.append(entry['Acq Date'],entry['Acq Time'])
-        perfData = np.append(perfData,entry['Time step'])
-        perfData = np.append(perfData,entry['Voc'])
-        perfData = np.append(perfData,entry['Jsc'])
-        perfData = np.append(perfData,entry['VPP'])
-        perfData = np.append(perfData,entry['MPP'])
-        perfData = np.append(perfData,entry['FF'])
-        perfData = np.append(perfData,entry['PCE'])
-        perfData = np.append(perfData,entry['Light'])
-        print(perfData)
-        
-        
-        
-        
-        '''
-        print("\nMeasurements\n")
-        print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
-        for cursor in db.Measurement.find({'substrate':deviceID}):
-            #print(cursor['Light'])
-            if cursor['Light'] == ['1.0']:
-                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
-            else:
-                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'],"_dark")
-        #print("\nLots\n")
-        #print("Number of Lot entries: ",db.Lot.find().count())
-        #for cursor in db.Lot.find():
-        #    print(cursor)
-        #print(db.Lot.find_one({'label':deviceID[:8]}))
-        #except:
-        #    print(" Error!")
-        '''
 
     ### Load data from saved CSV
     def load_csv(self):
@@ -664,7 +624,7 @@ class DataLoadDMWindow(QMainWindow):
     def __init__(self, parent=None):
         super(DataLoadDMWindow, self).__init__(parent)
         self.title = 'Open Data from DM'
-        self.device = ""
+        self.deviceID = ""
         self.initUI()
     
     def initUI(self):
@@ -679,6 +639,46 @@ class DataLoadDMWindow(QMainWindow):
     
     @pyqtSlot()
     def on_click(self):
-        self.device = self.textbox.text()
+        self.deviceID = self.textbox.text()
         self.textbox.setText("")
-        self.deviceSig.emit(self.device)
+        self.deviceSig.emit(self.deviceID)
+        print("Device:",self.deviceID)
+        #deviceID = "MN190201AA"
+        print("Checking entry in DM for substrate:",self.deviceID[:8])
+        self.dbConnectInfo = self.parent().parent().dbconnectionwind.getDbConnectionInfo()
+        #try:
+        conn = DataManagement(self.dbConnectInfo)
+        client, _ = conn.connectDB()
+        db = client[self.dbConnectInfo[2]]
+        entry = db.Measurement.find_one({'substrate':self.deviceID})
+        print(entry)
+        
+        perfData = np.append(entry['Acq Date'],entry['Acq Time'])
+        perfData = np.append(perfData,entry['Time step'])
+        perfData = np.append(perfData,entry['Voc'])
+        perfData = np.append(perfData,entry['Jsc'])
+        perfData = np.append(perfData,entry['VPP'])
+        perfData = np.append(perfData,entry['MPP'])
+        perfData = np.append(perfData,entry['FF'])
+        perfData = np.append(perfData,entry['PCE'])
+        perfData = np.append(perfData,entry['Light'])
+        print(perfData)
+        
+
+        '''
+        print("\nMeasurements\n")
+        print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
+        for cursor in db.Measurement.find({'substrate':deviceID}):
+            #print(cursor['Light'])
+            if cursor['Light'] == ['1.0']:
+                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
+            else:
+                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'],"_dark")
+        #print("\nLots\n")
+        #print("Number of Lot entries: ",db.Lot.find().count())
+        #for cursor in db.Lot.find():
+        #    print(cursor)
+        #print(db.Lot.find_one({'label':deviceID[:8]}))
+        #except:
+        #    print(" Error!")
+        '''
