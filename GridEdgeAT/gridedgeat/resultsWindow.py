@@ -431,11 +431,9 @@ class ResultsWindow(QMainWindow):
         # Prepare json-data
         jsonData = {'itemId' : deviceID[-1]}
         listSubstrateName = {'substrate' : deviceID[:-1]}
-        listMeasType = {'measType' : 'device'}
         listEquipment = {'equipment' : 'auto-testing'}
         listAcqParams = dict(dfAcqParams.to_dict(orient='list'))
 
-        jsonData.update(listMeasType)
         jsonData.update(listEquipment)
         jsonData.update(listSubstrateName)
         jsonData.update(listAcqParams)
@@ -447,13 +445,14 @@ class ResultsWindow(QMainWindow):
                 listMeasType = {'measType' : 'JV_dark'}
                 listName = {'name': 'JV_dark_f'}
                 listName1 = {'name': 'JV_dark_r'}
-                jsonData.update(listMeasType)
             else:
+                listMeasType = {'measType' : 'JV'}
                 listName = {'name': 'JV_f'}
                 listName1 = {'name': 'JV_r'}
             listPerfData = dict(dfPerfData.iloc[[0]].to_dict('list'))
             jsonData.update(listPerfData)
             jsonData.update(listName)
+            jsonData.update(listMeasType)
             
             jsonData1 = jsonData.copy()
             jsonData1.update(listName1)
