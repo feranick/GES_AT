@@ -679,6 +679,7 @@ class DataLoadDMWindow(QMainWindow):
                     self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                     self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
                     self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+                '''
                 elif cursor['name'] == "JV_dark_f":
                     self.resTableDMWidget.insertRow(0)
                     self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
@@ -691,6 +692,7 @@ class DataLoadDMWindow(QMainWindow):
                     self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                     self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
                     self.resTableDMWidget.setItem(0, 3,QTableWidgetItem(cursor['Acq Time'][0]))
+                '''
 
             self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
             QApplication.processEvents()
