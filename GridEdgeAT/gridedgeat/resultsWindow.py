@@ -633,6 +633,7 @@ class DataLoadDMWindow(QMainWindow):
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(20, 20, 180, 30))
         self.textbox.setToolTip("Ex: MN190201AA")
+        self.textbox.setText("MN190201AA")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(220, 20, 100, 30))
         
@@ -688,27 +689,18 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         
-        entry = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':name})
-        print(entry)
+        entryR = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_r"})
+        entryF = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_f"})
         
-        #for currentQTableWidgetItem in self.resTableDMWidget.selectedItems():
-        #    device = currentQTableWidgetItem.text().split('\n',1)
-        #    print("DEVICE:",device)
+        perfData = np.array([self.getPerfData(entryR),self.getPerfData(entryF)])
+        print(perfData)
+        JV_r = self.getJV(entryR)
+        JV_f = self.getJV(entryF)
+        JV = np.array([np.append(JV_r,JV_f)])
+        print(JV)
         
         
-        '''
-        self.deviceID = self.textbox.text()
-        self.textbox.setText("")
-        self.deviceSig.emit(self.deviceID)
-        print("Device:",self.deviceID)
-        db, connFlag = self.connectDM()
-        if connFlag == False:
-            print("Abort")
-            return
-        
-        entry = db.Measurement.find_one({'substrate':self.deviceID})
-        print(entry)
-        
+    def getPerfData(self,entry):
         perfData = np.append(entry['Acq Date'],entry['Acq Time'])
         perfData = np.append(perfData,entry['Time step'])
         perfData = np.append(perfData,entry['Voc'])
@@ -718,24 +710,12 @@ class DataLoadDMWindow(QMainWindow):
         perfData = np.append(perfData,entry['FF'])
         perfData = np.append(perfData,entry['PCE'])
         perfData = np.append(perfData,entry['Light'])
-        print(perfData)
-        
-        print("\nMeasurements\n")
-        print("Number of Measurement entries: ",db.Measurement.find({'substrate':deviceID}).count())
-        for cursor in db.Measurement.find({'substrate':deviceID}):
-            #print(cursor['Light'])
-            if cursor['Light'] == ['1.0']:
-                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'])
-            else:
-                print(cursor['substrate'],cursor['itemId'],"-",cursor['name'],"_dark")
-        #print("\nLots\n")
-        #print("Number of Lot entries: ",db.Lot.find().count())
-        #for cursor in db.Lot.find():
-        #    print(cursor)
-        #print(db.Lot.find_one({'label':deviceID[:8]}))
-        #except:
-        #    print(" Error!")
-        '''
+        return perfData
+    
+    def getJV(self,entry):
+        JV = entry['output']
+        return JV
+
 
     def connectDM(self):
         self.dbConnectInfo = self.parent().parent().dbconnectionwind.getDbConnectionInfo()
