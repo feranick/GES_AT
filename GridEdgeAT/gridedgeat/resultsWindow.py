@@ -639,7 +639,7 @@ class DataLoadDMWindow(QMainWindow):
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
-        self.textbox.setText("NF190203AA")
+        self.textbox.setText("")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(205, 15, 100, 30))
         
@@ -669,29 +669,28 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
+        try:
+            for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                if cursor['measType'] == "JV":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                elif cursor['measType'] == "JV_dark":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
+                elif cursor['measType'] == "tracking":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
         
-        for cursor in db.Measurement.find({'substrate':self.deviceID}):
-                
-            if cursor['measType'] == "JV":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-            elif cursor['measType'] == "JV_dark":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV dark"))
-            elif cursor['measType'] == "tracking":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
-        
-            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-            QApplication.processEvents()
-        #except:
-        #    print(" Error in reading from DM. Aborting")
+                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+                QApplication.processEvents()
+        except:
+            print(" Error in reading from DM. Aborting")
             
             
     # Get specific device data from DM and push it back to parent for plotting
@@ -699,20 +698,39 @@ class DataLoadDMWindow(QMainWindow):
     def onTableEntryClick(self):
         substrate = self.resTableDMWidget.selectedItems()[0].text()
         device = self.resTableDMWidget.selectedItems()[1].text()
-        name = self.resTableDMWidget.selectedItems()[2].text()
+        type = self.resTableDMWidget.selectedItems()[2].text()
         db, connFlag = self.connectDM()
         if connFlag == False:
             print("Abort")
             return
-        entryR = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_r"})
-        entryF = db.Measurement.find_one({'substrate':substrate, 'itemId':device, 'name':"JV_f"})
+        if type == "JV" or type == "JV_dark":
+            for entry in db.Measurement.find({'substrate':substrate, 'itemId':device}):
+                if entry['measType'] == "JV":
+                    if entry['name'] == "JV_r":
+                        entryR = entry
+                    if entry['name'] == "JV_f":
+                        entryF = entry
+                elif entry['measType'] == "JV_dark":
+                    if entry['name'] == "JV_dark_r":
+                        entryR = entry
+                    if entry['name'] == "JV_dark_f":
+                        entryF = entry
         
-        perfData = np.array([self.getPerfData(entryR),self.getPerfData(entryF)])
-        JV_r = self.getJV(entryR)
-        JV_f = self.getJV(entryF)
-        JV = np.append(JV_r,JV_f,axis=1)
-        self.deviceData.emit(substrate+device, perfData, JV)
-        
+            perfData = np.array([self.getPerfData(entryR),self.getPerfData(entryF)])
+
+            JV_r = self.getJV(entryR)
+            JV_f = self.getJV(entryF)
+            JV = np.append(JV_r,JV_f,axis=1)
+
+        elif type == "tracking":
+            for entry in db.Measurement.find({'substrate':substrate, 'itemId':device, 'measType':'tracking'}):
+                perfData = np.array(entry['output'])
+                JV = np.array([[0., 0., 0., 0.]])
+        try:
+            self.deviceData.emit(substrate+device, perfData, JV)
+        except:
+            print(" Failed to load file from DM.")
+
     # Process entry from DM into perfData
     def getPerfData(self,entry):
         perfData = np.append(entry['Acq Date'],entry['Acq Time'])
