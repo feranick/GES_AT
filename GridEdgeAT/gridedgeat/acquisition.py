@@ -141,6 +141,7 @@ class acqThread(QThread):
     maxPowerDev = pyqtSignal(str)
     colorCell = pyqtSignal(int,int,str)
     Msg = pyqtSignal(str)
+    shutterFlag = pyqtSignal(str)
 
     def __init__(self, numRow, numCol, dfAcqParams, parent=None):
         super(acqThread, self).__init__(parent)
@@ -157,10 +158,10 @@ class acqThread(QThread):
     def stop(self):
         self.stopAcqFlag = True
         print(" Stopping acquisition. Please wait...")
-        if hasattr(self.parent(), "shutter"):
-            self.parent().shutter.closed()
         while self.isRunning():
             self.wait(100)
+        if hasattr(self.parent(), "shutter"):
+            self.parent().shutter.closed()
         self.endAcq()
         print(" Stopping acquisition successful")
         self.terminate()
