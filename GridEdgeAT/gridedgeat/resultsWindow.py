@@ -638,7 +638,7 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 30, 320, 320))
+        self.setGeometry(QRect(10, 30, 360, 320))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
@@ -647,12 +647,12 @@ class DataLoadDMWindow(QMainWindow):
         self.button.setGeometry(QRect(205, 15, 100, 30))
         
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, 300, 240))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, 340, 240))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
-        self.resTableDMWidget.setColumnCount(2)
+        self.resTableDMWidget.setColumnCount(3)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
-        #self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
-        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Type"))
+        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
+        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.lastRowInd=0
@@ -675,13 +675,14 @@ class DataLoadDMWindow(QMainWindow):
         try:
             for cursor in db.Measurement.find({'substrate':self.deviceID}):
                 self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID+"_"+cursor['itemId']))
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
                 if cursor['measType'] == "JV":
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("JV"))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
                 elif cursor['measType'] == "JV_dark":
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("JV_dark"))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
                 elif cursor['measType'] == "tracking":
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("tracking"))
+                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
         
                 self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
                 QApplication.processEvents()
