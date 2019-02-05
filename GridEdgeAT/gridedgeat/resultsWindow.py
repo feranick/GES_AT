@@ -306,15 +306,18 @@ class ResultsWindow(QMainWindow):
             selectCellLoadAction.triggered.connect(self.load_csv)
             selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
             for row in selectedRows[::-1]:
+                print(self.dfTotDeviceID)
                 selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
                 selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
                 selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
-                viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.dfTotDeviceID.iat[0,row][0][0]))
+                viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.resTableWidget.selectedItems()[0].text()))
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, row):
         try:
-            self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
+            #print(self.dfTotDeviceID.iat[0,row][0][0])
+            #self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
+            self.save_csv(self.resTableWidget.selectedItems()[0].text(),
                 self.dfTotAcqParams.iloc[[row]],
                 self.dfTotPerfData.iat[0,row],
                 self.dfTotJV.iat[0,row])
