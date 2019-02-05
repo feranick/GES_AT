@@ -47,7 +47,7 @@ class SampleWindow(QMainWindow):
         MainWindow.setWindowTitle("Substrates configuration")
         
         self.stageImg = QLabel(self)
-        self.stageImg.setGeometry(QRect(10, 200, 567, 425))
+        self.stageImg.setGeometry(QRect(10, 200, 567, 410))
         self.stageImg.setText("XY Stage")
         self.stageImg.setPixmap(QPixmap(os.path.dirname(__file__)+"/rsrc/stage.jpg"))
         
@@ -60,14 +60,7 @@ class SampleWindow(QMainWindow):
         self.windowGridLayout.setContentsMargins(0, 0, 0, 0)
         self.windowGridLayout.setSpacing(1)
         self.windowGridLayout.setObjectName("windowGridLayout")
-        self.holderTypeCBox = QComboBox(self.gridLayoutWidget)
-        self.holderTypeCBox.setObjectName("holderTypeCBox")
-        self.windowGridLayout.addWidget(self.holderTypeCBox, 1, 1, 1, 1)
-        self.deviceAreaLabel = QLabel(self.gridLayoutWidget)
-        self.windowGridLayout.addWidget(self.deviceAreaLabel, 2, 0, 1, 1)
-        self.holderTypeLabel = QLabel(self.gridLayoutWidget)
-        self.holderTypeLabel.setObjectName("holderTypeLabel")
-        self.windowGridLayout.addWidget(self.holderTypeLabel, 1, 0, 1, 1)
+        
         self.operatorLabel = QLabel(self.gridLayoutWidget)
         self.operatorLabel.setObjectName("operatorLabel")
         self.windowGridLayout.addWidget(self.operatorLabel, 0, 0, 1, 1)
@@ -75,16 +68,34 @@ class SampleWindow(QMainWindow):
         self.operatorText.setText("")
         self.operatorText.setObjectName("operatorText")
         self.windowGridLayout.addWidget(self.operatorText, 0, 1, 1, 1)
+        
+        self.holderTypeCBox = QComboBox(self.gridLayoutWidget)
+        self.holderTypeCBox.setObjectName("holderTypeCBox")
+        self.windowGridLayout.addWidget(self.holderTypeCBox, 1, 1, 1, 1)
+        self.holderTypeLabel = QLabel(self.gridLayoutWidget)
+        self.holderTypeLabel.setObjectName("holderTypeLabel")
+        self.windowGridLayout.addWidget(self.holderTypeLabel, 1, 0, 1, 1)
+        self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
+                                    "x"+str(self.parent().config.numSubsHolderRow))
+        self.holderTypeCBox.setEnabled(False)
+        
+        self.deviceAreaLabel = QLabel(self.gridLayoutWidget)
+        self.windowGridLayout.addWidget(self.deviceAreaLabel, 2, 0, 1, 1)
         self.deviceAreaText = QLineEdit(self.gridLayoutWidget)
         self.windowGridLayout.addWidget(self.deviceAreaText, 2, 1, 1, 1)
         self.deviceAreaText.setText(str(self.parent().config.deviceArea))
         self.deviceAreaText.editingFinished.connect(self.setDeviceArea)
         self.deviceAreaText.setEnabled(True)
-
-        self.holderTypeCBox.addItem(str(self.parent().config.numSubsHolderRow)+\
-                                    "x"+str(self.parent().config.numSubsHolderRow))
-        self.holderTypeCBox.setEnabled(False)
         
+        self.deviceArchLabel = QLabel(self.gridLayoutWidget)
+        self.windowGridLayout.addWidget(self.deviceArchLabel, 3, 0, 1, 1)
+        self.deviceArchCBox = QComboBox(self.gridLayoutWidget)
+        self.deviceArchCBox.setObjectName("deviceArchCBox")
+        self.windowGridLayout.addWidget(self.deviceArchCBox, 1, 1, 1, 1)
+        self.deviceArchCBox.addItem("Not yet implemented")
+        self.windowGridLayout.addWidget(self.deviceArchCBox, 3, 1, 1, 1)
+        self.deviceArchCBox.setEnabled(False)
+
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
         self.commentsLabel.setGeometry(QRect(10, 150, 80, 20))
@@ -157,9 +168,10 @@ class SampleWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.deviceAreaLabel.setText("Device area [cm\u00B2]  ")
         self.operatorLabel.setText("Operator")
         self.holderTypeLabel.setText("Holder type")
+        self.deviceAreaLabel.setText("Device area [cm\u00B2]  ")
+        self.deviceArchLabel.setText("Device architecture  ")
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
