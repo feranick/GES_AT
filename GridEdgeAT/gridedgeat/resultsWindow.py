@@ -649,10 +649,10 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMWidget = QTableWidget(self)
         self.resTableDMWidget.setGeometry(QRect(10, 60, 300, 240))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
-        self.resTableDMWidget.setColumnCount(3)
-        self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Substrate ID"))
-        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
-        self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
+        self.resTableDMWidget.setColumnCount(2)
+        self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
+        #self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
+        self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Type"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.lastRowInd=0
@@ -674,27 +674,19 @@ class DataLoadDMWindow(QMainWindow):
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
         try:
             for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID+"_"+cursor['itemId']))
                 if cursor['measType'] == "JV":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("JV"))
                 elif cursor['measType'] == "JV_dark":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("JV_dark"))
                 elif cursor['measType'] == "tracking":
-                    self.resTableDMWidget.insertRow(0)
-                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem("tracking"))
         
                 self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
                 QApplication.processEvents()
         except:
             print(" Error in reading from DM. Aborting")
-            
             
     # Get specific device data from DM and push it back to parent for plotting
     @pyqtSlot()
