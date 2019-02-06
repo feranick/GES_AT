@@ -143,6 +143,7 @@ class MainWindow(QMainWindow):
         self.cameraMenu.setShortcut("Ctrl+c")
         self.cameraMenu.setStatusTip('Camera controls')
         self.cameraMenu.triggered.connect(self.showCameraSample)
+        self.cameraMenu.setEnabled(False)
 
         instrumentsMenu = self.menuBar.addMenu('&Instruments')
         instrumentsMenu.addAction(self.cameraMenu)
@@ -215,6 +216,7 @@ class MainWindow(QMainWindow):
         self.cameraToolbar.setShortcut("Ctrl+c")
         self.cameraToolbar.setStatusTip('Substrate alignment via Camera')
         self.cameraToolbar.triggered.connect(self.showCameraSample)
+        self.cameraToolbar.setEnabled(False)
         
         #toolBar = self.addToolBar("&Toolbar")
         self.toolBar.addAction(self.sampleToolbar)
