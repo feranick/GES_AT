@@ -81,26 +81,26 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
-        #try:
-        for cursor in db.Measurement.find({'substrate':self.deviceID}):
-            if cursor['name']=="JV_r" or cursor['name']=="JV_dark_r" or cursor['name']=="tracking":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                if cursor['measType'] == "JV":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-                elif cursor['measType'] == "JV_dark":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
-                elif cursor['measType'] == "tracking":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
         try:
-            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-        except:
-            pass
+            for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                if cursor['name']=="JV_r" or cursor['name']=="JV_dark_r" or cursor['name']=="tracking":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    if cursor['measType'] == "JV":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                    elif cursor['measType'] == "JV_dark":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
+                    elif cursor['measType'] == "tracking":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+            try:
+                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+            except:
+                pass
         
-        QApplication.processEvents()
-        #except:
-        #   print(" Error in reading from DM. Aborting")
+            QApplication.processEvents()
+        except:
+           print(" Error in reading from DM. Aborting")
             
     #  Push DM data back to parent for plotting (double click)
     @pyqtSlot()
