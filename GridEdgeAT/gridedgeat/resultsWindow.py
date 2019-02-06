@@ -674,8 +674,9 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
-        try:
-            for cursor in db.Measurement.find({'substrate':self.deviceID}):
+        #try:
+        for cursor in db.Measurement.find({'substrate':self.deviceID}):
+            if cursor['name']=="JV_r" or cursor['name']=="JV_dark_r" or cursor['name']=="tracking":
                 self.resTableDMWidget.insertRow(0)
                 self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
                 self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
@@ -686,10 +687,10 @@ class DataLoadDMWindow(QMainWindow):
                 elif cursor['measType'] == "tracking":
                     self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
         
-                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-                QApplication.processEvents()
-        except:
-            print(" Error in reading from DM. Aborting")
+        self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+        QApplication.processEvents()
+        #except:
+        #   print(" Error in reading from DM. Aborting")
             
     #  Push DM data back to parent for plotting
     @pyqtSlot()
