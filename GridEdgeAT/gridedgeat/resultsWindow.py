@@ -567,7 +567,7 @@ class ResultsWindow(QMainWindow):
         dfTot = pd.concat([dfTot,dfJV0], axis = 1)
         dfTot = pd.concat([dfTot,dfJV1], axis = 1)
         dfTot = pd.concat([dfTot,dfAcqParams], axis = 1)
-        dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S'))
+        dateTimeTag = str(datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
         csvFilename = deviceID+"_"
         if int(float(dfPerfData.at[0,'Light'])) == 0:
             csvFilename+="dark_"
