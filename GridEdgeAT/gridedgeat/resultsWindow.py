@@ -287,7 +287,7 @@ class ResultsWindow(QMainWindow):
             selectCellLoadAction = QAction('Load from csv...', self)
             selectCellLoadAction.setShortcut("Ctrl+o")
             selectCellLoadAction.setStatusTip('Load data from saved csv file...')
-            selectCellSaveAction = QAction('Save locally selected data...', self)
+            selectCellSaveAction = QAction('Save selected data as csv files...', self)
             selectCellSaveAction.setShortcut("Ctrl+s")
             viewDMEntryAction = QAction('View Entry in Database...', self)
             viewDMEntryAction.setShortcut("Ctrl+v")
@@ -315,14 +315,14 @@ class ResultsWindow(QMainWindow):
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, selectedRows):
-        try:
-            for row in selectedRows[::-1]:
-                self.save_csv(self.resTableWidget.selectedItems()[0].text(),
-                    self.dfTotAcqParams.iloc[[row]],
-                    self.dfTotPerfData.iat[0,row],
-                    self.dfTotJV.iat[0,row])
-        except:
-            print("Error: data cannot be saved")
+        #try:
+        for row in selectedRows[::-1]:
+            self.save_csv(self.resTableWidget.selectedItems()[0].text(),
+                self.dfTotAcqParams.iloc[[row]],
+                self.dfTotPerfData.iat[0,row],
+                self.dfTotJV.iat[0,row])
+        #except:
+        #    print("Error: data cannot be saved")
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, selectedRows):
@@ -525,16 +525,17 @@ class ResultsWindow(QMainWindow):
     def openWindowDM(self, deviceID):
         self.loadDMWindow = DataLoadDMWindow(parent=self)
         self.loadDMWindow.show()
-        deviceID = self.loadDMWindow.deviceData.connect(lambda deviceID, perfData, JV:\
-            self.loadDeviceDM(deviceID, perfData, JV))
+        deviceID = self.loadDMWindow.deviceData.connect(lambda deviceID, perfData, acqParams, JV:\
+            self.loadDeviceDM(deviceID, perfData, acqParams, JV))
     
     # Once data is retrieved from DM, plot it and populate table
-    def loadDeviceDM(self, deviceID, perfData, JV):
+    def loadDeviceDM(self, deviceID, perfData, dfAcqParams, JV):
         print(" Plotting data for:",deviceID)
         self.plotData(deviceID, perfData, JV)
         self.setupResultTable()
         self.fillTableData(deviceID, perfData)
-
+        self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
+    
     # Load data from saved CSV
     def load_csv(self):
         filenames = QFileDialog.getOpenFileNames(self,

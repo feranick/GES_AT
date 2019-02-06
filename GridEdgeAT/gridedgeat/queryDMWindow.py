@@ -31,7 +31,7 @@ from . import logger
 #   Window for data loading form DM
 ####################################################################
 class DataLoadDMWindow(QMainWindow):
-    deviceData = pyqtSignal(str, np.ndarray, np.ndarray)
+    deviceData = pyqtSignal(str, np.ndarray, pd.DataFrame, np.ndarray)
 
     def __init__(self, parent=None):
         super(DataLoadDMWindow, self).__init__(parent)
@@ -109,7 +109,7 @@ class DataLoadDMWindow(QMainWindow):
         for row in selectedRows:
             substrate, device, perfData, JV, acqParams = self.getDMData(row)
             try:
-                self.deviceData.emit(substrate+device, perfData, JV)
+                self.deviceData.emit(substrate+device, perfData, acqParams, JV)
             except:
                 print(" Failed to load file from DM.")
     
