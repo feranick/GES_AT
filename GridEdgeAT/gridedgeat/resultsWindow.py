@@ -805,9 +805,10 @@ class DataLoadDMWindow(QMainWindow):
             selectCellSaveAction.triggered.connect(lambda: self.saveLocallyDM(selectedRows))
             selectCellRemoveAction.triggered.connect(lambda: self.removeDMRows(selectedRows))
             selectRemoveAllAction.triggered.connect(lambda: self.resTableDMWidget.setRowCount(0))
-            viewDMEntryAction.triggered.connect(lambda: self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.selectedItems()[0].text()))
+            #viewDMEntryAction.triggered.connect(lambda: self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.selectedItems()[0].text()))
+            viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(selectedRows))
 
-    # Logic to save locally devices selected from results table
+    # Logic to save locally devices selected from DM table
     def saveLocallyDM(self, selectedRows):
         try:
             for row in selectedRows:
@@ -816,10 +817,15 @@ class DataLoadDMWindow(QMainWindow):
         except:
             print("Error: cannot be saved")
 
+    # Logic to remove selected from DM table
     def removeDMRows(self, selectedRows):
         for row in selectedRows:
             self.resTableDMWidget.removeRow(row)
-    
+
+    def viewOnDM(self, selectedRows):
+        for row in selectedRows:
+            self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.item(row,0).text())
+            
     # Format JV data from DM
     def getJV(self,entry):
         JV = np.array(entry['output'])
