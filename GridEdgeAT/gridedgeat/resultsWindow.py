@@ -656,9 +656,10 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMWidget.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.lastRowInd=0
+        
+        
+        
         self.resTableDMWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
         self.button.clicked.connect(self.onSearchButtonClick)
         self.resTableDMWidget.itemDoubleClicked.connect(self.onTableEntryClick)
         self.show()
