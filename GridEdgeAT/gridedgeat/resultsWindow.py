@@ -637,7 +637,7 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 30, 360, 320))
+        self.setGeometry(QRect(10, 30, 360, 420))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
