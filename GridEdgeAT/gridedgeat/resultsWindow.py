@@ -637,7 +637,7 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 30, 360, 420))
+        self.setGeometry(QRect(10, 30, 360, 500))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
@@ -646,9 +646,9 @@ class DataLoadDMWindow(QMainWindow):
         self.button.setGeometry(QRect(205, 15, 100, 30))
         
         self.resTableDMW = 340
-        self.resTableDMH = 240
+        self.resTableDMH = 260
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, self.resTableDMW, self.resTableDMW))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, self.resTableDMW, self.resTableDMH))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableDMWidget.setColumnCount(3)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
