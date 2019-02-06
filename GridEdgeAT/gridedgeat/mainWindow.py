@@ -38,7 +38,7 @@ from .sourcemeterWindow import *
 from .switchboxWindow import *
 from .shutterWindow import *
 from .dataManagement import *
-from .dataManagementWindow import *
+from .configDMWindow import *
 
 ####################################################################
 #   Main Window
