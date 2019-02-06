@@ -642,12 +642,14 @@ class DataLoadDMWindow(QMainWindow):
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
-        self.textbox.setText("")
+        self.textbox.setText("MN190205AA")
         self.button = QPushButton('Search DM', self)
         self.button.setGeometry(QRect(205, 15, 100, 30))
         
+        self.resTableDMW = 340
+        self.resTableDMH = 240
         self.resTableDMWidget = QTableWidget(self)
-        self.resTableDMWidget.setGeometry(QRect(10, 60, 340, 240))
+        self.resTableDMWidget.setGeometry(QRect(10, 60, self.resTableDMW, self.resTableDMW))
         #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
         self.resTableDMWidget.setColumnCount(3)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
@@ -689,12 +691,23 @@ class DataLoadDMWindow(QMainWindow):
         except:
             print(" Error in reading from DM. Aborting")
             
-    # Get specific device data from DM and push it back to parent for plotting
+    #  Push DM data back to parent for plotting
     @pyqtSlot()
     def onTableEntryClick(self):
-        substrate = self.resTableDMWidget.selectedItems()[0].text()
-        device = self.resTableDMWidget.selectedItems()[1].text()
-        type = self.resTableDMWidget.selectedItems()[2].text()
+        selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
+        for row in selectedRows:
+            substrate, device, perfData, JV, acqParams = self.getDMData(row)
+            try:
+                self.deviceData.emit(substrate+device, perfData, JV)
+            except:
+                print(" Failed to load file from DM.")
+
+    # Get specific device data from DM
+    def getDMData(self, row):
+        substrate = self.resTableDMWidget.item(row,0).text()
+        device = self.resTableDMWidget.item(row,1).text()
+        type = self.resTableDMWidget.item(row,2).text()
+        
         db, connFlag = self.connectDM()
         if connFlag == False:
             print("Abort")
@@ -717,15 +730,15 @@ class DataLoadDMWindow(QMainWindow):
             JV_r = self.getJV(entryR)
             JV_f = self.getJV(entryF)
             JV = np.append(JV_r,JV_f,axis=1)
+            acqParams = self.getAcqParams(entryR)
 
         elif type == "tracking":
             for entry in db.Measurement.find({'substrate':substrate, 'itemId':device, 'measType':'tracking'}):
                 perfData = np.array(entry['output'])
                 JV = np.array([[0., 0., 0., 0.]])
-        try:
-            self.deviceData.emit(substrate+device, perfData, JV)
-        except:
-            print(" Failed to load file from DM.")
+                acqParams = self.getAcqParams(entry)
+
+        return substrate, device, perfData, JV, acqParams
 
     # Process entry from DM into perfData
     def getPerfData(self,entry):
@@ -739,6 +752,72 @@ class DataLoadDMWindow(QMainWindow):
         perfData = np.append(perfData,entry['PCE'])
         perfData = np.append(perfData,entry['Light'])
         return perfData
+    
+    # Process entry from DM into acqParams
+    def getAcqParams(self, entry):
+        pdframe = pd.DataFrame({'Operator': entry['Operator'],
+                'Acq Soak Voltage': entry['Acq Soak Voltage'],
+                'Acq Soak Time': entry['Acq Soak Time'],
+                'Acq Hold Time': entry['Acq Hold Time'],
+                'Acq Step Voltage': entry['Acq Step Voltage'],
+                'Direction': entry['Direction'],
+                'Acq Rev Voltage': entry['Acq Rev Voltage'],
+                'Acq Forw Voltage': entry['Acq Forw Voltage'],
+                'Architecture': entry['Architecture'],
+                'Delay Before Meas': entry['Delay Before Meas'],
+                'Num Track Devices': entry['Num Track Devices'],
+                'Track Time': entry['Track Time'],
+                'Hold Track Time': entry['Hold Track Time'],
+                'Device Area': entry['Device Area'],
+                'Comments': entry['Comments']})
+        return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
+                'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
+                'Direction','Num Track Devices','Delay Before Meas','Track Time',
+                'Hold Track Time', 'Device Area', 'Operator','Comments']]
+    
+    # Enable right click on substrates for saving locally and delete
+    def contextMenuEvent(self, event):
+        self.menu = QMenu(self)
+        rPos = self.resTableDMWidget.mapFromGlobal(QCursor.pos())
+        if rPos.x()>0 and rPos.x()<self.resTableDMW and \
+                rPos.y()>0 and rPos.y()<self.resTableDMH and \
+                self.resTableDMWidget.rowCount() > 0 :
+        
+            selectCellSaveAction = QAction('Save locally', self)
+            selectCellSaveAction.setShortcut("Ctrl+s")
+            viewDMEntryAction = QAction("&View Entry in Database", self)
+            viewDMEntryAction.setShortcut("Ctrl+v")
+            selectCellRemoveAction = QAction('Remove Selected...', self)
+            selectCellRemoveAction.setShortcut("Del")
+            selectRemoveAllAction = QAction('Remove All...', self)
+            selectRemoveAllAction.setShortcut("Shift+Del")
+            self.menu.addAction(selectCellRemoveAction)
+            self.menu.addAction(selectRemoveAllAction)
+            self.menu.addSeparator()
+            self.menu.addAction(selectCellSaveAction)
+            self.menu.addSeparator()
+            self.menu.addAction(viewDMEntryAction)
+            self.menu.popup(QCursor.pos())
+            QApplication.processEvents()
+            
+            selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
+            selectCellSaveAction.triggered.connect(lambda: self.saveLocallyDM(selectedRows))
+            selectCellRemoveAction.triggered.connect(lambda: self.removeDMRows(selectedRows))
+            selectRemoveAllAction.triggered.connect(lambda: self.resTableDMWidget.setRowCount(0))
+            viewDMEntryAction.triggered.connect(lambda: self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.selectedItems()[0].text()))
+
+    # Logic to save locally devices selected from results table
+    def saveLocallyDM(self, selectedRows):
+        try:
+            for row in selectedRows:
+                substrate, device, perfData, JV, acqParams = self.getDMData(row)
+                self.parent().save_csv(substrate+device, acqParams, perfData, JV)
+        except:
+            print("Error: cannot be saved")
+
+    def removeDMRows(self, selectedRows):
+        for row in selectedRows:
+            self.resTableDMWidget.removeRow(row)
     
     # Format JV data from DM
     def getJV(self,entry):
