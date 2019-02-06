@@ -18,7 +18,7 @@ import pandas as pd
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
                              QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
-                             QMenuBar,QStatusBar, QApplication,QTableWidget,
+                             QTextEdit, QMenuBar,QStatusBar, QApplication,QTableWidget,
                              QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
                              QAbstractItemView)
 from PyQt5.QtCore import (QRect,pyqtSlot,pyqtSignal,Qt)
@@ -107,6 +107,7 @@ class ResultsWindow(QMainWindow):
         self.resTableH = 145
         self.resTableWidget = QTableWidget(self.centralwidget)
         self.resTableWidget.setGeometry(QRect(10, 770, self.resTableW, self.resTableH))
+        self.resTableWidget.setToolTip("Right click for more options")
         self.resTableWidget.setColumnCount(11)
         self.resTableWidget.setRowCount(0)
         self.resTableWidget.setItem(0,0, QTableWidgetItem(""))
@@ -637,7 +638,7 @@ class DataLoadDMWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(QRect(10, 30, 360, 500))
+        self.setGeometry(QRect(10, 30, 360, 640))
         self.textbox = QLineEdit(self)
         self.textbox.setGeometry(QRect(15, 15, 180, 30))
         self.textbox.setToolTip("Ex: NF190203AA")
@@ -649,7 +650,7 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMH = 260
         self.resTableDMWidget = QTableWidget(self)
         self.resTableDMWidget.setGeometry(QRect(10, 60, self.resTableDMW, self.resTableDMH))
-        #self.resTableDMWidget.setItem(0,0, QTableWidgetItem(""))
+        self.resTableDMWidget.setToolTip("Right click for more options")
         self.resTableDMWidget.setColumnCount(3)
         self.resTableDMWidget.setHorizontalHeaderItem(0,QTableWidgetItem("Device ID"))
         self.resTableDMWidget.setHorizontalHeaderItem(1,QTableWidgetItem("Device"))
@@ -657,11 +658,14 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.resTableDMWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         
-        
+        self.textDatabox = QTextEdit(self)
+        self.textDatabox.setGeometry(QRect(10, 330, 340, 300))
+        self.textDatabox.setToolTip("Ex: NF190203AA")
         
         self.resTableDMWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.button.clicked.connect(self.onSearchButtonClick)
-        self.resTableDMWidget.itemDoubleClicked.connect(self.onTableEntryClick)
+        self.resTableDMWidget.itemDoubleClicked.connect(self.onTableEntryDoubleClick)
+        self.resTableDMWidget.itemClicked.connect(self.onTableEntrySingleClick)
         self.show()
     
     # Get list of devices data from DM
@@ -692,9 +696,9 @@ class DataLoadDMWindow(QMainWindow):
         #except:
         #   print(" Error in reading from DM. Aborting")
             
-    #  Push DM data back to parent for plotting
+    #  Push DM data back to parent for plotting (double click)
     @pyqtSlot()
-    def onTableEntryClick(self):
+    def onTableEntryDoubleClick(self):
         selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
         for row in selectedRows:
             substrate, device, perfData, JV, acqParams = self.getDMData(row)
@@ -702,6 +706,42 @@ class DataLoadDMWindow(QMainWindow):
                 self.deviceData.emit(substrate+device, perfData, JV)
             except:
                 print(" Failed to load file from DM.")
+    
+    #  Show data parameters from DM (single click)
+    @pyqtSlot()
+    def onTableEntrySingleClick(self):
+        selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
+        for row in selectedRows:
+            substrate, device, perfData, JV, acqParams = self.getDMData(row)
+            #try:
+            text = "Substrate: "+substrate+"  Device: "+device+ \
+                    "\nDate/Time: "+perfData[0,0]+"  "+perfData[0,1]+\
+                    "\nVoc F, Voc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,3]),float(perfData[1,3]))+ \
+                    "\nJsc F, Jsc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,4]),float(perfData[1,4]))+ \
+                    "\nVPP F, VPP R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,5]),float(perfData[1,5]))+ \
+                    "\nMPP F, MPP R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,6]),float(perfData[1,6]))+ \
+                    "\nFF F, FF R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,7]),float(perfData[1,7]))+ \
+                    "\nPCE F, PCE R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,8]),float(perfData[1,8]))+ \
+                    "\nIllumination: "+perfData[0,9]+ \
+                    "\nAcq Soak Voltage: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Soak Voltage']))+ \
+                    "\nAcq Soak Time: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Soak Time'])) + \
+                    "\nAcq Hold Time: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Hold Time'])) + \
+                    "\nAcq Step Voltage: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Step Voltage']))+ \
+                    "\nDirection: {0:0.2f}".format(float(acqParams.iloc[0]['Direction']))+ \
+                    "\nAcq Rev Voltage: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Rev Voltage']))+ \
+                    "\nAcq Forw Voltage: {0:0.2f}".format(float(acqParams.iloc[0]['Acq Forw Voltage']))+ \
+                    "\nArchitecture: {0:0.2f}".format(float(acqParams.iloc[0]['Architecture']))+ \
+                    "\nDelay Before Meas: {0:0.2f}".format(float(acqParams.iloc[0]['Delay Before Meas']))+ \
+                    "\nNum Track Devices: {0:0.2f}".format(float(acqParams.iloc[0]['Num Track Devices']))+ \
+                    "\nTrack Time: {0:0.2f}".format(float(acqParams.iloc[0]['Track Time']))+ \
+                    "\nHold Track Time: {0:0.2f}".format(float(acqParams.iloc[0]['Hold Track Time']))+ \
+                    "\nDevice Area: {0:0.2f}".format(float(acqParams.iloc[0]['Device Area']))+ \
+                    "\nComments: "+acqParams.iloc[0]['Comments']+ \
+                    "\nOperator: "+acqParams.iloc[0]['Operator']
+            
+            self.textDatabox.setText(text)
+            #except:
+            #    print(" Failed to retrieve data from DM.")
 
     # Get specific device data from DM
     def getDMData(self, row):
