@@ -12,20 +12,17 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 '''
-import sys, random, math, json, requests, webbrowser
+import sys, json, requests, webbrowser
 import numpy as np
 import pandas as pd
-from datetime import datetime
-from PyQt5.QtWidgets import (QMainWindow,QPushButton,QVBoxLayout,QFileDialog,QWidget,
-                             QGridLayout,QGraphicsView,QLabel,QComboBox,QLineEdit,
-                             QTextEdit, QMenuBar,QStatusBar, QApplication,QTableWidget,
-                             QTableWidgetItem,QAction,QHeaderView,QMenu,QHBoxLayout,
-                             QAbstractItemView)
+from PyQt5.QtWidgets import (QMainWindow,QPushButton,QAbstractItemView,
+                             QLabel,QLineEdit, QTextEdit, QTableWidget,
+                             QTableWidgetItem,QAction,QHeaderView,QMenu,
+                             QApplication)
 from PyQt5.QtCore import (QRect,pyqtSlot,pyqtSignal,Qt)
-from PyQt5.QtGui import (QColor,QCursor)
+from PyQt5.QtGui import (QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
 
 from .dataManagement import *
 from . import logger
@@ -66,7 +63,7 @@ class DataLoadDMWindow(QMainWindow):
         
         self.textDatabox = QTextEdit(self)
         self.textDatabox.setGeometry(QRect(10, 330, 340, 300))
-        self.textDatabox.setToolTip("Ex: NF190203AA")
+        self.textDatabox.setReadOnly(True)
         
         self.resTableDMWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.button.clicked.connect(self.onSearchButtonClick)
@@ -96,8 +93,11 @@ class DataLoadDMWindow(QMainWindow):
                     self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
                 elif cursor['measType'] == "tracking":
                     self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+        try:
+            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+        except:
+            pass
         
-        self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
         QApplication.processEvents()
         #except:
         #   print(" Error in reading from DM. Aborting")
