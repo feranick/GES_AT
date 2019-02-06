@@ -230,8 +230,10 @@ class DataLoadDMWindow(QMainWindow):
                 rPos.y()>0 and rPos.y()<self.resTableDMH and \
                 self.resTableDMWidget.rowCount() > 0 :
         
-            selectCellSaveAction = QAction('Save locally', self)
+            selectCellSaveAction = QAction('Save selected data as csv files...', self)
             selectCellSaveAction.setShortcut("Ctrl+s")
+            selectCellSaveAllAction = QAction('Save all data as csv files...', self)
+            selectCellSaveAllAction.setShortcut("Ctrl+Shift+s")
             viewDMEntryAction = QAction("&View Entry in Database", self)
             viewDMEntryAction.setShortcut("Ctrl+v")
             selectCellRemoveAction = QAction('Remove Selected...', self)
@@ -242,6 +244,7 @@ class DataLoadDMWindow(QMainWindow):
             self.menu.addAction(selectRemoveAllAction)
             self.menu.addSeparator()
             self.menu.addAction(selectCellSaveAction)
+            self.menu.addAction(selectCellSaveAllAction)
             self.menu.addSeparator()
             self.menu.addAction(viewDMEntryAction)
             self.menu.popup(QCursor.pos())
@@ -249,6 +252,7 @@ class DataLoadDMWindow(QMainWindow):
             
             selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
             selectCellSaveAction.triggered.connect(lambda: self.saveLocallyDM(selectedRows))
+            selectCellSaveAllAction.triggered.connect(lambda: self.saveLocallyDM(list(range(self.resTableDMWidget.rowCount()))))
             selectCellRemoveAction.triggered.connect(lambda: self.removeDMRows(selectedRows))
             selectRemoveAllAction.triggered.connect(lambda: self.resTableDMWidget.setRowCount(0))
             #viewDMEntryAction.triggered.connect(lambda: self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.selectedItems()[0].text()))
