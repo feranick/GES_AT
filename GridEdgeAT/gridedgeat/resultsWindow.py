@@ -282,14 +282,14 @@ class ResultsWindow(QMainWindow):
                 rPos.y()>0 and rPos.y()<self.resTableH and \
                 self.resTableWidget.rowCount() > 0 :
         
-            selectCellLoadAction = QAction("&Load from csv...", self)
+            selectCellLoadAction = QAction('Load from csv...', self)
             selectCellLoadAction.setShortcut("Ctrl+o")
-            selectCellLoadAction.setStatusTip('Load csv data from saved file')
-            selectCellSaveAction = QAction('Save locally', self)
+            selectCellLoadAction.setStatusTip('Load data from saved csv file...')
+            selectCellSaveAction = QAction('Save locally selected data...', self)
             selectCellSaveAction.setShortcut("Ctrl+s")
-            viewDMEntryAction = QAction("&View Entry in Database", self)
+            viewDMEntryAction = QAction('View Entry in Database...', self)
             viewDMEntryAction.setShortcut("Ctrl+v")
-            selectCellRemoveAction = QAction('Remove...', self)
+            selectCellRemoveAction = QAction('Remove Selected...', self)
             selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
@@ -305,38 +305,37 @@ class ResultsWindow(QMainWindow):
             
             selectCellLoadAction.triggered.connect(self.load_csv)
             selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
-            for row in selectedRows[::-1]:
-                print(self.dfTotDeviceID)
-                selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(row))
-                selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(row))
-                selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
-                viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.resTableWidget.selectedItems()[0].text()))
+            #for row in selectedRows[::-1]:
+            selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(selectedRows))
+            selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(selectedRows))
+            selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
+            viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.resTableWidget.selectedItems()[0].text()))
 
     # Logic to save locally devices selected from results table
-    def selectDeviceSaveLocally(self, row):
+    def selectDeviceSaveLocally(self, selectedRows):
         try:
-            #print(self.dfTotDeviceID.iat[0,row][0][0])
-            #self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
-            self.save_csv(self.resTableWidget.selectedItems()[0].text(),
-                self.dfTotAcqParams.iloc[[row]],
-                self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row])
+            for row in selectedRows[::-1]:
+                self.save_csv(self.resTableWidget.selectedItems()[0].text(),
+                    self.dfTotAcqParams.iloc[[row]],
+                    self.dfTotPerfData.iat[0,row],
+                    self.dfTotJV.iat[0,row])
         except:
-            print("Error: cannot be saved")
+            print("Error: data cannot be saved")
     
     # Logic to remove data from devices selected from results table
-    def selectDeviceRemove(self, row):
-        self.dfTotDeviceID.drop(self.dfTotDeviceID.columns[row], axis=1)
-        self.dfTotPerfData.drop(self.dfTotPerfData.columns[row], axis=1)
-        self.dfTotJV.drop(self.dfTotJV.columns[row], axis=1)
-        for l in self.axJVresp.get_lines():
-            l.remove()
-        for l in self.axPVresp.get_lines():
-            l.remove()
-        print("Removed acquisition from table: ",str(self.dfTotDeviceID.iat[0,row]))
-        self.canvasJVresp.draw()
-        self.canvasPVresp.draw()
-        self.resTableWidget.removeRow(row)
+    def selectDeviceRemove(self, selectedRows):
+        for row in selectedRows[::-1]:
+            self.dfTotDeviceID.drop(self.dfTotDeviceID.columns[row], axis=1)
+            self.dfTotPerfData.drop(self.dfTotPerfData.columns[row], axis=1)
+            self.dfTotJV.drop(self.dfTotJV.columns[row], axis=1)
+            for l in self.axJVresp.get_lines():
+                l.remove()
+            for l in self.axPVresp.get_lines():
+                l.remove()
+            #print(" Removed data from table: ",str(self.dfTotDeviceID.iat[0,row]))
+            self.canvasJVresp.draw()
+            self.canvasPVresp.draw()
+            self.resTableWidget.removeRow(row)
 
     # Add row and initialize it within the table
     def setupResultTable(self):
