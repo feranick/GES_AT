@@ -273,8 +273,7 @@ class ResultsWindow(QMainWindow):
         if self.resTableWidget.rowCount() > 0:
             if event.key() == Qt.Key_Delete:
                 selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
-                for row in selectedRows[::-1]:
-                    self.selectDeviceRemove(row)
+                self.selectDeviceRemove(selectedRows)
 
     # Enable right click on substrates for saving locally and delete
     def contextMenuEvent(self, event):
@@ -315,14 +314,14 @@ class ResultsWindow(QMainWindow):
 
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, selectedRows):
-        #try:
-        for row in selectedRows[::-1]:
-            self.save_csv(self.resTableWidget.selectedItems()[0].text(),
-                self.dfTotAcqParams.iloc[[row]],
-                self.dfTotPerfData.iat[0,row],
-                self.dfTotJV.iat[0,row])
-        #except:
-        #    print("Error: data cannot be saved")
+        try:
+            for row in selectedRows[::-1]:
+                self.save_csv(self.resTableWidget.selectedItems()[0].text(),
+                    self.dfTotAcqParams.iloc[[row]],
+                    self.dfTotPerfData.iat[0,row],
+                    self.dfTotJV.iat[0,row])
+        except:
+            print("Error: data cannot be saved")
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, selectedRows):
