@@ -179,10 +179,14 @@ class SampleWindow(QMainWindow):
         
     # Get architecture configuration files.
     def populateArchCBox(self):
+        for fname in os.listdir(self.parent().config.archFolder):
+            if not fname.endswith('.json'):
+                with open(self.parent().config.archFolder+'blank.json','w') as outfile:
+                    json.dump(self.blankSubstrate(),outfile)
+
         for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
             if (os.path.splitext(f)[-1] == ".json"):
                 self.deviceArchCBox.addItem(os.path.splitext(f)[0])
-        print(self.deviceArchCBox.currentText())
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
@@ -487,28 +491,31 @@ class SampleWindow(QMainWindow):
         if connFlag == False:
             print("Abort")
             return
-        #try:
-        entry = db.Lot.find_one({'label':deviceID[:8]})
-        if entry:
-            db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.getArchConfig(deviceID)}, upsert=False)
-            msg = " Data entry for this batch found in DM. Created substrate: "+deviceID
-        else:
-            print(" No data entry for this substrate found in DM. Creating new one...")
-            jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
-            db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
-            db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.getArchConfig(deviceID)}, upsert=False)
-            msg = " Created batch: " + deviceID[:8] + " and device: "+deviceID
-        print(msg)
-        logger.info(msg)
-        #except:
-        #    print(" Connection with DM via Mongo cannot be established.")
+        try:
+            entry = db.Lot.find_one({'label':deviceID[:8]})
+            if entry:
+                db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.getArchConfig(deviceID)}, upsert=False)
+                msg = " Data entry for this batch found in DM. Created substrate: "+deviceID
+            else:
+                print(" No data entry for this substrate found in DM. Creating new one...")
+                jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
+                db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
+                db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.getArchConfig(deviceID)}, upsert=False)
+                msg = " Created batch: " + deviceID[:8] + " and device: "+deviceID
+            print(msg)
+            logger.info(msg)
+        except:
+            print(" Connection with DM via Mongo cannot be established.")
 
     # Get architecture configuration files.
     def getArchConfig(self, deviceID):
-        f = self.deviceArchCBox.currentText()+".json"
-        with open(self.parent().config.archFolder+f, encoding='utf-8') as data_file:
-            data = json.loads(data_file.read())
-        data['substrates']['label'] = deviceID
+        try:
+            f = self.deviceArchCBox.currentText()+".json"
+            with open(self.parent().config.archFolder+f, encoding='utf-8') as data_file:
+                data = json.loads(data_file.read())
+            data['substrates']['label'] = deviceID
+        except:
+            data = {}
         return data
 
     # Connect to DM
@@ -523,3 +530,7 @@ class SampleWindow(QMainWindow):
         except:
             print(" Connection to DM failed")
             return None, False
+
+    def blankSubstrate(self):
+        return {'substrates': {'isCollapsed': False, 'label': 'deviceID', 'material': '', 'flex': False, 'area': '', 'layers': [], 'attachments': [], 'devices': [{'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+
