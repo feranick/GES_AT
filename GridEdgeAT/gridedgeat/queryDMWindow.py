@@ -71,6 +71,11 @@ class DataLoadDMWindow(QMainWindow):
         self.resTableDMWidget.itemClicked.connect(self.onTableEntrySingleClick)
         self.show()
     
+    # Process Key Events
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Return:
+            self.onSearchButtonClick()
+    
     # Get list of devices data from DM
     @pyqtSlot()
     def onSearchButtonClick(self):
