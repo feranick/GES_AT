@@ -35,7 +35,7 @@ class Configuration():
         Path(self.imagesFolder).mkdir(parents=True, exist_ok=True)
         self.customConfigFolder = self.generalFolder+'saved_configurations'
         Path(self.customConfigFolder).mkdir(parents=True, exist_ok=True)
-        self.archFolder = self.generalFolder+'architecture'
+        self.archFolder = self.generalFolder+'architectures'
         Path(self.archFolder).mkdir(parents=True, exist_ok=True)
         self.conf = configparser.ConfigParser()
         self.conf.optionxform = str
