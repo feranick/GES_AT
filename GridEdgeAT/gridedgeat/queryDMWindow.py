@@ -87,29 +87,29 @@ class DataLoadDMWindow(QMainWindow):
             print("Abort")
             return
         #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
-        #try:
-        if db.Measurement.find({'substrate':self.deviceID}).count() == 0:
-            self.resTableDMWidget.insertRow(0)
-            self.resTableDMWidget.setItem(0, 0,QTableWidgetItem("None found"))
-        for cursor in db.Measurement.find({'substrate':self.deviceID}):
-            if cursor['name']=="JV_r" or cursor['name']=="JV_dark_r" or cursor['name']=="tracking":
-                self.resTableDMWidget.insertRow(0)
-                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
-                self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
-                if cursor['measType'] == "JV":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
-                elif cursor['measType'] == "JV_dark":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
-                elif cursor['measType'] == "tracking":
-                    self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
         try:
-            self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
-        except:
-            pass
+            if db.Measurement.find({'substrate':self.deviceID}).count() == 0:
+                self.resTableDMWidget.insertRow(0)
+                self.resTableDMWidget.setItem(0, 0,QTableWidgetItem("None found"))
+            for cursor in db.Measurement.find({'substrate':self.deviceID}):
+                if cursor['name']=="JV_r" or cursor['name']=="JV_dark_r" or cursor['name']=="tracking":
+                    self.resTableDMWidget.insertRow(0)
+                    self.resTableDMWidget.setItem(0, 0,QTableWidgetItem(self.deviceID))
+                    self.resTableDMWidget.setItem(0, 1,QTableWidgetItem(cursor['itemId']))
+                    if cursor['measType'] == "JV":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV"))
+                    elif cursor['measType'] == "JV_dark":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("JV_dark"))
+                    elif cursor['measType'] == "tracking":
+                        self.resTableDMWidget.setItem(0, 2,QTableWidgetItem("tracking"))
+            try:
+                self.resTableDMWidget.item(0,0).setToolTip("Double click to plot data")
+            except:
+                pass
         
-        QApplication.processEvents()
-        #except:
-        #   print(" Error in reading from DM. Aborting")
+            QApplication.processEvents()
+        except:
+           print(" Error in reading from DM. Aborting")
             
     #  Push DM data back to parent for plotting (double click)
     @pyqtSlot()
@@ -128,8 +128,8 @@ class DataLoadDMWindow(QMainWindow):
         selectedRows = list(set([ i.row() for i in self.resTableDMWidget.selectedItems()]))
         for row in selectedRows:
             substrate, device, perfData, JV, acqParams = self.getDMData(row)
-            #try:
-            text = "Substrate: "+substrate+"  Device: "+device+ \
+            try:
+                text = "Substrate: "+substrate+"  Device: "+device+ \
                     "\nDate/Time: "+perfData[0,0]+"  "+perfData[0,1]+\
                     "\nVoc F, Voc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,3]),float(perfData[1,3]))+ \
                     "\nJsc F, Jsc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,4]),float(perfData[1,4]))+ \
@@ -154,9 +154,9 @@ class DataLoadDMWindow(QMainWindow):
                     "\nComments: "+acqParams.iloc[0]['Comments']+ \
                     "\nOperator: "+acqParams.iloc[0]['Operator']
             
-            self.textDatabox.setText(text)
-            #except:
-            #    print(" Failed to retrieve data from DM.")
+                self.textDatabox.setText(text)
+            except:
+                print(" Failed to retrieve data from DM.")
 
     # Get specific device data from DM
     def getDMData(self, row):
