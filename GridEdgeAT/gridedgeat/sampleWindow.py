@@ -201,17 +201,21 @@ class SampleWindow(QMainWindow):
                     selectCellAction = QAction('Enable substrate', self)
                 viewDMEntryAction = QAction("&View Entry in Database", self)
                 showJsonInfoDMAction = QAction("&Show JSON info from Database", self)
+                saveJsonInfoDMAction = QAction("&Save JSON from Database", self)
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
+                self.menu.addSeparator()
                 #self.menu.addAction(showJsonInfoDMAction)
+                self.menu.addAction(saveJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
                 #self.menu.addAction(checkCreateLotDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
                 showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
+                saveJsonInfoDMAction.triggered.connect(lambda: self.saveJsonInfoDM(self.tableWidget.item(row,col).text()))
                 removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
                 checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text()))
         except:
@@ -481,6 +485,25 @@ class SampleWindow(QMainWindow):
             #for cursor in db.Lot.find():
             #    print(cursor)
             print(db.Lot.find_one({'label':deviceID[:8]}))
+        except:
+            print(" Error!")
+
+    # Show Json info on a substrate in Database - disabled by default
+    def saveJsonInfoDM(self, deviceID):
+        print("\nOpening entry in DM for Lot:",deviceID[:8])
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        try:
+            entry = db.Lot.find_one({'label':deviceID[:8]})
+            entry.pop('_id',None)
+            fname = deviceID[:8]+"_"+str(datetime.now().strftime('%Y%m%d-%H%M%S-%f'))+".json"
+            with open(self.parent().config.substrateFolder+fname,'w') as outfile:
+                json.dump(entry,outfile)
+            msg = " Created json file: "+self.parent().config.substrateFolder+fname
+            print(msg)
+            logger.info(msg)
         except:
             print(" Error!")
 
