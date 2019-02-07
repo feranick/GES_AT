@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, re
+import sys, re, os.path
 import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
@@ -26,6 +26,7 @@ from PyQt5.QtGui import (QIcon,QImage,QKeySequence,QPixmap,QPainter,QColor,
 from PyQt5.QtCore import (Qt,pyqtSlot,QRectF,QRect,QCoreApplication,QSize)
 
 from . import logger
+from .configuration import *
 from .acquisition import *
 from .resultsWindow import *
 
@@ -92,9 +93,9 @@ class SampleWindow(QMainWindow):
         self.deviceArchCBox = QComboBox(self.gridLayoutWidget)
         self.deviceArchCBox.setObjectName("deviceArchCBox")
         self.windowGridLayout.addWidget(self.deviceArchCBox, 1, 1, 1, 1)
-        self.deviceArchCBox.addItem("Not yet implemented")
         self.windowGridLayout.addWidget(self.deviceArchCBox, 3, 1, 1, 1)
-        self.deviceArchCBox.setEnabled(False)
+        #self.deviceArchCBox.setEnabled(False)
+        self.populateArchCBox()
 
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
@@ -175,6 +176,13 @@ class SampleWindow(QMainWindow):
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
+        
+    # Get architecture configuration files.
+    def populateArchCBox(self):
+        for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
+            if (os.path.splitext(f)[-1] == ".json"):
+                self.deviceArchCBox.addItem(os.path.splitext(f)[0])
+        print(self.deviceArchCBox.currentText())
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
@@ -190,18 +198,18 @@ class SampleWindow(QMainWindow):
                 viewDMEntryAction = QAction("&View Entry in Database", self)
                 showJsonInfoDMAction = QAction("&Show JSON info from Database", self)
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
-                addSubToBatchDMAction = QAction("&Add substrate to batch DM", self)
+                checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
                 #self.menu.addAction(showJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
-                #self.menu.addAction(addSubToBatchDMAction)
+                #self.menu.addAction(checkCreateLotDMAction)
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
                 showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
                 removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
-                addSubToBatchDMAction.triggered.connect(lambda: self.addSubToBatchDM(self.tableWidget.item(row,col).text()))
+                checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text()))
         except:
             pass
 
@@ -428,7 +436,6 @@ class SampleWindow(QMainWindow):
             #print(db.collection_names())
             #entry = db.Measurement.find_one({'substrate':deviceID[:10]})
             entry = db.Lot.find_one({'label':deviceID[:8]})
-            #print(entry)
             webbrowser.open("http://gridedgedm.mit.edu/#/lot-view/"+str(entry['_id']))
         except:
             print(" No data entry for this substrate found in DM. If appropriate, please add new one")
@@ -443,11 +450,11 @@ class SampleWindow(QMainWindow):
             return
         try:
             #print(db.collection_names())
-            #db.Lot.delete_one({'label':deviceID[:8]})
+            db.Lot.delete_one({'label':deviceID[:8]})
             #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
             #db.Lot.delete_one({'owner': 'MH'})
-            for cursor in db.Measurement.find():
-                db.Measurement.delete_one({'substrate': deviceID})
+            #for cursor in db.Measurement.find():
+            #    db.Measurement.delete_one({'substrate': deviceID})
             print(" Entry for substrate", deviceID,"deleted")
         except:
             print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
@@ -460,30 +467,18 @@ class SampleWindow(QMainWindow):
             print("Abort")
             return
         try:
-            print(db.collection_names())
-            print("\nMeasurements\n")
-            print("Number of Measurement entries: ",db.Measurement.find().count())
-            for cursor in db.Measurement.find():
-                print(cursor)
-            print("\nLots\n")
-            print("Number of Lot entries: ",db.Lot.find().count())
-            for cursor in db.Lot.find():
-                print(cursor)
+            #print(db.collection_names())
+            #print("\nMeasurements\n")
+            #print("Number of Measurement entries: ",db.Measurement.find().count())
+            #for cursor in db.Measurement.find():
+            #    print(cursor)
+            #print("\nLots\n")
+            #print("Number of Lot entries: ",db.Lot.find().count())
+            #for cursor in db.Lot.find():
+            #    print(cursor)
             print(db.Lot.find_one({'label':deviceID[:8]}))
         except:
             print(" Error!")
-
-    def addSubToBatchDM(self, deviceID):
-        print("\nOpening entry in DM for Lot:",deviceID[:8])
-        db, connFlag = self.connectDM()
-        if connFlag == False:
-            print("Abort")
-            return
-        entry = db.Lot.find_one({'label':deviceID[:8]})
-        if entry:
-            print(" Data entry for this batch found in DM.")
-            db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.newSubstrate(deviceID)}, upsert=False)
-            print(db.Lot.find_one({'label':deviceID[:8]}))
 
     # View entry in DM page for substrate/device
     def checkCreateLotDM(self, deviceID):
@@ -492,24 +487,29 @@ class SampleWindow(QMainWindow):
         if connFlag == False:
             print("Abort")
             return
-        try:
-            entry = db.Lot.find_one({'label':deviceID[:8]})
-            if entry:
-                print(" Data entry for this batch found in DM. Adding substrate")
-                db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.newSubstrate(deviceID)}, upsert=False)
-            else:
-                print(" No data entry for this substrate found in DM. Creating new one")
-                jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
-                db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
-                db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.newSubstrate(deviceID)}, upsert=False)
-            msg = " Created " + deviceID[:8] + \
-                ": submission to DM via Mongo successful\n  (ids: " + str(db_entry.inserted_id)+")"
-            print(msg)
-        except:
-            print(" Connection with DM via Mongo cannot be established.")
+        #try:
+        entry = db.Lot.find_one({'label':deviceID[:8]})
+        if entry:
+            db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.getArchConfig(deviceID)}, upsert=False)
+            msg = " Data entry for this batch found in DM. Created substrate: "+deviceID
+        else:
+            print(" No data entry for this substrate found in DM. Creating new one...")
+            jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
+            db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
+            db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.getArchConfig(deviceID)}, upsert=False)
+            msg = " Created batch: " + deviceID[:8] + " and device: "+deviceID
+        print(msg)
+        logger.info(msg)
+        #except:
+        #    print(" Connection with DM via Mongo cannot be established.")
 
-    def newSubstrate(self, deviceID):
-        return {'substrates': {'isCollapsed': False, 'label': deviceID, 'material': '', 'flex': False, 'area': '', 'layers': [], 'attachments': [], 'devices': [{'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+    # Get architecture configuration files.
+    def getArchConfig(self, deviceID):
+        f = self.deviceArchCBox.currentText()+".json"
+        with open(self.parent().config.archFolder+f, encoding='utf-8') as data_file:
+            data = json.loads(data_file.read())
+        data['substrates']['label'] = deviceID
+        return data
 
     # Connect to DM
     def connectDM(self):
