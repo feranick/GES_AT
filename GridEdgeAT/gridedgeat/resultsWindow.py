@@ -308,7 +308,8 @@ class ResultsWindow(QMainWindow):
             QApplication.processEvents()
             
             selectCellLoadAction.triggered.connect(self.load_csv)
-            selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
+            selectedRows = [self.resTableWidget.rowCount()-j-1 for j in list(set([ i.row() for i in self.resTableWidget.selectedItems()]))]
+            #selectedRows = list(set([ i.row() for i in self.resTableWidget.selectedItems()]))
             #for row in selectedRows[::-1]:
             selectCellSaveAction.triggered.connect(lambda: self.selectDeviceSaveLocally(selectedRows))
             selectCellSaveAllAction.triggered.connect(lambda: self.selectDeviceSaveLocally(list(range(self.resTableWidget.rowCount()))))
@@ -319,17 +320,20 @@ class ResultsWindow(QMainWindow):
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, selectedRows):
         try:
-            for row in selectedRows[::-1]:
-                self.save_csv(self.resTableWidget.selectedItems()[0].text(),
+            #print(selectedRows)
+            for row in selectedRows:
+                #print(self.dfTotDeviceID.iat[0,row][0][0],self.dfTotPerfData.iat[0,row])
+                self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
                     self.dfTotAcqParams.iloc[[row]],
                     self.dfTotPerfData.iat[0,row],
                     self.dfTotJV.iat[0,row])
+        
         except:
             print("Error: data cannot be saved")
     
     # Logic to remove data from devices selected from results table
     def selectDeviceRemove(self, selectedRows):
-        for row in selectedRows[::-1]:
+        for row in selectedRows:
             self.dfTotDeviceID.drop(self.dfTotDeviceID.columns[row], axis=1)
             self.dfTotPerfData.drop(self.dfTotPerfData.columns[row], axis=1)
             self.dfTotJV.drop(self.dfTotJV.columns[row], axis=1)
