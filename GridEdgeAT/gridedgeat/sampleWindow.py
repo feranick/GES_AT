@@ -179,10 +179,10 @@ class SampleWindow(QMainWindow):
         
     # Get architecture configuration files.
     def populateArchCBox(self):
-        for fname in os.listdir(self.parent().config.archFolder):
-            if not fname.endswith('.json'):
-                with open(self.parent().config.archFolder+'blank.json','w') as outfile:
-                    json.dump(self.blankSubstrate(),outfile)
+        fileList = os.listdir(self.parent().config.archFolder)
+        if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
+            with open(self.parent().config.archFolder+'blank.json','w') as outfile:
+                json.dump(self.blankSubstrate(),outfile)
 
         for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
             if (os.path.splitext(f)[-1] == ".json"):
