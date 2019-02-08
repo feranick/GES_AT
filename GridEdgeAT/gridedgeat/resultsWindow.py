@@ -420,7 +420,6 @@ class ResultsWindow(QMainWindow):
                         'Jsc': perfData[:,4], 'VPP' : perfData[:,5], 'MPP': perfData[:,6],
                         'FF': perfData[:,7], 'PCE': perfData[:,8], 'Light' : perfData[:,9],
                         'Acq Date': perfData[:,0], 'Acq Time': perfData[:,1],
-                        
                                   })
         dfPerfData = dfPerfData[['Acq Date','Acq Time','Time step', 'Voc',
                                      'Jsc', 'VPP', 'MPP','FF','PCE', 'Light']]
