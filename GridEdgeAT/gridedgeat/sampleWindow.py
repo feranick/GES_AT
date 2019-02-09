@@ -122,6 +122,12 @@ class SampleWindow(QMainWindow):
     
         self.disableBrokenCells(self.parent().config.brokenCells)
         
+        self.checkCellsButton = QPushButton(self.centralwidget)
+        self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
+        self.checkCellsButton.setObjectName("checkSample")
+        #self.checkCellsButton.clicked.connect(self.loadCsvSubstrates)
+        self.checkCellsButton.setEnabled(False)
+        
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
         self.tableWidget.itemDoubleClicked.connect(lambda item: self.resetSingleCellAcq(item))
@@ -176,6 +182,7 @@ class SampleWindow(QMainWindow):
         self.commentsLabel.setText("Comments")
         self.loadButton.setText("Load")
         self.saveButton.setText("Save")
+        self.checkCellsButton.setText("Check\nLoaded\nCells")
         
     # Get architecture configuration files.
     def populateArchCBox(self):
