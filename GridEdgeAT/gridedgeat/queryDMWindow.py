@@ -18,7 +18,7 @@ import pandas as pd
 from PyQt5.QtWidgets import (QMainWindow,QPushButton,QAbstractItemView,
                              QLabel,QLineEdit, QTextEdit, QTableWidget,
                              QTableWidgetItem,QAction,QHeaderView,QMenu,
-                             QApplication)
+                             QApplication,QFileDialog)
 from PyQt5.QtCore import (QRect,pyqtSlot,pyqtSignal,Qt)
 from PyQt5.QtGui import (QCursor)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -270,9 +270,10 @@ class DataLoadDMWindow(QMainWindow):
     # Logic to save locally devices selected from DM table
     def saveLocallyDM(self, selectedRows):
         try:
+            folder = str(QFileDialog.getExistingDirectory(self, "Select directory where to save..."))
             for row in selectedRows:
                 substrate, device, perfData, JV, acqParams = self.getDMData(row)
-                self.parent().save_csv(substrate+device, acqParams, perfData, JV)
+                self.parent().save_csv(substrate+device, acqParams, perfData, JV, folder)
         except:
             print("Error: cannot be saved")
 

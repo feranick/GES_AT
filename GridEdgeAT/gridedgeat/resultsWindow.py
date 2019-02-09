@@ -325,13 +325,14 @@ class ResultsWindow(QMainWindow):
     # Logic to save locally devices selected from results table
     def selectDeviceSaveLocally(self, selectedRows):
         try:
+            folder = str(QFileDialog.getExistingDirectory(self, "Select directory where to save..."))
             #print(selectedRows)
             for row in selectedRows:
                 #print(self.dfTotDeviceID.iat[0,row][0][0],self.dfTotPerfData.iat[0,row])
                 self.save_csv(self.dfTotDeviceID.iat[0,row][0][0],
                     self.dfTotAcqParams.iloc[[row]],
                     self.dfTotPerfData.iat[0,row],
-                    self.dfTotJV.iat[0,row])
+                    self.dfTotJV.iat[0,row],folder)
         
         except:
             print("Error: data cannot be saved")
@@ -401,7 +402,7 @@ class ResultsWindow(QMainWindow):
             # Using ALT with Start Acquisition button overrides the config settings.
             if self.parent().config.saveLocalCsv == True or \
                     self.parent().acquisition.modifiers == Qt.AltModifier:
-                self.save_csv(deviceID, dfAcqParams, self.perfData, self.JV)
+                self.save_csv(deviceID, dfAcqParams, self.perfData, self.JV,self.csvFolder)
             if self.parent().config.submitToDb == True:
                 self.submit_DM(deviceID, dfAcqParams, self.perfData, self.JV)
 
@@ -528,7 +529,7 @@ class ResultsWindow(QMainWindow):
                         req.raise_for_status()
             except:
                 msg = " Connection to DM server: failed. Saving local file"
-                self.save_csv(deviceID, dfAcqParams, perfData, JV)
+                self.save_csv(deviceID, dfAcqParams, perfData, JV, self.csvFolder)
         print(msg)
         logger.info(msg)
         
@@ -567,7 +568,7 @@ class ResultsWindow(QMainWindow):
             print("Loading files failed")
 
     # Save device acquisition as csv
-    def save_csv(self,deviceID, dfAcqParams, perfData, JV):
+    def save_csv(self,deviceID, dfAcqParams, perfData, JV, folder):
         dfPerfData = self.makeDFPerfData(perfData)
         dfJV0,_ = self.makeDFJV(JV,0)
         dfJV1,_ = self.makeDFJV(JV,1)
@@ -588,8 +589,8 @@ class ResultsWindow(QMainWindow):
                 csvFilename += "tracking_"
         csvFilename += dateTimeTag + ".csv"
         try:
-            dfTot.to_csv(self.csvFolder+"/"+csvFilename, sep=',', index=False)
-            msg=" Device data saved on: "+self.csvFolder+"/"+csvFilename
+            dfTot.to_csv(folder+"/"+csvFilename, sep=',', index=False)
+            msg=" Device data saved on: "+folder+"/"+csvFilename
         except:
             msg=" Device data NOT saved. Check File saving folder in INI file"
         print(msg)
