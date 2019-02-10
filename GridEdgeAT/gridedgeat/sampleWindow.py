@@ -125,7 +125,7 @@ class SampleWindow(QMainWindow):
         self.checkCellsButton = QPushButton(self.centralwidget)
         self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
         self.checkCellsButton.setObjectName("checkSample")
-        #self.checkCellsButton.clicked.connect(self.loadCsvSubstrates)
+        self.checkCellsButton.clicked.connect(self.checkLoadedCells)
         self.checkCellsButton.setEnabled(False)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
@@ -353,6 +353,8 @@ class SampleWindow(QMainWindow):
             self.tableWidget.item(row, column).setBackground(QColor(255,255,0))
         if color == "grey":
             self.tableWidget.item(row, column).setBackground(QColor(192,192,192))
+        if color == "cyan":
+            self.tableWidget.item(row, column).setBackground(QColor(0,255,255))
 
     # Reset color in sample cells
     def resetCellAcq(self):
@@ -383,6 +385,15 @@ class SampleWindow(QMainWindow):
                 if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
                     return False
         return True
+    
+    # Check if each cell is occupied or not by a substrate and show in table.
+    def checkLoadedCells(self):
+        for i in range(self.parent().config.numSubsHolderRow):
+            for j in range(self.parent().config.numSubsHolderCol):
+                if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
+                    self.colorCellAcq(i,j,"cyan")
+                else:
+                    self.colorCellAcq(i,j,"white")
 
     # Load device names and configuration
     def loadCsvSubstrates(self):
