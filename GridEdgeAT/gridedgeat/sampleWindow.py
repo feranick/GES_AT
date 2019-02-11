@@ -191,7 +191,6 @@ class SampleWindow(QMainWindow):
         fileList = os.listdir(self.parent().config.archFolder)
         if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
             for i in range(4):
-                print(i)
                 name, entry = self.archSubstrate(i)
                 with open(self.parent().config.archFolder+name+'.json','w') as outfile:
                     json.dump(entry,outfile)
