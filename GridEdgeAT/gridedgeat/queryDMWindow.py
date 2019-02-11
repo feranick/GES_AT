@@ -81,6 +81,7 @@ class DataLoadDMWindow(QMainWindow):
     def onSearchButtonClick(self):
         self.deviceID = self.textbox.text()
         self.textbox.setText("")
+        self.textDatabox.setText("")
         self.resTableDMWidget.setRowCount(0)
         db, connFlag = self.connectDM()
         if connFlag == False:
