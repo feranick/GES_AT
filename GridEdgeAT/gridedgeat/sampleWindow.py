@@ -29,6 +29,8 @@ from . import logger
 from .configuration import *
 from .acquisition import *
 from .resultsWindow import *
+from .modules.sourcemeter.sourcemeter import *
+from .modules.switchbox.switchbox import *
 
 ####################################################################
 #   Sample Window
