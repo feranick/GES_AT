@@ -128,7 +128,7 @@ class SampleWindow(QMainWindow):
         self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
         self.checkCellsButton.setObjectName("checkSample")
         self.checkCellsButton.clicked.connect(self.checkLoadedCells)
-        self.checkCellsButton.setEnabled(False)
+        self.checkCellsButton.setEnabled(True)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
@@ -390,6 +390,7 @@ class SampleWindow(QMainWindow):
     
     # Check if each cell is occupied or not by a substrate and show in table.
     def checkLoadedCells(self):
+        self.clearCells()
         # Activate switchbox
         msg = "Activating switchbox and sourcemeter..."
         logger.info(msg)
@@ -420,17 +421,20 @@ class SampleWindow(QMainWindow):
                     self.switch_device(i, j, dev)
                     self.source_meter.set_output(voltage = self.parent().config.voltageCheckCell)
                     time.sleep(self.parent().config.acqHoldTime)
-                    #avCurrent += self.source_meter.read_values(self.parent().config.deviceArea)[1]
-                    avcurrent = (avCurrent*(dev-1)+self.source_meter.read_values(self.parent().config.deviceArea)[1])/dev
+                    current = self.source_meter.read_values(self.parent().config.deviceArea)[1]
+                    avCurrent = (avCurrent*(dev-1)+current)/dev
+                    print("(sub,dev): ("+str(i)+str(j)+str(dev)+") - Current: ",current," - avCurrent",avCurrent)
                 print(avCurrent)
-                #if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
                 if avCurrent>self.parent().config.currentCheckCell:
                     self.colorCellAcq(i,j,"cyan")
                 else:
                     self.colorCellAcq(i,j,"white")
+                QApplication.processEvents()
+                    
+        time.sleep(self.parent().config.acqHoldTime)
         try:
-            self.parent().switch_box.open_all()
-            del self.parent().switch_box
+            self.switch_box.open_all()
+            del self.switch_box
             self.source_meter.off()
             del self.source_meter
             msg = "Switchbox and Sourcemeter deactivated"
