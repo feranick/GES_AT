@@ -128,7 +128,7 @@ class SampleWindow(QMainWindow):
         self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
         self.checkCellsButton.setObjectName("checkSample")
         self.checkCellsButton.clicked.connect(self.checkLoadedCells)
-        self.checkCellsButton.setEnabled(False)
+        self.checkCellsButton.setEnabled(True)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
@@ -390,6 +390,29 @@ class SampleWindow(QMainWindow):
     
     # Check if each cell is occupied or not by a substrate and show in table.
     def checkLoadedCells(self):
+        # Activate switchbox
+        msg = "Activating switchbox and sourcemeter..."
+        logger.info(msg)
+        print(msg)
+        try:
+            #self.parent().switch_box = SwitchBox(self.parent().config.switchboxID)
+            msg= " Switchbox activated."
+        except:
+            msg = " Switchbox not activated: no acquisition possible"
+            return False
+
+        # Activate sourcemeter
+        try:
+            #self.parent().source_meter = SourceMeter(self.parent().config.sourcemeterID)
+            #self.parent().source_meter.set_limit(voltage=20., current=1.)
+            #self.parent().source_meter.on()
+            msg += "\n Sourcemeter activated."
+        except:
+            msg += "\n Sourcemeter not activated: no acquisition possible"
+            return False
+        logger.info(msg)
+        print(msg)
+        
         for i in range(self.parent().config.numSubsHolderRow):
             for j in range(self.parent().config.numSubsHolderCol):
                 if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
