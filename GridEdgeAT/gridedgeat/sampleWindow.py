@@ -424,7 +424,7 @@ class SampleWindow(QMainWindow):
                     avcurrent = (avCurrent*(dev-1)+self.source_meter.read_values(self.parent().config.deviceArea)[1])/dev
                 print(avCurrent)
                 #if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
-                if current>0.1:
+                if avCurrent>self.parent().config.currentCheckCell:
                     self.colorCellAcq(i,j,"cyan")
                 else:
                     self.colorCellAcq(i,j,"white")

@@ -60,7 +60,8 @@ class Configuration():
             'numSubsHolderCol' : 4,
             'brokenCells' : [],
             'deviceArea' : 0.1575,
-            'voltageCheckCell': 1.0,
+            'voltageCheckCell' : 1.0,
+            'currentCheckCell' : 1.0,
             }
     def defineConfAcq(self):
         self.conf['Acquisition'] = {
@@ -135,6 +136,7 @@ class Configuration():
             self.brokenCells = eval(self.conf.get('Devices','brokenCells'))
             self.deviceArea = self.conf.getfloat('Devices','deviceArea')
             self.voltageCheckCell = self.conf.getfloat('Devices','voltageCheckCell')
+            self.currentCheckCell = self.conf.getfloat('Devices','currentCheckCell')
             
             self.acqSoakVoltage = self.conf.getfloat('Acquisition','acqSoakVoltage')
             self.acqSoakTime = self.conf.getfloat('Acquisition','acqSoakTime')
