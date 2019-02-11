@@ -413,20 +413,34 @@ class SampleWindow(QMainWindow):
             return False
         logger.info(msg)
         print(msg)
-        
+        avCurrent = 0
         for i in range(self.parent().config.numSubsHolderRow):
             for j in range(self.parent().config.numSubsHolderCol):
-                self.switch_device(i, j, 1)
-                self.source_meter.set_output(voltage = self.parent().config.voltageCheckCell)
-                time.sleep(self.parent().config.acqHoldTime)
-                current = self.source_meter.read_values(self.parent().config.deviceArea)[1]
-                print(current)
+                for dev in range(1,7):
+                    self.switch_device(i, j, dev)
+                    self.source_meter.set_output(voltage = self.parent().config.voltageCheckCell)
+                    time.sleep(self.parent().config.acqHoldTime)
+                    #avCurrent += self.source_meter.read_values(self.parent().config.deviceArea)[1]
+                    avcurrent = (avCurrent*(dev-1)+self.source_meter.read_values(self.parent().config.deviceArea)[1])/dev
+                print(avCurrent)
                 #if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
                 if current>0.1:
                     self.colorCellAcq(i,j,"cyan")
                 else:
                     self.colorCellAcq(i,j,"white")
+        try:
+            self.parent().switch_box.open_all()
+            del self.parent().switch_box
+            self.source_meter.off()
+            del self.source_meter
+            msg = "Switchbox and Sourcemeter deactivated"
+        except:
+            msg = " Failed to deactivate Switchbox and Sourcemeter"
+        
+        logger.info(msg)
+        print(msg)
 
+    # Switch devices on/off
     def switch_device(self, i,j, dev_id):
         "Switch operation devices"
         sub  = int((4-j)*4-i)
