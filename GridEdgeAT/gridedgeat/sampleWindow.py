@@ -190,8 +190,11 @@ class SampleWindow(QMainWindow):
     def populateArchCBox(self):
         fileList = os.listdir(self.parent().config.archFolder)
         if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
-            with open(self.parent().config.archFolder+'blank.json','w') as outfile:
-                json.dump(self.blankSubstrate(),outfile)
+            for i in range(4):
+                print(i)
+                name, entry = self.archSubstrate(i)
+                with open(self.parent().config.archFolder+name+'.json','w') as outfile:
+                    json.dump(entry,outfile)
 
         for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
             if (os.path.splitext(f)[-1] == ".json"):
@@ -627,6 +630,18 @@ class SampleWindow(QMainWindow):
             print(" Connection to DM failed")
             return None, False
 
-    def blankSubstrate(self):
-        return {'substrates': {'isCollapsed': False, 'label': 'deviceID', 'material': '', 'flex': False, 'area': '', 'layers': [], 'attachments': [], 'devices': [{'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+    # Define preset architectures if missing
+    def archSubstrate(self, ind):
+        if ind == 0:
+            name = "0_blank"
+            return name, {'substrates': {'isCollapsed': False, 'label': 'deviceID', 'material': '', 'flex': False, 'area': '', 'layers': [], 'attachments': [], 'devices': [{'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+        if ind == 1:
+            name = "1"
+            return name, {'substrates': {'isCollapsed': False, 'label': 'DD190211AA', 'material': 'FTO', 'flex': False, 'area': '', 'layers': [{'name': 'SnO2', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Perovskite (Triple Cation)', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Spiro-OMeTAD', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Au', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': True}, 'depositiontool': 'Thermally Evaporated'}], 'attachments': [], 'devices': [{'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+        if ind == 2:
+            name = "2"
+            return name, {'substrates': {'isCollapsed': False, 'label': 'DD190211AB', 'material': 'FTO', 'flex': False, 'area': '', 'layers': [{'name': 'SnO2', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Perovskite (Triple Cation)', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Spiro-OMeTAD', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'MoOx/Al', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Thermally Evaporated'}], 'attachments': [], 'devices': [{'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
+        if ind == 3:
+            name = "3"
+            return name, {'substrates': {'isCollapsed': False, 'label': 'DD190211AC', 'material': 'FTO', 'flex': False, 'area': '', 'layers': [{'name': 'PEDOT:PSS', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Perovskite', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'BCP', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}}, {'name': 'PCBM', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Spincoated'}, {'name': 'Ag', 'description': '', 'material': '', 'thickness': '', 'deposition': '', 'deponotes': '', 'measurements': [], 'status': {'open': False}, 'depositiontool': 'Thermally Evaporated'}], 'attachments': [], 'devices': [{'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'number': '1', 'size': '0.06 cm2', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
 
