@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 '''
 
-import sys, re, os.path
+import sys, re, os.path, time
 import numpy as np
 from datetime import datetime
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton,
@@ -128,7 +128,7 @@ class SampleWindow(QMainWindow):
         self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
         self.checkCellsButton.setObjectName("checkSample")
         self.checkCellsButton.clicked.connect(self.checkLoadedCells)
-        self.checkCellsButton.setEnabled(True)
+        self.checkCellsButton.setEnabled(False)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
         self.tableWidget.itemChanged.connect(self.checkMatch)
@@ -395,7 +395,7 @@ class SampleWindow(QMainWindow):
         logger.info(msg)
         print(msg)
         try:
-            #self.parent().switch_box = SwitchBox(self.parent().config.switchboxID)
+            self.switch_box = SwitchBox(self.parent().config.switchboxID)
             msg= " Switchbox activated."
         except:
             msg = " Switchbox not activated: no acquisition possible"
@@ -403,9 +403,10 @@ class SampleWindow(QMainWindow):
 
         # Activate sourcemeter
         try:
-            #self.parent().source_meter = SourceMeter(self.parent().config.sourcemeterID)
-            #self.parent().source_meter.set_limit(voltage=20., current=1.)
-            #self.parent().source_meter.on()
+            self.source_meter = SourceMeter(self.parent().config.sourcemeterID)
+            self.source_meter.set_limit(voltage=20., current=1.)
+            self.source_meter.set_mode('VOLT')
+            self.source_meter.on()
             msg += "\n Sourcemeter activated."
         except:
             msg += "\n Sourcemeter not activated: no acquisition possible"
@@ -415,10 +416,21 @@ class SampleWindow(QMainWindow):
         
         for i in range(self.parent().config.numSubsHolderRow):
             for j in range(self.parent().config.numSubsHolderCol):
-                if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
+                self.switch_device(i, j, 1)
+                self.source_meter.set_output(voltage = self.parent().config.voltageCheckCell)
+                time.sleep(self.parent().config.acqHoldTime)
+                current = self.source_meter.read_values(self.parent().config.deviceArea)[1]
+                print(current)
+                #if self.tableWidget.item(i,j).text() != "" and self.activeSubs[i,j] == True:
+                if current>0.1:
                     self.colorCellAcq(i,j,"cyan")
                 else:
                     self.colorCellAcq(i,j,"white")
+
+    def switch_device(self, i,j, dev_id):
+        "Switch operation devices"
+        sub  = int((4-j)*4-i)
+        self.switch_box.connect(sub, dev_id)
 
     # Load device names and configuration
     def loadCsvSubstrates(self):
