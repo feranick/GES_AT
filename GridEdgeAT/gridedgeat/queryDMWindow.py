@@ -87,7 +87,9 @@ class DataLoadDMWindow(QMainWindow):
         if connFlag == False:
             print("Abort")
             return
-        #print(" Number of Measurement entries: ",db.Measurement.find({'substrate':self.deviceID}).count())
+
+        # Enable this to show JSON for a substrate
+        #self.showLotJson()
         try:
             if db.Measurement.find({'substrate':self.deviceID}).count() == 0:
                 self.resTableDMWidget.insertRow(0)
@@ -267,6 +269,24 @@ class DataLoadDMWindow(QMainWindow):
             selectRemoveAllAction.triggered.connect(lambda: self.resTableDMWidget.setRowCount(0))
             #viewDMEntryAction.triggered.connect(lambda: self.parent().parent().samplewind.viewOnDM(self.resTableDMWidget.selectedItems()[0].text()))
             viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(selectedRows))
+
+    # Show Lot JSON
+    def showLotJson(self):
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        try:
+            entry = db.Lot.find({'label':self.deviceID[:8]})
+            for a in entry:
+                print(a)
+                a['_id'] = ""
+                a['id'] = ""
+                print(a)
+                with open('data.json', 'w') as outfile:
+                    json.dump(a, outfile)
+        except:
+            pass
 
     # Logic to save locally devices selected from DM table
     def saveLocallyDM(self, selectedRows):
