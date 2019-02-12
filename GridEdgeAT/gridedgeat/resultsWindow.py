@@ -302,12 +302,16 @@ class ResultsWindow(QMainWindow):
             selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
+            fitDiodeEquationAction = QAction('Fit with Diode Equation...', self)
+            selectRemoveAllAction.setShortcut("Ctrl+e")
             self.menu.addAction(selectCellRemoveAction)
             self.menu.addAction(selectRemoveAllAction)
             self.menu.addSeparator()
             self.menu.addAction(selectCellLoadAction)
             self.menu.addAction(selectCellSaveAction)
             self.menu.addAction(selectCellSaveAllAction)
+            self.menu.addSeparator()
+            self.menu.addAction(fitDiodeEquationAction)
             self.menu.addSeparator()
             self.menu.addAction(viewDMEntryAction)
             self.menu.popup(QCursor.pos())
@@ -321,6 +325,7 @@ class ResultsWindow(QMainWindow):
             selectCellSaveAllAction.triggered.connect(lambda: self.selectDeviceSaveLocally(list(range(self.resTableWidget.rowCount()))))
             selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(selectedRows))
             selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
+            fitDiodeEquationAction.triggered.connect(lambda: self.fitDiodeEquation(selectedRows))
             viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.resTableWidget.selectedItems()[0].text()))
 
     # Logic to save locally devices selected from results table
@@ -352,6 +357,17 @@ class ResultsWindow(QMainWindow):
             self.canvasJVresp.draw()
             self.canvasPVresp.draw()
             self.resTableWidget.removeRow(row)
+    
+    # Logic to Fit the JV curve using the Diode Equation
+    def fitDiodeEquation(self, selectedRows):
+        #try:
+        DE = DiodeEquation()
+        DE.results.connect(lambda msg: print(msg))
+        func = DE.setupDE()
+        for row in selectedRows:
+            DE.fitDE(func,self.dfTotJV.iat[0,row])
+        #except:
+        #    print("Error: data cannot be fit")
 
     # Add row and initialize it within the table
     def setupResultTable(self):
@@ -567,7 +583,6 @@ class ResultsWindow(QMainWindow):
                 self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
         except:
             print("Loading files failed")
-        #DiodeEquation().diodeEq(JV)
 
     # Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV, folder):

@@ -28,15 +28,15 @@ from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 #   Diode Equation
 ####################################################################
 class DiodeEquation(QThread):
+    results = pyqtSignal(str)
+    
     def __init__(self, parent=None):
         super(DiodeEquation, self).__init__(parent)
 
-    def diodeEq(self,JV):
+    def fitDE(self,cellEqn,JV):
         vv = JV[:,0]
         ii = JV[:,1]
-        
-        cellEqn = self.setupEq(vv, ii)
-        
+        #cellEqn = self.setupEq()
         cellModel = Model(cellEqn,nan_policy='omit')
         cellModel.set_param_hint('n',value=1)
         cellModel.set_param_hint('Rs',value=6)
@@ -45,10 +45,10 @@ class DiodeEquation(QThread):
         cellModel.set_param_hint('I0',value=1e-9)
         fitResult = cellModel.fit(ii, V=vv)
         resultParams = fitResult.params
-        print(fitResult.fit_report())
-        print(fitResult.message)
+        self.results.emit(fitResult.fit_report())
+        self.results.emit(fitResult.message)
 
-    def setupEq(self, vv, ii):
+    def setupDE(self):
         modelSymbols = sympy.symbols('I0 Iph Rs Rsh n I V Vth', real=True, positive=True)
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
         modelConstants = (Vth,)
@@ -72,7 +72,6 @@ class DiodeEquation(QThread):
         for symbol in solveForThese:
             symSolutionsNoSubs[str(symbol)] = sympy.solve(electricalModel,symbol)[0]
 
-
         Voc_eqn = symSolutionsNoSubs['V'].subs(I,0) # analytical solution for Voc
         Isc_eqn = symSolutionsNoSubs['I'].subs(V,0) # analytical solution for Isc
 
@@ -92,7 +91,7 @@ class DiodeEquation(QThread):
         results['symSolutions'] = symSolutions
         results['modelSymbols'] = modelSymbols
         results['modelVariables'] = modelVariables
-        print(results)
+        #print(results)
 
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
 
@@ -122,7 +121,8 @@ class DiodeEquation(QThread):
         slns['I'] = sympy.lambdify([V,n,Rs,Rsh,I0,Iph],symSolutions['I'],functionSubstitutions,dummify=False)
         
         #slns['V'] = sympy.lambdify([I0,Rsh,Iph,n,Rs,I],symSolutions['I'],functionSubstitutions,dummify=False)
-        print(slns['I'](1,2,3,4,5,vv))
+        #print(slns['I'](1,2,3,4,5,vv))
         #print(slns['V'](1,2,3,4,5,ii))
+        self.results.emit(" Setup DE: Completed")
         return slns['I']
 
