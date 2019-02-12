@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 
 from .dataManagement import *
 from .queryDMWindow import *
+from .diodeEquation import *
 from . import logger
 
 ####################################################################
@@ -566,6 +567,7 @@ class ResultsWindow(QMainWindow):
                 self.makeInternalDataFrames(self.resTableWidget.rowCount()-1, [[deviceID]], perfData, dfAcqParams, np.array(JV))
         except:
             print("Loading files failed")
+        #DiodeEquation().diodeEq(JV)
 
     # Save device acquisition as csv
     def save_csv(self,deviceID, dfAcqParams, perfData, JV, folder):
