@@ -100,7 +100,6 @@ class SampleWindow(QMainWindow):
         self.deviceArchCBox.setToolTip("Device architecture will be submitted to the DM along with your data")
         self.populateArchCBox()
         
-
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
         self.commentsLabel.setGeometry(QRect(10, 150, 80, 20))
@@ -130,6 +129,7 @@ class SampleWindow(QMainWindow):
         self.checkCellsButton.setGeometry(QRect(10, 460, 80, 80))
         self.checkCellsButton.setObjectName("checkSample")
         self.checkCellsButton.clicked.connect(self.checkLoadedCells)
+        self.checkCellsButton.setToolTip("Correctly loaded cells will appear in cyan")
         self.checkCellsButton.setEnabled(True)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
