@@ -17,8 +17,8 @@ the Free Software Foundation; either version 2 of the License, or
 '''
 import time, math
 try:
-    #from GridEdgeAT.gridedgeat.modules.xystage.PyAPT import APTMotor
-    from gridedgeat.modules.xystage.PyAPT import APTMotor
+    from GridEdgeAT.gridedgeat.modules.xystage.PyAPT import APTMotor
+    #from gridedgeat.modules.xystage.PyAPT import APTMotor
 except ImportError:
     pass
 
