@@ -97,7 +97,9 @@ class SampleWindow(QMainWindow):
         self.windowGridLayout.addWidget(self.deviceArchCBox, 1, 1, 1, 1)
         self.windowGridLayout.addWidget(self.deviceArchCBox, 3, 1, 1, 1)
         #self.deviceArchCBox.setEnabled(False)
+        self.deviceArchCBox.setToolTip("Device architecture will be submitted to the DM along with your data")
         self.populateArchCBox()
+        
 
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
@@ -632,7 +634,7 @@ class SampleWindow(QMainWindow):
     # Define preset architectures if missing
     def archSubstrate(self, ind):
         if ind == 0:
-            name = "blank"
+            name = "0_blank"
             return name, {'substrates': {'isCollapsed': False, 'label': 'deviceID', 'material': '', 'flex': False, 'area': '', 'layers': [], 'attachments': [], 'devices': [{'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}, {'size': '', 'measurements': []}]}}
         if ind == 1:
             name = "FTO-SnO2-Perovsk-Spiro-Au"
