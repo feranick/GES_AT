@@ -30,12 +30,16 @@ from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 class DiodeEquation(QThread):
     results = pyqtSignal(str)
     func = pyqtSignal(object)
+    JV_fit = pyqtSignal(np.ndarray, np.ndarray)
     
     def __init__(self, parent=None):
         super(DiodeEquation, self).__init__(parent)
 
     def __del__(self):
         self.wait()
+    
+    def stop(self):
+        self.terminate()
 
     def fitDE(self,cellEqn,JV):
         vv = JV[:,0]
@@ -51,9 +55,17 @@ class DiodeEquation(QThread):
         resultParams = fitResult.params
         self.results.emit(fitResult.fit_report())
         self.results.emit(fitResult.message)
+        n = fitResult.best_values['n']
+        Rs = fitResult.best_values['Rs']
+        Rsh = fitResult.best_values['Rsh']
+        Iph = fitResult.best_values['Iph']
+        I0 = fitResult.best_values['I0']
+        ii_fit = cellEqn(vv,n,Rs,Rsh,I0,Iph).real
+        #print(ii_fit)
+        self.JV_fit.emit(vv, ii_fit)
 
     def run(self):
-        self.results.emit("Solving calculation for the diode equation. Please wat...")
+        self.results.emit("Solving calculation for the diode equation. Please wait...")
         modelSymbols = sympy.symbols('I0 Iph Rs Rsh n I V Vth', real=True, positive=True)
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
         modelConstants = (Vth,)

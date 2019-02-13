@@ -364,6 +364,7 @@ class ResultsWindow(QMainWindow):
         DE.results.connect(lambda msg: print(msg))
         #DE.func.connect(lambda func: fitDE(func))
         DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
+        #DE.JV_fit.connect(lambda V,I: print(V,I))
         DE.start()
 
 
