@@ -57,10 +57,10 @@ class DiodeEquation(QThread):
         fitResult_r = cellModel.fit(ii_r, V=vv_r)
         resultParams_f = fitResult_f.params
         resultParams_r = fitResult_r.params
-        self.results.emit(fitResult_f.fit_report())
-        self.results.emit(fitResult_f.message)
-        self.results.emit(fitResult_r.fit_report())
-        self.results.emit(fitResult_r.message)
+        self.results.emit("\nForward scan:"+fitResult_f.message)
+        self.results.emit(fitResult_f.fit_report()+"\n")
+        self.results.emit("Backward scan:"+fitResult_r.message)
+        self.results.emit(fitResult_r.fit_report()+"\n")
         
         ii_f_fit = cellEqn(vv_f, \
             fitResult_f.best_values['n'], \
