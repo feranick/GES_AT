@@ -41,7 +41,25 @@ class DiodeEquation(QThread):
     def stop(self):
         self.terminate()
 
-    def fitDE(self,cellEqn,JV):
+    def fitDE(self,JV):
+    #def fitDE(self,cellEqn,JV):
+        def cellEqn(V,n,Rs,Rsh,I0,Iph):
+            '''
+            cellTemp = 29 #degC all analysis is done assuming the cell is at 29 degC
+            T = 273.15 + cellTemp #cell temp in K
+            K = 1.3806488e-23 #boltzman constant
+            q = 1.60217657e-19 #electron charge
+            thermalVoltage = K*T/q #thermal voltage ~26mv
+            Vth = thermalVoltage
+            #Vth = mpmath.convert(Vth)
+            tol = 1e-15
+            '''
+            A = 0.0260372697199036 #this is Vth
+            B = 38.4064846567063 # this is 1/Vth
+
+            #return (Rs*(I0*Rsh + Iph*Rsh - V) - Vth*n*(Rs + Rsh)*special.lambertw(I0*Rs*Rsh*npexp((Rs*(I0*Rsh + Iph*Rsh - V)/(Rs + Rsh) + V)/(Vth*n))/(Vth*n*(Rs + Rsh)),tol=tol))/(Rs*(Rs + Rsh))
+            return (Rs*(I0*Rsh + Iph*Rsh - V) - A*n*(Rs + Rsh)*special.lambertw(B*I0*Rs*Rsh*np.exp(B*(Rs*(I0*Rsh + Iph*Rsh - V)/(Rs + Rsh) + V)/n)/(n*(Rs + Rsh))))/(Rs*(Rs + Rsh))
+    
         vv_f = JV[:,0]
         ii_f = JV[:,1]
         vv_r = JV[:,2]
@@ -57,9 +75,9 @@ class DiodeEquation(QThread):
         fitResult_r = cellModel.fit(ii_r, V=vv_r)
         resultParams_f = fitResult_f.params
         resultParams_r = fitResult_r.params
-        self.results.emit("\nForward scan:"+fitResult_f.message)
+        self.results.emit("\nForward scan: "+fitResult_f.message)
         self.results.emit(fitResult_f.fit_report()+"\n")
-        self.results.emit("Backward scan:"+fitResult_r.message)
+        self.results.emit("Backward scan: "+fitResult_r.message)
         self.results.emit(fitResult_r.fit_report()+"\n")
         
         ii_f_fit = cellEqn(vv_f, \
@@ -81,7 +99,8 @@ class DiodeEquation(QThread):
         JVnew = np.hstack((JVnew_f,JVnew_r))
         self.JV_fit.emit(JVnew)
 
-    def run(self):
+    '''
+    def getDEeq(self):
         self.results.emit("Solving calculation for the diode equation. Please wait...")
         modelSymbols = sympy.symbols('I0 Iph Rs Rsh n I V Vth', real=True, positive=True)
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
@@ -125,7 +144,7 @@ class DiodeEquation(QThread):
         results['symSolutions'] = symSolutions
         results['modelSymbols'] = modelSymbols
         results['modelVariables'] = modelVariables
-        #print(results)
+        print(results)
 
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
 
@@ -160,4 +179,4 @@ class DiodeEquation(QThread):
         self.results.emit(" Setup DE: Completed")
         #return slns['I']
         self.func.emit(slns['I'])
-
+    '''

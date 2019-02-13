@@ -369,11 +369,10 @@ class ResultsWindow(QMainWindow):
         DE = DiodeEquation(self)
         DE.results.connect(lambda msg: print(msg))
         DE.results.connect(lambda msg: logger.info(msg))
-        #DE.func.connect(lambda func: fitDE(func))
-        DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
-        #DE.JV_fit.connect(lambda JV: print(JV))
+        #DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
         DE.JV_fit.connect(lambda JV: self.plotJVresp(JV,False))
-        DE.start()
+        [DE.fitDE(self.dfTotJV.iat[0,row]) for row in selectedRows]
+        #DE.start()
 
 
     # Add row and initialize it within the table
