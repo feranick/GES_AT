@@ -227,14 +227,20 @@ class ResultsWindow(QMainWindow):
         self.canvasMPP.draw()
     
     # Plot JV response
-    def plotJVresp(self, JV):
-        self.initJVPlot()
-        self.toolbarJVresp.update()
-        self.toolbarPVresp.update()
-        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5, label='Forw')
-        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5, label='Back')
-        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5, label='Forw')
-        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label='Back')
+    def plotJVresp(self, JV, clearFlag):
+        if clearFlag:
+            self.initJVPlot()
+            self.toolbarJVresp.update()
+            self.toolbarPVresp.update()
+            labelF = "Forw"
+            labelR = "Back"
+        else:
+            labelF = "Forw-Fit"
+            labelR = "Back-Fit"
+        self.axJVresp.plot(JV[:,0],JV[:,1], '.-',linewidth=0.5, label=labelF)
+        self.axJVresp.plot(JV[:,2],JV[:,3], '.-',linewidth=0.5, label=labelR)
+        self.axPVresp.plot(JV[:,0],JV[:,0]*JV[:,1], '.-',linewidth=0.5, label=labelF)
+        self.axPVresp.plot(JV[:,2],JV[:,2]*JV[:,3], '.-',linewidth=0.5, label=labelR)
         self.axJVresp.legend(loc='lower left')
         self.axPVresp.legend(loc='upper left')
         if self.parent().config.logPlotJV:
@@ -365,6 +371,7 @@ class ResultsWindow(QMainWindow):
         #DE.func.connect(lambda func: fitDE(func))
         DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
         #DE.JV_fit.connect(lambda JV: print(JV))
+        DE.JV_fit.connect(lambda JV: self.plotJVresp(JV,False))
         DE.start()
 
 
@@ -424,7 +431,7 @@ class ResultsWindow(QMainWindow):
 
     # Plot data from devices
     def plotData(self, deviceID, perfData, JV):
-        self.plotJVresp(JV)
+        self.plotJVresp(JV,True)
         self.plotMPP(perfData)
         self.show()
     

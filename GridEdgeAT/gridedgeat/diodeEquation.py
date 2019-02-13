@@ -42,8 +42,10 @@ class DiodeEquation(QThread):
         self.terminate()
 
     def fitDE(self,cellEqn,JV):
-        vv = JV[:,0]
-        ii = JV[:,1]
+        vv_f = JV[:,0]
+        ii_f = JV[:,1]
+        vv_r = JV[:,2]
+        ii_r = JV[:,3]
         #cellEqn = self.setupEq()
         cellModel = Model(cellEqn,nan_policy='omit')
         cellModel.set_param_hint('n',value=1)
@@ -51,18 +53,32 @@ class DiodeEquation(QThread):
         cellModel.set_param_hint('Rsh',value=1e5)
         cellModel.set_param_hint('Iph',value=20e-3)
         cellModel.set_param_hint('I0',value=1e-9)
-        fitResult = cellModel.fit(ii, V=vv)
-        resultParams = fitResult.params
-        self.results.emit(fitResult.fit_report())
-        self.results.emit(fitResult.message)
-        n = fitResult.best_values['n']
-        Rs = fitResult.best_values['Rs']
-        Rsh = fitResult.best_values['Rsh']
-        Iph = fitResult.best_values['Iph']
-        I0 = fitResult.best_values['I0']
-        ii_fit = cellEqn(vv,n,Rs,Rsh,I0,Iph).real
+        fitResult_f = cellModel.fit(ii_f, V=vv_f)
+        fitResult_r = cellModel.fit(ii_r, V=vv_r)
+        resultParams_f = fitResult_f.params
+        resultParams_r = fitResult_r.params
+        self.results.emit(fitResult_f.fit_report())
+        self.results.emit(fitResult_f.message)
+        self.results.emit(fitResult_r.fit_report())
+        self.results.emit(fitResult_r.message)
+        
+        ii_f_fit = cellEqn(vv_f, \
+            fitResult_f.best_values['n'], \
+            fitResult_f.best_values['Rs'], \
+            fitResult_f.best_values['Rsh'],\
+            fitResult_f.best_values['Iph'],\
+            fitResult_f.best_values['I0']).real
+            
+        ii_r_fit = cellEqn(vv_r, \
+            fitResult_r.best_values['n'], \
+            fitResult_r.best_values['Rs'], \
+            fitResult_r.best_values['Rsh'],\
+            fitResult_r.best_values['Iph'],\
+            fitResult_r.best_values['I0']).real
     
-        JVnew = np.hstack((np.array([vv]).T,np.array([ii_fit]).T))
+        JVnew_f = np.hstack((np.array([vv_f]).T,np.array([ii_f_fit]).T))
+        JVnew_r = np.hstack((np.array([vv_r]).T,np.array([ii_r_fit]).T))
+        JVnew = np.hstack((JVnew_f,JVnew_r))
         self.JV_fit.emit(JVnew)
 
     def run(self):
