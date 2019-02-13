@@ -360,14 +360,12 @@ class ResultsWindow(QMainWindow):
     
     # Logic to Fit the JV curve using the Diode Equation
     def fitDiodeEquation(self, selectedRows):
-        #try:
-        DE = DiodeEquation()
+        DE = DiodeEquation(self)
         DE.results.connect(lambda msg: print(msg))
-        func = DE.setupDE()
-        for row in selectedRows:
-            DE.fitDE(func,self.dfTotJV.iat[0,row])
-        #except:
-        #    print("Error: data cannot be fit")
+        #DE.func.connect(lambda func: fitDE(func))
+        DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
+        DE.start()
+
 
     # Add row and initialize it within the table
     def setupResultTable(self):

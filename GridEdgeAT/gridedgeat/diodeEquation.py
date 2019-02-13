@@ -29,9 +29,13 @@ from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 ####################################################################
 class DiodeEquation(QThread):
     results = pyqtSignal(str)
+    func = pyqtSignal(object)
     
     def __init__(self, parent=None):
         super(DiodeEquation, self).__init__(parent)
+
+    def __del__(self):
+        self.wait()
 
     def fitDE(self,cellEqn,JV):
         vv = JV[:,0]
@@ -48,7 +52,8 @@ class DiodeEquation(QThread):
         self.results.emit(fitResult.fit_report())
         self.results.emit(fitResult.message)
 
-    def setupDE(self):
+    def run(self):
+        self.results.emit("Solving calculation for the diode equation. Please wat...")
         modelSymbols = sympy.symbols('I0 Iph Rs Rsh n I V Vth', real=True, positive=True)
         I0, Iph, Rs, Rsh, n, I, V, Vth = modelSymbols
         modelConstants = (Vth,)
@@ -124,5 +129,6 @@ class DiodeEquation(QThread):
         #print(slns['I'](1,2,3,4,5,vv))
         #print(slns['V'](1,2,3,4,5,ii))
         self.results.emit(" Setup DE: Completed")
-        return slns['I']
+        #return slns['I']
+        self.func.emit(slns['I'])
 
