@@ -203,7 +203,6 @@ class SampleWindow(QMainWindow):
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
-        print("OK")
         fileList = os.listdir(self.parent().config.archFolder)
         if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
             for i in range(4):
@@ -215,7 +214,7 @@ class SampleWindow(QMainWindow):
         self.menuArch = QMenu("&Architecture")
         row = self.tableWidget.currentRow()
         col = self.tableWidget.currentColumn()
-        #try:
+        try:
             if self.tableWidget.item(row,col).text() != "":
                 if self.activeSubs[row,col] == True:
                     selectCellAction = QAction('Disable substrate', self)
