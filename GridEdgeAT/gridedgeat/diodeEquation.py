@@ -30,7 +30,7 @@ from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 class DiodeEquation(QThread):
     results = pyqtSignal(str)
     func = pyqtSignal(object)
-    JV_fit = pyqtSignal(np.ndarray, np.ndarray)
+    JV_fit = pyqtSignal(np.ndarray)
     
     def __init__(self, parent=None):
         super(DiodeEquation, self).__init__(parent)
@@ -61,8 +61,9 @@ class DiodeEquation(QThread):
         Iph = fitResult.best_values['Iph']
         I0 = fitResult.best_values['I0']
         ii_fit = cellEqn(vv,n,Rs,Rsh,I0,Iph).real
-        #print(ii_fit)
-        self.JV_fit.emit(vv, ii_fit)
+    
+        JVnew = np.hstack((np.array([vv]).T,np.array([ii_fit]).T))
+        self.JV_fit.emit(JVnew)
 
     def run(self):
         self.results.emit("Solving calculation for the diode equation. Please wait...")
