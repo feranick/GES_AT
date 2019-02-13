@@ -203,36 +203,54 @@ class SampleWindow(QMainWindow):
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
+        print("OK")
+        fileList = os.listdir(self.parent().config.archFolder)
+        if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
+            for i in range(4):
+                name, entry = self.archSubstrate(i)
+                with open(self.parent().config.archFolder+name+'.json','w') as outfile:
+                    json.dump(entry,outfile)
+                
         self.menu = QMenu(self)
+        self.menuArch = QMenu("&Architecture")
         row = self.tableWidget.currentRow()
         col = self.tableWidget.currentColumn()
-        try:
-            if self.tableWidget.item(row,col).text() != "":
-                if self.activeSubs[row,col] == True:
-                    selectCellAction = QAction('Disable substrate', self)
-                else:
-                    selectCellAction = QAction('Enable substrate', self)
-                viewDMEntryAction = QAction("&View Entry in Database", self)
-                showJsonInfoDMAction = QAction("&Show JSON info from Database", self)
-                saveJsonInfoDMAction = QAction("&Save JSON from Database", self)
-                removeEntryDMAction = QAction("&Remove Entry from Database", self)
-                checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
-                self.menu.addAction(selectCellAction)
-                self.menu.addAction(viewDMEntryAction)
-                self.menu.addSeparator()
-                #self.menu.addAction(showJsonInfoDMAction)
-                self.menu.addAction(saveJsonInfoDMAction)
-                #self.menu.addAction(removeEntryDMAction)
-                #self.menu.addAction(checkCreateLotDMAction)
-                self.menu.popup(QCursor.pos())
-                selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
-                viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
-                showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
-                saveJsonInfoDMAction.triggered.connect(lambda: self.saveJsonInfoDM(self.tableWidget.item(row,col).text()))
-                removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
-                checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text()))
-        except:
-            pass
+        #try:
+        if self.tableWidget.item(row,col).text() != "":
+            if self.activeSubs[row,col] == True:
+                selectCellAction = QAction('Disable substrate', self)
+            else:
+                selectCellAction = QAction('Enable substrate', self)
+            viewDMEntryAction = QAction("&View Entry in Database", self)
+            showJsonInfoDMAction = QAction("&Show JSON info from Database", self)
+            saveJsonInfoDMAction = QAction("&Save JSON from Database", self)
+            removeEntryDMAction = QAction("&Remove Entry from Database", self)
+            checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
+            self.menu.addMenu(self.menuArch)
+            self.menu.addSeparator()
+            self.menu.addAction(selectCellAction)
+            self.menu.addAction(viewDMEntryAction)
+            self.menu.addSeparator()
+            #self.menu.addAction(showJsonInfoDMAction)
+            self.menu.addAction(saveJsonInfoDMAction)
+            #self.menu.addAction(removeEntryDMAction)
+            #self.menu.addAction(checkCreateLotDMAction)
+            
+            for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
+                if (os.path.splitext(f)[-1] == ".json"):
+                    archAction = QAction(os.path.splitext(f)[0], self)
+                    self.menuArch.addAction(archAction)
+            self.menuArch.setEnabled(False)
+            
+            self.menu.popup(QCursor.pos())
+            selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
+            viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
+            showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
+            saveJsonInfoDMAction.triggered.connect(lambda: self.saveJsonInfoDM(self.tableWidget.item(row,col).text()))
+            removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
+            checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text()))
+        #except:
+        #    pass
 
     # Logic to disable non-working cells
     def disableBrokenCells(self, brokenCells):
