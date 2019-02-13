@@ -308,7 +308,7 @@ class ResultsWindow(QMainWindow):
             selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
-            fitDiodeEquationAction = QAction('Fit with Diode Equation...', self)
+            fitDiodeEquationAction = QAction('Fit with Diode Equation (EXPERIMENTAL)...', self)
             selectRemoveAllAction.setShortcut("Ctrl+e")
             self.menu.addAction(selectCellRemoveAction)
             self.menu.addAction(selectRemoveAllAction)
