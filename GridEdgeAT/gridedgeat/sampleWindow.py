@@ -120,14 +120,8 @@ class SampleWindow(QMainWindow):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         
         self.tableWidget.itemClicked.connect(self.onCellClick)
-        
-        # This allows for background coloring of a cell
-        for i in range(self.parent().config.numSubsHolderCol):
-            for j in range(self.parent().config.numSubsHolderRow):
-                self.tableWidget.setItem(i,j,QTableWidgetItem())
-                self.tableWidget.item(i,j).setToolTip("Substrate #"+\
-                    str(Acquisition().getSubstrateNumber(i,j)))
-    
+
+        self.updateTableTooltips(True)
         self.disableBrokenCells(self.parent().config.brokenCells)
         
         self.checkCellsButton = QPushButton(self.centralwidget)
@@ -215,6 +209,18 @@ class SampleWindow(QMainWindow):
                   " to: "+self.deviceArchCBox.currentText()
             print(msg)
             logger.info(msg)
+        self.updateTableTooltips(False)
+    
+    # Update ToolTips for the sample Table.
+    def updateTableTooltips(self, firstTime):
+        # This allows for background coloring of a cell
+        for i in range(self.parent().config.numSubsHolderCol):
+            for j in range(self.parent().config.numSubsHolderRow):
+                if firstTime:
+                    self.tableWidget.setItem(i,j,QTableWidgetItem())
+                self.tableWidget.item(i,j).setToolTip("Substrate #"+\
+                    str(Acquisition().getSubstrateNumber(i,j))+"\nArchitecture: "+\
+                self.deviceArchCBox.itemText(self.archSubs[j,i]))
 
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
