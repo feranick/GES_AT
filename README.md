@@ -13,6 +13,8 @@ GridEdge Autotesting is written in [Python 3.x](<http://www.python.org/>) and re
 - [Scipy >0.9](<http://www.scipy.org/>)
 - [Matplotlib >0.9](<http://matplotlib.org/>)
 - [Pandas](<https://pandas.pydata.org/>)
+- [Sympy](https://www.sympy.org/en/index.html)
+- [Lmfit](https://lmfit.github.io/lmfit-py/)
 - [OpenCV >3.2](<http://opencv.org/>)
 - [Pillow (for .tif, .png, .jpg)](https://python-pillow.github.io/>)
 - [PyVisa](<https://pyvisa.readthedocs.io/en/stable/index.html>)
