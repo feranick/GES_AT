@@ -99,6 +99,7 @@ class SampleWindow(QMainWindow):
         #self.deviceArchCBox.setEnabled(False)
         self.deviceArchCBox.setToolTip("Device architecture will be submitted to the DM along with your data")
         self.populateArchCBox()
+        #self.deviceArchCBox.currentIndexChanged.connect(lambda: self.setArch(self.deviceArchCBox.currentText()))
         
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
@@ -200,6 +201,10 @@ class SampleWindow(QMainWindow):
         for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
             if (os.path.splitext(f)[-1] == ".json"):
                 self.deviceArchCBox.addItem(os.path.splitext(f)[0])
+
+    def setArch(self,txt):
+        for item in self.tableWidget.selectedItems():
+            print(txt, item.row(), item.column())
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
