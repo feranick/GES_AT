@@ -71,8 +71,13 @@ class DiodeEquation(QThread):
         cellModel.set_param_hint('Rsh',value=1e5)
         cellModel.set_param_hint('Iph',value=20e-3)
         cellModel.set_param_hint('I0',value=1e-9)
-        fitResult_f = cellModel.fit(ii_f, V=vv_f)
-        fitResult_r = cellModel.fit(ii_r, V=vv_r)
+        try:
+            fitResult_f = cellModel.fit(ii_f, V=vv_f)
+            fitResult_r = cellModel.fit(ii_r, V=vv_r)
+        except Exception as error:
+            print('Caught this error: ' + repr(error))
+            return
+        
         resultParams_f = fitResult_f.params
         resultParams_r = fitResult_r.params
         self.results.emit("\nForward scan: "+fitResult_f.message)
