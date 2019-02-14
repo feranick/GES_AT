@@ -203,15 +203,7 @@ class SampleWindow(QMainWindow):
     
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
-        fileList = os.listdir(self.parent().config.archFolder)
-        if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
-            for i in range(4):
-                name, entry = self.archSubstrate(i)
-                with open(self.parent().config.archFolder+name+'.json','w') as outfile:
-                    json.dump(entry,outfile)
-                
         self.menu = QMenu(self)
-        self.menuArch = QMenu("&Architecture")
         row = self.tableWidget.currentRow()
         col = self.tableWidget.currentColumn()
         try:
@@ -225,8 +217,6 @@ class SampleWindow(QMainWindow):
                 saveJsonInfoDMAction = QAction("&Save JSON from Database", self)
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
-                self.menu.addMenu(self.menuArch)
-                self.menu.addSeparator()
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
                 self.menu.addSeparator()
@@ -234,13 +224,6 @@ class SampleWindow(QMainWindow):
                 self.menu.addAction(saveJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
                 #self.menu.addAction(checkCreateLotDMAction)
-            
-                for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
-                    if (os.path.splitext(f)[-1] == ".json"):
-                        archAction = QAction(os.path.splitext(f)[0], self)
-                        self.menuArch.addAction(archAction)
-                self.menuArch.setEnabled(False)
-            
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
