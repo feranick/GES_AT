@@ -191,11 +191,17 @@ class SampleWindow(QMainWindow):
     def populateArchCBox(self):
         fileList = os.listdir(self.parent().config.archFolder)
         if len(fileList) == 0 or not any([fname.endswith('.json') for fname in fileList]):
-            for i in range(4):
-                name, entry = self.archSubstrate(i)
-                with open(self.parent().config.archFolder+name+'.json','w') as outfile:
-                    json.dump(entry,outfile)
-
+            #for i in range(4):
+            try:
+                i = 0
+                while True:
+                    name, entry = self.archSubstrate(i)
+                    with open(self.parent().config.archFolder+name+'.json','w') as outfile:
+                        json.dump(entry,outfile)
+                    i+=1
+            except:
+                pass
+    
         for ind, f in enumerate(sorted(os.listdir(self.parent().config.archFolder))):
             if (os.path.splitext(f)[-1] == ".json"):
                 self.deviceArchCBox.addItem(os.path.splitext(f)[0])
