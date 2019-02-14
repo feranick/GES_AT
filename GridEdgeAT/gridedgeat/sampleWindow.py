@@ -41,6 +41,8 @@ class SampleWindow(QMainWindow):
         self.activeSubs = np.ones((self.parent().config.numSubsHolderRow,
                 self.parent().config.numSubsHolderCol),
                 dtype=bool)
+        self.archSubs = np.zeros((self.parent().config.numSubsHolderRow,
+                self.parent().config.numSubsHolderCol),dtype=int)
         self.initUI(self)
     
     # Define UI elements
@@ -99,7 +101,7 @@ class SampleWindow(QMainWindow):
         #self.deviceArchCBox.setEnabled(False)
         self.deviceArchCBox.setToolTip("Device architecture will be submitted to the DM along with your data")
         self.populateArchCBox()
-        #self.deviceArchCBox.currentIndexChanged.connect(lambda: self.setArch(self.deviceArchCBox.currentText()))
+        self.deviceArchCBox.currentIndexChanged.connect(lambda: self.setArch(self.deviceArchCBox.currentIndex()))
         
         self.commentsLabel = QLabel(self.centralwidget)
         self.commentsLabel.setObjectName("commentsLabel")
@@ -116,6 +118,8 @@ class SampleWindow(QMainWindow):
         self.tableWidget.setVerticalHeaderLabels(("4","3","2","1"))
         self.tableWidget.setHorizontalHeaderLabels(("4","3","2","1"))
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        
+        self.tableWidget.itemClicked.connect(self.onCellClick)
         
         # This allows for background coloring of a cell
         for i in range(self.parent().config.numSubsHolderCol):
@@ -202,10 +206,16 @@ class SampleWindow(QMainWindow):
             if (os.path.splitext(f)[-1] == ".json"):
                 self.deviceArchCBox.addItem(os.path.splitext(f)[0])
 
+    # Set the type of architecture for a selected substrates.
     def setArch(self,txt):
         for item in self.tableWidget.selectedItems():
-            print(txt, item.row(), item.column())
-    
+            self.archSubs[item.row(),item.column()] = txt
+            msg = " Setting architecture for substrate #"+\
+                  str(Acquisition().getSubstrateNumber(item.row(),item.column()))+\
+                  " to: "+self.deviceArchCBox.currentText()
+            print(msg)
+            logger.info(msg)
+
     # Enable right click on substrates for disabling/enabling during acquisition.
     def contextMenuEvent(self, event):
         self.menu = QMenu(self)
@@ -282,9 +292,13 @@ class SampleWindow(QMainWindow):
             if modifiers == Qt.AltModifier and \
                         currentQTableWidgetItem.text() != "":
                 self.parent().resultswind.viewOnDM(currentQTableWidgetItem.text())
+            
+            row = self.tableWidget.row(currentQTableWidgetItem)
+            col = self.tableWidget.column(currentQTableWidgetItem)
+            self.deviceArchCBox.setCurrentIndex(self.archSubs[row, col])
             print(" Selected substrate #",
-                str(Acquisition().getSubstrateNumber(self.tableWidget.row(currentQTableWidgetItem),
-                  self.tableWidget.column(currentQTableWidgetItem))))
+                  str(Acquisition().getSubstrateNumber(row,col)),
+                  " Architecture: ",self.deviceArchCBox.currentText())
         
     # Logic to set and validate substrate name in table  
     def checkMatch(self, item):
