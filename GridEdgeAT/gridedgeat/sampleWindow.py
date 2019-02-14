@@ -245,7 +245,7 @@ class SampleWindow(QMainWindow):
                 showJsonInfoDMAction.triggered.connect(lambda: self.showJsonInfoDM(self.tableWidget.item(row,col).text()))
                 saveJsonInfoDMAction.triggered.connect(lambda: self.saveJsonInfoDM(self.tableWidget.item(row,col).text()))
                 removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
-                checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text()))
+                checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text(),row, col))
         except:
             pass
 
@@ -526,7 +526,7 @@ class SampleWindow(QMainWindow):
         self.parent().config.readConfig(self.parent().config.configFile)
     
     ####################################################################
-    #   Sample Window
+    #   DM related methods
     ####################################################################
 
     # View entry in DM page for substrate/device
@@ -604,7 +604,7 @@ class SampleWindow(QMainWindow):
             print(" Error!")
 
     # View entry in DM page for substrate/device
-    def checkCreateLotDM(self, deviceID):
+    def checkCreateLotDM(self, deviceID, row, col):
         print("\nOpening entry in DM for Lot:",deviceID[:8])
         db, connFlag = self.connectDM()
         if connFlag == False:
@@ -613,23 +613,25 @@ class SampleWindow(QMainWindow):
         try:
             entry = db.Lot.find_one({'label':deviceID[:8]})
             if entry:
-                db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.getArchConfig(deviceID)}, upsert=False)
+                db.Lot.update_one({ '_id': entry['_id'] },{"$push": self.getArchConfig(deviceID, row, col)}, upsert=False)
                 msg = " Data entry for this batch found in DM. Created substrate: "+deviceID
             else:
                 print(" No data entry for this substrate found in DM. Creating new one...")
                 jsonData = {'label' : deviceID[:8], 'date' : deviceID[2:8], 'description': '', 'notes': '', 'tags': [], 'substrates': []}
                 db_entry = db.Lot.insert_one(json.loads(json.dumps(jsonData)))
-                db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.getArchConfig(deviceID)}, upsert=False)
-                msg = " Created batch: " + deviceID[:8] + " and device: "+deviceID
+                db.Lot.update_one({ '_id': db_entry.inserted_id },{"$push": self.getArchConfig(deviceID,row,col)}, upsert=False)
+                msg = " Created batch: " + deviceID[:8] + " and device: "+deviceID +"  with Architecture: "+\
+                self.deviceArchCBox.itemText(self.archSubs[row,col])
             print(msg)
             logger.info(msg)
         except:
             print(" Connection with DM via Mongo cannot be established.")
 
     # Get architecture configuration files.
-    def getArchConfig(self, deviceID):
+    def getArchConfig(self, deviceID, row, col):
         try:
-            f = self.deviceArchCBox.currentText()+".json"
+            #f = self.deviceArchCBox.currentText()+".json"
+            f = self.deviceArchCBox.itemText(self.archSubs[row,col])+".json"
             with open(self.parent().config.archFolder+f, encoding='utf-8') as data_file:
                 data = json.loads(data_file.read())
             data['substrates']['label'] = deviceID
