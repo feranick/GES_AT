@@ -247,10 +247,12 @@ class SampleWindow(QMainWindow):
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
                 self.menu.addSeparator()
-                #self.menu.addAction(showJsonInfoDMAction)
                 self.menu.addAction(saveJsonInfoDMAction)
+                
+                #self.menu.addAction(showJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
                 #self.menu.addAction(checkCreateLotDMAction)
+                
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
                 viewDMEntryAction.triggered.connect(lambda: self.viewOnDM(self.tableWidget.item(row,col).text()))
@@ -566,11 +568,11 @@ class SampleWindow(QMainWindow):
             return
         try:
             #print(db.collection_names())
-            db.Lot.delete_one({'label':deviceID[:8]})
             #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
             #db.Lot.delete_one({'owner': 'MH'})
-            #for cursor in db.Measurement.find():
-            #    db.Measurement.delete_one({'substrate': deviceID})
+            db.Lot.delete_one({'label':deviceID[:8]})
+            for cursor in db.Measurement.find({'substrate':deviceID}):
+                db.Measurement.delete_one({'substrate': deviceID})
             print(" Entry for substrate", deviceID,"deleted")
         except:
             print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
@@ -586,13 +588,13 @@ class SampleWindow(QMainWindow):
             #print(db.collection_names())
             #print("\nMeasurements\n")
             #print("Number of Measurement entries: ",db.Measurement.find().count())
-            #for cursor in db.Measurement.find():
-            #    print(cursor)
+            for cursor in db.Measurement.find({'substrate':deviceID}):
+                print(cursor,"\n")
             #print("\nLots\n")
             #print("Number of Lot entries: ",db.Lot.find().count())
             #for cursor in db.Lot.find():
             #    print(cursor)
-            print(db.Lot.find_one({'label':deviceID[:8]}))
+            #print(db.Lot.find_one({'label':deviceID[:8]}))
         except:
             print(" Error!")
 
