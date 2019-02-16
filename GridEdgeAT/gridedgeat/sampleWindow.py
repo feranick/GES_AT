@@ -244,6 +244,7 @@ class SampleWindow(QMainWindow):
                 saveJsonInfoDMAction = QAction("&Save JSON from Database", self)
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
+                addTagDMAction = QAction("&Add tag to substrate in DM", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
                 self.menu.addSeparator()
@@ -252,6 +253,7 @@ class SampleWindow(QMainWindow):
                 #self.menu.addAction(showJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
                 #self.menu.addAction(checkCreateLotDMAction)
+                #self.menu.addAction(addTagDMAction)
                 
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
@@ -260,6 +262,7 @@ class SampleWindow(QMainWindow):
                 saveJsonInfoDMAction.triggered.connect(lambda: self.saveJsonInfoDM(self.tableWidget.item(row,col).text()))
                 removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
                 checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text(),row, col))
+                addTagDMAction.triggered.connect(lambda: self.addTagDM(self.tableWidget.item(row,col).text(),row, col))
         except:
             pass
 
@@ -616,6 +619,23 @@ class SampleWindow(QMainWindow):
             logger.info(msg)
         except:
             print(" Error!")
+
+    def addTagDM(self, deviceID, row, col):
+        print("\nOpening entry in DM for Lot:",deviceID[:8])
+        db, connFlag = self.connectDM()
+        if connFlag == False:
+            print("Abort")
+            return
+        try:
+            for cursor in db.Lot.find({'label':deviceID[:8]}):
+                #print(cursor,"\n")
+                print(db.Lot.find_one({'_id': cursor['_id'], 'substrates.label':deviceID}),"\n")
+                db.Lot.update_one({'_id': cursor['_id'], 'substrates.label':deviceID},{"$set" : {'substrates.$.architecture':'0_blank'}},False,True)
+                #db.Lot.update_one({'_id': cursor['_id'], 'substrates.label':deviceID},{"$set" : {'substrates.$.material':'GREAT'}},False,True)
+                #db.Lot.update_one({'_id': cursor['_id'], 'substrates.label':deviceID},{"$set" : {'substrates.$.isCollapsed':True}},False,True)
+                print(db.Lot.find_one({'_id': cursor['_id'], 'substrates.label':deviceID}),"\n")
+        except:
+            pass
 
     # View entry in DM page for substrate/device
     def checkCreateLotDM(self, deviceID, row, col):
