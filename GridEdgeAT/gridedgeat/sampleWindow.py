@@ -627,6 +627,17 @@ class SampleWindow(QMainWindow):
             print("Abort")
             return
         try:
+            # To add tags to Measurement collection
+            for cursor in db.Measurement.find({'substrate':deviceID, 'itemId' : str(1), 'name': 'JV_r'}):
+                print(cursor,"\n")
+            for i in range(1,7):
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'tracking'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+            '''
+            # To add tags to Lot collection
             for cursor in db.Lot.find({'label':deviceID[:8]}):
                 #print(cursor,"\n")
                 print(db.Lot.find_one({'_id': cursor['_id'], 'substrates.label':deviceID}),"\n")
@@ -634,6 +645,7 @@ class SampleWindow(QMainWindow):
                 #db.Lot.update_one({'_id': cursor['_id'], 'substrates.label':deviceID},{"$set" : {'substrates.$.material':'GREAT'}},False,True)
                 #db.Lot.update_one({'_id': cursor['_id'], 'substrates.label':deviceID},{"$set" : {'substrates.$.isCollapsed':True}},False,True)
                 print(db.Lot.find_one({'_id': cursor['_id'], 'substrates.label':deviceID}),"\n")
+            '''
         except:
             pass
 
