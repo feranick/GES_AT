@@ -133,6 +133,7 @@ class DataLoadDMWindow(QMainWindow):
             substrate, device, perfData, JV, acqParams = self.getDMData(row)
             try:
                 text = "Substrate: "+substrate+"  Device: "+device+ \
+                    "\nDevice Arch: "+acqParams.iloc[0]['DevArchitecture']+\
                     "\nDate/Time: "+perfData[0,0]+"  "+perfData[0,1]+\
                     "\nVoc F, Voc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,3]),float(perfData[1,3]))+ \
                     "\nJsc F, Jsc R: {0:0.2f}  {1:0.2f}".format(float(perfData[0,4]),float(perfData[1,4]))+ \
@@ -228,11 +229,12 @@ class DataLoadDMWindow(QMainWindow):
                 'Track Time': entry['Track Time'],
                 'Hold Track Time': entry['Hold Track Time'],
                 'Device Area': entry['Device Area'],
-                'Comments': entry['Comments']})
+                'Comments': entry['Comments'],
+                'DevArchitecture': entry['DevArchitecture']})
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
                 'Direction','Num Track Devices','Delay Before Meas','Track Time',
-                'Hold Track Time', 'Device Area', 'Operator','Comments']]
+                'Hold Track Time', 'Device Area', 'Operator','Comments','DevArchitecture']]
     
     # Enable right click on substrates for saving locally and delete
     def contextMenuEvent(self, event):
