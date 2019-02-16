@@ -250,7 +250,7 @@ class SampleWindow(QMainWindow):
                 self.menu.addSeparator()
                 self.menu.addAction(saveJsonInfoDMAction)
                 
-                #self.menu.addAction(showJsonInfoDMAction)
+                self.menu.addAction(showJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
                 #self.menu.addAction(checkCreateLotDMAction)
                 #self.menu.addAction(addTagDMAction)
@@ -597,7 +597,7 @@ class SampleWindow(QMainWindow):
             #print("Number of Lot entries: ",db.Lot.find().count())
             #for cursor in db.Lot.find():
             #    print(cursor)
-            print(db.Lot.find_one({'label':deviceID[:8]}))
+            #print(db.Lot.find_one({'label':deviceID[:8]}))
         except:
             print(" Error!")
 
