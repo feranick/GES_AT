@@ -250,10 +250,10 @@ class SampleWindow(QMainWindow):
                 self.menu.addSeparator()
                 self.menu.addAction(saveJsonInfoDMAction)
                 
-                self.menu.addAction(showJsonInfoDMAction)
+                #self.menu.addAction(showJsonInfoDMAction)
                 #self.menu.addAction(removeEntryDMAction)
-                self.menu.addAction(checkCreateLotDMAction)
-                self.menu.addAction(addTagDMAction)
+                #self.menu.addAction(checkCreateLotDMAction)
+                #self.menu.addAction(addTagDMAction)
                 
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
@@ -631,11 +631,11 @@ class SampleWindow(QMainWindow):
             for cursor in db.Measurement.find({'substrate':deviceID, 'itemId' : str(1), 'name': 'JV_r'}):
                 print(cursor,"\n")
             for i in range(1,7):
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_r'},{"$set" : {'DevArchitecture':'ITO-SnO2-Perovsk-Spiro-MoOx-Al'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_f'},{"$set" : {'DevArchitecture':'ITO-SnO2-Perovsk-Spiro-MoOx-Al'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_f'},{"$set" : {'DevArchitecture':'ITO-SnO2-Perovsk-Spiro-MoOx-Al'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_r'},{"$set" : {'DevArchitecture':'ITO-SnO2-Perovsk-Spiro-MoOx-Al'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'tracking'},{"$set" : {'DevArchitecture':'ITO-SnO2-Perovsk-Spiro-MoOx-Al'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'tracking'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
             '''
             # To add tags to Lot collection
             for cursor in db.Lot.find({'label':deviceID[:8]}):
