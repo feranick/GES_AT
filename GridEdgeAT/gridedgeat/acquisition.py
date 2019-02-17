@@ -52,7 +52,7 @@ class Acquisition(QObject):
                 'Hold Track Time': [self.parent().acquisitionwind.holdTrackTText.text()],
                 'Device Area': [self.parent().samplewind.deviceAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()],
-                'DevArchitecture': self.parent().samplewind.deviceArchCBox.currentText()},)
+                'DevArchitecture': [self.parent().samplewind.deviceArchCBox.currentText()]},)
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',

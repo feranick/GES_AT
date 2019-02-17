@@ -574,8 +574,8 @@ class SampleWindow(QMainWindow):
             #db.Lot.delete_one({'_id': '59973a1b70be99396fb85357'})
             #db.Lot.delete_one({'owner': 'MH'})
             db.Lot.delete_one({'label':deviceID[:8]})
-            #for cursor in db.Measurement.find({'substrate':deviceID}):
-            #    db.Measurement.delete_one({'substrate': deviceID})
+            for cursor in db.Measurement.find({'substrate':deviceID}):
+                db.Measurement.delete_one({'substrate': deviceID})
             print(" Entry for substrate", deviceID,"deleted")
         except:
             print(" Error in deleting entry for substrate", deviceID[:8],". Aborting")
@@ -631,11 +631,11 @@ class SampleWindow(QMainWindow):
             for cursor in db.Measurement.find({'substrate':deviceID, 'itemId' : str(1), 'name': 'JV_r'}):
                 print(cursor,"\n")
             for i in range(1,7):
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_f'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_r'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
-                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'tracking'},{"$set" : {'DevArchitecture':'0_blank'}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_r'},{"$set" : {'DevArchitecture':['0_blank']}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_f'},{"$set" : {'DevArchitecture':['0_blank']}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_f'},{"$set" : {'DevArchitecture':['0_blank']}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'JV_dark_r'},{"$set" : {'DevArchitecture':['0_blank']}},False,True)
+                db.Measurement.update({'substrate':deviceID, 'itemId' : str(i), 'name': 'tracking'},{"$set" : {'DevArchitecture':['0_blank']}},False,True)
             '''
             # To add tags to Lot collection
             for cursor in db.Lot.find({'label':deviceID[:8]}):
