@@ -53,9 +53,6 @@ class Acquisition(QObject):
                 'Device Area': [self.parent().samplewind.deviceAreaText.text()],
                 'Comments': [self.parent().samplewind.commentsText.text()],
                 'DevArchitecture': [self.parent().samplewind.deviceArchCBox.currentText()]},)
-        
-        #print(pdframe = pdframe['DevArchitecture'].replace(['0_blank'],'TEST'))
-        #print(pdframe['DevArchitecture'])
 
         return pdframe[['Acq Soak Voltage','Acq Soak Time','Acq Hold Time',
                 'Acq Step Voltage','Acq Rev Voltage','Acq Forw Voltage','Architecture',
