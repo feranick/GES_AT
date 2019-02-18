@@ -245,15 +245,22 @@ class SampleWindow(QMainWindow):
                 removeEntryDMAction = QAction("&Remove Entry from Database", self)
                 checkCreateLotDMAction = QAction("&Add substrate to batch DM", self)
                 addTagDMAction = QAction("&Add tag to substrate in DM", self)
+                setArchDfAcqParamsAction = QAction("&Check DataFrame Acq", self)
                 self.menu.addAction(selectCellAction)
                 self.menu.addAction(viewDMEntryAction)
                 self.menu.addSeparator()
                 self.menu.addAction(saveJsonInfoDMAction)
                 
-                #self.menu.addAction(showJsonInfoDMAction)
-                #self.menu.addAction(removeEntryDMAction)
-                #self.menu.addAction(checkCreateLotDMAction)
-                #self.menu.addAction(addTagDMAction)
+                '''
+                self.menu.addAction(showJsonInfoDMAction)
+                self.menu.addSeparator()
+                self.menu.addAction(removeEntryDMAction)
+                self.menu.addSeparator()
+                self.menu.addAction(checkCreateLotDMAction)
+                self.menu.addAction(addTagDMAction)
+                self.menu.addSeparator()
+                self.menu.addAction(setArchDfAcqParamsAction)
+                '''
                 
                 self.menu.popup(QCursor.pos())
                 selectCellAction.triggered.connect(lambda: self.selectCell(row,col))
@@ -263,8 +270,15 @@ class SampleWindow(QMainWindow):
                 removeEntryDMAction.triggered.connect(lambda: self.removeEntryDM(self.tableWidget.item(row,col).text()))
                 checkCreateLotDMAction.triggered.connect(lambda: self.checkCreateLotDM(self.tableWidget.item(row,col).text(),row, col))
                 addTagDMAction.triggered.connect(lambda: self.addTagDM(self.tableWidget.item(row,col).text(),row, col))
+                setArchDfAcqParamsAction.triggered.connect(lambda: self.setArchDfAcqParams(row, col))
         except:
             pass
+
+    # Logic to set correct architecture in dfAqcParams
+    def setArchDfAcqParams(self, dfAqcParams, row, col):
+        arch = self.deviceArchCBox.itemText(self.archSubs[row,col])
+        #dfAqcParams = self.parent().acquisition.getAcqParameters()
+        dfAqcParams['DevArchitecture'].replace(to_replace=['0_blank'], value=arch, inplace=True)
 
     # Logic to disable non-working cells
     def disableBrokenCells(self, brokenCells):
