@@ -648,9 +648,10 @@ class ResultsWindow(QMainWindow):
 ####################################################################
 class CustomToolbar(NavigationToolbar):
     def __init__(self, figure_canvas, figure, parent= None):
+        self.maxY = 5.0
         self.figure = figure
         self.figure_canvas = figure_canvas
-        self.toolitems +=(('Log/Lin', "Log/Lin scale", "Log/Lin scale", 'log_lin_scale'),)
+        self.toolitems +=(('Log/Lin', "Log/Lin scale", "Log/Lin scale", 'log_lin_scale'),('Toggle Max Y', "Toggle Max Y", "Toggle Max Y", 'max_ylim'))
         NavigationToolbar.__init__(self, figure_canvas, parent=parent)
 
     def log_lin_scale(self):
@@ -659,4 +660,14 @@ class CustomToolbar(NavigationToolbar):
                 self.figure.gca().set_yscale('linear')
             else:
                 self.figure.gca().set_yscale('log')
+            self.figure_canvas.draw()
+
+    def max_ylim(self):
+        if len(self.figure.gca().lines) > 2:
+            if self.figure.gca().get_ylim()[1] == self.maxY:
+                self.figure.gca().set_ylim(top=None)
+                self.figure.gca().relim()
+                self.figure.gca().autoscale()
+            else:
+                self.figure.gca().set_ylim(top=self.maxY)
             self.figure_canvas.draw()
