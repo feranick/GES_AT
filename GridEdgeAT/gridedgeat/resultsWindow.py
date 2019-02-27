@@ -580,7 +580,7 @@ class ResultsWindow(QMainWindow):
                 print("Open saved device data from: ", filename)
                 dftot = pd.read_csv(filename, na_filter=False)
                 deviceID = dftot.at[0,'Device']
-                perfData = dftot.values[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
+                perfData = dftot.to_numpy()[range(0,np.count_nonzero(dftot['Acq Date']))][:,range(1,11)]
                 JV = dftot.values[range(0,np.count_nonzero(dftot['V_r']))][:,np.arange(11,15)].astype(float)
                 dfAcqParams = dftot.loc[0:1, 'Acq Soak Voltage':'Comments']
                 self.plotData(deviceID, perfData, JV)
