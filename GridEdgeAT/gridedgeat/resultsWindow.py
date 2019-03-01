@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 
 from .dataManagement import *
 from .queryDMWindow import *
-from .diodeEquation import *
+from .fitMethods import *
 from . import logger
 
 ####################################################################
@@ -309,7 +309,9 @@ class ResultsWindow(QMainWindow):
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
             fitDiodeEquationAction = QAction('Fit with Diode Equation (EXPERIMENTAL)...', self)
-            selectRemoveAllAction.setShortcut("Ctrl+e")
+            fitDiodeEquationAction.setShortcut("Ctrl+e")
+            fitInterpolateAction = QAction('Fit with Interpolate...', self)
+            fitInterpolateAction.setShortcut("Ctrl+i")
             self.menu.addAction(selectCellRemoveAction)
             self.menu.addAction(selectRemoveAllAction)
             self.menu.addSeparator()
@@ -317,6 +319,7 @@ class ResultsWindow(QMainWindow):
             self.menu.addAction(selectCellSaveAction)
             self.menu.addAction(selectCellSaveAllAction)
             self.menu.addSeparator()
+            self.menu.addAction(fitInterpolateAction)
             self.menu.addAction(fitDiodeEquationAction)
             self.menu.addSeparator()
             self.menu.addAction(viewDMEntryAction)
@@ -332,6 +335,7 @@ class ResultsWindow(QMainWindow):
             selectCellRemoveAction.triggered.connect(lambda: self.selectDeviceRemove(selectedRows))
             selectRemoveAllAction.triggered.connect(lambda: self.clearPlots(True))
             fitDiodeEquationAction.triggered.connect(lambda: self.fitDiodeEquation(selectedRows))
+            fitInterpolateAction.triggered.connect(lambda: self.fitInterpolate(selectedRows))
             viewDMEntryAction.triggered.connect(lambda: self.parent().samplewind.viewOnDM(self.resTableWidget.selectedItems()[0].text()))
 
     # Logic to save locally devices selected from results table
@@ -366,14 +370,23 @@ class ResultsWindow(QMainWindow):
     
     # Logic to Fit the JV curve using the Diode Equation
     def fitDiodeEquation(self, selectedRows):
-        DE = DiodeEquation(self)
-        DE.results.connect(lambda msg: print(msg))
-        DE.results.connect(lambda msg: logger.info(msg))
-        #DE.func.connect(lambda func: [DE.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
-        DE.JV_fit.connect(lambda JV: self.plotJVresp(JV,False))
-        [DE.fitDE(self.dfTotJV.iat[0,row]) for row in selectedRows]
-        #DE.start()
-
+        FM = FitMethods(self)
+        FM.results.connect(lambda msg: print(msg))
+        FM.results.connect(lambda msg: logger.info(msg))
+        #DE.func.connect(lambda func: [FM.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
+        FM.JV_fit.connect(lambda JV: self.plotJVresp(JV,False))
+        [FM.fitDE(self.dfTotJV.iat[0,row]) for row in selectedRows]
+        #FM.start()
+        
+    # Logic to Fit the JV curve using the Diode Equation
+    def fitInterpolate(self, selectedRows):
+        FM = FitMethods(self)
+        FM.results.connect(lambda msg: print(msg))
+        FM.results.connect(lambda msg: logger.info(msg))
+        #DE.func.connect(lambda func: [FM.fitDE(func,self.dfTotJV.iat[0,row]) for row in selectedRows])
+        FM.JV_fit.connect(lambda JV: self.plotJVresp(JV,False))
+        [FM.fitInterp(self.dfTotJV.iat[0,row]) for row in selectedRows]
+        #FM.start()
 
     # Add row and initialize it within the table
     def setupResultTable(self):

@@ -1,10 +1,7 @@
 '''
-diodeEquation.py
+fitMethods.py
 ----------------
-Classes for providing advanced fitting through the Diode Equation
-for the resultsWindow
-
-From: https://github.com/mutovis/analysis-software
+Classes for providing advanced fitting for the resultsWindow
 
 Copyright (C) 2017-2019 Nicola Ferralis <ferralis@mit.edu>
 
@@ -18,7 +15,7 @@ import numpy as np
 import pandas as pd
 import time, random, math
 from lmfit import Model
-from scipy import special
+from scipy import (special, interpolate)
 import sympy, scipy
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication,QAbstractItemView)
@@ -27,13 +24,13 @@ from PyQt5.QtCore import (Qt,QObject, QThread, pyqtSlot, pyqtSignal)
 ####################################################################
 #   Diode Equation
 ####################################################################
-class DiodeEquation(QThread):
+class FitMethods(QThread):
     results = pyqtSignal(str)
     func = pyqtSignal(object)
     JV_fit = pyqtSignal(np.ndarray)
     
     def __init__(self, parent=None):
-        super(DiodeEquation, self).__init__(parent)
+        super(FitMethods, self).__init__(parent)
 
     def __del__(self):
         self.wait()
@@ -41,6 +38,8 @@ class DiodeEquation(QThread):
     def stop(self):
         self.terminate()
 
+    # fit using Diode Equation
+    # From: https://github.com/mutovis/analysis-software
     def fitDE(self,JV):
     #def fitDE(self,cellEqn,JV):
         def cellEqn(V,n,Rs,Rsh,I0,Iph):
@@ -103,6 +102,21 @@ class DiodeEquation(QThread):
         JVnew_r = np.hstack((np.array([vv_r]).T,np.array([ii_r_fit]).T))
         JVnew = np.hstack((JVnew_f,JVnew_r))
         self.JV_fit.emit(JVnew)
+       
+    # fit using scipy interpolate.interp1d
+    def fitInterp(self,JV):
+        vv_f = JV[:,0]
+        ii_f = JV[:,1]
+        vv_r = JV[:,2]
+        ii_r = JV[:,3]
+        f_f = interpolate.interp1d(vv_f,ii_f)
+        f_r = interpolate.interp1d(vv_r,ii_r)
+        
+        JVnew_f = np.hstack((np.array([vv_f]).T,np.array([f_f(vv_f)]).T))
+        JVnew_r = np.hstack((np.array([vv_r]).T,np.array([f_r(vv_r)]).T))
+        JVnew = np.hstack((JVnew_f,JVnew_r))
+        self.JV_fit.emit(JVnew)
+    
 
     '''
     def getDEeq(self):
