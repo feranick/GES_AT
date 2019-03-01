@@ -308,10 +308,10 @@ class ResultsWindow(QMainWindow):
             selectCellRemoveAction.setShortcut("Del")
             selectRemoveAllAction = QAction('Remove All...', self)
             selectRemoveAllAction.setShortcut("Shift+Del")
+            fitInterpolateAction = QAction('Fit with scipy.interpolate...', self)
+            fitInterpolateAction.setShortcut("Ctrl+i")
             fitDiodeEquationAction = QAction('Fit with Diode Equation (EXPERIMENTAL)...', self)
             fitDiodeEquationAction.setShortcut("Ctrl+e")
-            fitInterpolateAction = QAction('Fit with Interpolate...', self)
-            fitInterpolateAction.setShortcut("Ctrl+i")
             self.menu.addAction(selectCellRemoveAction)
             self.menu.addAction(selectRemoveAllAction)
             self.menu.addSeparator()
@@ -378,7 +378,7 @@ class ResultsWindow(QMainWindow):
         [FM.fitDE(self.dfTotJV.iat[0,row]) for row in selectedRows]
         #FM.start()
         
-    # Logic to Fit the JV curve using the Diode Equation
+    # Logic to Fit the JV curve using scipy.interpolate.interp1d
     def fitInterpolate(self, selectedRows):
         FM = FitMethods(self)
         FM.results.connect(lambda msg: print(msg))
