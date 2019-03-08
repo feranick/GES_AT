@@ -444,7 +444,7 @@ class SampleWindow(QMainWindow):
     
     # Check if each cell is occupied or not by a substrate and show in table.
     def checkLoadedCells(self):
-        self.clearCells()
+        #self.clearCells()
         # Activate switchbox
         msg = "Activating switchbox and sourcemeter..."
         logger.info(msg)
@@ -478,7 +478,6 @@ class SampleWindow(QMainWindow):
                     current = self.source_meter.read_values(self.parent().config.deviceArea)[1]
                     avCurrent = (avCurrent*(dev-1)+current)/dev
                     print("(sub,dev): ("+str(i)+str(j)+str(dev)+") - Current: ",current," - avCurrent",avCurrent)
-                print(avCurrent)
                 if avCurrent>self.parent().config.currentCheckCell:
                     self.colorCellAcq(i,j,"cyan")
                 else:
@@ -491,7 +490,7 @@ class SampleWindow(QMainWindow):
             del self.switch_box
             self.source_meter.off()
             del self.source_meter
-            msg = "Switchbox and Sourcemeter deactivated"
+            msg = " Switchbox and Sourcemeter deactivated"
         except:
             msg = " Failed to deactivate Switchbox and Sourcemeter"
         
